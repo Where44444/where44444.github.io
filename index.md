@@ -1,37 +1,13 @@
- Welcome to GitHub Pages
+## Alex's Computer Repairs - Rexburg, Idaho
 
-You can use the [editor on GitHub](https://github.com/Where44444/where44444.github.io/edit/master/index.md) to maintain and preview the content for your website in Markdown files.
+Computer software and hardware repairs. Really any problem you may be having with your windows computer you can call me to fix. I have fixed hardware, missing drivers, re-installed operating systems, optimized overall computer performance, and found solutions for everyday computer problems. I charge $30 if I can fix your system, if I can't, there's no fee. I also offer a 25% discount if you’re a Student. I can come to you or you can bring the computer to me. I'm based in Rexburg. I go as far north as Ashton, and as far south as Idaho Falls, and anywhere basically 30 miles east or west of Rexburg.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+> I CANNOT fix Macs.
 
-### Markdown
+## Appointment Times
+> Contact me to schedule an appointment, let me know your availability and a preferred time.
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+## Contact Info
+### Call or text Alex: (541) 234-3249
+### Email: alexjob44@gmail.com
 
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/Where44444/where44444.github.io/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.

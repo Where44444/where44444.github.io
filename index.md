@@ -8,6 +8,8 @@ Computer software and hardware repairs. Really any problem you may be having wit
 > Contact me to schedule an appointment, let me know your availability and a preferred time.
 
 ## Contact Info
-### Call or text Alex: (541) 234-3249
-### Email: alexjob44@gmail.com
+Call or Text at:
+### (541) 234-3249
+### alexjob44@gmail.com
 
+<img src="Motherboard.jpg" alt="hi" class="inline"/>

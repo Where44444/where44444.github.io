@@ -1,4 +1,4 @@
-<img src="Me.jpg" alt="hi" class="inline" style="width:50%; height:50%;"/>
+<img src="Me.jpg" alt="hi" class="inline" style="width:10%; height:10%;"/>
 
 Computer software and hardware repairs. Really any problem you may be having with your windows computer you can call me to fix. I have fixed hardware, found missing drivers, re-installed operating systems, optimized overall computer performance, and found solutions for everyday computer problems. I charge $30 if I can fix your system, if I can't, there's no fee. I also offer a 25% discount if you're a Student. I can come to you or you can bring the computer to me. I'm based in Eugene, can go to Springfield too.
 

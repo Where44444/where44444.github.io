@@ -1,4 +1,4 @@
-<img src="Me.jpg" alt="hi" style="display:block; width:40%; height:40%; margin-left:auto; margin-right:auto;"/>
+<img src="Me 2.jpg" alt="hi" style="display:block; width:40%; height:40%; margin-left:auto; margin-right:auto;"/>
 
 Computer software and hardware repairs. Really any problem you may be having with your windows computer you can call me to fix. I have fixed hardware, missing drivers, re-installed operating systems, optimized overall computer performance, and found solutions for everyday computer problems. I charge $30 if I can fix your system, if I can't, there's no fee. I also offer a 25% discount if your a Student. I can come to you or you can bring the computer to me. I'm based in Rexburg. I go as far north as Ashton, and as far south as Idaho Falls, and anywhere basically 30 miles east or west of Rexburg.
 

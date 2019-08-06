@@ -12,4 +12,4 @@ Call or Text at:
 
 <img src="Programming2.png" alt="hi" class="inline"/>
 
-<a href="index.md">Also See my Alex's Computer Repairs page</a>
+<a href="repairs.html">Also See my Alex's Computer Repairs page</a>

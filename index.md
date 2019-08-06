@@ -12,7 +12,7 @@ I do not sell parts.
 ## Contact Info
 Call or Text at:
 ### (541) 234-3249
-### alexjob44@gmail.com
+### alexcharles44444@gmail.com
 
 <img src="Motherboard.jpg" alt="hi" class="inline"/>
 

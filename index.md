@@ -44,3 +44,5 @@ storage medium, so I sold them a flash drive and copied all their files to it.
 
 ### January 2018
 Client needed to reinstall Windows on two laptops that were corrupted. I got both working and ready to use.
+
+<a href="software.md">Also See my Alex’s Software and App Development page</a>

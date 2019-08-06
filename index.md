@@ -14,7 +14,7 @@ Call or Text at:
 ### (541) 234-3249
 ### alexcharles44444@gmail.com
 
-<img src="Motherboard.jpg" alt="hi" class="inline"/>
+<img src="Programming.png" alt="hi" class="inline"/>
 
 ## Recent Fixes
 ### December 2018

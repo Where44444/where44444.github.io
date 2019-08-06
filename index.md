@@ -10,6 +10,6 @@ Call or Text at:
 ### (541) 234-3249
 ### alexcharles44444@gmail.com
 
-<img src="Programming.png" alt="hi" class="inline"/>
+<img src="Programming2.png" alt="hi" class="inline"/>
 
 <a href="index.md">Also See my Alex's Computer Repairs page</a>

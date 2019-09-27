@@ -1,13 +1,38 @@
 <!DOCTYPE html>
 <html>
 <head>
+<script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
 <script>
+var galaxyRot = 0;
+var animationSpeed = 1000/60;
+
 function onLoadCheck() {
 
 }
+
+$(document).ready(function(){
+
+function anim1(){
+        $("#galaxy").css('transform','scaleY(.4) rotate(' + galaxyRot + 'deg)');
+        galaxyRot -= 0.05;
+        setTimeout(function(){
+          anim1();
+       }, animationSpeed);
+    }
+
+
+anim1();
+
+});
 </script>
+<style>
+    body {
+  background-color: #353535;
+}
+</style>
 </head>
 <body onload="onLoadCheck()">
-<img src="galactic_conquest/space_small.jpg"></img>
+<img src="galactic_conquest/space_small.jpg" style="position:absolute; top:0px; left:0px;"></img>
+<img id="galaxy" src="galactic_conquest/galaxy_cut_fade.png" style="position:absolute; top:50px; left:415px;"></img>
 </body>
 </html>

@@ -1,8 +1,13 @@
 <!DOCTYPE html>
 <html>
+<title>Battlefront 2 2017 Galactic Conquest Web App</title>
 <head>
 <script src="https://code.jquery.com/jquery-1.7.2.min.js"></script>
 <script>
+//Saves
+
+
+//Temps
 var galaxyRot = 0;
 var animationSpeed = 1000/60;
 
@@ -13,7 +18,7 @@ function onLoadCheck() {
 $(document).ready(function(){
 
 function anim1(){
-        $("#galaxy").css('transform','scaleY(.4) rotate(' + galaxyRot + 'deg)');
+        $("#galaxy").css('transform','scaleX(1.5) scaleY(.6) rotate(' + galaxyRot + 'deg)');
         galaxyRot -= 0.05;
         setTimeout(function(){
           anim1();
@@ -29,9 +34,23 @@ anim1();
     body {
   background-color: #353535;
 }
+
+@font-face {
+  font-family: 'copperplate';
+  src: url('galactic_conquest/copperplate.ttf')  format('truetype');
+}
 </style>
 </head>
 <body onload="onLoadCheck()">
+<div id="team_select">
+<div style="background-color: black; opacity: 0.7; width: 1400px; height: 800px; position: absolute; top: 500px; left: 500px; z-index: 100;"></div>
+<img class="button_long_2" src="galactic_conquest/button_grey_long.png" style="width: 1300px; height: 275px; position: absolute; top:600px; left:550px; z-index: 101;" onclick="window.alert('Test');"
+onmouseover="this.src='galactic_conquest/button_yellow_glow_long.png'"
+onmouseout="this.src='galactic_conquest/button_grey_long.png'"></img>
+<div style="width: 1500px; height: 275px; position: absolute; top:680px; left:470px; z-index: 102; font-size: 120px; font-family: copperplate; transform: scaleX(.6)">GALACTIC REPUBLIC</div>
+<!--<button style="opacity: 0; position:absolute; top:600px; left:550px; width: 1300px; height: 275px; z-index: 102;" onclick="window.alert('TEST');"></button> !-->
+
+</div>
 <img src="galactic_conquest/space_small.jpg" style="position:absolute; top:0px; left:0px;"></img>
 <img id="galaxy" src="galactic_conquest/galaxy_cut_fade.png" style="position:absolute; top:50px; left:415px;"></img>
 </body>

@@ -19,4 +19,5 @@ Information we gather:
 
 3. Data Collection Methods
 -All info you provide to us is provided through a form in the app that a manager or admin fills out.
--Employee ID's and names are provided to us after you give the app permission to access your contacts. They are gathered automatically from the Clover employee list.
+-Employee ID's and names are provided to us after you give the app permission to access your contacts. 
+They are gathered automatically from the Clover employee list.

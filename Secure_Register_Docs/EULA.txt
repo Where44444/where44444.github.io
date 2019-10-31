@@ -1,9 +1,18 @@
 End User License Agreement:
+
 1. Introduction
-This End user License Agreement (“EULA”) is a legal agreement that sets forth the provisions under which Alex's Software Development is willing to grant to you, as an update, upgrade, or new product offering. By using, downloading, or installing this software, you agree to the terms of the EULA. If you don’t agree, don’t use the software.
+This End user License Agreement ("EULA") is a legal agreement that sets forth the provisions under which 
+Alex's Software Development is willing to grant to you, as an update, upgrade, or new product offering. 
+By using, downloading, or installing this software, you agree to the terms of the EULA. If you don’t agree, 
+don’t use the software.
+
 2. Grant of License
-This software is being sold as a limited license, and not for resale or any other use than by the original purchaser and their employees.
+This software is being sold as a limited license, and not for resale or any other use than by the original 
+purchaser and their employees.
+
 3. Limitation on Reverse Engineering
-Except to the extent that it’s permitted by applicable law, you are not permitted to reverse engineer, decompile, disassemble, or create derivate works of or modify the software product.
+Except to the extent that it’s permitted by applicable law, you are not permitted to reverse engineer, 
+decompile, disassemble, or create derivate works of or modify the software product.
+
 4. Termination of Use
 If any terms of the EULA are violated, the software must be completely removed from the device.

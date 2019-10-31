@@ -1,0 +1,22 @@
+Privacy Policy:
+1. Information We Collect
+
+Information you provide us directly:
+-The name of your business
+-The address of your business
+-The business phone number
+-The business email address
+-The emergency phone number for your area
+-Any additional comments you want emergency services to see
+
+Information we gather:
+-The name of the employee logged in
+-The ID of the employee logged in
+
+2. Information Usage
+-Your information won't be used for any purpose except to send to emergency services when needed.
+-The employee ID is only used to verify the identity of the employee that logs in to the app.
+
+3. Data Collection Methods
+-All info you provide to us is provided through a form in the app that a manager or admin fills out.
+-Employee ID's and names are provided to us after you give the app permission to access your contacts. They are gathered automatically from the Clover employee list.

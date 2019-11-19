@@ -2,472 +2,387 @@
 <html>
 <title>Battlefront 2 2017 Galactic Conquest Web App</title>
 <head>
-<script src="https://code.jquery.com/jquery-1.7.2.min.js"></script>
-<script>
-//Temps
-var galaxyRot = 0;
-var loopSize = 0.2;
-var loopOpacity = 1.8;
-var animationSpeed = 1000/60;
-var selectedPlanet = 'geonosis';
-var selectedLoopId = '#loop_geonosis'
-var pointPosX = new Map();
-var pointPosY = new Map();
-var points = ['felucia' ,
-              'geonosis',
-              'kamino'  ,
-              'kashyyyk',
-              'naboo'   ,
-              'point1'  ,
-              'point2'  ,
-              'point3'  ,
-              'point4'  ,
-              'point5'  ,
-              'point6'  ,
-              'point7'  ,
-              'point8'  ,
-              'point9'  ,
-              'point10' ,
-              'point11' ,
-              'point12' ,
-              'point13' ,
-              'point14' ,
-              'point15' ,
-              'point16' ,
-              'point17' ,
-              'point18' ];
-var pointPairs = [ ["point1",  "point2"  ], 
-                   ["point2",  "point18" ], 
-                   ["point18", "point3"  ], 
-                   ["point3",  "felucia" ], 
-                   ["felucia", "point17" ], 
-                   ["point17", "kashyyyk"], 
-                   ["kashyyyk","point18" ], 
-                   ["kashyyyk","point4"  ], 
-                   ["kashyyyk","point7"  ], 
-                   ["point17", "kamino"  ], 
-                   ["kamino",  "point7"  ], 
-                   ["kamino",  "point5"  ], 
-                   ["point5",  "geonosis"], 
-                   ["geonosis","point6"  ], 
-                   ["point7" , "naboo"   ], 
-                   ["point6",  "naboo"   ], 
-                   ["naboo",   "point9"  ], 
-                   ["point6",  "point8"  ], 
-                   ["naboo",   "point4"  ], 
-                   ["point2" , "point4"  ], 
-                   ["point1",  "point4"  ], 
-                   ["point9",  "point8"  ], 
-                   ["point16", "point9"  ], 
-                   ["point10", "point8"  ], 
-                   ["point10", "point16" ], 
-                   ["point14", "point16" ], 
-                   ["point11", "point10" ], 
-                   ["point11", "point14" ], 
-                   ["point11", "point12" ], 
-                   ["point12", "point13" ], 
-                   ["point13", "point14" ], 
-                   ["point13", "point15" ], 
-                   ["point15", "point1"  ] ];
-
-//Saves
-var team = "republic"; //OR cis
-var state = "team_select";
-var planetOwners = new Map();
-var dreadnoughtPlanet = "geonosis";
-var venatorPlanet = "kamino";
-
-function onLoadCheck() {
-  planetOwners.set('felucia',  'cis');
-  planetOwners.set('geonosis', 'cis');
-  planetOwners.set('kamino'  , 'cis');
-  planetOwners.set('kashyyyk', 'cis');
-  planetOwners.set('naboo'   , 'cis');
-
-  pointPosX.set('felucia' , 1985);
-  pointPosX.set('geonosis', 1667);
-  pointPosX.set('kamino'  , 1995);
-  pointPosX.set('kashyyyk', 1789);
-  pointPosX.set('naboo'   , 1478);
-  pointPosX.set('point1'  , 1207);
-  pointPosX.set('point2'  , 1496);
-  pointPosX.set('point3'  , 1852);
-  pointPosX.set('point4'  , 1514);
-  pointPosX.set('point5'  , 2010);
-  pointPosX.set('point6'  , 1468);
-  pointPosX.set('point7'  , 1748);
-  pointPosX.set('point8'  , 1267);
-  pointPosX.set('point9'  , 1206);
-  pointPosX.set('point10' ,  876);
-  pointPosX.set('point11' ,  757);
-  pointPosX.set('point12' ,  544);
-  pointPosX.set('point13' ,  702);
-  pointPosX.set('point14' ,  933);
-  pointPosX.set('point15' , 1019);
-  pointPosX.set('point16' , 1028);
-  pointPosX.set('point17' , 1979);
-  pointPosX.set('point18' , 1723);
-
-  pointPosY.set('felucia' ,  725);
-  pointPosY.set('geonosis', 1005);
-  pointPosY.set('kamino'  ,  866);
-  pointPosY.set('kashyyyk',  749);
-  pointPosY.set('naboo'   ,  863);
-  pointPosY.set('point1'  ,  671);
-  pointPosY.set('point2'  ,  615);
-  pointPosY.set('point3'  ,  648);
-  pointPosY.set('point4'  ,  738);
-  pointPosY.set('point5'  ,  993);
-  pointPosY.set('point6'  ,  997);
-  pointPosY.set('point7'  ,  861);
-  pointPosY.set('point8'  ,  1096);
-  pointPosY.set('point9'  ,  954);
-  pointPosY.set('point10' ,  1017);
-  pointPosY.set('point11' ,  931);
-  pointPosY.set('point12' ,  949);
-  pointPosY.set('point13' ,  788);
-  pointPosY.set('point14' ,  871);
-  pointPosY.set('point15' ,  684);
-  pointPosY.set('point16' ,  938);
-  pointPosY.set('point17' ,  785);
-  pointPosY.set('point18' ,  681);
-
-  //Generate lines
-  var i = 0;
-  for(i = 0; i < 33; i++){
-    var size0 = (pointPosY.get(pointPairs[i][0])/10);
-    var halfsize0 = size0/2;
-    var size1 = (pointPosY.get(pointPairs[i][1])/10);
-    var halfsize1 = size1/2;
-    document.getElementById(pointPairs[i][0]).style.width  = size0 + "px";
-    document.getElementById(pointPairs[i][0]).style.height = size0 + "px";
-    document.getElementById(pointPairs[i][1]).style.width  = size1 + "px";
-    document.getElementById(pointPairs[i][1]).style.height = size1 + "px";
-    document.getElementById("loop_" + pointPairs[i][0]).style.width  = size0 + "px";
-    document.getElementById("loop_" + pointPairs[i][0]).style.height = size0 + "px";
-    document.getElementById("loop_" + pointPairs[i][1]).style.width  = size1 + "px";
-    document.getElementById("loop_" + pointPairs[i][1]).style.height = size1 + "px";
-    var x0 = pointPosX.get(pointPairs[i][0]) + halfsize0;
-    var x1 = pointPosX.get(pointPairs[i][1]) + halfsize1;
-    var y0 = pointPosY.get(pointPairs[i][0]) + halfsize0;
-    var y1 = pointPosY.get(pointPairs[i][1]) + halfsize1;
-    var xdist = x0 - x1;
-    var ydist = y0 - y1;
-    var dist = Math.floor(Math.sqrt(xdist * xdist + ydist * ydist));
-    document.getElementById(pointPairs[i][0] + "_" + pointPairs[i][1]).style.width = dist + "px";
-    document.getElementById(pointPairs[i][0] + "_" + pointPairs[i][1]).style.left  = Math.floor(xdist/2) + x1 + "px";
-    document.getElementById(pointPairs[i][0] + "_" + pointPairs[i][1]).style.top   = Math.floor(ydist/2) + y1 + "px";
-    document.getElementById(pointPairs[i][0] + "_" + pointPairs[i][1]).style.transform = "translateX(" + dist/-2 + "px) rotate(" + ((Math.atan(xdist/ydist) * (-180/Math.PI)) - 90) + "deg)";
-  }
-
-  dreadnoughtPlanet = getRandomPoint();
-  venatorPlanet = getRandomPoint();
-  setShips();
-}
-
-function getRandomPoint(){
-  var num = Math.floor(Math.random() * 33);
-  if(num == 33)
-     num--;
-  return points[num];
-}
-
-$(document).ready(function(){
-
-function galaxy_Rotate_Anim(){
-        $("#galaxy").css('transform','scaleX(1.5) scaleY(.6) rotate(' + galaxyRot + 'deg)');
-        galaxyRot -= 0.05;
-        if(galaxyRot < -1080)
-          galaxyRot = -0.05;
-        setTimeout(function(){
-         galaxy_Rotate_Anim();
-       }, animationSpeed);
-    }
-
-    function selectedPlanetLoop(){
-        $(selectedLoopId).css('transform','scaleX(' + loopSize + ') scaleY(' + loopSize + ')');
-        $(selectedLoopId).css('opacity',loopOpacity);
-        loopSize += 0.01;
-        loopOpacity -= 0.02;
-        if(loopSize > 1){
-          loopSize = 0.2;
-          loopOpacity = 1.8;
-        }
-        setTimeout(function(){
-          selectedPlanetLoop();
-       }, animationSpeed);
-    }
-
- selectedPlanetLoop();
- galaxy_Rotate_Anim();
-
-});
-
-function hideTeamSelect(team2) {
-  if(state == "team_select"){
-    document.getElementById("team_select").style.display = "none";
-    state = "galaxy_view";
-    team = team2;
-    if(team2 == 'republic'){
-      planetOwners.set('felucia',  'cis');
-      planetOwners.set('geonosis', 'cis');
-      planetOwners.set('kamino'  , 'republic');
-      planetOwners.set('kashyyyk', 'cis');
-      planetOwners.set('naboo'   , 'cis');
-    }
-    else{
-      planetOwners.set('felucia',  'republic');
-      planetOwners.set('geonosis', 'cis');
-      planetOwners.set('kamino'  , 'republic');
-      planetOwners.set('kashyyyk', 'republic');
-      planetOwners.set('naboo'   , 'republic');
-    }
-    initPlanetStyles();
-  }
-}
-
-function initPlanetStyles(){
-    for (var [planet, team2] of planetOwners) {
-      if(team2 == team){
-        document.getElementById(planet).src='galactic_conquest/blue_planet_idle.png';
-        document.getElementById("loop_" + planet).src='galactic_conquest/blue_planet_loop.png';
-      }
-      else{
-        document.getElementById(planet).src='galactic_conquest/red_planet_idle.png';
-        document.getElementById("loop_" + planet).src='galactic_conquest/red_planet_loop.png';
-      }
-    }
-    document.getElementById("loop_" + selectedPlanet).style.display = "block";
-    setLineStyles(selectedPlanet, selectedPlanet);
-}
-
-function setLineStyles(oldPlanet, newPlanet){
-  var i = 0;
-    for(i = 0; i < 33; i++){
-      if(pointPairs[i][0] == oldPlanet || pointPairs[i][1] == oldPlanet){
-        var idP = pointPairs[i][0] + "_" + pointPairs[i][1];
-        //document.getElementById(idP).src = 'galactic_conquest/grey_line.png';
-        document.getElementById(idP).style.opacity = "0.2";
-        //document.getElementById(idP).style.height  = "3px";
-      }
-    }
-
-    i = 0;
-    for(i = 0; i < 33; i++){
-      if(pointPairs[i][0] == newPlanet || pointPairs[i][1] == newPlanet){
-        var idP = pointPairs[i][0] + "_" + pointPairs[i][1];
-        //document.getElementById(idP).src = 'galactic_conquest/grey_line.png';
-        document.getElementById(idP).style.opacity = "0.7";
-        //document.getElementById(idP).style.height  = "4px";
-      }
-    }
-}
-
-function setShips(){
-  document.getElementById("venator").style.left = pointPosX.get(venatorPlanet) + "px";
-  document.getElementById("venator").style.top  = pointPosY.get(venatorPlanet) + "px";
-
-  document.getElementById("dreadnought").style.left = pointPosX.get(dreadnoughtPlanet) + "px";
-  document.getElementById("dreadnought").style.top  = pointPosY.get(dreadnoughtPlanet) + "px";
-}
-
-function onPlanetMouseOver(planet){
-  if(state == "galaxy_view" && selectedPlanet != planet)
-    if(planetOwners.get(planet) == team)
-      document.getElementById(planet).src='galactic_conquest/blue_planet_hover.png';
-    else
-      document.getElementById(planet).src='galactic_conquest/red_planet_hover.png';
-}
-
-function onPlanetMouseOut(planet){
-  if(state == "galaxy_view" && selectedPlanet != planet)
-    if(planetOwners.get(planet) == team)
-      document.getElementById(planet).src='galactic_conquest/blue_planet_idle.png';
-    else
-      document.getElementById(planet).src='galactic_conquest/red_planet_idle.png';
-}
-
-function selectPlanet(planet){
-  if(state == "galaxy_view" && selectedPlanet != planet){
-    setLineStyles(selectedPlanet, planet);
-
-    document.getElementById("loop_" + selectedPlanet).style.display = "none";
-    selectedPlanet = planet;
-    selectedLoopId = "#loop_" + planet;
-    if(planetOwners.get(planet) == team){
-      document.getElementById(planet).src='galactic_conquest/blue_planet_idle.png';
-      document.getElementById("loop_" + planet).src='galactic_conquest/blue_planet_loop.png';
-    }
-    else{
-      document.getElementById(planet).src='galactic_conquest/red_planet_idle.png';
-      document.getElementById("loop_" + planet).src='galactic_conquest/red_planet_loop.png';
-    }
-    document.getElementById("loop_" + planet).style.display = "block";
-    loopSize = 0.2;
-    loopOpacity = 1.8;
-    $("#loop_" + selectedPlanet).css('transform','scaleX(' + loopSize + ') scaleY(' + loopSize + ')');
-    $("#loop_" + selectedPlanet).css('opacity',loopOpacity);
-  }
-}
-
-function selectPoint(point){
-  if(state == "galaxy_view" && selectedPlanet != point){
-    setLineStyles(selectedPlanet, point);
-    document.getElementById("loop_" + selectedPlanet).style.display = "none";
-    selectedPlanet = point;
-    selectedLoopId = "#loop_" + point;
-    document.getElementById(point).src='galactic_conquest/grey_point_idle.png';
-    document.getElementById("loop_" + point).style.display = "block";
-    loopSize = 0.2;
-    loopOpacity = 1.8;
-    $("#loop_" + selectedPlanet).css('transform','scaleX(' + loopSize + ') scaleY(' + loopSize + ')');
-    $("#loop_" + selectedPlanet).css('opacity',loopOpacity);
-  }
-}
-
-function onPointMouseOver(point){
-  if(state == "galaxy_view" && selectedPlanet != point)
-      document.getElementById(point).src='galactic_conquest/grey_point_hover.png';
-}
-
-function onPointMouseOut(point){
-  if(state == "galaxy_view" && selectedPlanet != point)
-      document.getElementById(point).src='galactic_conquest/grey_point_idle.png';
-}
-
-</script>
+<!--<script src="https://code.jquery.com/jquery-1.7.2.min.js"></script> -->
+<script src="galactic_conquest/jquery-1.7.2.min.js"></script>
+<script src="galactic_conquest/galactic_conquest.js"></script>
 <style>
+.unselectable {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
     body {
+  white-space: nowrap;
   background-color: #353535;
+  cursor: url("galactic_conquest/cursor.png"), auto;	
 }
 
 @font-face {
-  font-family: 'copperplate';
-  src: url('galactic_conquest/copperplate.ttf')  format('truetype');
+  font-family: "copperplate";
+  src: url("galactic_conquest/copperplate.ttf")  format("truetype");
 }
 </style>
 </head>
 <body onload="onLoadCheck()">
+<div id="planet_screen" style="display: none;">
+  <img id="attack_planet_background" src="galactic_conquest/kamino_ground.png" style="position:absolute; top:0px; left:0px; width: 3000px; height: 1687px; z-index: 20000;"></img>
+  <img id="venator_attack" src="galactic_conquest/venator.png" style="position:absolute; left:900px; top:700px;  width: 630px; height: 630px; z-index: 20006; display: block;"></img>
+  <img id="dreadnought_attack" src="galactic_conquest/dreadnought.png" style="position:absolute; left:1300px; top:400px;  width: 630px; height: 630px; z-index: 20005; display: block;"></img>
+  <!-- Bonus Attack-->
+  <div id="bonus_attack_div" style="display: block;">
+    <!--Background-->
+    <div style="background-color: black; opacity: 0.7; width: 1400px; height: 800px; position: absolute; top: 520px; left: 500px; z-index: 20006;"></div>
+    <!-- 3 Slots -->
+    <img id="bonus_attack_owned0" onclick='select_attack_bonus(0)' src="galactic_conquest/bonus_background.png" style="width: 400px; height: 450px; position: absolute; top: 550px; left: 550px;  z-index: 20007;"></img>
+    <img id="bonus_attack_owned1" onclick='select_attack_bonus(1)' src="galactic_conquest/bonus_background.png" style="width: 400px; height: 450px; position: absolute; top: 550px; left: 1000px; z-index: 20007;"></img>
+    <img id="bonus_attack_owned2" onclick='select_attack_bonus(2)' src="galactic_conquest/bonus_background.png" style="width: 400px; height: 450px; position: absolute; top: 550px; left: 1450px; z-index: 20007;"></img>
+    <!-- Description -->
+    <div style="background-color: black; opacity: 0.5; width: 1000px; height: 200px; position: absolute; top: 1100px; left: 700px; z-index: 20008;"></div>
+    <div id="bonus_attack_name"        class="unselectable" style="color: white; position: absolute; top: 1120px; left: 720px;  z-index: 20009; font-family: Arial; font-size: 40px; transform: scaleY(.76);">LAAT Troop Insertion</div>
+    <div id="bonus_attack_description" class="unselectable" style="color: white; position: absolute; top: 1200px; left: 720px;  z-index: 20009; font-family: Arial; font-size: 30px; transform: scaleY(.76);">Increases the length of time that the round lasts</div>
+    <div id="skip_div" onclick='skip()' onmouseover='onButtonMouseOver("skip")' onmouseout='onButtonMouseOut("skip")' style="display: block;">
+    <img id="skip_button" src="galactic_conquest/button_grey.png" style="opacity: 0.7; width: 387px; height: 137px; position: absolute; top:1350px; left:1560px;  z-index: 30001;"></img>
+    <div id="skip_text" class="unselectable"                                    style="width: 400px; height: 100px; position: absolute; top:1360px; left:1600px; font-size: 120px; font-family: Arial; color: #E5E5E5; transform: scaleX(.65) scaleY(.5); z-index: 30002;">Skip</div>
+    </div>
+    <div id="use_div" onclick='use()' onmouseover='onButtonMouseOver("use")' onmouseout='onButtonMouseOut("use")' style="display: block;">
+    <img id="use_button" src="galactic_conquest/button_grey.png" style="opacity: 0.7; width: 387px; height: 137px; position: absolute; top:1350px; left:1000px; z-index: 30001;"></img>
+    <div id="use_text" class="unselectable"                                    style="width: 400px; height: 100px; position: absolute; top:1360px; left:1040px; font-size: 120px; font-family: Arial; color: #E5E5E5; transform: scaleX(.65) scaleY(.5); z-index: 30002;">Use</div>
+    </div>
+  </div>
+  <!-- Bonus Attack AI-->
+  <div id="bonus_attack_ai_div" style="display: block;">
+    <!--Background-->
+    <div style="background-color: black; opacity: 0.7; width: 1400px; height: 800px; position: absolute; top: 520px; left: 500px; z-index: 20006;"></div>
+    <!-- 3 Slots -->
+    <img id="bonus_attack_ai_owned" src="galactic_conquest/bonus_background.png" style="width: 400px; height: 450px; position: absolute; top: 550px; left: 1000px; z-index: 20007;"></img>
+    <!-- Description -->
+    <div style="background-color: black; opacity: 0.5; width: 1000px; height: 200px; position: absolute; top: 1100px; left: 700px; z-index: 20008;"></div>
+    <div id="bonus_attack_ai_name"        class="unselectable" style="color: white; position: absolute; top: 1120px; left: 720px;  z-index: 20009; font-family: Arial; font-size: 40px; transform: scaleY(.76);">LAAT Troop Insertion</div>
+    <div id="bonus_attack_ai_description" class="unselectable" style="color: white; position: absolute; top: 1200px; left: 720px;  z-index: 20009; font-family: Arial; font-size: 30px; transform: scaleY(.76);">Increases the length of time that the round lasts</div>
+  </div>
+  <div id="attack_settings_div" style="display: none;">
+    <img id="attack_settings_img" src="galactic_conquest/instant_action.png" style="opacity: 0.8; position:absolute; top:400px; left:700px; width: 1000px; height: 1000px; z-index: 20010;"></img>
+    <div id="ia_location"                                             style="display: none; width: 400px; height: 50px; position: absolute; top: 745px;  left: 1255px; transform: scaleX(.7); font-size: 25px; font-family: Arial; color: #D1DBE0; text-align: center; font-weight: 600 ; z-index: 20011;">FELUCIA</div>
+    <div id="ia_difficulty"                                           style="display: none; width: 400px; height: 50px; position: absolute; top: 801px;  left: 1255px; transform: scaleX(.7); font-size: 25px; font-family: Arial; color: #D1DBE0; text-align: center; font-weight: 600 ; z-index: 20011;">NORMAL</div>
+    <div id="ia_length"                                               style="display: none; width: 400px; height: 50px; position: absolute; top: 860px;  left: 1255px; transform: scaleX(.7); font-size: 25px; font-family: Arial; color: #D1DBE0; text-align: center; font-weight: 600 ; z-index: 20011;">MEDIUM</div>
+    <div id="ia_points"                                               style="display: none; width: 400px; height: 50px; position: absolute; top: 918px;  left: 1255px; transform: scaleX(.7); font-size: 25px; font-family: Arial; color: #D1DBE0; text-align: center; font-weight: 600 ; z-index: 20011;">DEFAULT</div>
+    <div id="ia_heroes"                                               style="display: none; width: 400px; height: 50px; position: absolute; top: 976px;  left: 1255px; transform: scaleX(.7); font-size: 25px; font-family: Arial; color: #D1DBE0; text-align: center; font-weight: 600 ; z-index: 20011;">ON</div>    
+    <div id="ia_difficulty_blue"                                      style="display: none; background-color: blue; width: 50px; height: 50px; position: absolute; top: 790px; left: 700px; z-index: 20011;"></div>
+    <div id="ia_length_blue"                                          style="display: none; background-color: blue; width: 50px; height: 50px; position: absolute; top: 848px; left: 700px; z-index: 20011;"></div>
+    <div id="ia_points_blue"                                          style="display: none; background-color: blue; width: 50px; height: 50px; position: absolute; top: 906px; left: 700px; z-index: 20011;"></div>
+    <div id="ia_heroes_blue"                                          style="display: none; background-color: blue; width: 50px; height: 50px; position: absolute; top: 964px; left: 700px; z-index: 20011;"></div>
+    <img id="ia_difficulty_blue_img" src="galactic_conquest/laat.gif" style="display: none; width: 41px; height: 46px; position: absolute; top:792px; left:702px; z-index: 20012;"></img>
+    <img id="ia_length_blue_img"     src="galactic_conquest/laat.gif" style="display: none; width: 41px; height: 46px; position: absolute; top:850px; left:702px; z-index: 20012;"></img>
+    <img id="ia_points_blue_img"     src="galactic_conquest/laat.gif" style="display: none; width: 41px; height: 46px; position: absolute; top:908px; left:702px; z-index: 20012;"></img>
+    <img id="ia_heroes_blue_img"     src="galactic_conquest/laat.gif" style="display: none; width: 41px; height: 46px; position: absolute; top:966px; left:702px; z-index: 20012;"></img>
+    <div id="ia_difficulty_red"                                       style="display: none; background-color: red;  width: 50px; height: 50px; position: absolute; top: 790px; left: 1660px; z-index: 20011;"></div>
+    <div id="ia_points_red"                                           style="display: none; background-color: red;  width: 50px; height: 50px; position: absolute; top: 906px; left: 1660px; z-index: 20011;"></div>
+    <img id="ia_difficulty_red_img"  src="galactic_conquest/laat.gif" style="display: none; width: 41px; height: 46px; position: absolute; top:792px; left:1667px; z-index: 20012;"></img>
+    <img id="ia_points_red_img"      src="galactic_conquest/laat.gif" style="display: none; width: 41px; height: 46px; position: absolute; top:908px; left:1667px; z-index: 20012;"></img>
 
-<div id="team_select" style="display: block;">
-<div style="background-color: black; opacity: 0.7; width: 1400px; height: 800px; position: absolute; top: 500px; left: 500px; z-index: 100;"></div>
-<div onclick="hideTeamSelect('republic')"
-onmouseover="document.getElementById('republic_button').src='galactic_conquest/button_yellow_glow_long.png'; 
-             document.getElementById('republic_text').style.color='#F4AE0A';
-             document.getElementById('republic_logo').src='galactic_conquest/republic_logo_yellow.png';"
-onmouseout= "document.getElementById('republic_button').src='galactic_conquest/button_grey_long.png';
-             document.getElementById('republic_text').style.color='#E5E5E5';
-             document.getElementById('republic_logo').src='galactic_conquest/republic_logo_grey.png';">
-<img id="republic_button" class="button_long_2" src="galactic_conquest/button_grey_long.png" style="opacity: 0.7; width: 1300px; height: 275px; position: absolute; top:600px; left:550px; z-index: 101;">
-</img>
-<div id="republic_text" style="width: 1500px; height: 150px; position: absolute; top:680px; left:470px; font-size: 120px; font-family: Arial; color: #E5E5E5; transform: scaleX(.7) scaleY(.5); z-index: 102;">GALACTIC REPUBLIC</div>
-<img id="republic_logo" src="galactic_conquest/republic_logo_grey.png" style="position: absolute; top:435px; left:1350px; transform: scaleX(.25) scaleY(.25); z-index: 103;"></img>
+    <div id="sf_gamemode"                                             style="display: none; width: 400px; height: 50px; position: absolute; top: 590px;  left: 1255px; transform: scaleX(.7); font-size: 25px; font-family: Arial; color: #D1DBE0; text-align: center; font-weight: 600 ; z-index: 20011;">STARFIGHTER TEAM BATTLE</div>
+    <div id="sf_location"                                             style="display: none; width: 400px; height: 50px; position: absolute; top: 647px;  left: 1255px; transform: scaleX(.7); font-size: 25px; font-family: Arial; color: #D1DBE0; text-align: center; font-weight: 600 ; z-index: 20011;">FELUCIA</div>
+    <div id="sf_sfavailable"                                          style="display: none; width: 400px; height: 50px; position: absolute; top: 780px;  left: 1255px; transform: scaleX(.8); font-size: 25px; font-family: Arial; color: #D1DBE0; text-align: center; font-weight: 600 ; z-index: 20011;">100</div>
+    <div id="sf_playerteamsize"                                       style="display: none; width: 400px; height: 50px; position: absolute; top: 840px;  left: 1255px; transform: scaleX(.8); font-size: 25px; font-family: Arial; color: #D1DBE0; text-align: center; font-weight: 600 ; z-index: 20011;">10</div>
+    <div id="sf_enemyteamsize"                                        style="display: none; width: 400px; height: 50px; position: absolute; top: 900px;  left: 1255px; transform: scaleX(.8); font-size: 25px; font-family: Arial; color: #D1DBE0; text-align: center; font-weight: 600 ; z-index: 20011;">10</div>
+    <div id="sf_playas"                                               style="display: none; width: 400px; height: 50px; position: absolute; top: 958px;  left: 1255px; transform: scaleX(.8); font-size: 25px; font-family: Arial; color: #D1DBE0; text-align: center; font-weight: 600 ; z-index: 20011;">DEFAULT</div>
+    <div id="sf_difficulty"                                           style="display: none; width: 400px; height: 50px; position: absolute; top: 1017px; left: 1255px; transform: scaleX(.8); font-size: 25px; font-family: Arial; color: #D1DBE0; text-align: center; font-weight: 600 ; z-index: 20011;">NORMAL</div>
+    <div id="sf_recharge"                                             style="display: none; width: 400px; height: 50px; position: absolute; top: 1075px; left: 1255px; transform: scaleX(.8); font-size: 25px; font-family: Arial; color: #D1DBE0; text-align: center; font-weight: 600 ; z-index: 20011;">DEFAULT</div>
+    <div id="sf_sfavailable_blue"                                     style="display: none; background-color: blue; width: 50px; height: 50px; position: absolute; top: 770px;  left: 700px;  z-index: 20011;"></div>
+    <div id="sf_playas_blue"                                          style="display: none; background-color: blue; width: 50px; height: 50px; position: absolute; top: 944px;  left: 700px;  z-index: 20011;"></div>
+    <div id="sf_difficulty_blue"                                      style="display: none; background-color: blue; width: 50px; height: 50px; position: absolute; top: 1002px; left: 700px;  z-index: 20011;"></div>
+    <div id="sf_recharge_blue"                                        style="display: none; background-color: blue; width: 50px; height: 50px; position: absolute; top: 1060px; left: 700px;  z-index: 20011;"></div>
+    <img id="sf_sfavailable_blue_img"src="galactic_conquest/laat.gif" style="display: none; width: 41px; height: 46px; position: absolute; top:772px;  left:702px; z-index: 20012;"></img>
+    <img id="sf_playas_blue_img"     src="galactic_conquest/laat.gif" style="display: none; width: 41px; height: 46px; position: absolute; top:946px;  left:702px; z-index: 20012;"></img>
+    <img id="sf_difficulty_blue_img" src="galactic_conquest/laat.gif" style="display: none; width: 41px; height: 46px; position: absolute; top:1004px; left:702px; z-index: 20012;"></img>
+    <img id="sf_recharge_blue_img"   src="galactic_conquest/laat.gif" style="display: none; width: 41px; height: 46px; position: absolute; top:1062px; left:702px; z-index: 20012;"></img>
+    <div id="sf_difficulty_red"                                       style="display: none; background-color: red; width: 50px; height: 50px; position: absolute; top: 1002px; left: 1660px;  z-index: 20011;"></div>
+    <div id="sf_recharge_red"                                         style="display: none; background-color: red; width: 50px; height: 50px; position: absolute; top: 1060px; left: 1660px;  z-index: 20011;"></div>
+    <img id="sf_difficulty_red_img"  src="galactic_conquest/laat.gif" style="display: none; width: 41px; height: 46px; position: absolute; top:1004px; left:1667px; z-index: 20012;"></img>
+    <img id="sf_recharge_red_img"    src="galactic_conquest/laat.gif" style="display: none; width: 41px; height: 46px; position: absolute; top:1062px; left:1667px; z-index: 20012;"></img>
+    
+    <div id="results_text" class="unselectable"                                         style="display: block; width: 400px; height: 100px; position: absolute; top:1200px; left:850px; font-size: 120px; font-family: Arial; color: #E5E5E5; transform: scaleX(.65) scaleY(.5); z-index: 20014;">Choose Result</div>
+    <div id="victory_div" onclick='victory()' onmouseover='onButtonMouseOverBlue("victory")' onmouseout='onButtonMouseOutLong("victory")' style="display: block;">
+      <img id="victory_button" src="galactic_conquest/button_grey_long.png" style="opacity: 0.7; width: 650px; height: 137px; position: absolute; top:1300px; left:525px;  z-index: 20013;"></img>
+      <div id="victory_text" class="unselectable"                                         style="width: 400px; height: 100px; position: absolute; top:1310px; left:665px; font-size: 120px; font-family: Arial; color: #E5E5E5; transform: scaleX(.65) scaleY(.5); z-index: 20014;">Victory</div>
+    </div>
+    <div id="defeat_div" onclick='defeat()' onmouseover='onButtonMouseOverRed("defeat")' onmouseout='onButtonMouseOutLong("defeat")' style="display: block;">
+      <img id="defeat_button" src="galactic_conquest/button_grey_long.png" style="opacity: 0.7; width: 650px; height: 137px; position: absolute; top:1300px; left:1185px;  z-index: 20013;"></img>
+      <div id="defeat_text" class="unselectable"                                         style="width: 400px; height: 100px; position: absolute; top:1310px; left:1325px; font-size: 120px; font-family: Arial; color: #E5E5E5; transform: scaleX(.65) scaleY(.5); z-index: 20014;">Defeat</div>
+    </div>
+  </div>
 </div>
 
-<div onclick="hideTeamSelect('cis')"
-onmouseover="document.getElementById('cis_button').src='galactic_conquest/button_yellow_glow_long.png'; 
-             document.getElementById('cis_text').style.color='#F4AE0A';
-             document.getElementById('cis_logo').src='galactic_conquest/cis_logo_yellow.png';"
-onmouseout= "document.getElementById('cis_button').src='galactic_conquest/button_grey_long.png';
-             document.getElementById('cis_text').style.color='#E5E5E5';
-             document.getElementById('cis_logo').src='galactic_conquest/cis_logo_grey.png';">
-<img id="cis_button" class="button_long_2" src="galactic_conquest/button_grey_long.png" style="opacity: 0.7; width: 1300px; height: 275px; position: absolute; top:900px; left:550px; z-index: 101;">
+<div id="galaxy_all" style="display: block;">
+<div id="team_select" style="display: none;">
+<div id="team_background" style="background-color: black; opacity: 0.7; width: 1400px; height: 800px; position: absolute; top: 500px; left: 500px; z-index: 10000;"></div>
+<div onclick='hideTeamSelect(republic)'
+onmouseover='document.getElementById("republic_button").src="galactic_conquest/button_glow_long.png"; 
+             document.getElementById("republic_text").style.color="#F4AE0A";
+             document.getElementById("republic_logo").src="galactic_conquest/republic_logo_yellow.png";''
+onmouseout= 'document.getElementById("republic_button").src="galactic_conquest/button_grey_long.png";
+             document.getElementById("republic_text").style.color="#E5E5E5";
+             document.getElementById("republic_logo").src="galactic_conquest/republic_logo_grey.png";''>
+<img id="republic_button" src="galactic_conquest/button_grey_long.png" style="opacity: 0.7; width: 1300px; height: 275px; position: absolute; top:600px; left:550px; z-index: 10001;">
 </img>
-<div id="cis_text" style="width: 1500px; height: 150px; position: absolute; top:980px; left:450px; font-size: 120px; font-family: Arial; color: #E5E5E5; transform: scaleX(.65) scaleY(.5); z-index: 102;">SEPARATIST ALLIANCE</div>
-<img id="cis_logo" src="galactic_conquest/cis_logo_grey.png" style="position: absolute; top:735px; left:1350px; transform: scaleX(.25) scaleY(.25); z-index: 103;"></img>
+<div id="republic_text" style="width: 1500px; height: 150px; position: absolute; top:680px; left:470px; font-size: 120px; font-family: Arial; color: #E5E5E5; transform: scaleX(.7) scaleY(.5); z-index: 10002;">GALACTIC REPUBLIC</div>
+<img id="republic_logo" src="galactic_conquest/republic_logo_grey.png" style="position: absolute; top:435px; left:1350px; transform: scaleX(.25) scaleY(.25); z-index: 10003;"></img>
+</div>
+
+<div onclick='hideTeamSelect(cis)'
+onmouseover='document.getElementById("cis_button").src="galactic_conquest/button_glow_long.png"; 
+             document.getElementById("cis_text").style.color="#F4AE0A";
+             document.getElementById("cis_logo").src="galactic_conquest/cis_logo_yellow.png";'
+onmouseout= 'document.getElementById("cis_button").src="galactic_conquest/button_grey_long.png";
+             document.getElementById("cis_text").style.color="#E5E5E5";
+             document.getElementById("cis_logo").src="galactic_conquest/cis_logo_grey.png";'>
+<img id="cis_button" src="galactic_conquest/button_grey_long.png" style="opacity: 0.7; width: 1300px; height: 275px; position: absolute; top:900px; left:550px; z-index: 10001;"></img>
+<div id="cis_text"                                                              style="width: 1500px; height: 150px; position: absolute; top:980px; left:450px; font-size: 120px; font-family: Arial; color: #E5E5E5; transform: scaleX(.65) scaleY(.5); z-index: 10002;">SEPARATIST ALLIANCE</div>
+<img id="cis_logo" src="galactic_conquest/cis_logo_grey.png" style="position: absolute; top:735px; left:1350px; transform: scaleX(.25) scaleY(.25); z-index: 10003;"></img>
 </div>
 </div> <!--End Team Select-->
 
+<!-- Buttons -->
+<div id="zoom_out_div" onclick='zoom_out()' onmouseover='onButtonMouseOver("zoom_out")' onmouseout='onButtonMouseOut("zoom_out")' style="display: block;">
+<img id="zoom_out_button" src="galactic_conquest/button_grey.png" style="opacity: 0.7; width: 193px; height: 68px; position: absolute; top:100px; left:100px;  z-index: 10001;"></img>
+<div id="zoom_out_text" class="unselectable"                                    style="width: 200px; height: 50px; position: absolute; top:105px; left:110px; font-size: 60px; font-family: Arial; color: #E5E5E5; transform: scaleX(.65) scaleY(.5); z-index: 10002;">-</div>
+</div>
+<div id="zoom_in_div"  onclick='zoom_in()'  onmouseover='onButtonMouseOver("zoom_in")' onmouseout='onButtonMouseOut("zoom_in")' style="display: block;">
+<img id="zoom_in_button"  src="galactic_conquest/button_grey.png" style="opacity: 0.7; width: 193px; height: 68px; position: absolute; top:100px; left:300px;  z-index: 10001;"></img>
+<div id="zoom_in_text"  class="unselectable"                                    style="width: 200px; height: 50px; position: absolute; top:105px; left:310px; font-size: 60px; font-family: Arial; color: #E5E5E5; transform: scaleX(.65) scaleY(.5); z-index: 10002;">+</div>
+</div>
+<div id="move_mode_div" onclick='move_mode()' onmouseover='onButtonModeMouseOver("move_mode")' onmouseout='onButtonModeMouseOut("move_mode")' style="display: none;">
+<img id="move_mode_button" src="galactic_conquest/button_glow_long.png" style="opacity: 0.7; width: 650px; height: 137px; position: absolute; top:200px; left:525px;  z-index: 10001;"></img>
+<div id="move_mode_text" class="unselectable"                                         style="width: 400px; height: 100px; position: absolute; top:210px; left:685px; font-size: 120px; font-family: Arial; color: #F4AE0A; transform: scaleX(.65) scaleY(.5); z-index: 10002;">Move</div>
+</div>
+<div id="bonus_mode_div" onclick='bonus_mode()' onmouseover='onButtonModeMouseOver("bonus_mode")' onmouseout='onButtonModeMouseOut("bonus_mode")' style="display: none;">
+<img id="bonus_mode_button" src="galactic_conquest/button_grey_long.png" style="opacity: 0.7; width: 650px; height: 137px; position: absolute; top:200px; left:1225px;  z-index: 10001;"></img>
+<div id="bonus_mode_text" class="unselectable"                                         style="width: 400px; height: 100px; position: absolute; top:210px; left:1355px; font-size: 120px; font-family: Arial; color: #E5E5E5; transform: scaleX(.65) scaleY(.5); z-index: 10002;">Bonus</div>
+</div>
+<div id="move_div" onclick='move()' onmouseover='onButtonMouseOver("move")' onmouseout='onButtonMouseOut("move")' style="display: none;">
+<img id="move_button" src="galactic_conquest/button_grey.png" style="opacity: 0.7; width: 387px; height: 137px; position: absolute; top:1350px; left:500px;  z-index: 10001;"></img>
+<div id="move_text" class="unselectable"                                    style="width: 400px; height: 100px; position: absolute; top:1360px; left:520px; font-size: 120px; font-family: Arial; color: #E5E5E5; transform: scaleX(.65) scaleY(.5); z-index: 10002;">Move</div>
+</div>
+<div id="help_div" onclick='help()' onmouseover='onButtonMouseOver("help")' onmouseout='onButtonMouseOut("help")' style="display: none;">
+<img id="help_button" src="galactic_conquest/button_grey.png" style="opacity: 0.7; width: 387px; height: 137px; position: absolute; top:1350px; left:850px;  z-index: 10001;"></img>
+<div id="help_text" class="unselectable"                                    style="width: 400px; height: 100px; position: absolute; top:1360px; left:890px; font-size: 120px; font-family: Arial; color: #E5E5E5; transform: scaleX(.65) scaleY(.5); z-index: 10002;">Help</div>
+</div>
+<div id="build_div" onclick='build()' onmouseover='onButtonMouseOver("build")' onmouseout='onButtonMouseOut("build")' style="display: none;">
+<img id="build_button" src="galactic_conquest/button_grey.png" style="opacity: 0.7; width: 387px; height: 137px; position: absolute; top:1350px; left:1200px; z-index: 10001;"></img>
+<div id="build_text" class="unselectable"                                    style="width: 400px; height: 100px; position: absolute; top:1360px; left:1240px; font-size: 120px; font-family: Arial; color: #E5E5E5; transform: scaleX(.65) scaleY(.5); z-index: 10002;">Build</div>
+</div>
+<div id="end_div" onclick='end_turn()' onmouseover='onButtonMouseOver("end")' onmouseout='onButtonMouseOut("end")' style="display: none;">
+<img id="end_button"  src="galactic_conquest/button_grey.png" style="opacity: 0.7; width: 387px; height: 137px; position: absolute; top:1350px; left:1550px; z-index: 10001;"></img>
+<div id="end_text" class="unselectable"                                     style="width: 500px; height: 100px; position: absolute; top:1360px; left:1500px; font-size: 120px; font-family: Arial; color: #E5E5E5; transform: scaleX(.65) scaleY(.5); z-index: 10002;">End Turn</div>
+</div>
+<div id="buy_div" onclick='buy()' onmouseover='onButtonMouseOver("buy")' onmouseout='onButtonMouseOut("buy")' style="display: none;">
+<img id="buy_button"  src="galactic_conquest/button_grey.png" style="opacity: 0.7; width: 387px; height: 137px; position: absolute; top:1350px; left:1550px; z-index: 10001;"></img>
+<div id="buy_text" class="unselectable"                                     style="width: 500px; height: 100px; position: absolute; top:1360px; left:1590px; font-size: 120px; font-family: Arial; color: #E5E5E5; transform: scaleX(.65) scaleY(.5); z-index: 10002;">Buy</div>
+</div>
+<div id="point_description_div" style="display: none;">
+<div id="point_description_background" style="background-color: black; opacity: 0.5; width: 1300px; height: 200px; position: absolute; top: 1175px; left: 550px; z-index: 10001;"></div>
+<div id="point_name"        class="unselectable" style="color: white; position: absolute; top: 1195px; left: 570px;  z-index: 10002; font-family: Arial; font-size: 40px; transform: scaleY(.76);"></div>
+<div id="point_cost"        class="unselectable" style="color: white; position: absolute; top: 1195px; left: 1600px; z-index: 10002; font-family: Arial; font-size: 40px; transform: scaleY(.76);"></div>
+<div id="point_description" class="unselectable" style="color: white; position: absolute; top: 1250px; left: 570px;  z-index: 10002; font-family: Arial; font-size: 30px; transform: scaleY(.76);"></div>
+</div>
+
+<!-- Credits Display -->
+<div id="credits_display" style="display: none;">
+  <div id="credits_team" class="unselectable"   style="font-family: Arial; font-size: 60px; color: #0676FF; position: absolute; top: 330px; left: 840px;   z-index: 10003; transform: scaleY(.76); text-align: right; width: 300px;">Republic</div>
+  <img id="credits_logo" src="galactic_conquest/republic_logo_blue.png" style="width: 100px; height: 100px;   position: absolute; top: 310px; left: 1150px;  z-index: 10003;"></img>
+  <div id="credits_text" class="unselectable"   style="font-family: Arial; font-size: 60px; color: white;   position: absolute; top: 330px; left: 1260px;  z-index: 10003; transform: scaleY(.76);">400 Credits</div>
+</div>
+
+<!-- Center is 1200px-->
+<!-- Bonus -->
+<div id="bonus_view_div" style="display: none;">
+<!--Background-->
+<div style="background-color: black; opacity: 0.7; width: 1400px; height: 800px; position: absolute; top: 520px; left: 500px; z-index: 10000;"></div>
+<!-- 3 Slots -->
+<img id="bonus_owned0" onclick='confirm_buy(0)' src="galactic_conquest/bonus_background.png" style="width: 200px; height: 225px; position: absolute; top: 550px; left: 850px;  z-index: 10001;"></img>
+<img id="bonus_owned1" onclick='confirm_buy(1)' src="galactic_conquest/bonus_background.png" style="width: 200px; height: 225px; position: absolute; top: 550px; left: 1100px; z-index: 10001;"></img>
+<img id="bonus_owned2" onclick='confirm_buy(2)' src="galactic_conquest/bonus_background.png" style="width: 200px; height: 225px; position: absolute; top: 550px; left: 1350px; z-index: 10001;"></img>
+<!-- Bonuses -->
+<img id="bonus0_img" onclick='bonus_select( 0)' src="galactic_conquest/laat.gif"              style="width: 200px; height: 225px; position: absolute; top: 800px; left: 1100px; z-index: 10001; transform: perspective(50em) rotateY(0deg);   "></img>
+<img id="bonus1_img" onclick='bonus_select(-1)' src="galactic_conquest/negotiations.gif"      style="width: 200px; height: 225px; position: absolute; top: 800px; left: 1343px; z-index: 10001; transform: perspective(50em) rotateY(22.5deg);"></img>
+<img id="bonus2_img" onclick='bonus_select(-2)' src="galactic_conquest/laatc.gif"             style="width: 200px; height: 225px; position: absolute; top: 800px; left: 1564px; z-index: 10001; transform: perspective(50em) rotateY(45deg);  "></img>
+<img id="bonus3_img" onclick='bonus_select(-3)' src="galactic_conquest/bounty_hunters.gif"    style="width: 200px; height: 225px; position: absolute; top: 800px; left: 1730px; z-index: 10001; transform: perspective(50em) rotateY(67.5deg);"></img>
+<img id="bonus4_img" onclick='bonus_select(-4)' src="galactic_conquest/shield_generator.gif"  style="width: 200px; height: 225px; position: absolute; top: 800px; left: 1816px; z-index: 10001; transform: perspective(50em) rotateY(90deg);  "></img>
+<!-- Description -->
+<div style="background-color: black; opacity: 0.5; width: 1000px; height: 200px; position: absolute; top: 1100px; left: 700px; z-index: 10002;"></div>
+<div id="bonus_name"        class="unselectable" style="color: white; position: absolute; top: 1120px; left: 720px;  z-index: 10003; font-family: Arial; font-size: 40px; transform: scaleY(.76);">LAAT Troop Insertion</div>
+<div id="bonus_cost"        class="unselectable" style="color: white; position: absolute; top: 1120px; left: 1450px; z-index: 10003; font-family: Arial; font-size: 40px; transform: scaleY(.76);">200 Credits</div>
+<div id="bonus_description" class="unselectable" style="color: white; position: absolute; top: 1200px; left: 720px;  z-index: 10003; font-family: Arial; font-size: 30px; transform: scaleY(.76);">Increases the length of time that the round lasts</div>
+</div>
+
+<!-- Help Screen -->
+<div id="help_screen_div" style="display: none;">
+<div style="background-color: black; opacity: 0.7; width: 1600px; height: 500px; position: absolute; top: 500px; left: 400px; z-index: 10005;"></div>
+<div id="help_screen_text" class="unselectable" style="font-family: Arial; font-size: 40px; color: white; position: absolute; top: 570px; left: 720px;   z-index: 10006; transform: scaleY(.76); text-align: center; width: 1000px;">Galactic Conquest<br>&nbsp&nbsp&nbsp(1/7) ><br>The goal of Galactic Conquest is to construct fleets<br>and navigate them through space as you attempt to<br>conquer the galaxy, one planet at a time.</div>
+<div   id="help_prev_div" onclick='help_prev()' onmouseover='onButtonMouseOver("help_prev")' onmouseout='onButtonMouseOut("help_prev")' style="display: none;">
+  <img id="help_prev_button" src="galactic_conquest/button_grey.png" style="width: 300px; height: 112px; position: absolute; top:850px; left:750px; opacity: 0.7; z-index: 10006;"></img>
+  <div id="help_prev_text" class="unselectable"                                                   style="position: absolute; top:860px; left:810px; font-size: 80px; font-family: Arial; color: #E5E5E5; transform: scaleY(.76); z-index: 10007;">Prev</div>
+</div>
+<div   id="help_ok_div"   onclick='help_ok()' onmouseover='onButtonMouseOver("help_ok")' onmouseout='onButtonMouseOut("help_ok")'>
+  <img id="help_ok_button" src="galactic_conquest/button_grey.png" style="width: 300px; height: 112px; position: absolute; top:850px; left:1050px; opacity: 0.7; z-index: 10006;"></img>
+  <div id="help_ok_text" class="unselectable"                                                   style="position: absolute; top:860px; left:1140px; font-size: 80px; font-family: Arial; color: #E5E5E5; transform: scaleY(.76); z-index: 10007;">Ok</div>
+</div>
+<div   id="help_next_div" onclick='help_next()' onmouseover='onButtonMouseOver("help_next")' onmouseout='onButtonMouseOut("help_next")' style="display: block;">
+  <img id="help_next_button" src="galactic_conquest/button_grey.png" style="width: 300px; height: 112px; position: absolute; top:850px; left:1350px; opacity: 0.7; z-index: 10006;"></img>
+  <div id="help_next_text" class="unselectable"                                                   style="position: absolute; top:860px; left:1410px; font-size: 80px; font-family: Arial; color: #E5E5E5; transform: scaleY(.76); z-index: 10007;">Next</div>
+  </div>
+</div>
+
 <!-- Ships -->
-<img id="venator"       src="galactic_conquest/venator.png"     style="position:absolute; left:0px; top:0px;  width: 150px; height: 150px; z-index: 5;"></img>
-<img id="dreadnought"   src="galactic_conquest/dreadnought.png" style="position:absolute; left:0px; top:0px;  width: 200px; height: 200px; z-index: 5;"></img>
+<img id="venator0"       src="galactic_conquest/venator.png"     style="position:absolute; left:0px; top:0px;  width: 150px; height: 150px; z-index: 5; display: block;"></img>
+<img id="venator1"       src="galactic_conquest/venator.png"     style="position:absolute; left:0px; top:0px;  width: 150px; height: 150px; z-index: 5; display: none;"></img>
+<img id="venator2"       src="galactic_conquest/venator.png"     style="position:absolute; left:0px; top:0px;  width: 150px; height: 150px; z-index: 5; display: none;"></img>
+<img id="venator3"       src="galactic_conquest/venator.png"     style="position:absolute; left:0px; top:0px;  width: 150px; height: 150px; z-index: 5; display: none;"></img>
+<img id="venator4"       src="galactic_conquest/venator.png"     style="position:absolute; left:0px; top:0px;  width: 150px; height: 150px; z-index: 5; display: none;"></img>
+<img id="venator5"       src="galactic_conquest/venator.png"     style="position:absolute; left:0px; top:0px;  width: 150px; height: 150px; z-index: 5; display: none;"></img>
+<img id="venator6"       src="galactic_conquest/venator.png"     style="position:absolute; left:0px; top:0px;  width: 150px; height: 150px; z-index: 5; display: none;"></img>
+<img id="venator7"       src="galactic_conquest/venator.png"     style="position:absolute; left:0px; top:0px;  width: 150px; height: 150px; z-index: 5; display: none;"></img>
+<img id="venator8"       src="galactic_conquest/venator.png"     style="position:absolute; left:0px; top:0px;  width: 150px; height: 150px; z-index: 5; display: none;"></img>
+<img id="venator9"       src="galactic_conquest/venator.png"     style="position:absolute; left:0px; top:0px;  width: 150px; height: 150px; z-index: 5; display: none;"></img>
+<img id="venator10"      src="galactic_conquest/venator.png"     style="position:absolute; left:0px; top:0px;  width: 150px; height: 150px; z-index: 5; display: none;"></img>
+<img id="venator11"      src="galactic_conquest/venator.png"     style="position:absolute; left:0px; top:0px;  width: 150px; height: 150px; z-index: 5; display: none;"></img>
+<img id="venator12"      src="galactic_conquest/venator.png"     style="position:absolute; left:0px; top:0px;  width: 150px; height: 150px; z-index: 5; display: none;"></img>
+<img id="venator13"      src="galactic_conquest/venator.png"     style="position:absolute; left:0px; top:0px;  width: 150px; height: 150px; z-index: 5; display: none;"></img>
+<img id="venator14"      src="galactic_conquest/venator.png"     style="position:absolute; left:0px; top:0px;  width: 150px; height: 150px; z-index: 5; display: none;"></img>
+<img id="venator15"      src="galactic_conquest/venator.png"     style="position:absolute; left:0px; top:0px;  width: 150px; height: 150px; z-index: 5; display: none;"></img>
+<img id="venator16"      src="galactic_conquest/venator.png"     style="position:absolute; left:0px; top:0px;  width: 150px; height: 150px; z-index: 5; display: none;"></img>
+<img id="venator17"      src="galactic_conquest/venator.png"     style="position:absolute; left:0px; top:0px;  width: 150px; height: 150px; z-index: 5; display: none;"></img>
+<img id="venator18"      src="galactic_conquest/venator.png"     style="position:absolute; left:0px; top:0px;  width: 150px; height: 150px; z-index: 5; display: none;"></img>
+<img id="venator19"      src="galactic_conquest/venator.png"     style="position:absolute; left:0px; top:0px;  width: 150px; height: 150px; z-index: 5; display: none;"></img>
+<img id="venator20"      src="galactic_conquest/venator.png"     style="position:absolute; left:0px; top:0px;  width: 150px; height: 150px; z-index: 5; display: none;"></img>
+<img id="venator21"      src="galactic_conquest/venator.png"     style="position:absolute; left:0px; top:0px;  width: 150px; height: 150px; z-index: 5; display: none;"></img>
+<img id="venator22"      src="galactic_conquest/venator.png"     style="position:absolute; left:0px; top:0px;  width: 150px; height: 150px; z-index: 5; display: none;"></img>
+<img id="venator23"      src="galactic_conquest/venator.png"     style="position:absolute; left:0px; top:0px;  width: 150px; height: 150px; z-index: 5; display: none;"></img>
+<img id="venator24"      src="galactic_conquest/venator.png"     style="position:absolute; left:0px; top:0px;  width: 150px; height: 150px; z-index: 5; display: none;"></img>
+<img id="venator25"      src="galactic_conquest/venator.png"     style="position:absolute; left:0px; top:0px;  width: 150px; height: 150px; z-index: 5; display: none;"></img>
+
+<img id="dreadnought0"   src="galactic_conquest/dreadnought.png" style="position:absolute; left:0px; top:0px;  width: 200px; height: 200px; z-index: 5; display: block;"></img>
+<img id="dreadnought1"   src="galactic_conquest/dreadnought.png" style="position:absolute; left:0px; top:0px;  width: 200px; height: 200px; z-index: 5; display: none;"></img>
+<img id="dreadnought2"   src="galactic_conquest/dreadnought.png" style="position:absolute; left:0px; top:0px;  width: 200px; height: 200px; z-index: 5; display: none;"></img>
+<img id="dreadnought3"   src="galactic_conquest/dreadnought.png" style="position:absolute; left:0px; top:0px;  width: 200px; height: 200px; z-index: 5; display: none;"></img>
+<img id="dreadnought4"   src="galactic_conquest/dreadnought.png" style="position:absolute; left:0px; top:0px;  width: 200px; height: 200px; z-index: 5; display: none;"></img>
+<img id="dreadnought5"   src="galactic_conquest/dreadnought.png" style="position:absolute; left:0px; top:0px;  width: 200px; height: 200px; z-index: 5; display: none;"></img>
+<img id="dreadnought6"   src="galactic_conquest/dreadnought.png" style="position:absolute; left:0px; top:0px;  width: 200px; height: 200px; z-index: 5; display: none;"></img>
+<img id="dreadnought7"   src="galactic_conquest/dreadnought.png" style="position:absolute; left:0px; top:0px;  width: 200px; height: 200px; z-index: 5; display: none;"></img>
+<img id="dreadnought8"   src="galactic_conquest/dreadnought.png" style="position:absolute; left:0px; top:0px;  width: 200px; height: 200px; z-index: 5; display: none;"></img>
+<img id="dreadnought9"   src="galactic_conquest/dreadnought.png" style="position:absolute; left:0px; top:0px;  width: 200px; height: 200px; z-index: 5; display: none;"></img>
+<img id="dreadnought10"  src="galactic_conquest/dreadnought.png" style="position:absolute; left:0px; top:0px;  width: 200px; height: 200px; z-index: 5; display: none;"></img>
+<img id="dreadnought11"  src="galactic_conquest/dreadnought.png" style="position:absolute; left:0px; top:0px;  width: 200px; height: 200px; z-index: 5; display: none;"></img>
+<img id="dreadnought12"  src="galactic_conquest/dreadnought.png" style="position:absolute; left:0px; top:0px;  width: 200px; height: 200px; z-index: 5; display: none;"></img>
+<img id="dreadnought13"  src="galactic_conquest/dreadnought.png" style="position:absolute; left:0px; top:0px;  width: 200px; height: 200px; z-index: 5; display: none;"></img>
+<img id="dreadnought14"  src="galactic_conquest/dreadnought.png" style="position:absolute; left:0px; top:0px;  width: 200px; height: 200px; z-index: 5; display: none;"></img>
+<img id="dreadnought15"  src="galactic_conquest/dreadnought.png" style="position:absolute; left:0px; top:0px;  width: 200px; height: 200px; z-index: 5; display: none;"></img>
+<img id="dreadnought16"  src="galactic_conquest/dreadnought.png" style="position:absolute; left:0px; top:0px;  width: 200px; height: 200px; z-index: 5; display: none;"></img>
+<img id="dreadnought17"  src="galactic_conquest/dreadnought.png" style="position:absolute; left:0px; top:0px;  width: 200px; height: 200px; z-index: 5; display: none;"></img>
+<img id="dreadnought18"  src="galactic_conquest/dreadnought.png" style="position:absolute; left:0px; top:0px;  width: 200px; height: 200px; z-index: 5; display: none;"></img>
+<img id="dreadnought19"  src="galactic_conquest/dreadnought.png" style="position:absolute; left:0px; top:0px;  width: 200px; height: 200px; z-index: 5; display: none;"></img>
+<img id="dreadnought20"  src="galactic_conquest/dreadnought.png" style="position:absolute; left:0px; top:0px;  width: 200px; height: 200px; z-index: 5; display: none;"></img>
+<img id="dreadnought21"  src="galactic_conquest/dreadnought.png" style="position:absolute; left:0px; top:0px;  width: 200px; height: 200px; z-index: 5; display: none;"></img>
+<img id="dreadnought22"  src="galactic_conquest/dreadnought.png" style="position:absolute; left:0px; top:0px;  width: 200px; height: 200px; z-index: 5; display: none;"></img>
+<img id="dreadnought23"  src="galactic_conquest/dreadnought.png" style="position:absolute; left:0px; top:0px;  width: 200px; height: 200px; z-index: 5; display: none;"></img>
+<img id="dreadnought24"  src="galactic_conquest/dreadnought.png" style="position:absolute; left:0px; top:0px;  width: 200px; height: 200px; z-index: 5; display: none;"></img>
+<img id="dreadnought25"  src="galactic_conquest/dreadnought.png" style="position:absolute; left:0px; top:0px;  width: 200px; height: 200px; z-index: 5; display: none;"></img>
+
+<!-- Home Planet Logos-->
+<img id="republic_home"  src="galactic_conquest/republic_logo_red.png" style="position:absolute; left:2015px; top:830px; width: 50px; height: 50px; opacity: 0.5; z-index: 9010;"></img>
+<img id="cis_home"       src="galactic_conquest/cis_logo_red.png"      style="position:absolute; left:1692px; top:969px; width: 50px; height: 50px; opacity: 0.5; z-index: 9010;"></img>
 
 <!-- Planets -->
-<img id="felucia"       src="galactic_conquest/red_planet_idle.png" style="position:absolute; left:1985px; top:725px;  width: 100px; height: 100px; z-index: 3;" onmouseover="onPlanetMouseOver(this.id)" onmouseout="onPlanetMouseOut(this.id)" onclick="selectPlanet(this.id)"></img>
-<img id="geonosis"      src="galactic_conquest/red_planet_idle.png" style="position:absolute; left:1667px; top:1005px; width: 140px; height: 140px; z-index: 3;" onmouseover="onPlanetMouseOver(this.id)" onmouseout="onPlanetMouseOut(this.id)" onclick="selectPlanet(this.id)"></img>
-<img id="kamino"        src="galactic_conquest/red_planet_idle.png" style="position:absolute; left:1995px; top:866px;  width: 121px; height: 121px; z-index: 3;" onmouseover="onPlanetMouseOver(this.id)" onmouseout="onPlanetMouseOut(this.id)" onclick="selectPlanet(this.id)"></img>
-<img id="kashyyyk"      src="galactic_conquest/red_planet_idle.png" style="position:absolute; left:1789px; top:749px;  width: 107px; height: 107px; z-index: 3;" onmouseover="onPlanetMouseOver(this.id)" onmouseout="onPlanetMouseOut(this.id)" onclick="selectPlanet(this.id)"></img>
-<img id="naboo"         src="galactic_conquest/red_planet_idle.png" style="position:absolute; left:1478px; top:863px;  width: 138px; height: 138px; z-index: 3;" onmouseover="onPlanetMouseOver(this.id)" onmouseout="onPlanetMouseOut(this.id)" onclick="selectPlanet(this.id)"></img>
-<img id="loop_felucia"  src="galactic_conquest/red_planet_loop.png" style="position:absolute; left:1985px; top:725px;  width: 100px; height: 100px; display: none; z-index: 4;"></img>
-<img id="loop_geonosis" src="galactic_conquest/red_planet_loop.png" style="position:absolute; left:1667px; top:1005px; width: 140px; height: 140px; display: none; z-index: 4;"></img>
-<img id="loop_kamino"   src="galactic_conquest/red_planet_loop.png" style="position:absolute; left:1995px; top:866px;  width: 121px; height: 121px; display: none; z-index: 4;"></img>
-<img id="loop_kashyyyk" src="galactic_conquest/red_planet_loop.png" style="position:absolute; left:1789px; top:749px;  width: 107px; height: 107px; display: none; z-index: 4;"></img>
-<img id="loop_naboo"    src="galactic_conquest/red_planet_loop.png" style="position:absolute; left:1478px; top:863px;  width: 138px; height: 138px; display: none; z-index: 4;"></img>
+<img id="felucia"       src="galactic_conquest/red_planet_idle.png" style="position:absolute; left:1985px; top:725px;  width: 100px; height: 100px; z-index: 9008;" onmouseover='onPlanetMouseOver(this.id)' onmouseout='onPlanetMouseOut(this.id)' onclick='selectPoint(this.id, false)'></img>
+<img id="geonosis"      src="galactic_conquest/red_planet_idle.png" style="position:absolute; left:1667px; top:1005px; width: 140px; height: 140px; z-index: 9008;" onmouseover='onPlanetMouseOver(this.id)' onmouseout='onPlanetMouseOut(this.id)' onclick='selectPoint(this.id, false)'></img>
+<img id="kamino"        src="galactic_conquest/red_planet_idle.png" style="position:absolute; left:1995px; top:866px;  width: 121px; height: 121px; z-index: 9008;" onmouseover='onPlanetMouseOver(this.id)' onmouseout='onPlanetMouseOut(this.id)' onclick='selectPoint(this.id, false)'></img>
+<img id="kashyyyk"      src="galactic_conquest/red_planet_idle.png" style="position:absolute; left:1789px; top:749px;  width: 107px; height: 107px; z-index: 9008;" onmouseover='onPlanetMouseOver(this.id)' onmouseout='onPlanetMouseOut(this.id)' onclick='selectPoint(this.id, false)'></img>
+<img id="naboo"         src="galactic_conquest/red_planet_idle.png" style="position:absolute; left:1478px; top:863px;  width: 138px; height: 138px; z-index: 9008;" onmouseover='onPlanetMouseOver(this.id)' onmouseout='onPlanetMouseOut(this.id)' onclick='selectPoint(this.id, false)'></img>
+<img id="loop_felucia"  src="galactic_conquest/red_planet_loop.png" style="position:absolute; left:1985px; top:725px;  width: 100px; height: 100px; display: none; z-index: 9009;"></img>
+<img id="loop_geonosis" src="galactic_conquest/red_planet_loop.png" style="position:absolute; left:1667px; top:1005px; width: 140px; height: 140px; display: none; z-index: 9009;"></img>
+<img id="loop_kamino"   src="galactic_conquest/red_planet_loop.png" style="position:absolute; left:1995px; top:866px;  width: 121px; height: 121px; display: none; z-index: 9009;"></img>
+<img id="loop_kashyyyk" src="galactic_conquest/red_planet_loop.png" style="position:absolute; left:1789px; top:749px;  width: 107px; height: 107px; display: none; z-index: 9009;"></img>
+<img id="loop_naboo"    src="galactic_conquest/red_planet_loop.png" style="position:absolute; left:1478px; top:863px;  width: 138px; height: 138px; display: none; z-index: 9009;"></img>
 
 <!--Grey Points -->
-<img id="point1"   src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:1207px; top:671px;  width: 100px; height: 100px; z-index: 3;" onmouseover="onPointMouseOver(this.id)"  onmouseout="onPointMouseOut(this.id)"  onclick="selectPoint(this.id)" ></img>
-<img id="point2"   src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:1496px; top:615px;  width: 100px; height: 100px; z-index: 3;" onmouseover="onPointMouseOver(this.id)"  onmouseout="onPointMouseOut(this.id)"  onclick="selectPoint(this.id)" ></img>
-<img id="point3"   src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:1852px; top:648px;  width: 100px; height: 100px; z-index: 3;" onmouseover="onPointMouseOver(this.id)"  onmouseout="onPointMouseOut(this.id)"  onclick="selectPoint(this.id)" ></img>
-<img id="point4"   src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:1514px; top:738px;  width: 100px; height: 100px; z-index: 3;" onmouseover="onPointMouseOver(this.id)"  onmouseout="onPointMouseOut(this.id)"  onclick="selectPoint(this.id)" ></img>
-<img id="point5"   src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:2010px; top:993px;  width: 100px; height: 100px; z-index: 3;" onmouseover="onPointMouseOver(this.id)"  onmouseout="onPointMouseOut(this.id)"  onclick="selectPoint(this.id)" ></img>
-<img id="point6"   src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:1468px; top:997px;  width: 100px; height: 100px; z-index: 3;" onmouseover="onPointMouseOver(this.id)"  onmouseout="onPointMouseOut(this.id)"  onclick="selectPoint(this.id)" ></img>
-<img id="point7"   src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:1748px; top:861px;  width: 100px; height: 100px; z-index: 3;" onmouseover="onPointMouseOver(this.id)"  onmouseout="onPointMouseOut(this.id)"  onclick="selectPoint(this.id)" ></img>
-<img id="point8"   src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:1267px; top:1096px; width: 100px; height: 100px; z-index: 3;" onmouseover="onPointMouseOver(this.id)"  onmouseout="onPointMouseOut(this.id)"  onclick="selectPoint(this.id)" ></img>
-<img id="point9"   src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:1206px; top:954px;  width: 100px; height: 100px; z-index: 3;" onmouseover="onPointMouseOver(this.id)"  onmouseout="onPointMouseOut(this.id)"  onclick="selectPoint(this.id)" ></img>
-<img id="point10"  src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:876px;  top:1017px; width: 100px; height: 100px; z-index: 3;" onmouseover="onPointMouseOver(this.id)"  onmouseout="onPointMouseOut(this.id)"  onclick="selectPoint(this.id)" ></img>
-<img id="point11"  src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:757px;  top:931px;  width: 100px; height: 100px; z-index: 3;" onmouseover="onPointMouseOver(this.id)"  onmouseout="onPointMouseOut(this.id)"  onclick="selectPoint(this.id)" ></img>
-<img id="point12"  src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:544px;  top:949px;  width: 100px; height: 100px; z-index: 3;" onmouseover="onPointMouseOver(this.id)"  onmouseout="onPointMouseOut(this.id)"  onclick="selectPoint(this.id)" ></img>
-<img id="point13"  src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:702px;  top:788px;  width: 100px; height: 100px; z-index: 3;" onmouseover="onPointMouseOver(this.id)"  onmouseout="onPointMouseOut(this.id)"  onclick="selectPoint(this.id)" ></img>
-<img id="point14"  src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:933px;  top:871px;  width: 100px; height: 100px; z-index: 3;" onmouseover="onPointMouseOver(this.id)"  onmouseout="onPointMouseOut(this.id)"  onclick="selectPoint(this.id)" ></img>
-<img id="point15"  src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:1019px; top:684px;  width: 100px; height: 100px; z-index: 3;" onmouseover="onPointMouseOver(this.id)"  onmouseout="onPointMouseOut(this.id)"  onclick="selectPoint(this.id)" ></img>
-<img id="point16"  src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:1028px; top:938px;  width: 100px; height: 100px; z-index: 3;" onmouseover="onPointMouseOver(this.id)"  onmouseout="onPointMouseOut(this.id)"  onclick="selectPoint(this.id)" ></img>
-<img id="point17"  src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:1979px; top:785px;  width: 100px; height: 100px; z-index: 3;" onmouseover="onPointMouseOver(this.id)"  onmouseout="onPointMouseOut(this.id)"  onclick="selectPoint(this.id)" ></img>
-<img id="point18"  src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:1723px; top:681px;  width: 100px; height: 100px; z-index: 3;" onmouseover="onPointMouseOver(this.id)"  onmouseout="onPointMouseOut(this.id)"  onclick="selectPoint(this.id)" ></img>
-<img id="loop_point1"   src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:1207px; top:671px;  width: 100px; height: 100px; display: none; z-index: 4;"></img>
-<img id="loop_point2"   src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:1496px; top:615px;  width: 100px; height: 100px; display: none; z-index: 4;"></img>
-<img id="loop_point3"   src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:1852px; top:648px;  width: 100px; height: 100px; display: none; z-index: 4;"></img>
-<img id="loop_point4"   src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:1514px; top:738px;  width: 100px; height: 100px; display: none; z-index: 4;"></img>
-<img id="loop_point5"   src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:2010px; top:993px;  width: 100px; height: 100px; display: none; z-index: 4;"></img>
-<img id="loop_point6"   src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:1468px; top:997px;  width: 100px; height: 100px; display: none; z-index: 4;"></img>
-<img id="loop_point7"   src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:1748px; top:861px;  width: 100px; height: 100px; display: none; z-index: 4;"></img>
-<img id="loop_point8"   src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:1267px; top:1096px; width: 100px; height: 100px; display: none; z-index: 4;"></img>
-<img id="loop_point9"   src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:1206px; top:954px;  width: 100px; height: 100px; display: none; z-index: 4;"></img>
-<img id="loop_point10"  src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:876px;  top:1017px; width: 100px; height: 100px; display: none; z-index: 4;"></img>
-<img id="loop_point11"  src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:757px;  top:931px;  width: 100px; height: 100px; display: none; z-index: 4;"></img>
-<img id="loop_point12"  src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:544px;  top:949px;  width: 100px; height: 100px; display: none; z-index: 4;"></img>
-<img id="loop_point13"  src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:702px;  top:788px;  width: 100px; height: 100px; display: none; z-index: 4;"></img>
-<img id="loop_point14"  src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:933px;  top:871px;  width: 100px; height: 100px; display: none; z-index: 4;"></img>
-<img id="loop_point15"  src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:1019px; top:684px;  width: 100px; height: 100px; display: none; z-index: 4;"></img>
-<img id="loop_point16"  src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:1028px; top:938px;  width: 100px; height: 100px; display: none; z-index: 4;"></img>
-<img id="loop_point17"  src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:1979px; top:785px;  width: 100px; height: 100px; display: none; z-index: 4;"></img>
-<img id="loop_point18"  src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:1723px; top:681px;  width: 100px; height: 100px; display: none; z-index: 4;"></img>
+<img id="point1"   src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:1207px; top:671px;  width: 100px; height: 100px; z-index: 9008;" onmouseover='onPointMouseOver(this.id)'  onmouseout='onPointMouseOut(this.id)'  onclick='selectPoint(this.id, false)' ></img>
+<img id="point2"   src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:1496px; top:615px;  width: 100px; height: 100px; z-index: 9008;" onmouseover='onPointMouseOver(this.id)'  onmouseout='onPointMouseOut(this.id)'  onclick='selectPoint(this.id, false)' ></img>
+<img id="point3"   src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:1852px; top:648px;  width: 100px; height: 100px; z-index: 9008;" onmouseover='onPointMouseOver(this.id)'  onmouseout='onPointMouseOut(this.id)'  onclick='selectPoint(this.id, false)' ></img>
+<img id="point4"   src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:1514px; top:738px;  width: 100px; height: 100px; z-index: 9008;" onmouseover='onPointMouseOver(this.id)'  onmouseout='onPointMouseOut(this.id)'  onclick='selectPoint(this.id, false)' ></img>
+<img id="point5"   src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:2010px; top:993px;  width: 100px; height: 100px; z-index: 9008;" onmouseover='onPointMouseOver(this.id)'  onmouseout='onPointMouseOut(this.id)'  onclick='selectPoint(this.id, false)' ></img>
+<img id="point6"   src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:1468px; top:997px;  width: 100px; height: 100px; z-index: 9008;" onmouseover='onPointMouseOver(this.id)'  onmouseout='onPointMouseOut(this.id)'  onclick='selectPoint(this.id, false)' ></img>
+<img id="point7"   src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:1748px; top:861px;  width: 100px; height: 100px; z-index: 9008;" onmouseover='onPointMouseOver(this.id)'  onmouseout='onPointMouseOut(this.id)'  onclick='selectPoint(this.id, false)' ></img>
+<img id="point8"   src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:1267px; top:1096px; width: 100px; height: 100px; z-index: 9008;" onmouseover='onPointMouseOver(this.id)'  onmouseout='onPointMouseOut(this.id)'  onclick='selectPoint(this.id, false)' ></img>
+<img id="point9"   src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:1206px; top:954px;  width: 100px; height: 100px; z-index: 9008;" onmouseover='onPointMouseOver(this.id)'  onmouseout='onPointMouseOut(this.id)'  onclick='selectPoint(this.id, false)' ></img>
+<img id="point10"  src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:876px;  top:1017px; width: 100px; height: 100px; z-index: 9008;" onmouseover='onPointMouseOver(this.id)'  onmouseout='onPointMouseOut(this.id)'  onclick='selectPoint(this.id, false)' ></img>
+<img id="point11"  src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:757px;  top:931px;  width: 100px; height: 100px; z-index: 9008;" onmouseover='onPointMouseOver(this.id)'  onmouseout='onPointMouseOut(this.id)'  onclick='selectPoint(this.id, false)' ></img>
+<img id="point12"  src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:544px;  top:949px;  width: 100px; height: 100px; z-index: 9008;" onmouseover='onPointMouseOver(this.id)'  onmouseout='onPointMouseOut(this.id)'  onclick='selectPoint(this.id, false)' ></img>
+<img id="point13"  src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:702px;  top:788px;  width: 100px; height: 100px; z-index: 9008;" onmouseover='onPointMouseOver(this.id)'  onmouseout='onPointMouseOut(this.id)'  onclick='selectPoint(this.id, false)' ></img>
+<img id="point14"  src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:933px;  top:871px;  width: 100px; height: 100px; z-index: 9008;" onmouseover='onPointMouseOver(this.id)'  onmouseout='onPointMouseOut(this.id)'  onclick='selectPoint(this.id, false)' ></img>
+<img id="point15"  src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:1019px; top:684px;  width: 100px; height: 100px; z-index: 9008;" onmouseover='onPointMouseOver(this.id)'  onmouseout='onPointMouseOut(this.id)'  onclick='selectPoint(this.id, false)' ></img>
+<img id="point16"  src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:1028px; top:938px;  width: 100px; height: 100px; z-index: 9008;" onmouseover='onPointMouseOver(this.id)'  onmouseout='onPointMouseOut(this.id)'  onclick='selectPoint(this.id, false)' ></img>
+<img id="point17"  src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:1900px; top:785px;  width: 100px; height: 100px; z-index: 9008;" onmouseover='onPointMouseOver(this.id)'  onmouseout='onPointMouseOut(this.id)'  onclick='selectPoint(this.id, false)' ></img>
+<img id="point18"  src="galactic_conquest/grey_point_idle.png" style="position:absolute; left:1723px; top:681px;  width: 100px; height: 100px; z-index: 9008;" onmouseover='onPointMouseOver(this.id)'  onmouseout='onPointMouseOut(this.id)'  onclick='selectPoint(this.id, false)' ></img>
+<img id="loop_point1"   src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:1207px; top:671px;  width: 100px; height: 100px; display: none; z-index: 9009;"></img>
+<img id="loop_point2"   src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:1496px; top:615px;  width: 100px; height: 100px; display: none; z-index: 9009;"></img>
+<img id="loop_point3"   src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:1852px; top:648px;  width: 100px; height: 100px; display: none; z-index: 9009;"></img>
+<img id="loop_point4"   src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:1514px; top:738px;  width: 100px; height: 100px; display: none; z-index: 9009;"></img>
+<img id="loop_point5"   src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:2010px; top:993px;  width: 100px; height: 100px; display: none; z-index: 9009;"></img>
+<img id="loop_point6"   src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:1468px; top:997px;  width: 100px; height: 100px; display: none; z-index: 9009;"></img>
+<img id="loop_point7"   src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:1748px; top:861px;  width: 100px; height: 100px; display: none; z-index: 9009;"></img>
+<img id="loop_point8"   src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:1267px; top:1096px; width: 100px; height: 100px; display: none; z-index: 9009;"></img>
+<img id="loop_point9"   src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:1206px; top:954px;  width: 100px; height: 100px; display: none; z-index: 9009;"></img>
+<img id="loop_point10"  src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:876px;  top:1017px; width: 100px; height: 100px; display: none; z-index: 9009;"></img>
+<img id="loop_point11"  src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:757px;  top:931px;  width: 100px; height: 100px; display: none; z-index: 9009;"></img>
+<img id="loop_point12"  src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:544px;  top:949px;  width: 100px; height: 100px; display: none; z-index: 9009;"></img>
+<img id="loop_point13"  src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:702px;  top:788px;  width: 100px; height: 100px; display: none; z-index: 9009;"></img>
+<img id="loop_point14"  src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:933px;  top:871px;  width: 100px; height: 100px; display: none; z-index: 9009;"></img>
+<img id="loop_point15"  src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:1019px; top:684px;  width: 100px; height: 100px; display: none; z-index: 9009;"></img>
+<img id="loop_point16"  src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:1028px; top:938px;  width: 100px; height: 100px; display: none; z-index: 9009;"></img>
+<img id="loop_point17"  src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:1900px; top:785px;  width: 100px; height: 100px; display: none; z-index: 9009;"></img>
+<img id="loop_point18"  src="galactic_conquest/grey_point_loop.png" style="position:absolute; left:1723px; top:681px;  width: 100px; height: 100px; display: none; z-index: 9009;"></img>
 
 <!--Grey Lines-->
-<img id="point1_point2"     src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
+<img id="point2_point1"     src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
 <img id="point2_point18"    src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
-<img id="point18_point3"    src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
+<img id="point3_point18"    src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
 <img id="point3_felucia"    src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
 <img id="felucia_point17"   src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
-<img id="point17_kashyyyk"  src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
-<img id="kashyyyk_point18"  src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
-<img id="kashyyyk_point4"   src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
+<img id="kashyyyk_point17"  src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
+<img id="point18_kashyyyk"  src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
+<img id="point4_kashyyyk"   src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
 <img id="kashyyyk_point7"   src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
 <img id="point17_kamino"    src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
-<img id="kamino_point7"     src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
+<img id="point7_kamino"     src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
 <img id="kamino_point5"     src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
 <img id="point5_geonosis"   src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
-<img id="geonosis_point6"   src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
+<img id="point6_geonosis"   src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
 <img id="point7_naboo"      src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
-<img id="point6_naboo"      src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
+<img id="naboo_point6"      src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
 <img id="naboo_point9"      src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
 <img id="point6_point8"     src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
-<img id="naboo_point4"      src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
+<img id="point4_naboo"      src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
 <img id="point2_point4"     src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
 <img id="point1_point4"     src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
 <img id="point9_point8"     src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
 <img id="point16_point9"    src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
 <img id="point10_point8"    src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
-<img id="point10_point16"   src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
+<img id="point16_point10"   src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
 <img id="point14_point16"   src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
 <img id="point11_point10"   src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
-<img id="point11_point14"   src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
+<img id="point14_point11"   src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
 <img id="point11_point12"   src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
-<img id="point12_point13"   src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
+<img id="point13_point12"   src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
 <img id="point13_point14"   src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
-<img id="point13_point15"   src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
-<img id="point15_point1"    src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
+<img id="point15_point13"   src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
+<img id="point1_point15"    src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
 
 <img id="galaxy" src="galactic_conquest/galaxy_cut_fade.png" style="position:absolute; top:50px; left:415px; z-index: 1;"></img>
-<img src="galactic_conquest/space_small.jpg" style="position:absolute; top:0px; left:0px; width: 3000px; height: 2069px; z-index: 0;"></img>
+<img src="galactic_conquest/space.jpg" style="position:absolute; top:0px; left:0px; width: 3000px; height: 2069px; z-index: 0;"></img>
+</div>
 </body>
 </html>

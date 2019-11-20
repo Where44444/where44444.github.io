@@ -54,7 +54,7 @@
     </div>
   </div>
   <!-- Bonus Attack AI-->
-  <div id="bonus_attack_ai_div" style="display: block;">
+  <div id="bonus_attack_ai_div" style="display: none;">
     <!--Background-->
     <div style="background-color: black; opacity: 0.7; width: 1400px; height: 800px; position: absolute; top: 520px; left: 500px; z-index: 20006;"></div>
     <!-- 3 Slots -->
@@ -115,6 +115,21 @@
       <div id="defeat_text" class="unselectable"                                         style="width: 400px; height: 100px; position: absolute; top:1310px; left:1325px; font-size: 120px; font-family: Arial; color: #E5E5E5; transform: scaleX(.65) scaleY(.5); z-index: 20014;">Defeat</div>
     </div>
   </div>
+  <div id="credits_results_div" style="display: block;">
+    <div style="background-color: black; opacity: 0.5; width: 1000px; height: 300px; position: absolute; top: 500px; left: 700px; z-index: 20008;"></div>
+    <div id="credits_results_player_name"        class="unselectable" style="color: white; position: absolute; top: 500px; left: 700px;  width: 1000px; z-index: 20009; font-family: Arial; font-size: 40px; text-align: center; color: lightskyblue; transform: scaleY(.76);">Galactic Republic</div>
+    <div id="credits_results_player_description" class="unselectable" style="color: white; position: absolute; top: 580px; left: 720px;                 z-index: 20009; font-family: Arial; font-size: 30px; transform: scaleY(.76);">Defeat<br>1 Planets<br>TOTAL</div>
+    <div id="credits_results_player_amounts"     class="unselectable" style="color: white; position: absolute; top: 580px; left: 1150px; width: 500px;  z-index: 20009; font-family: Arial; font-size: 30px; text-align: right; transform: scaleY(.76);">0 Credits<br>0 Credits<br>0 Credits</div>
+    <div style="background-color: black; opacity: 0.5; width: 1000px; height: 300px; position: absolute; top: 900px; left: 700px; z-index: 20008;"></div>
+    <div id="credits_results_ai_name"        class="unselectable" style="color: white; position: absolute; top: 900px; left: 700px;  width: 1000px; z-index: 20009; font-family: Arial; font-size: 40px; text-align: center; color: red; transform: scaleY(.76);">Separatist Alliance</div>
+    <div id="credits_results_ai_description" class="unselectable" style="color: white; position: absolute; top: 980px; left: 720px;                 z-index: 20009; font-family: Arial; font-size: 30px; transform: scaleY(.76);">Defeat<br>1 Planets<br>TOTAL</div>
+    <div id="credits_results_ai_amounts"     class="unselectable" style="color: white; position: absolute; top: 980px; left: 1150px; width: 500px;  z-index: 20009; font-family: Arial; font-size: 30px; text-align: right; transform: scaleY(.76);">0 Credits<br>0 Credits<br>0 Credits</div>
+    <div   id="credits_results_ok_div"   onclick='credits_results_ok()' onmouseover='onButtonMouseOver("credits_results_ok")' onmouseout='onButtonMouseOut("credits_results_ok")'>
+      <img id="credits_results_ok_button" src="galactic_conquest/button_grey.png" style="width: 300px; height: 112px; position: absolute; top:1200px; left:1050px; opacity: 0.7; z-index: 20009;"></img>
+      <div id="credits_results_ok_text" class="unselectable"                                                   style="position: absolute; top:1210px; left:1140px; font-size: 80px; font-family: Arial; color: #E5E5E5; transform: scaleY(.76); z-index: 20009;">Ok</div>
+    </div>
+  </div>
+    
 </div>
 
 <div id="galaxy_all" style="display: block;">
@@ -123,10 +138,10 @@
 <div onclick='hideTeamSelect(republic)'
 onmouseover='document.getElementById("republic_button").src="galactic_conquest/button_glow_long.png"; 
              document.getElementById("republic_text").style.color="#F4AE0A";
-             document.getElementById("republic_logo").src="galactic_conquest/republic_logo_yellow.png";''
+             document.getElementById("republic_logo").src="galactic_conquest/republic_logo_yellow.png";'
 onmouseout= 'document.getElementById("republic_button").src="galactic_conquest/button_grey_long.png";
              document.getElementById("republic_text").style.color="#E5E5E5";
-             document.getElementById("republic_logo").src="galactic_conquest/republic_logo_grey.png";''>
+             document.getElementById("republic_logo").src="galactic_conquest/republic_logo_grey.png";'>
 <img id="republic_button" src="galactic_conquest/button_grey_long.png" style="opacity: 0.7; width: 1300px; height: 275px; position: absolute; top:600px; left:550px; z-index: 10001;">
 </img>
 <div id="republic_text" style="width: 1500px; height: 150px; position: absolute; top:680px; left:470px; font-size: 120px; font-family: Arial; color: #E5E5E5; transform: scaleX(.7) scaleY(.5); z-index: 10002;">GALACTIC REPUBLIC</div>
@@ -382,7 +397,7 @@ onmouseout= 'document.getElementById("cis_button").src="galactic_conquest/button
 <img id="point1_point15"    src="galactic_conquest/grey_line.png" style="position:absolute; left:1410px; top:754px; width: 290px; height: 3px; transform: translateX(-145px) rotate(  12.49deg); opacity: 0.2; z-index: 2;"></img>
 
 <img id="galaxy" src="galactic_conquest/galaxy_cut_fade.png" style="position:absolute; top:50px; left:415px; z-index: 1;"></img>
-<img src="galactic_conquest/space.jpg" style="position:absolute; top:0px; left:0px; width: 3000px; height: 2069px; z-index: 0;"></img>
+<img src="galactic_conquest/space.jpg" style="position:absolute; top:0px; left:0px; width: 3000px; height: 1687px; z-index: 0;"></img>
 </div>
 </body>
 </html>

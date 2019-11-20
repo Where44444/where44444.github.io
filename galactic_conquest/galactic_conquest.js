@@ -1,11 +1,9 @@
 //Temps
-var version = 1;
 var galaxyRot = 0;
 var loopSize = 0.2;
 var loopOpacity = 1.8;
 var animationSpeed = 1000/60;
 var wipeAnimation = 0;
-var wipeAnimationRunning = false;
 
 var na = 0;
 var republic = 1;
@@ -52,9 +50,6 @@ var pointPosY = new Map();
 var sizePosYDivider = 1000;
 var republicStartPoints = [point1];
 var cisStartPoints = [point14];
-//                 team_background
-var object_sizes = [[1400, 800]];
-var object_pos =   [];
 
 //23 Points
 var point_index_to_string = 
@@ -178,33 +173,44 @@ var help_bonus_view_content = [           "Bonuses<br>&nbsp&nbsp&nbsp(1/3) ><br>
                                             "Purchasing Bonuses<br>< (2/3) ><br>After choosing a bonus, apply it to one of the three<br>slots by pressing the desired slot. Applying a new<br>bonus to an occupied slot will overwrite the original bonus.",
                                     "Using Bonuses<br>< (3/3)&nbsp&nbsp&nbsp<br>Effects and costs of bonuses vary. Learn the best combat<br>situations in which to use each bonus type, and try to<br>keep multiple bonuses in your posession for use under<br>unexpected circumstances."];
 
-var ai_destination = na;
-var foundRoutes = []; //[[num_traversals, first], ... ]
-var numPlayerPlanets = 0;
-
 //Saves
-var team = republic; //OR cis
-var state = "team_select";
-var sub_state = "attack_settings";
-var planetOwners = new Map();
-var selectedPlanet = geonosis;
-var attackingPlanet = geonosis;
-var selectedLoopId = "#loop_geonosis"
-var dreadnoughtPlanets = [na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na];
-var selectedDreadnought = [geonosis, "dreadnought0"];
-var venatorPlanets =     [na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na];
-var selectedVenator = [kamino, "venator0"];
-var credits = 1000;
-var ai_credits = 1000;
-var fleet_cost = 1000;
-var ai_fleet_cost = 1000;
-var ai_bonus = na;
-var player_bonus = na;
-var hasMovedThisTurn = false;
-var canMove = false;
-var owned_bonuses = [[na, "galactic_conquest/bonus_background.png"], [na, "galactic_conquest/bonus_background.png"], [na, "galactic_conquest/bonus_background.png"]];
-var selected_attack_bonus = na;
-var buy_needs_confirmation = false;
+var version                         = 1;
+var team                            = republic; //OR cis
+var state                           = "team_select"; //"team_select"
+var sub_state                       = "credits_results";
+var planetOwners                    = new Map();
+var selectedPlanet                  = geonosis;
+var attackingPlanet                 = geonosis;
+var selectedLoopId                  = "#loop_geonosis"
+var dreadnoughtPlanets              = [na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na];
+var selectedDreadnought             = [geonosis, "dreadnought0"];
+var venatorPlanets                  = [na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na, na];
+var selectedVenator                 = [kamino, "venator0"];
+var credits                         = 1000;
+var ai_credits                      = 1000;
+var fleet_cost                      = 1000;
+var ai_fleet_cost                   = 1000;
+var ai_bonus                        = na;
+var player_bonus                    = na;
+var hasMovedThisTurn                = false;
+var canMove                         = false;
+var owned_bonuses                   = [[na, "galactic_conquest/bonus_background.png"], [na, "galactic_conquest/bonus_background.png"], [na, "galactic_conquest/bonus_background.png"]];
+var selected_attack_bonus           = na;
+var buy_needs_confirmation          = false;
+var wasVictory                      = false;
+var playerPlanetaryBonus            = 0;
+var aiPlanetaryBonus                = 0;
+var playerVictoryBonus              = 0;
+var aiVictoryBonus                  = 0;
+var ai_destination                  = na;
+var foundRoutes                     = []; //[[num_traversals, first], ... ]
+var ai_selectedFleet                = na;
+var wipeToPlanetAnimationRunning    = false;
+var wipeToGalaxyAnimationRunning    = false;
+var ai_moving_animation1_running    = false;
+var ai_moving_animation2_running    = false;
+var loadAttackBonusAnimationRunning = false;
+var ai_building_animation_running   = false;
 
 function onLoadCheck() {
   planetOwners.set(felucia,  cis);
@@ -348,6 +354,7 @@ pointMap.set(point18 , [kashyyyk, point2, point3]);
   selectedDreadnought[0] = dreadnoughtPlanets[0];
   selectedVenator[0] = venatorPlanets[0];
   setElements();
+  loadState();
 }
 
 // function getRandomPoint(){
@@ -552,8 +559,9 @@ function setElements(){
     }
     else if(state == "attack_planet"){
       document.getElementById("bonus_attack_ai_div").style.display = "none";
-      document.getElementById("attack_settings_div").style.display = "none";
       document.getElementById("bonus_attack_div").style.display = "none";
+      document.getElementById("attack_settings_div").style.display = "none";
+      document.getElementById("credits_results_div").style.display = "none";
 
       document.getElementById("planet_screen").style.display =          "block";
 
@@ -914,6 +922,45 @@ function setElements(){
           }
         }
       }
+      else if(sub_state == "credits_results"){
+        document.getElementById("credits_results_div").style.display = "block";
+        var numPlayerPlanets = 0;
+        var numAIPlanets = 0;
+        if(team == republic){
+          document.getElementById("credits_results_player_name").innerHTML = "Galactic Republic";
+          document.getElementById("credits_results_ai_name").innerHTML = "Separatist Alliance";
+          numPlayerPlanets = countOwnedPlanets(republic);
+          numAIPlanets = countOwnedPlanets(cis);
+        }
+        else{
+          document.getElementById("credits_results_player_name").innerHTML = "Separatist Alliance";
+          document.getElementById("credits_results_ai_name").innerHTML = "Galactic Republic";
+          numPlayerPlanets = countOwnedPlanets(cis);
+          numAIPlanets = countOwnedPlanets(republic);
+        }
+
+        var playerPlural = "";
+        if(numPlayerPlanets != 1)
+          playerPlural = "s";
+
+        var aiPlural = "";
+        if(numAIPlanets != 1)
+          aiPlural = "s";
+
+        if(wasVictory){
+          document.getElementById("credits_results_player_description").innerHTML = "Victory<br>" + numPlayerPlanets + " Planet" + playerPlural + "<br>TOTAL";
+          document.getElementById("credits_results_ai_description"    ).innerHTML = "Defeat<br>" + numAIPlanets + " Planet" + aiPlural + "<br>TOTAL";
+        }
+        else{
+          document.getElementById("credits_results_player_description").innerHTML = "Defeat<br>" + numPlayerPlanets + " Planet" + playerPlural + "<br>TOTAL";
+          document.getElementById("credits_results_ai_description"    ).innerHTML = "Victory<br>" + numAIPlanets + " Planet" + aiPlural + "<br>TOTAL";
+        }
+
+        var totalPlayerBonus = playerVictoryBonus + playerPlanetaryBonus;
+        var totalAIBonus = aiVictoryBonus + aiPlanetaryBonus;
+        document.getElementById("credits_results_player_amounts").innerHTML = playerVictoryBonus + " Credits<br>" + playerPlanetaryBonus + " Credits<br>" + totalPlayerBonus + " Credits";
+        document.getElementById("credits_results_ai_amounts").innerHTML = aiVictoryBonus + " Credits<br>" + aiPlanetaryBonus + " Credits<br>" + totalAIBonus + " Credits";
+      }
       document.getElementById("bonus_attack_owned0").src = owned_bonuses[0][1];
       document.getElementById("bonus_attack_owned1").src = owned_bonuses[1][1];
       document.getElementById("bonus_attack_owned2").src = owned_bonuses[2][1];
@@ -932,7 +979,7 @@ function setElements(){
       else{
         document.getElementById("use_div").style.display = "none";
       }
-    }
+    } //End state == "attack_planet"
     document.getElementById("credits_text").innerHTML = credits + " Credits";
     if(credits < bonusCreditCosts[selectedBonus])
       document.getElementById("bonus_cost").style.color = "red";
@@ -959,6 +1006,7 @@ function initializeTeams(){
       planetOwners.set(naboo   , cis);
       document.getElementById("republic_home").src = "galactic_conquest/republic_logo_blue.png";
       selectPoint(point_index_to_string[venatorPlanets[getFirstFleetIndex(republic)]], true);
+      setElements();
       document.getElementById("bonus0_img").src = "galactic_conquest/laat.gif"            ;
       document.getElementById("bonus1_img").src = "galactic_conquest/negotiations.gif"    ;
       document.getElementById("bonus2_img").src = "galactic_conquest/laatc.gif"           ;
@@ -988,6 +1036,7 @@ function initializeTeams(){
       planetOwners.set(naboo   , republic);
       document.getElementById("cis_home").src = "galactic_conquest/cis_logo_blue.png";
       selectPoint(point_index_to_string[dreadnoughtPlanets[getFirstFleetIndex(cis)]], true);
+      setElements();
       document.getElementById("bonus0_img").src = "galactic_conquest/hmp.gif"             ;
       document.getElementById("bonus1_img").src = "galactic_conquest/negotiations.gif"    ;
       document.getElementById("bonus2_img").src = "galactic_conquest/c9979.gif"           ;
@@ -1019,6 +1068,7 @@ function hideTeamSelect(team2) {
     initializeTeams();
     setElements();
   }
+  saveState();
 }
 
 function setLineStyles(oldPlanet, newPlanet){
@@ -1178,7 +1228,9 @@ function selectPoint(point, overrideState){
       $("#loop_" + point_index_to_string[selectedPlanet]).css("transform","scaleX(" + loopSize + ") scaleY(" + loopSize + ")");
       $("#loop_" + point_index_to_string[selectedPlanet]).css("opacity",loopOpacity);
     }
-    setElements();
+    if(!overrideState){
+      setElements();
+    }
   }
 } //End selectPoint()
 
@@ -1585,9 +1637,62 @@ function select_attack_bonus(index){
   }
 }
 
-function wipePlanetAnimation(){
-  if(wipeAnimationRunning){
-    wipeAnimation += 30;
+function wipeToGalaxyAnimation(firstStartup){
+  if(firstStartup){
+    wipeToGalaxyAnimationRunning = true;
+    wipeAnimation = 0;
+  }
+  if(wipeToGalaxyAnimationRunning){
+    wipeAnimation += 30;                                                  //Top Right Bottom Left
+    document.getElementById("attack_planet_background").style.clip = "rect(0px,3000px,1687px," + wipeAnimation + "px)";
+    //Size = 630 x 630
+    //Ventator    Left =  900 Top = 700
+    //Dreadnought Left = 1300 Top = 400
+    if(wipeAnimation >= 900 && wipeAnimation <= 1530){
+      document.getElementById("venator_attack").style.clip =     "rect(0px,630px,630px," + (wipeAnimation - 900) + "px)";
+      // console.log("1 " + wipeAnimation + " " + document.getElementById("venator_attack").style.clip);
+    }
+    if(wipeAnimation < 900){
+      document.getElementById("venator_attack").style.clip =     "rect(0px,630px,630px,0px)";
+      // console.log("2 " + wipeAnimation + " " + document.getElementById("venator_attack").style.clip);
+    }
+    else if(wipeAnimation > 1530){
+      document.getElementById("venator_attack").style.clip =     "rect(0px,630px,630px,630px)";
+      // console.log("3 " + wipeAnimation + " " + document.getElementById("venator_attack").style.clip);
+    }
+    
+    if(wipeAnimation >= 1300 && wipeAnimation <= 1930)
+      document.getElementById("dreadnought_attack").style.clip = "rect(0px,630px,630px," + (wipeAnimation - 1300) + "px)";
+    if(wipeAnimation < 1300)
+      document.getElementById("dreadnought_attack").style.clip = "rect(0px,630px,630px,0px)";
+    else if(wipeAnimation > 1930)
+      document.getElementById("dreadnought_attack").style.clip = "rect(0px,630px,630px,630px)";
+    if(wipeAnimation >= 3000) {
+      wipeToGalaxyAnimationRunning = false;
+      setElements();
+    }
+    setTimeout(function(){ //Not state sensitive
+      wipeToGalaxyAnimation(false);
+    }, animationSpeed);
+  }
+}
+
+function loadAttackBonusAnimation(){
+  loadAttackBonusAnimationRunning = true;
+  setTimeout(function(){
+    sub_state = "attack_bonus";
+    setElements();
+    loadAttackBonusAnimationRunning = false;
+  }, 2000);
+}
+
+function wipeToPlanetAnimation(firstStartup){
+  if(firstStartup){
+    wipeToPlanetAnimationRunning = true;
+    wipeAnimation = 0;
+  }
+  if(wipeToPlanetAnimationRunning){
+    wipeAnimation += 30;                                                  //Top Right Bottom Left
     document.getElementById("attack_planet_background").style.clip = "rect(0px," + wipeAnimation + "px,1687px,0px)";
     //Size = 630 x 630
     //Ventator    Left =  900 Top = 700
@@ -1596,35 +1701,35 @@ function wipePlanetAnimation(){
       document.getElementById("venator_attack").style.clip =     "rect(0px," + (wipeAnimation - 900)  + "px,630px,0px)";
     if(wipeAnimation > 1530)
       document.getElementById("venator_attack").style.clip =     "rect(0px,630px,630px,0px)";
+    else if(wipeAnimation < 900)
+      document.getElementById("venator_attack").style.clip =     "rect(0px,0px,630px,0px)";
+
     if(wipeAnimation >= 1300 && wipeAnimation <= 1930)
       document.getElementById("dreadnought_attack").style.clip = "rect(0px," + (wipeAnimation - 1300) + "px,630px,0px)";
     if(wipeAnimation > 1930)
       document.getElementById("dreadnought_attack").style.clip = "rect(0px,630px,630px,0px)";
+    else if(wipeAnimation < 1300)
+      document.getElementById("dreadnought_attack").style.clip = "rect(0px,0px,630px,0px)";
+
     if(wipeAnimation >= 3000){
-      wipeAnimationRunning = false;
-      setTimeout(function(){
-        sub_state = "attack_bonus";
-        setElements();
-      }, 2000);
+      wipeToPlanetAnimationRunning = false;
+      setElements();
+      loadAttackBonusAnimation();
     }
-    setTimeout(function(){
-      wipePlanetAnimation();
+    setTimeout(function(){ //Not state sensitive
+      wipeToPlanetAnimation();
     }, animationSpeed);
   }
 }
 
 function loadAttackScreen(){
-  wipeAnimationRunning = true;
+  wipeToPlanetAnimationRunning = true;
   wipeAnimation = 0;
-  document.getElementById("attack_planet_background").style.clip = "rect(0px,0px,1687px,0px)";
-  document.getElementById("venator_attack").style.clip     = "rect(0px,0px,630px,0px)";
-  document.getElementById("dreadnought_attack").style.clip = "rect(0px,0px,630px,0px)";
-  wipePlanetAnimation();
+  wipeToPlanetAnimation();
 }
 
 function checkForPlanetAttack(team2, dest){
   //Space Battle
-  console.log(team2 + " " + dest);
   if(dest != na){
     if(venatorPlanets.includes(dest) && dreadnoughtPlanets.includes(dest)){
       state = "attack_planet";
@@ -1661,7 +1766,7 @@ function checkForPlanetAttack(team2, dest){
 }
 
 function move(){
-  if(state == "galaxy_view"){
+  if(state == "galaxy_view" && canMove && !hasMovedThisTurn){
     canMove = false;
     hasMovedThisTurn = true;
     setLinesGreySrc();
@@ -1775,73 +1880,170 @@ function build(){
         selectedDreadnought[0] = selectedPlanet;
         selectedDreadnought[1] = "dreadnought" + index;
       }
-      setElements();
       selectPoint(point_index_to_string[selectedPlanet], true);
+      setElements();
     }
   }
+}
+
+function getRandomFleet(team2){
+  var potentialFleets = [];
+  var i = 0;
+  if(team2 == republic){
+    for (i = 0; i < venatorPlanets.length; ++i){
+      if(venatorPlanets[i] != na)
+        potentialFleets.push(venatorPlanets[i]);
+    }
+  }
+  else{
+    for (i = 0; i < dreadnoughtPlanets.length; ++i){
+      if(dreadnoughtPlanets[i] != na)
+        potentialFleets.push(dreadnoughtPlanets[i]);
+    }
+  }
+  if(potentialFleets.length > 0){
+    var planetIndex = Math.floor(Math.random() * potentialFleets.length);
+    if(planetIndex == potentialFleets.length){
+      --planetIndex;
+    }
+    return potentialFleets[planetIndex];
+  }
+  return null;
+}
+
+function ai_move_animation1(){
+  ai_moving_animation1_running = true;
+  setTimeout(function(){
+    if(ai_destination != na){
+      if(team == republic) {
+        dreadnoughtPlanets[dreadnoughtPlanets.indexOf(ai_selectedFleet)] = ai_destination;
+      }
+      else {
+        venatorPlanets[venatorPlanets.indexOf(ai_selectedFleet)] = ai_destination;
+      }
+    }
+    setElements();
+    ai_move_animation2();
+    ai_moving_animation1_running = false;
+  }, 1000);
+}
+
+function ai_move_animation2(){
+  ai_moving_animation2_running = true;
+  setTimeout(function(){
+    setLinesGreySrc();
+    hasMovedThisTurn = false;
+    state = "galaxy_view";
+    if(team == republic)
+      checkForPlanetAttack(cis, ai_destination);
+    else
+      checkForPlanetAttack(republic, ai_destination);
+    setElements();
+    if(team == republic) {
+      selectPoint(point_index_to_string[selectedVenator[0]], true);
+      setElements();
+      for(i = 0; i < 26; ++i){
+        document.getElementById("dreadnought" + i).src = "galactic_conquest/dreadnought.png";
+      }
+    }
+    else {
+      selectPoint(point_index_to_string[selectedDreadnought[0]], true);
+      setElements();
+      for(i = 0; i < 26; ++i){
+        document.getElementById("venator" + i).src = "galactic_conquest/venator.png";
+      }
+    }
+    ai_moving_animation2_running = false;
+  }, 1000);
+}
+
+function build_ai_animation(time){
+  ai_building_animation_running = true;
+  setTimeout(function(){
+    move_ai(ai_selectedFleet);
+    if(ai_destination != na){
+      ai_selectpoint(ai_selectedFleet);
+      ai_selectpoint(ai_destination);
+    }
+    setElements();
+    ai_move_animation1();
+    ai_building_animation_running = false;
+  }, time);
 }
 
 function end_turn(){
   if(state == "galaxy_view"){
+    console.log("AI Credits: " + ai_credits);
     state = "ai_moving";
     ai_destination = na;
-    move_ai();
-    if(ai_destination != na){
-      if(team == republic) {
-        ai_selectpoint(dreadnoughtPlanets[getFirstFleetIndex(cis)]);
-        ai_selectpoint(ai_destination);
-      }
-      else {
-        ai_selectpoint(venatorPlanets[getFirstFleetIndex(republic)]);
-        ai_selectpoint(ai_destination);
+    var recentlybuilt = build_ai();
+    if(team == republic){
+      if(countFleets(cis) > 0){
+        ai_selectedFleet = getRandomFleet(cis);
       }
     }
-    setTimeout(function(){
-      if(ai_destination != na){
-        if(team == republic) {
-          dreadnoughtPlanets[getFirstFleetIndex(cis)] = ai_destination;
-        }
-        else {
-          venatorPlanets[getFirstFleetIndex(republic)] = ai_destination;
-        }
+    else{
+      if(countFleets(republic) > 0){
+        ai_selectedFleet = getRandomFleet(republic);
       }
-      setElements();
-      setTimeout(function(){
-        setLinesGreySrc();
-        hasMovedThisTurn = false;
-        state = "galaxy_view";
-        if(team == republic)
-          checkForPlanetAttack(cis, ai_destination);
-        else
-          checkForPlanetAttack(republic, ai_destination);
-        setElements();
-        if(team == republic) {
-          selectPoint(point_index_to_string[selectedVenator[0]], true);
-          for(i = 0; i < 26; ++i){
-            document.getElementById("dreadnought" + i).src = "galactic_conquest/dreadnought.png";
-          }
-        }
-        else {
-          selectPoint(point_index_to_string[selectedDreadnought[0]], true);
-          for(i = 0; i < 26; ++i){
-            document.getElementById("venator" + i).src = "galactic_conquest/venator.png";
-          }
-        }
-      }, 1000);
-    }, 1000);
+    }
+    setElements();
+    if(recentlybuilt){
+      build_ai_animation(2000);
+    }
+    else{
+      build_ai_animation(0);
+    }
+
   }
 }
 
-function move_ai(){
-  var currentPoint;
+function build_ai(){
+  var buildChance = Math.random();
+  if(buildChance < 0.5 && ai_credits >= ai_fleet_cost){
+    var potentialBuildSites = [];
+    for (var [planet, team3] of planetOwners) {
+      if(team == republic){
+        if(team3 == cis && !dreadnoughtPlanets.includes(planet))
+          potentialBuildSites.push(planet);
+      }
+      else{
+        if(team3 == republic && !venatorPlanets.includes(planet))
+          potentialBuildSites.push(planet);
+      }
+    }
+    if(potentialBuildSites.length > 0){
+      var planetIndex = Math.floor(Math.random() * potentialBuildSites.length);
+      if(planetIndex == potentialBuildSites.length){
+        --planetIndex;
+      }
+      var planetToBuildOn = potentialBuildSites[planetIndex];
+      ai_credits -= ai_fleet_cost;
+      ai_fleet_cost += 1000;
+      if(team == republic){
+        var index = dreadnoughtPlanets.indexOf(na);
+        dreadnoughtPlanets[index] = planetToBuildOn;
+        selectedDreadnought[0] = planetToBuildOn;
+        selectedDreadnought[1] = "dreadnought" + index;
+      }
+      else{
+        var index = venatorPlanets.indexOf(na);
+        venatorPlanets[index] = planetToBuildOn;
+        selectedVenator[0] = planetToBuildOn;
+        selectedVenator[1] = "venator" + index;
+      }
+      ai_selectpoint(planetToBuildOn);
+      setElements();
+      return true;
+    }
+  }
+  return false;
+}
+
+function move_ai(selectedFleet){
+  var currentPoint = selectedFleet;
   foundRoutes = [];
-  if(team == republic){
-    currentPoint = dreadnoughtPlanets[getFirstFleetIndex(cis)];
-  }
-  else{
-    currentPoint = venatorPlanets[getFirstFleetIndex(republic)];
-  }
-  numPlayerPlanets = countOwnedPlanets(team);
+  var numPlayerPlanets = countOwnedPlanets(team);
   if(numPlayerPlanets == 0){
     var pointsNearby = pointMap.get(currentPoint);
     var index = Math.floor(Math.random() * pointsNearby.length);
@@ -1849,6 +2051,7 @@ function move_ai(){
       --index;
     ai_destination = pointsNearby[index];
   }
+  // console.log("Venator Planets " + venatorPlanets);
   var listOfPoints = pointMap.get(currentPoint);
   var i = 0;
   for(i = 0; i < listOfPoints.length; ++i){
@@ -1858,7 +2061,9 @@ function move_ai(){
         foundRoutes.push([0, foundPoint]);
       }
       else{
-        searchNodes(foundPoint, foundPoint, [currentPoint, foundPoint], 1);
+        var traversed = [currentPoint, foundPoint];
+        // console.log("Searching " + point_index_to_string[foundPoint] + "\n" + 1);
+        searchNodes(foundPoint, foundPoint, traversed, 1);
       }
     }
   }
@@ -1899,7 +2104,7 @@ function searchNodes(point, first, points_traversed, num_traversals){
   }
   var listOfPoints = pointMap.get(point);
   var i = 0;
-  for(i = 0; i < listOfPoints.length && foundRoutes.length < 200; ++i){
+  for(i = 0; i < listOfPoints.length; ++i){
     var foundPoint = listOfPoints[i];
     if(!points_traversed.includes(foundPoint) &&
       ( ( team == republic && !dreadnoughtPlanets.includes(foundPoint) ) || (team == cis && !venatorPlanets.includes(foundPoint) ) ) ){
@@ -1912,6 +2117,7 @@ function searchNodes(point, first, points_traversed, num_traversals){
         for(j = 0; j < points_traversed.length; ++j)
           new_traversed.push(points_traversed[j]);
         new_traversed.push(foundPoint);
+        // console.log("Current: " + point_index_to_string[point] + "\nSearching: " + point_index_to_string[foundPoint] + "\nFirst: " + point_index_to_string[first] + "\n" + (num_traversals + 1));
         searchNodes(foundPoint, first, new_traversed, num_traversals + 1);
       }
     }
@@ -1949,18 +2155,23 @@ function loadVictoryDefeat(){
   document.getElementById("victory_div" ).style.display = "none";
   document.getElementById("defeat_div"  ).style.display = "none";
   document.getElementById("results_text").style.display = "none";
-  setTimeout(function(){
+  setTimeout(function(){ //Not state sensitive
     setElements();
   }, 3000);
 }
 
+function showAIBonusAnimation(){
+  sub_state = "attack_settings";
+  setTimeout(function(){ //Not state sensitive
+    setElements();
+    loadVictoryDefeat();
+  }, 5000);
+}
+
 function loadAttackSettingsScreen(){
   if(sub_state == "show_ai_bonus"){
-    sub_state = "attack_settings";
-    setTimeout(function(){
-      setElements();
-      loadVictoryDefeat();
-    }, 5000);
+    setElements();
+    showAIBonusAnimation();
   }
   else{
     sub_state = "attack_settings";
@@ -2052,6 +2263,7 @@ function checkForDestroyFleet(point, team2){
     }
     if(team2 == team && !venatorPlanets.includes(point) && selectedVenator[0] == point){
         selectPoint(point_index_to_string[ venatorPlanets[getFirstFleetIndex(team)] ], true);
+        setElements();
     }
   }
   else{
@@ -2064,14 +2276,59 @@ function checkForDestroyFleet(point, team2){
     }
     if(team2 == team && !dreadnoughtPlanets.includes(point) && selectedDreadnought[0] == point){
       selectPoint(point_index_to_string[ dreadnoughtPlanets[getFirstFleetIndex(team)] ], true);
+      setElements();
     }
   }
 }
 
+function calculateCreditEarnings(){
+  playerPlanetaryBonus = 0;
+  aiPlanetaryBonus = 0;
+  for (var [planet, team2] of planetOwners) {
+   if(team2 != na){
+     if(team2 == team){
+       playerPlanetaryBonus += planetBonuses.get(planet);
+     }
+     else{
+       aiPlanetaryBonus += planetBonuses.get(planet);
+     }
+   }
+ }
+
+  playerVictoryBonus = 0;
+  aiVictoryBonus = 0;
+  if(wasVictory){
+    if(planetOwners.get(attackingPlanet) != na){ //Planet/Space Battle
+      playerVictoryBonus = planetVictoryResources.get(attackingPlanet);
+      aiVictoryBonus = 200;
+    }
+    else{ //Point Battle
+      playerVictoryBonus = 200;
+      aiVictoryBonus = 0;
+    }
+  }
+  else{
+    if(planetOwners.get(attackingPlanet) != na){ //Planet/Space Battle
+      aiVictoryBonus = planetVictoryResources.get(attackingPlanet);
+      playerVictoryBonus = 200;
+    }
+    else{ //Point Battle
+      aiVictoryBonus = 200;
+      playerVictoryBonus = 0;
+    }
+  }
+  credits += playerPlanetaryBonus + playerVictoryBonus;
+  ai_credits += aiPlanetaryBonus + aiVictoryBonus;
+}
+
 function victory(){
   if(state == "attack_planet"){
-    planetOwners.set(attackingPlanet, team);
-    state = "galaxy_view";
+    wasVictory = true;
+    if(planetOwners.get(attackingPlanet) != na){
+      planetOwners.set(attackingPlanet, team);
+    }
+    calculateCreditEarnings();
+    sub_state = "credits_results";
     if(team == republic){
       selectPoint(point_index_to_string[selectedVenator[0]], true);
       checkForDestroyFleet(attackingPlanet, cis);
@@ -2081,18 +2338,20 @@ function victory(){
       checkForDestroyFleet(attackingPlanet, republic);
     }
     setElements();
-    if(hasMovedThisTurn)
-      end_turn();
   }
 }
 
 function defeat(){
   if(state == "attack_planet"){
-    if(team == republic)
-      planetOwners.set(attackingPlanet, cis);
-    else
-      planetOwners.set(attackingPlanet, republic);
-    state = "galaxy_view";
+    wasVictory = false;
+    if(planetOwners.get(attackingPlanet) != na){
+      if(team == republic)
+        planetOwners.set(attackingPlanet, cis);
+      else
+        planetOwners.set(attackingPlanet, republic);
+    }
+    calculateCreditEarnings();
+    sub_state = "credits_results";
     if(team == republic){
       selectPoint(point_index_to_string[selectedVenator[0]], true);
     }
@@ -2101,7 +2360,144 @@ function defeat(){
     }
     checkForDestroyFleet(attackingPlanet, team);
     setElements();
-    if(hasMovedThisTurn)
-      end_turn();
   }
+}
+
+function credits_results_ok(){
+  if(state == "attack_planet"){
+    if(team == republic){
+      selectPoint(point_index_to_string[ venatorPlanets[getFirstFleetIndex(republic)] ], true);
+    }
+    else{
+      selectPoint(point_index_to_string[ dreadnoughtPlanets[getFirstFleetIndex(cis)] ], true);
+    }
+    document.getElementById("galaxy_all").style.display =            "block";
+    document.getElementById("credits_results_div").style.display =   "none";
+    document.getElementById("planet_screen").style.display =         "block";
+    document.getElementById("team_select").style.display =           "none";
+    document.getElementById("move_div").style.display =              "none";
+    document.getElementById("help_div").style.display =              "none";
+    document.getElementById("build_div").style.display =             "none";
+    document.getElementById("end_div").style.display =               "none";
+    document.getElementById("move_mode_div").style.display =         "none";
+    document.getElementById("bonus_mode_div").style.display =        "none";
+    document.getElementById("buy_div").style.display =               "none";
+    document.getElementById("bonus_view_div").style.display =        "none";
+    document.getElementById("credits_display").style.display =       "block";
+    document.getElementById("point_description_div").style.display = "none";
+    state = "galaxy_view";
+    wipeToGalaxyAnimation(true);
+  }
+}
+
+function saveState(){
+  var daysToExpire = 365;
+  setCookie("version"                        , version                         , daysToExpire);
+  setCookie("team"                           , team                            , daysToExpire);
+  setCookie("state"                          , state                           , daysToExpire);
+  setCookie("sub_state"                      , sub_state                       , daysToExpire);
+  setCookie("planetOwners"                   , planetOwners                    , daysToExpire);
+  setCookie("selectedPlanet"                 , selectedPlanet                  , daysToExpire);
+  setCookie("attackingPlanet"                , attackingPlanet                 , daysToExpire);
+  setCookie("selectedLoopId"                 , selectedLoopId                  , daysToExpire);
+  setCookie("dreadnoughtPlanets"             , dreadnoughtPlanets              , daysToExpire);
+  setCookie("selectedDreadnought"            , selectedDreadnought             , daysToExpire);
+  setCookie("venatorPlanets"                 , venatorPlanets                  , daysToExpire);
+  setCookie("selectedVenator"                , selectedVenator                 , daysToExpire);
+  setCookie("credits"                        , credits                         , daysToExpire);
+  setCookie("ai_credits"                     , ai_credits                      , daysToExpire);
+  setCookie("fleet_cost"                     , fleet_cost                      , daysToExpire);
+  setCookie("ai_fleet_cost"                  , ai_fleet_cost                   , daysToExpire);
+  setCookie("ai_bonus"                       , ai_bonus                        , daysToExpire);
+  setCookie("player_bonus"                   , player_bonus                    , daysToExpire);
+  setCookie("hasMovedThisTurn"               , hasMovedThisTurn                , daysToExpire);
+  setCookie("canMove"                        , canMove                         , daysToExpire);
+  setCookie("owned_bonuses"                  , owned_bonuses                   , daysToExpire);
+  setCookie("selected_attack_bonus"          , selected_attack_bonus           , daysToExpire);
+  setCookie("buy_needs_confirmation"         , buy_needs_confirmation          , daysToExpire);
+  setCookie("wasVictory"                     , wasVictory                      , daysToExpire);
+  setCookie("playerPlanetaryBonus"           , playerPlanetaryBonus            , daysToExpire);
+  setCookie("aiPlanetaryBonus"               , aiPlanetaryBonus                , daysToExpire);
+  setCookie("playerVictoryBonus"             , playerVictoryBonus              , daysToExpire);
+  setCookie("aiVictoryBonus"                 , aiVictoryBonus                  , daysToExpire);
+  setCookie("ai_destination"                 , ai_destination                  , daysToExpire);
+  setCookie("foundRoutes"                    , foundRoutes                     , daysToExpire);
+  setCookie("ai_selectedFleet"               , ai_selectedFleet                , daysToExpire);
+  setCookie("wipeToPlanetAnimationRunning"   , wipeToPlanetAnimationRunning    , daysToExpire);
+  setCookie("wipeToGalaxyAnimationRunning"   , wipeToGalaxyAnimationRunning    , daysToExpire);
+  setCookie("ai_moving_animation1_running"   , ai_moving_animation1_running    , daysToExpire);
+  setCookie("ai_moving_animation2_running"   , ai_moving_animation2_running    , daysToExpire);
+  setCookie("loadAttackBonusAnimationRunning", loadAttackBonusAnimationRunning , daysToExpire);
+  setCookie("ai_building_animation_running"  , ai_building_animation_running   , daysToExpire);
+  console.log("Saved State");
+}
+
+function loadState(){
+  var versionTemp                   = getCookie("version"                        );
+  console.log("Version|" + versionTemp +"|");
+  if(versionTemp == version){
+    team                            = getCookie("team"                           );
+    state                           = getCookie("state"                          );
+    sub_state                       = getCookie("sub_state"                      );
+    planetOwners                    = getCookie("planetOwners"                   );
+    selectedPlanet                  = getCookie("selectedPlanet"                 );
+    attackingPlanet                 = getCookie("attackingPlanet"                );
+    selectedLoopId                  = getCookie("selectedLoopId"                 );
+    dreadnoughtPlanets              = getCookie("dreadnoughtPlanets"             );
+    selectedDreadnought             = getCookie("selectedDreadnought"            );
+    venatorPlanets                  = getCookie("venatorPlanets"                 );
+    selectedVenator                 = getCookie("selectedVenator"                );
+    credits                         = getCookie("credits"                        );
+    ai_credits                      = getCookie("ai_credits"                     );
+    fleet_cost                      = getCookie("fleet_cost"                     );
+    ai_fleet_cost                   = getCookie("ai_fleet_cost"                  );
+    ai_bonus                        = getCookie("ai_bonus"                       );
+    player_bonus                    = getCookie("player_bonus"                   );
+    hasMovedThisTurn                = getCookie("hasMovedThisTurn"               );
+    canMove                         = getCookie("canMove"                        );
+    owned_bonuses                   = getCookie("owned_bonuses"                  );
+    selected_attack_bonus           = getCookie("selected_attack_bonus"          );
+    buy_needs_confirmation          = getCookie("buy_needs_confirmation"         );
+    wasVictory                      = getCookie("wasVictory"                     );
+    playerPlanetaryBonus            = getCookie("playerPlanetaryBonus"           );
+    aiPlanetaryBonus                = getCookie("aiPlanetaryBonus"               );
+    playerVictoryBonus              = getCookie("playerVictoryBonus"             );
+    aiVictoryBonus                  = getCookie("aiVictoryBonus"                 );
+    ai_destination                  = getCookie("ai_destination"                 );
+    foundRoutes                     = getCookie("foundRoutes"                    );
+    ai_selectedFleet                = getCookie("ai_selectedFleet"               );
+    wipeToPlanetAnimationRunning    = getCookie("wipeToPlanetAnimationRunning"   );
+    wipeToGalaxyAnimationRunning    = getCookie("wipeToGalaxyAnimationRunning"   );
+    ai_moving_animation1_running    = getCookie("ai_moving_animation1_running"   );
+    ai_moving_animation2_running    = getCookie("ai_moving_animation2_running"   );
+    loadAttackBonusAnimationRunning = getCookie("loadAttackBonusAnimationRunning");
+    ai_building_animation_running   = getCookie("ai_building_animation_running"  );
+    setElements();
+  }
+  else{
+    saveState();
+  }
+}
+
+function getCookie(cname) {
+  var name = cname + "=";
+  var decodedCookie = decodeURIComponent(document.cookie);
+  var ca = decodedCookie.split(';');
+  for(var i = 0; i <ca.length; i++) {
+      var c = ca[i];
+      while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+      }
+      if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+      }
+  }
+  return "";
+}
+
+function setCookie(cname, cvalue, exdays) {
+  var d = new Date();
+  d.setTime(d.getTime() + (exdays*24*60*60*1000));
+  var expires = "expires="+ d.toUTCString();
+  document.cookie = cname + "=" + cvalue + ";" + expires + "; SameSite=Strict; path=/";
 }

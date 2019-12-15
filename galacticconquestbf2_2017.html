@@ -105,7 +105,7 @@
   <input type="hidden" name="business" value="RSAXENEL8VGM6" />
   <input type="hidden" name="item_name" value="Donate earth currency to an obscure extra-galactic outpost" />
   <input type="hidden" name="currency_code" value="USD" />
-  <input type="image" id="donate_earth_button" onmouseover='onDonateMouseOver()' onmouseout='onDonateMouseOut()' src="galactic_conquest/donate_button_grey.png" name="submit" alt="Donate with PayPal button" style="width: 450px; height: 137px; position: absolute; top:1500px; left:500px;  z-index: 20101;" />
+  <input type="image" id="donate_earth_button" onmouseover='onDonateMouseOver()' onmouseout='onDonateMouseOut()' src="galactic_conquest/donate_button_grey.png" name="submit" alt="Donate with PayPal button" style="width: 450px; height: 137px; position: absolute; top:1500px; left:975px;  z-index: 20101;" />
   <img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1" />
   </form>
   
@@ -233,12 +233,8 @@
 <div id="team_select" style="display: none;">
 <div id="team_background" style="background-color: black; opacity: 0.7; width: 1400px; height: 800px; position: absolute; top: 500px; left: 500px; z-index: 10000;"></div>
 <div onclick='hideTeamSelect(republic)'
-onmouseover='document.getElementById("republic_button").src="galactic_conquest/button_glow_long.png"; 
-             document.getElementById("republic_text").style.color="#F4AE0A";
-             document.getElementById("republic_logo").src="galactic_conquest/republic_logo_yellow.png";'
-onmouseout= 'document.getElementById("republic_button").src="galactic_conquest/button_grey_long.png";
-             document.getElementById("republic_text").style.color="#E5E5E5";
-             document.getElementById("republic_logo").src="galactic_conquest/republic_logo_grey.png";'>
+onmouseover='onTeamSelectMouseOver("republic")'
+onmouseout= 'onTeamSelectMouseOut("republic")'>
 <img id="republic_button" src="galactic_conquest/button_grey_long.png" style="opacity: 0.7; width: 1300px; height: 275px; position: absolute; top:600px; left:550px; z-index: 10001;">
 </img>
 <div id="republic_text" style="width: 1500px; height: 150px; position: absolute; top:680px; left:470px; font-size: 120px; font-family: Arial; color: #E5E5E5; transform: scaleX(.7) scaleY(.5); z-index: 10002;">GALACTIC REPUBLIC</div>
@@ -246,16 +242,13 @@ onmouseout= 'document.getElementById("republic_button").src="galactic_conquest/b
 </div>
 
 <div onclick='hideTeamSelect(cis)'
-onmouseover='document.getElementById("cis_button").src="galactic_conquest/button_glow_long.png"; 
-             document.getElementById("cis_text").style.color="#F4AE0A";
-             document.getElementById("cis_logo").src="galactic_conquest/cis_logo_yellow.png";'
-onmouseout= 'document.getElementById("cis_button").src="galactic_conquest/button_grey_long.png";
-             document.getElementById("cis_text").style.color="#E5E5E5";
-             document.getElementById("cis_logo").src="galactic_conquest/cis_logo_grey.png";'>
+onmouseover='onTeamSelectMouseOver("cis")'
+onmouseout= 'onTeamSelectMouseOut("cis")'>
 <img id="cis_button" src="galactic_conquest/button_grey_long.png" style="opacity: 0.7; width: 1300px; height: 275px; position: absolute; top:900px; left:550px; z-index: 10001;"></img>
 <div id="cis_text"                                                              style="width: 1500px; height: 150px; position: absolute; top:980px; left:450px; font-size: 120px; font-family: Arial; color: #E5E5E5; transform: scaleX(.65) scaleY(.5); z-index: 10002;">SEPARATIST ALLIANCE</div>
 <img id="cis_logo" src="galactic_conquest/cis_logo_grey.png" style="position: absolute; top:735px; left:1350px; width: 624px; height: 624px; transform: scaleX(.25) scaleY(.25); z-index: 10003;"></img>
 </div>
+<div id="autosave_text"                                       style="width: 1500px; height: 150px; position: absolute; top:1150px; left:550px; font-size: 60px; font-family: Arial; color: #E5E5E5; transform: scaleX(.65) scaleY(.5); z-index: 10002;">Your progress will be saved automatically</div>
 </div> <!--End Team Select-->
 
 <!-- Buttons -->

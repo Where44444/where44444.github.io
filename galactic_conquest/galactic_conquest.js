@@ -35,6 +35,7 @@ var w4PosMap = new Map();
 var w4SizeMap = new Map();
 var w4FontMap = new Map();
 var w4FontElements = [
+  "version_text",
   "donate_earth_button",
   "autosave_text",
   "restart_text",
@@ -97,6 +98,7 @@ var w4FontElements = [
 ];
 
 var w4PosSizeElements = [
+  "version_text",
   "donate_earth_button",
   "autosave_text",
   "restart_button",
@@ -569,7 +571,7 @@ var sub_attack_settings = 16;
 var sub_credits_results = 17;
 
 //Saves
-var version                         = 2;
+var version                         = 1.1;
 var team                            = republic; //OR cis
 var state                           = state_team_select; //state_team_select
 var sub_state                       = sub_credits_results;
@@ -612,6 +614,8 @@ var spaceBattle = false;
 var zoom_level = 1;
 
 function onLoadCheck() {
+  document.getElementById("version_text").innerHTML = "Version " + version;
+  hideAllLoops();
   var i = 0;
   for(i = 0; i < w4PosSizeElements.length; ++i){
     var name = w4PosSizeElements[i];

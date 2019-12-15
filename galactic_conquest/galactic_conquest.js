@@ -3620,3 +3620,17 @@ function restart_dialogue(bool){
     document.getElementById("restart_screen_div").style.display = "none";
   }
 }
+
+function onDonateMouseOver(){
+  if(soundEnabled && !cursor_over_button){
+    sound_select.currentTime = 0;
+    sound_select.play();
+  }
+  cursor_over_button = true;
+  document.getElementById("donate_earth_button").src="galactic_conquest/donate_button_glow.png";
+}
+
+function onDonateMouseOut(){
+  cursor_over_button = false;
+  document.getElementById("donate_earth_button").src="galactic_conquest/donate_button_grey.png";
+}

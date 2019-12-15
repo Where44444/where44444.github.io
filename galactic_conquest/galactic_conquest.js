@@ -425,8 +425,8 @@ var increase_difficulty = 7;
 var pointPosX = new Map();
 var pointPosY = new Map();
 var sizePosYDivider = 1000;
-var republicStartPoints = [point1];
-var cisStartPoints = [point14];
+var republicStartPoint = point1;
+var cisStartPoint = point14;
 
 //23 Points
 var point_index_to_string = 
@@ -571,7 +571,8 @@ var sub_attack_settings = 16;
 var sub_credits_results = 17;
 
 //Saves
-var version                         = 1.1;
+var version                         = 1.2;
+var variableVersion                 = 1; //Change this when new variables are added to reset cookies
 var team                            = republic; //OR cis
 var state                           = state_team_select; //state_team_select
 var sub_state                       = sub_credits_results;
@@ -823,16 +824,26 @@ function setZoomSizes(){
 
 function getShipStartPoint(team2){
   if(team2 == republic){
-    var num = Math.floor(Math.random() * republicStartPoints.length);
-    if(num == republicStartPoints.length)
-      --num;
-    return republicStartPoints[num];
+    if(doesArrayInclude(dreadnoughtPlanets, republicStartPoint)){
+      var i = 1;
+      for(i = 1; i < 19; ++i){
+        if(!doesArrayInclude(dreadnoughtPlanets, i)){
+          return i;
+        }
+      }
+    }
+    return republicStartPoint;
   }
   else{
-    var num = Math.floor(Math.random() * cisStartPoints.length);
-    if(num == cisStartPoints.length)
-      --num;
-    return cisStartPoints[num];
+    if(doesArrayInclude(venatorPlanets, cisStartPoint)){
+      var i = 1;
+      for(i = 1; i < 19; ++i){
+        if(!doesArrayInclude(venatorPlanets, i)){
+          return i;
+        }
+      }
+    }
+    return cisStartPoint;
   }
 }
 
@@ -1666,7 +1677,7 @@ function selectPoint(point, overrideState){
 
       //Select Venator
       if(doesArrayInclude(venatorPlanets, point)){
-        if(soundEnabled && !overrideState){
+        if(soundEnabled && !overrideState && !hasMovedThisTurn){
           var index = getRandomNumber(1);
           sound_select_destination[team][index].currentTime = 0;
           sound_select_destination[team][index].play();
@@ -1706,7 +1717,7 @@ function selectPoint(point, overrideState){
 
         //Select Dreadnought
         if(doesArrayInclude(dreadnoughtPlanets, point)){
-          if(soundEnabled && !overrideState){
+          if(soundEnabled && !overrideState && !hasMovedThisTurn){
             var index = getRandomNumber(1);
             sound_select_destination[team][index].currentTime = 0;
             sound_select_destination[team][index].play();
@@ -3229,6 +3240,7 @@ function credits_results_ok(){
 function saveState(){
   var daysToExpire = 365;
   setCookie("version"                        , version                         , daysToExpire);
+  setCookie("variableVersion"                , variableVersion                 , daysToExpire);
   setCookie("team"                           , team                            , daysToExpire);
   setCookie("state"                          , state                           , daysToExpire);
   setCookie("sub_state"                      , sub_state                       , daysToExpire);
@@ -3264,7 +3276,9 @@ function saveState(){
   setCookie("ai_moving_animation1_running"   , ai_moving_animation1_running    , daysToExpire);
   setCookie("ai_moving_animation2_running"   , ai_moving_animation2_running    , daysToExpire);
   setCookie("loadAttackBonusAnimationRunning", loadAttackBonusAnimationRunning , daysToExpire);
+  setCookie("loadVictoryDefeatAnimationRunning", loadVictoryDefeatAnimationRunning, daysToExpire);
   setCookie("ai_building_animation_running"  , ai_building_animation_running   , daysToExpire);
+  setCookie("shoawAIBonusAnimationRunning"   , shoawAIBonusAnimationRunning    , daysToExpire);
   setCookie("spaceBattle"                    , spaceBattle                     , daysToExpire);
   setCookie("zoom_level"                     , zoom_level                      , daysToExpire);
   // console.log("Saved State");
@@ -3272,6 +3286,7 @@ function saveState(){
 
 function deleteAllCookies(){
   deleteCookie("version"                        );
+  deleteCookie("variableVersion"                );
   deleteCookie("team"                           );
   deleteCookie("state"                          );
   deleteCookie("sub_state"                      );
@@ -3307,14 +3322,16 @@ function deleteAllCookies(){
   deleteCookie("ai_moving_animation1_running"   );
   deleteCookie("ai_moving_animation2_running"   );
   deleteCookie("loadAttackBonusAnimationRunning");
+  deleteCookie("loadVictoryDefeatAnimationRunning");
   deleteCookie("ai_building_animation_running"  );
+  deleteCookie("shoawAIBonusAnimationRunning"   );
   deleteCookie("spaceBattle"                    );
   deleteCookie("zoom_level"                     );
 }
 
 function loadState(){
-  var versionTemp                   = getCookie("version"                        );
-  if(versionTemp == version){
+  var versionTemp                   = getCookie("variableVersion"                );
+  if(versionTemp == variableVersion){
     team                            = getCookie("team"                           );
     initializeTeams();
     state                           = getCookie("state"                          );
@@ -3351,7 +3368,9 @@ function loadState(){
     ai_moving_animation1_running    = getCookie("ai_moving_animation1_running"   );
     ai_moving_animation2_running    = getCookie("ai_moving_animation2_running"   );
     loadAttackBonusAnimationRunning = getCookie("loadAttackBonusAnimationRunning");
+    loadVictoryDefeatAnimationRunning = getCookie("loadVictoryDefeatAnimationRunning")
     ai_building_animation_running   = getCookie("ai_building_animation_running"  );
+    shoawAIBonusAnimationRunning    = getCookie("shoawAIBonusAnimationRunning"   );
     spaceBattle                     = getCookie("spaceBattle"                    );
     zoom_level                      = getCookie("zoom_level"                     );
     setZoomSizes();
@@ -3595,7 +3614,9 @@ function restart(){
       ai_moving_animation1_running    = false;
       ai_moving_animation2_running    = false;
       loadAttackBonusAnimationRunning = false;
+      loadVictoryDefeatAnimationRunning = false;
       ai_building_animation_running   = false;
+      shoawAIBonusAnimationRunning    = false;
       spaceBattle                     = false;
       deleteAllCookies();
       var saved_zoom_level = zoom_level;

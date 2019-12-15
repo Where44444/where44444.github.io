@@ -100,6 +100,16 @@
 <div id="zoom_in_text"  class="unselectable"                                    style="width: 200px; height: 50px; position: absolute; top:105px; left:310px; font-size: 60px; font-family: Arial; color: #E5E5E5; transform: scaleX(.65) scaleY(.5); z-index: 20102;">+</div>
 </div>
 
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+  <input type="hidden" name="cmd" value="_donations" />
+  <input type="hidden" name="business" value="RSAXENEL8VGM6" />
+  <input type="hidden" name="item_name" value="Donate earth currency to an obscure extra-galactic outpost" />
+  <input type="hidden" name="currency_code" value="USD" />
+  <input type="image" id="donate_earth_button" onmouseover='onDonateMouseOver()' onmouseout='onDonateMouseOut()' src="galactic_conquest/donate_button_grey.png" name="submit" alt="Donate with PayPal button" style="width: 450px; height: 137px; position: absolute; top:1500px; left:500px;  z-index: 20101;" />
+  <img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1" />
+  </form>
+  
+
 <!-- Restart Dialogue-->
 <!-- Help Screen -->
 <div id="restart_screen_div" style="display: none;">

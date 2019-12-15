@@ -35,6 +35,8 @@ var w4PosMap = new Map();
 var w4SizeMap = new Map();
 var w4FontMap = new Map();
 var w4FontElements = [
+  "donate_earth_button",
+  "autosave_text",
   "restart_text",
   "restart_screen_text",
   "restart_yes_text",
@@ -95,6 +97,8 @@ var w4FontElements = [
 ];
 
 var w4PosSizeElements = [
+  "donate_earth_button",
+  "autosave_text",
   "restart_button",
   "restart_text",
   "restart_screen_background",
@@ -3633,4 +3637,28 @@ function onDonateMouseOver(){
 function onDonateMouseOut(){
   cursor_over_button = false;
   document.getElementById("donate_earth_button").src="galactic_conquest/donate_button_grey.png";
+}
+
+function onTeamSelectMouseOver(team2){
+  if(soundEnabled && !cursor_over_button){
+    sound_select.currentTime = 0;
+    sound_select.play();
+  }
+  cursor_over_button = true;
+  document.getElementById(team2 + "_button").src="galactic_conquest/button_glow_long.png"; 
+  document.getElementById(team2 + "_text").style.color="#F4AE0A";
+  if(team2 == "republic")
+    document.getElementById(team2 + "_logo").src="galactic_conquest/republic_logo_yellow.png";
+  else
+    document.getElementById(team2 + "_logo").src="galactic_conquest/cis_logo_yellow.png";
+}
+
+function onTeamSelectMouseOut(team2){
+  cursor_over_button = false;
+  document.getElementById(team2 + "_button").src="galactic_conquest/button_grey_long.png";
+  document.getElementById(team2 + "_text").style.color="#E5E5E5";
+  if(team2 == "republic")
+    document.getElementById(team2 + "_logo").src="galactic_conquest/republic_logo_grey.png";
+  else
+    document.getElementById(team2 + "_logo").src="galactic_conquest/cis_logo_grey.png";
 }

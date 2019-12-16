@@ -1,4 +1,9 @@
 //Temps
+var fireBaseInitialized = false;
+var database = null;
+var firebaseSnapshot = null;
+var donationTo = "republic";
+
 var sound_theme                                = document.getElementById("sound_theme");
 var sound_error                                = document.getElementById("sound_error");
 var sound_select                               = document.getElementById("sound_select"); 
@@ -94,10 +99,54 @@ var w4FontElements = [
   "help_screen_text",
   "help_prev_text",
   "help_ok_text",
-  "help_next_text"
+  "help_next_text",
+  "donate_input",
+  "donate_republic_text",
+  "donate_cis_text",
+  "donate_senate_text",
+  "donate_yes_text",
+  "donate_no_text",
+  "donate_total1_text",
+  "donate_total2_text",
+  "donate_total_amounts_text",
+  "donate_credits_text"
 ];
 
 var w4PosSizeElements = [
+  "donate_screen_background",
+  "donate_input",
+  "donate_screen_credits",
+  "donate_republic_button",
+  "donate_republic_text",
+  "donate_republic_logo",
+  "donate_cis_button",
+  "donate_cis_text",
+  "donate_cis_logo",
+  "donate_senate_button",
+  "donate_senate_text",
+  "donate_senate_logo",
+  "donate_yes_button",
+  "donate_yes_text",
+  "donate_no_button",
+  "donate_no_text",
+  "donate_total1_text",
+  "donate_total2_text",
+  "donate_total_amounts_text",
+  "donate_total1_credits",
+  "donate_credits_button",
+  "donate_credits_text",
+  "donate_credits_logo",
+  "credits_results_credits_logo1",
+  "credits_results_credits_logo2",
+  "credits_results_credits_logo3",
+  "credits_results_credits_logo4",
+  "credits_results_credits_logo5",
+  "credits_results_credits_logo6",
+  "point_credits_logo",
+  "point_credits_logo1",
+  "point_credits_logo2",
+  "credits_credits_logo",
+  "bonus_credits_logo",
   "version_text",
   "donate_earth_button",
   "autosave_text",
@@ -385,6 +434,7 @@ var wipeAnimation = 0;
 var na = 0;
 var republic = 1;
 var cis = 2;
+var senate = 3;
 
 var point1 = 1;
 var point2 = 2;
@@ -571,7 +621,7 @@ var sub_attack_settings = 16;
 var sub_credits_results = 17;
 
 //Saves
-var version                         = 1.2;
+var version                         = 1.3;
 var variableVersion                 = 1; //Change this when new variables are added to reset cookies
 var team                            = republic; //OR cis
 var state                           = state_team_select; //state_team_select
@@ -617,6 +667,7 @@ var zoom_level = 1;
 function onLoadCheck() {
   document.getElementById("version_text").innerHTML = "Version " + version;
   hideAllLoops();
+  bonus_select(-2);
   var i = 0;
   for(i = 0; i < w4PosSizeElements.length; ++i){
     var name = w4PosSizeElements[i];
@@ -794,6 +845,7 @@ pointMap.set(point18 , [kashyyyk, point2, point3]);
   selectedVenator[0] = venatorPlanets[0];
   setElements();
   loadState();
+  initializeFireBase();
 }
 
 function setZoomSizes(){
@@ -1495,8 +1547,8 @@ function setElements(){
 
         var totalPlayerBonus = playerVictoryBonus + playerPlanetaryBonus;
         var totalAIBonus = aiVictoryBonus + aiPlanetaryBonus;
-        document.getElementById("credits_results_player_amounts").innerHTML = playerVictoryBonus + " Credits<br>" + playerPlanetaryBonus + " Credits<br>" + totalPlayerBonus + " Credits";
-        document.getElementById("credits_results_ai_amounts").innerHTML = aiVictoryBonus + " Credits<br>" + aiPlanetaryBonus + " Credits<br>" + totalAIBonus + " Credits";
+        document.getElementById("credits_results_player_amounts").innerHTML = playerVictoryBonus + "<br>" + playerPlanetaryBonus + "<br>" + totalPlayerBonus;
+        document.getElementById("credits_results_ai_amounts").innerHTML = aiVictoryBonus + "<br>" + aiPlanetaryBonus + "<br>" + totalAIBonus;
       }
       document.getElementById("bonus_attack_owned0").src = owned_bonuses[0][1];
       document.getElementById("bonus_attack_owned1").src = owned_bonuses[1][1];
@@ -1518,7 +1570,7 @@ function setElements(){
       }
     } //End state == state_attack_planet
 
-    document.getElementById("credits_text").innerHTML = credits + " Credits";
+    document.getElementById("credits_text").innerHTML = credits;
     if(credits < bonusCreditCosts[selectedBonus])
       document.getElementById("bonus_cost").style.color = "red";
     else
@@ -1756,7 +1808,10 @@ function selectPoint(point, overrideState){
       canBuild = false;
       document.getElementById("point_name").innerHTML = "";
       document.getElementById("point_description").innerHTML = "";
+      document.getElementById("point_credits_logo1").style.display = "none";
+      document.getElementById("point_credits_logo2").style.display = "none";
       document.getElementById("point_cost").innerHTML = "";
+      document.getElementById("point_credits_logo").style.display = "none";
 
       setLineStyles(selectedPlanet, point);
       document.getElementById("loop_" + point_index_to_string[selectedPlanet]).style.display = "none";
@@ -1799,17 +1854,23 @@ function selectPoint(point, overrideState){
       document.getElementById("point_name").innerHTML = pointCapitalized;
       if(planetOwners[point] == team && !doesArrayInclude(venatorPlanets, point) && !doesArrayInclude(dreadnoughtPlanets, point)){
         document.getElementById("point_description").innerHTML = "Fleets can be built and used to invade or fortify planets and engage enemy fleets in space.";
-        document.getElementById("point_cost").innerHTML = fleet_cost + " Credits";
+        document.getElementById("point_credits_logo1").style.display = "none";
+        document.getElementById("point_credits_logo2").style.display = "none";
+        document.getElementById("point_cost").innerHTML = fleet_cost;
+        document.getElementById("point_credits_logo").style.display = "block";
       }
       else{
-        var desc = "Victory Resources: " + planetVictoryResources.get(point) + " Credits<br>" +
-        "Planetary Bonus: " + planetBonuses.get(point) + " Credits";
+        var desc = "Victory Resources:&nbsp&nbsp&nbsp" + planetVictoryResources.get(point) + "<br>" +
+        "Planetary Bonus:&nbsp&nbsp&nbsp" + planetBonuses.get(point);
         if(point == geonosis)
           desc += "<br>Droid Foundry (CIS Base Planet)";
         else if (point == kamino)
           desc += "<br>Cloning Facility (Republic Base Planet)";
         document.getElementById("point_description").innerHTML = desc;
+        document.getElementById("point_credits_logo1").style.display = "inherit";
+        document.getElementById("point_credits_logo2").style.display = "inherit";
         document.getElementById("point_cost").innerHTML = "";
+        document.getElementById("point_credits_logo").style.display = "none";
       }
 
       setLineStyles(selectedPlanet, point);
@@ -1898,7 +1959,10 @@ function ai_selectpoint(point){
     if(point <= num_neutral_points){
       document.getElementById("point_name").innerHTML = "";
       document.getElementById("point_description").innerHTML = "";
+      document.getElementById("point_credits_logo1").style.display = "none";
+      document.getElementById("point_credits_logo2").style.display = "none";
       document.getElementById("point_cost").innerHTML = "";
+      document.getElementById("point_credits_logo").style.display = "none";
 
       setLineStyles(selectedPlanet, point);
       document.getElementById("loop_" + point_index_to_string[selectedPlanet]).style.display = "none";
@@ -1917,17 +1981,23 @@ function ai_selectpoint(point){
       document.getElementById("point_name").innerHTML = pointCapitalized;
       if(planetOwners[point] == team && !doesArrayInclude(venatorPlanets, point) && !doesArrayInclude(dreadnoughtPlanets, point)){
         document.getElementById("point_description").innerHTML = "Fleets can be built and used to invade or fortify planets and engage enemy fleets in space.";
-        document.getElementById("point_cost").innerHTML = fleet_cost + " Credits";
+        document.getElementById("point_credits_logo1").style.display = "none";
+        document.getElementById("point_credits_logo2").style.display = "none";
+        document.getElementById("point_cost").innerHTML = fleet_cost;
+        document.getElementById("point_credits_logo").style.display = "block";
       }
       else{
-        var desc = "Victory Resources: " + planetVictoryResources.get(point) + " Credits<br>" +
-        "Planetary Bonus: " + planetBonuses.get(point) + " Credits";
+        var desc = "Victory Resources: " + planetVictoryResources.get(point) + "<br>" +
+        "Planetary Bonus: " + planetBonuses.get(point);
         if(point == "geonosis")
           desc += "<br>Droid Foundry (CIS Base Planet)";
         else if (point == "kamino")
           desc += "<br>Cloning Facility (Republic Base Planet)";
         document.getElementById("point_description").innerHTML = desc;
+        document.getElementById("point_credits_logo1").style.display = "inherit";
+        document.getElementById("point_credits_logo2").style.display = "inherit";
         document.getElementById("point_cost").innerHTML = "";
+        document.getElementById("point_credits_logo").style.display = "none";
       }
 
       setLineStyles(selectedPlanet, point);
@@ -2078,7 +2148,7 @@ function bonus_select(pos){
     document.getElementById("bonus_name").innerHTML = republicBonusNames[selectedBonus];
   else
     document.getElementById("bonus_name").innerHTML = cisBonusNames[selectedBonus];
-  document.getElementById("bonus_cost").innerHTML = bonusCreditCosts[selectedBonus] + " Credits";
+  document.getElementById("bonus_cost").innerHTML = bonusCreditCosts[selectedBonus];
   document.getElementById("bonus_description").innerHTML = bonusDescriptions[selectedBonus];
   if(bonusAnimationRunning == false)
     bonus_select_animation();
@@ -3460,6 +3530,7 @@ function zoom_out(){
     zoom_level = 0.1;
   setZoomSizes();
   saveState();
+  console.log("Zoom " + zoom_level);
 }
 
 function zoom_in(){
@@ -3472,6 +3543,7 @@ function zoom_in(){
     zoom_level = 1;
   setZoomSizes();
   saveState();
+  console.log("Zoom " + zoom_level);
 }
 
 function onSoundMouseOver() {
@@ -3686,4 +3758,144 @@ function onTeamSelectMouseOut(team2){
     document.getElementById(team2 + "_logo").src="galactic_conquest/republic_logo_grey.png";
   else
     document.getElementById(team2 + "_logo").src="galactic_conquest/cis_logo_grey.png";
+}
+
+function initializeFireBase(){
+  if(!fireBaseInitialized){
+
+    fireBaseInitialized = true;
+  // Your web app's Firebase configuration
+    // var firebaseConfig = {
+    //   apiKey: "AIzaSyCm-6KDwZV1E7pBWakF8h2owJ4kDZxoRuU",
+    //   authDomain: "galactic-conquest-d8c93.firebaseapp.com",
+    //   databaseURL: "https://galactic-conquest-d8c93.firebaseio.com",
+    //   projectId: "galactic-conquest-d8c93",
+    //   storageBucket: "galactic-conquest-d8c93.appspot.com",
+    //   messagingSenderId: "110915620435",
+    //   appId: "1:110915620435:web:c6749efd42baa75f2300a6",
+    //   measurementId: "G-YF182CJ109"
+    // };
+
+    var config = {
+      apiKey: "AIzaSyCm-6KDwZV1E7pBWakF8h2owJ4kDZxoRuU",
+      authDomain: "galactic-conquest-d8c93.firebaseapp.com",
+      databaseURL: "https://galactic-conquest-d8c93.firebaseio.com",
+      storageBucket: "galactic-conquest-d8c93.appspot.com"
+    };
+    firebase.initializeApp(config);
+  
+    // Get a reference to the database service
+    database = firebase.database();
+
+    firebase.database().ref('/credits/').once('value').then(function(snapshot) {
+      firebaseSnapshot = snapshot;
+      console.log(firebaseSnapshot.val().republic);
+      document.getElementById("donate_total_amounts_text").innerHTML = firebaseSnapshot.val().republic + "<br>" + firebaseSnapshot.val().cis + "<br>" + firebaseSnapshot.val().senate;
+      document.getElementById("donate_credits_div").style.display = "block";
+    });
+
+    // database.ref('credits/').set({
+    //   cis: 3,
+    //   republic: 1,
+    //   senate: 2
+    // });
+  }
+}
+
+function donate(){
+  var num = Number(document.getElementById("donate_input").value);
+  if(num > 0 && num <= credits){
+    if(soundEnabled){
+      sound_select_cancel.currentTime = 0;
+      sound_select_cancel.play();
+    }
+    credits -= num;
+    setElements();
+    var toRepublic = Number(firebaseSnapshot.val().republic);
+    var toCis = Number(firebaseSnapshot.val().cis);
+    var toSenate = Number(firebaseSnapshot.val().senate);
+    if(donationTo == "republic")
+      toRepublic += num;
+    else if (donationTo == "cis")
+      toCis += num;
+    else
+      toSenate += num;
+
+    database.ref('credits/').set({
+      cis: toCis,
+      republic: toRepublic,
+      senate: toSenate
+    });
+    document.getElementById("donate_total_amounts_text").innerHTML = toRepublic + "<br>" + toCis + "<br>" + toSenate;
+
+    document.getElementById("donate_screen_div").style.display = "none";
+    document.getElementById("donate_credits_div").style.display = "none";
+
+    firebase.database().ref('/credits/').once('value').then(function(snapshot) {
+      firebaseSnapshot = snapshot;
+      document.getElementById("donate_total_amounts_text").innerHTML = firebaseSnapshot.val().republic + "<br>" + firebaseSnapshot.val().cis + "<br>" + firebaseSnapshot.val().senate;
+      document.getElementById("donate_credits_div").style.display = "block";
+    });
+  }
+  else{
+    if(soundEnabled){
+      sound_error.currentTime = 0;
+      sound_error.play();
+    }
+  }
+}
+
+function setDonationTo(name2){
+  if(soundEnabled){
+    sound_select_long.currentTime = 0;
+    sound_select_long.play();
+  }
+  donationTo = name2;
+  onDonateToMouseOut("republic");
+  onDonateToMouseOut("cis");
+  onDonateToMouseOut("senate");
+}
+
+function onDonateToMouseOver(name2){
+  if(donationTo != name2){
+    if(soundEnabled && !cursor_over_button){
+      sound_select.currentTime = 0;
+      sound_select.play();
+    }
+    cursor_over_button = true;
+    if(name2 == "credits")
+      document.getElementById("donate_" + name2 + "_button").src = "galactic_conquest/button_glow.png";
+    else
+      document.getElementById("donate_" + name2 + "_button").src = "galactic_conquest/button_glow_long.png";
+    document.getElementById("donate_" + name2 + "_text").style.color = "#F4AE0A";
+    document.getElementById("donate_" + name2 + "_logo").src = "galactic_conquest/" + name2 + "_logo_yellow.png";
+  }
+}
+
+function onDonateToMouseOut(name2){
+  if(donationTo != name2){
+    cursor_over_button = false;
+    if(name2 == "credits")
+      document.getElementById("donate_" + name2 + "_button").src = "galactic_conquest/button_grey.png";
+    else
+      document.getElementById("donate_" + name2 + "_button").src = "galactic_conquest/button_grey_long.png";
+    document.getElementById("donate_" + name2 + "_text").style.color = "#E5E5E5";
+    document.getElementById("donate_" + name2 + "_logo").src = "galactic_conquest/" + name2 + "_logo_grey.png";
+  }
+}
+
+function donateCancel(){
+  if(soundEnabled){
+    sound_select_cancel.currentTime = 0;
+    sound_select_cancel.play();
+  }
+  document.getElementById("donate_screen_div").style.display = "none";
+}
+
+function openDonateTo(){
+  if(soundEnabled){
+    sound_select_long.currentTime = 0;
+    sound_select_long.play();
+  }
+  document.getElementById("donate_screen_div").style.display = "block";
 }

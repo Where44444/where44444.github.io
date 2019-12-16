@@ -109,7 +109,8 @@ var w4FontElements = [
   "donate_total1_text",
   "donate_total2_text",
   "donate_total_amounts_text",
-  "donate_credits_text"
+  "donate_credits_text",
+  "bug_report_text"
 ];
 
 var w4PosSizeElements = [
@@ -422,7 +423,8 @@ var w4PosSizeElements = [
   "space_background",
   "bonus_owned_background",
   "sound_button",
-  "sound_image"
+  "sound_image",
+  "bug_report_text"
 ];
 
 var galaxyRot = 0;

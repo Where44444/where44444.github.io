@@ -1061,6 +1061,7 @@ function setElements(){
         document.getElementById("bonus_name").innerHTML = "";
         document.getElementById("bonus_cost").innerHTML = "";
         document.getElementById("bonus_description").innerHTML = "Select a slot";
+        document.getElementById("bonus_credits_logo").style.display = "none";
       }
       else{
         document.getElementById("bonus0_img"    ).style.display = "block";
@@ -1072,6 +1073,7 @@ function setElements(){
         document.getElementById("help_div"      ).style.display = "block";
         document.getElementById("move_mode_div" ).style.display = "block";
         document.getElementById("bonus_mode_div").style.display = "block";
+        document.getElementById("bonus_credits_logo").style.display = "block";
       }
     }
     else if(state == state_ai_moving){

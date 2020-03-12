@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<title></title>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Ensures optimal rendering on mobile devices. -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" /> <!-- Optimal Internet Explorer compatibility -->
+
+    <script src="https://www.gstatic.com/firebasejs/7.8.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.8.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.8.1/firebase-auth.js"></script>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+  </head>
+  
+  <body>
+
+  <style>
+    p{
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    label{
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    h1{
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    h2{
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    font-size: 14px;
+    }
+
+    td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 4px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 600;
+    }
+
+    tr:nth-child(even) {
+    background-color: #dddddd;
+    }
+    tr:nth-child(odd) {
+    background-color: transparent;
+    }
+
+      /* Tooltip container */
+    .tooltip {
+      position: relative;
+      display: inline-block;
+      border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+    }
+
+    /* Tooltip text */
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 300px;
+      background-color: #555;
+      color: #fff;
+      text-align: center;
+      padding: 5px 0;
+      border-radius: 6px;
+
+      /* Position the tooltip text */
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -150px;
+
+      /* Fade in tooltip */
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    /* Tooltip arrow */
+    .tooltip .tooltiptext::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: #555 transparent transparent transparent;
+    }
+
+    /* Show the tooltip text when you mouse over the tooltip container */
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .clickable{
+      cursor: pointer;
+    }
+
+    /* RADIO BUTTON */
+    /* Customize the label (the container) */
+    .radiobutton_container {
+      display: block;
+      position: relative;
+      padding-left: 35px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      font-size: 22px;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    /* Hide the browser's default radio button */
+    .radiobutton_container input {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+      height: 0;
+      width: 0;
+    }
+
+    /* Create a custom radio button */
+    .radiomark {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 25px;
+      width: 25px;
+      background-color: #eee;
+      border-radius: 50%;
+    }
+
+    /* On mouse-over, add a grey background color */
+    .radiobutton_container:hover input ~ .radiomark {
+      background-color: #ccc;
+    }
+
+    /* When the radio button is checked, add a blue background */
+    .radiobutton_container input:checked ~ .radiomark {
+      background-color: #70A2FF;
+    }
+
+    /* Create the indicator (the dot/circle - hidden when not checked) */
+    .radiomark:after {
+      content: "";
+      position: absolute;
+      display: none;
+    }
+
+    /* Show the indicator (dot/circle) when checked */
+    .radiobutton_container input:checked ~ .radiomark:after {
+      display: block;
+    }
+
+    /* Style the indicator (dot/circle) */
+    .radiobutton_container .radiomark:after {
+      top: 9px;
+      left: 9px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: white;
+    }
+
+        /* Customize the label (the container) */
+    .checkBox_container {
+      display: block;
+      position: relative;
+      padding-left: 35px;
+      margin-bottom: 0px;
+      cursor: pointer;
+      font-size: 20px;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    /* Hide the browser's default checkbox */
+    .checkBox_container input {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+      height: 0;
+      width: 0;
+    }
+
+    /* Create a custom checkbox */
+    .checkmark {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 25px;
+      width: 25px;
+      background-color: #eee;
+    }
+
+    /* On mouse-over, add a grey background color */
+    .checkBox_container:hover input ~ .checkmark {
+      background-color: #ccc;
+    }
+
+    /* When the checkbox is checked, add a blue background */
+    .checkBox_container input:checked ~ .checkmark {
+      background-color: #70A2FF;
+    }
+
+    /* Create the checkmark/indicator (hidden when not checked) */
+    .checkmark:after {
+      content: "";
+      position: absolute;
+      display: none;
+    }
+
+    /* Show the checkmark when checked */
+    .checkBox_container input:checked ~ .checkmark:after {
+      display: block;
+    }
+
+    /* Style the checkmark/indicator */
+    .checkBox_container .checkmark:after {
+      left: 9px;
+      top: 5px;
+      width: 5px;
+      height: 10px;
+      border: solid white;
+      border-width: 0 3px 3px 0;
+      -webkit-transform: rotate(45deg);
+      -ms-transform: rotate(45deg);
+      transform: rotate(45deg);
+    }
+
+    button {
+        background-color: lightslategray;
+        border: none;
+        color: white;
+        padding: 4px 8px;
+        text-align: center;
+        font-size: 16px;
+        /* margin: 4px 2px; */
+        opacity: 0.8;
+        transition: 0.3s;
+        cursor: pointer;
+        border-radius: 8px;
+      }
+
+    button:hover {opacity: 1}
+  </style>
+
+<!-- <span><b>PLUMB</b></span> -->
+
+    <div id = "login_div" style="display: none;">
+      <h1>Schnelli Appliance Parts Database</h1>
+        <p>Email</p>
+        <input id="email_input" type="text" onfocus='deselectTable();'>
+        <p>Password</p>
+        <input id="password_input" type="password" onsubmit="log_in()" onfocus='deselectTable();'>
+        <p>Remember Me <input type="checkbox" id="remember_input"></p>
+        <button id="login_button" onclick="log_in()">Login</button>
+    </div>
+
+    <div id="content_div" style="display: none;">
+      <button onclick="log_out()" id="logout_button">Log Out</button>
+      <div id="search_div" style="display: none;">
+        <h1>Search</h1>
+        <input id="search_input" type="text" style="width: 500px;" onfocus='deselectTable();'>
+        <button id="search_button" style="width: 100px;" onclick="search_query();">Go</button>
+        <p style="font-size: 20px;">Columns</p>
+        <label class="radiobutton_container" style="display: inline;">Any&nbsp;&nbsp;<input onchange="setRadioColumn();" type="radio" id="radio_columns_any" name="radio_columns" checked><span class="radiomark"></span></label>
+        <label class="radiobutton_container" style="display: inline;">Specific&nbsp;&nbsp;<input onchange="setRadioColumn();" type="radio" id="radio_columns_specific" name="radio_columns"><span class="radiomark"></span></label>
+        <label class="checkBox_container" style="display: inline; position:absolute; left: 400px;">Exact Match (Ignores Capitalization)<input type="checkbox" id="search_exact_match"><span class="checkmark"></span></label>
+        <label class="checkBox_container" style="display: inline; position:absolute; left: 800px;">Highlight Similar Words<input type="checkbox" id="search_highlight_similar_words" checked><span class="checkmark"></span></label>
+        <div id="radio_columns_checkboxes"      style="display: none; margin-top: 50px;"></div> <!-- Auto generated -->
+        <div id="radio_columns_checkboxes_more" style="display: none;"></div> <!-- Auto generated -->
+      </div>
+      <div id="message"><p>Loading Parts...</p></div>
+      <div id="search_results_expander" onclick="toggle_search_results(2);" style="display: none;" class="clickable"><h1><span id="search_results_expander_icon" style="font-size: 50px; font-weight: 100;">+</span> Search Results</h1></div>
+      <div id="search_results_div" style="display: none; margin-left: 20px;">
+        <div id="search_results_table_div"></div>
+        <div id="similar_string_expander" style="display: none;" class="clickable" onclick="toggle_similar_strings();"><h1><span id="similar_strings_expander_icon" style="font-size: 50px; font-weight: 100;">+</span> Similar Words</h1></div>
+        <div id="similar_strings_div" style="display: none; margin-left: 20px;"></div>
+      </div>
+      <br><br><br>
+      <div id="record_browser_table_div"></div>
+      <h2>Hotkeys:</h2>
+      <p>Arrow Keys - Navigate through tables</p>
+      <p>Page Up - Table Previous Page</p>
+      <p>Page Down - Table Next Page</p>
+      <br>
+      <p>v 1.0</p>
+    </div>
+
+    <script type="text/javascript" src="eventlisteners.js"></script>
+    <script type="text/javascript" src="compare_funcs.js"></script>
+    <script type="text/javascript" src="get_search_results.js"></script>
+    <script type="text/javascript" src="w4_funcs.js"></script>
+    <script type="text/javascript" src="appliance_parts_admin_portal_script.js"></script>
+  </body>
+</html>

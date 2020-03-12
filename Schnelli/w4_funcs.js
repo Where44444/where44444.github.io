@@ -521,3 +521,12 @@ function recordBrowserJumpToEdge(end){
   if(cell != null)
     onCellClick(index, _selectedCell, cell.id, TABLE_RECORD_BROWSER);
 }
+
+function searchResultsJumpToEdge(end){
+  var index = 0;
+  if(end == 0)
+    populateSearchResults(0, true, false, -1);
+  else{
+    populateSearchResults(_searchResults.length - 1, false, true, -1);
+  }
+}

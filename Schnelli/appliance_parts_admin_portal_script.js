@@ -27,7 +27,7 @@ var _indexesSearchResults = [];
 var _indexesSimilarStrings = [];
 var _indexesRecordBrowser = [];
 
-var _searchResultsMax = 10;
+var _searchResultsMax = 6;
 var _recordBrowserMax = 10;
 
 var _largestRecordNumber = 0;
@@ -128,38 +128,38 @@ function loadContentDiv(){
   document.getElementById("message").innerHTML = "<p>Downloading parts from database... This may take up to 60 seconds</p>";
   document.getElementById("record_browser_table_div").style.display = "none";
 
-//   $.ajax({
-//     type: "GET",
-//     url: "ascii_test.txt",
-//     dataType: "text",
-//     success: function(data) {processCSVData(data);}
-//  });
+  $.ajax({
+    type: "GET",
+    url: "ascii_test.txt",
+    dataType: "text",
+    success: function(data) {processCSVData(data);}
+ });
 
-  var partsRef = firebase.database().ref('parts').orderByChild('RECORD_NUMBER');
-  partsRef.once('value', function(snapshot) {
-    document.getElementById("message").innerHTML = "<p>Processing parts...</p>";
+  // var partsRef = firebase.database().ref('parts').orderByChild('RECORD_NUMBER');
+  // partsRef.once('value', function(snapshot) {
+  //   document.getElementById("message").innerHTML = "<p>Processing parts...</p>";
 
-    var numIndexes = indexes.length;
-    var numChildren = snapshot.numChildren();
-    _content = new Array(numChildren);
-    for (var i = 0; i < numChildren; i++)
-      _content[i] = new Array(numIndexes + 1); 
+  //   var numIndexes = indexes.length;
+  //   var numChildren = snapshot.numChildren();
+  //   _content = new Array(numChildren);
+  //   for (var i = 0; i < numChildren; i++)
+  //     _content[i] = new Array(numIndexes + 1); 
     
-    var numRecords = 0;
-    snapshot.forEach(function(childSnapshot) {
-      _content[numRecords][0] = String(childSnapshot.key);
-      //indexToContentID[numRecords] = childSnapshot.key;
-      for(var i = 0; i < numIndexes; ++i)
-        _content[numRecords][i + 1] = String(childSnapshot.child(indexes[i]).val());
+  //   var numRecords = 0;
+  //   snapshot.forEach(function(childSnapshot) {
+  //     _content[numRecords][0] = String(childSnapshot.key);
+  //     //indexToContentID[numRecords] = childSnapshot.key;
+  //     for(var i = 0; i < numIndexes; ++i)
+  //       _content[numRecords][i + 1] = String(childSnapshot.child(indexes[i]).val());
       
-      // document.getElementById("loading_parts").innerHTML = "<p>Processing parts...  " + (numRecords / numChildren) + "%</p>";
-      ++numRecords;
-    });
-    generateContent_Standard();
-    populateRecordBrowser(0, false);
-    _contentSortedReverse = true;
-    sortContentByIndex(1);
-  });
+  //     // document.getElementById("loading_parts").innerHTML = "<p>Processing parts...  " + (numRecords / numChildren) + "%</p>";
+  //     ++numRecords;
+  //   });
+  //   generateContent_Standard();
+  //   populateRecordBrowser(0, false);
+  //   _contentSortedReverse = true;
+  //   sortContentByIndex(1);
+  // });
 
 }
 
@@ -201,6 +201,8 @@ function populateRecordBrowser(indexStart, highlightGreenTopRow)
 {
   document.getElementById("record_browser_table_div").innerHTML = "";
 
+  if(_content.length - indexStart < _recordBrowserMax)
+    indexStart = _content.length - _recordBrowserMax;
   if(indexStart < 0)
     indexStart = 0;
   if(indexStart > _content.length - 1)
@@ -261,6 +263,8 @@ function populateRecordBrowser(indexStart, highlightGreenTopRow)
 function populateSearchResults(indexStart, selectTopRow, selectBottomRow, rowToSelect)
 {
   document.getElementById("similar_strings_div").innerHTML = "";
+  if(_searchResults.length - indexStart < _searchResultsMax)
+    indexStart = _searchResults.length - _searchResultsMax;
   if(indexStart < 0)
     indexStart = 0;
   if(indexStart > _searchResults.length - 1)
@@ -440,6 +444,8 @@ function populateSearchResults(indexStart, selectTopRow, selectBottomRow, rowToS
           //   textcolor = "black;";
           var bgColor = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ");";
           for(var v = 0; v < wordData[1].length; ++v){
+            if(getRegexSafeSearchTerm(wordData[1][v]).length <= 1)
+              console.log("Small word to highlight detected |" + getRegexSafeSearchTerm(wordData[1][v]) + "|");
             var re = new RegExp(getRegexSafeSearchTerm(wordData[1][v]), "g");
             string = string.replace(re, "<span style='border: 3px solid " + bgColor + " color: " + textcolor + "'>" + wordData[1][v] + "</span>");
           }
@@ -487,6 +493,8 @@ function populateSearchResults(indexStart, selectTopRow, selectBottomRow, rowToS
 
         //Highlight search terms
         for(var s = 0; s < actualSearchStrings.length; ++s){
+          if(getRegexSafeSearchTerm(actualSearchStrings[s]).length <= 1)
+            console.log("Small word to highlight detected |" + getRegexSafeSearchTerm(actualSearchStrings[s]) + "|");
           var re = new RegExp(getRegexSafeSearchTerm(actualSearchStrings[s]), "g");
           array_trimmed[i][j] = array_trimmed[i][j].replace(re, "<span style='background: yellow; color: black;'><b>" + actualSearchStrings[s] + "</b></span>");
         }
@@ -501,6 +509,8 @@ function populateSearchResults(indexStart, selectTopRow, selectBottomRow, rowToS
               //   textcolor = "black;";
               var bgColor = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ");";
               for(var v = 0; v < value[1].length; ++v){
+                if(getRegexSafeSearchTerm(value[1][v]) <= 1)
+                  console.log("Small word to highlight detected |" + getRegexSafeSearchTerm(value[1][v]) + "|");
                 var re = new RegExp(getRegexSafeSearchTerm(value[1][v]), "g");
                 array_trimmed[i][j] = array_trimmed[i][j].replace(re, "<span style='border: 3px solid " + bgColor + " color: " + textcolor + "'>" + value[1][v] + "</span>");
               }
@@ -518,6 +528,8 @@ function populateSearchResults(indexStart, selectTopRow, selectBottomRow, rowToS
               var bgColor = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ");";
               for(var v = 0; v < value[1].length; ++v){
                 // console.log("|" + getRegexSafeSearchTerm(value[1][v]) + "|");
+                if(getRegexSafeSearchTerm(value[1][v]) <= 1)
+                  console.log("Small word to highlight detected |" + getRegexSafeSearchTerm(value[1][v]) + "|");
                 var re = new RegExp(getRegexSafeSearchTerm(value[1][v]), "g");
                 if(typeHighlightBGSingle.get(key))
                   array_trimmed[i][j] = array_trimmed[i][j].replace(re, "<span style='border: 3px solid " + bgColor + " color: " + textcolor + "'>" + value[1][v] + "</span>");
@@ -536,6 +548,8 @@ function populateSearchResults(indexStart, selectTopRow, selectBottomRow, rowToS
   "<p style='display: inline;'>Table Size</p>&nbsp;&nbsp;" + 
   "<input id=\"search_results_max\" type=\"number\" value=" + _searchResultsMax + " min=\"0\" onchange=\"document.getElementById('save_search_results_max').style.display = 'inline';\" onfocus='deselectTable();'></input>" + 
   "<button id=\"save_search_results_max\" onclick=\"updateSearchResultsMax();\" style=\"display: none;\">Save</button>" +
+  "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick='searchResultsJumpToEdge(0);'>Jump to Top</button>" + 
+  "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick='searchResultsJumpToEdge(1);'>Jump to Bottom</button>" + 
   "<table class='clickable'><tr>";
   for(var i = 0; i < indexes.length; ++i){
     var bgcolor = "inherit";
@@ -566,18 +580,18 @@ function populateSearchResults(indexStart, selectTopRow, selectBottomRow, rowToS
   document.getElementById("message").innerHTML = "";
 
   if(selectTopRow){
-    var cell = getCell(0, _selectedCell, _selectedTable);
+    var cell = getCell(0, _selectedCell, TABLE_SEARCH_RESULTS);
     if(cell != null)
-      onCellClick(0, _selectedCell, cell.id, _selectedTable);
+      onCellClick(0, _selectedCell, cell.id, TABLE_SEARCH_RESULTS);
   }
   else if(selectBottomRow){
-    var cell = getCell(array_trimmed.length - 1, _selectedCell, _selectedTable);
+    var cell = getCell(array_trimmed.length - 1, _selectedCell, TABLE_SEARCH_RESULTS);
     if(cell != null)
-      onCellClick(array_trimmed.length - 1, _selectedCell, cell.id, _selectedTable);
+      onCellClick(array_trimmed.length - 1, _selectedCell, cell.id, TABLE_SEARCH_RESULTS);
   }
   else if(rowToSelect >= 0){
-    var cell = getCell(rowToSelect, _selectedCell, _selectedTable);
+    var cell = getCell(rowToSelect, _selectedCell, TABLE_SEARCH_RESULTS);
     if(cell != null)
-      onCellClick(rowToSelect, _selectedCell, cell.id, _selectedTable);
+      onCellClick(rowToSelect, _selectedCell, cell.id, TABLE_SEARCH_RESULTS);
   }
 } //END populateSearchResults

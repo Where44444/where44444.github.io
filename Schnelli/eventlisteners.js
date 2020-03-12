@@ -143,7 +143,7 @@ input_email.addEventListener("keyup", function(event) {
   function pageUp()
   {
     var row = -1;;
-    if(_selectedTable == TABLE_RECORD_BROWSER && _currentRecordBrowserStartIndex > 0){
+    if(_selectedTable == TABLE_RECORD_BROWSER && _currentRecordBrowserStartIndex > 0 && _selectedRow - _recordBrowserMax >= 0){
       populateRecordBrowser(_currentRecordBrowserStartIndex - _recordBrowserMax, false);
       row = _selectedRow - _recordBrowserMax;
     }
@@ -162,7 +162,7 @@ input_email.addEventListener("keyup", function(event) {
   function pageDown()
   {
     var row = -1;;
-    if(_selectedTable == TABLE_RECORD_BROWSER){
+    if(_selectedTable == TABLE_RECORD_BROWSER && _selectedRow + _recordBrowserMax < _content.length){
       populateRecordBrowser(_currentRecordBrowserStartIndex + _recordBrowserMax, false);
       row = _selectedRow + _recordBrowserMax;
     }

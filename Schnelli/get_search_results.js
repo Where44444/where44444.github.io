@@ -6,7 +6,7 @@ onmessage = function(e) {
     var exactMatch = e.data[4];
     var results = [];
 
-    for(var i = 0; i < content_standard.length; ++i){
+    for(var i = 0; i < content.length; ++i){
         var row;
         if(exactMatch)
             row = content[i];
@@ -19,14 +19,17 @@ onmessage = function(e) {
                 var result = row[j].toLowerCase().match(getRegexSafeSearchTerm(searchstring));
                 if(result != null)
                 {
-                    var content_string = content[i][j];
+                    var content_string = row[j];
                     var s = 0;
                     var start = 0;
                     var end = 0;
                     var lastCharWasSpace = false;
                     for(var n = 0; n < content_string.length; ++n){
                         var content_char = content_string.charAt(n).toLowerCase();
-                        if((is_standardized(content_char) || exactMatch) && !(lastCharWasSpace && content_char == " ")){
+                        if((is_standardized(content_char) || exactMatch) && !(lastCharWasSpace && content_char == " "))
+                        {
+                            if(content_char != searchstring.charAt(s).toLowerCase())
+                                s = 0;
                             if(content_char == searchstring.charAt(s).toLowerCase()){
                                 if(s == 0)
                                     start = n;
@@ -42,9 +45,10 @@ onmessage = function(e) {
                         lastCharWasSpace = (content_char == " ");
                     }
                     
+                    var matchStr = content_string.substring(start, end);
                     match[0] = i;
                     match[1].push(j);
-                    match[2].push(content_string.substring(start, end));
+                    match[2].push(matchStr);
                     rowHasMatch = true;
                 }
             }
@@ -86,3 +90,23 @@ function getRegexSafeSearchTerm(str)
   str2 = str2.replace(/\-/g, "\\-");
   return str2;
 }
+
+function standardizeString(str){
+    var str2 = str.toLowerCase();
+    
+    //Remove non numbers and letters and spaces
+    str2 = str2.replace(/[^0-9a-z ]/g, "");
+  
+    //Remove multiple spaces
+    str2 = str2.replace(/ {2,}/g, " ");
+  
+    //Remove spaces at beginning of string
+    if(str2.charAt(0) == " ")
+      str2 = str2.substring(1, str2.length);
+  
+    //Remove spaces at end of string
+    if(str2.charAt(str2.length - 1) == " ")
+      str2 = str2.substring(0, str2.length - 1);
+  
+    return str2;
+  }

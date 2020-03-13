@@ -131,38 +131,38 @@ function loadContentDiv(){
   document.getElementById("message").innerHTML = "<p>Downloading parts from database... This may take up to 60 seconds</p>";
   document.getElementById("record_browser_table_div").style.display = "none";
 
-  $.ajax({
-    type: "GET",
-    url: "ascii_test.txt",
-    dataType: "text",
-    success: function(data) {processCSVData(data);}
- });
+//   $.ajax({
+//     type: "GET",
+//     url: "ascii_test.txt",
+//     dataType: "text",
+//     success: function(data) {processCSVData(data);}
+//  });
 
-  // var partsRef = firebase.database().ref('parts').orderByChild('RECORD_NUMBER');
-  // partsRef.once('value', function(snapshot) {
-  //   document.getElementById("message").innerHTML = "<p>Processing parts...</p>";
+  var partsRef = firebase.database().ref('parts').orderByChild('RECORD_NUMBER');
+  partsRef.once('value', function(snapshot) {
+    document.getElementById("message").innerHTML = "<p>Processing parts...</p>";
 
-  //   var numIndexes = indexes.length;
-  //   var numChildren = snapshot.numChildren();
-  //   _content = new Array(numChildren);
-  //   for (var i = 0; i < numChildren; i++)
-  //     _content[i] = new Array(numIndexes + 1); 
+    var numIndexes = indexes.length;
+    var numChildren = snapshot.numChildren();
+    _content = new Array(numChildren);
+    for (var i = 0; i < numChildren; i++)
+      _content[i] = new Array(numIndexes + 1); 
     
-  //   var numRecords = 0;
-  //   snapshot.forEach(function(childSnapshot) {
-  //     _content[numRecords][0] = childSnapshot.key;
-  //     //indexToContentID[numRecords] = childSnapshot.key;
-  //     for(var i = 0; i < numIndexes; ++i)
-  //       _content[numRecords][i + 1] = String(childSnapshot.child(indexes[i]).val());
+    var numRecords = 0;
+    snapshot.forEach(function(childSnapshot) {
+      _content[numRecords][0] = childSnapshot.key;
+      //indexToContentID[numRecords] = childSnapshot.key;
+      for(var i = 0; i < numIndexes; ++i)
+        _content[numRecords][i + 1] = String(childSnapshot.child(indexes[i]).val());
       
-  //     // document.getElementById("loading_parts").innerHTML = "<p>Processing parts...  " + (numRecords / numChildren) + "%</p>";
-  //     ++numRecords;
-  //   });
-  //   generateContent_Standard();
-  //   populateRecordBrowser(0, false);
-  //   _contentSortedReverse = true;
-  //   sortContentByIndex(1);
-  // });
+      // document.getElementById("loading_parts").innerHTML = "<p>Processing parts...  " + (numRecords / numChildren) + "%</p>";
+      ++numRecords;
+    });
+    generateContent_Standard();
+    populateRecordBrowser(0, false);
+    _contentSortedReverse = true;
+    sortContentByIndex(1);
+  });
 
 }
 

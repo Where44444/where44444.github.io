@@ -281,7 +281,7 @@
         <label class="radiobutton_container" style="display: inline;">Specific&nbsp;&nbsp;<input onchange="setRadioColumn();" type="radio" id="radio_columns_specific" name="radio_columns"><span class="radiomark"></span></label>
         <label class="checkBox_container" style="display: inline; position:absolute; left: 400px;">Exact Match (Ignores Capitalization)<input type="checkbox" id="search_exact_match"><span class="checkmark"></span></label>
         <label class="checkBox_container" style="display: inline; position:absolute; left: 800px;">Highlighting<input type="checkbox" id="search_highlight_similar_words" checked><span class="checkmark"></span></label>
-        <input id="repititions_min" type="number" min="0" onchange='setMinRepititions();' style="display: inline-block; position:absolute; left: 1000px; width: 50px; font-size: 20px;"><label style="position:absolute; left: 1060px; font-size: 20px;">Repititions required to highlight</label></input>
+        <input id="repititions_min" type="number" min="0" onchange='setMinRepititions();' onfocus='deselectTable();' style="display: inline-block; position:absolute; left: 1000px; width: 50px; font-size: 20px;"><label style="position:absolute; left: 1060px; font-size: 20px;">Repititions required to highlight</label></input>
         <div id="radio_columns_checkboxes"      style="display: none; margin-top: 50px;"></div> <!-- Auto generated -->
         <div id="radio_columns_checkboxes_more" style="display: none;"></div> <!-- Auto generated -->
       </div>

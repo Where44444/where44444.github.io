@@ -233,8 +233,7 @@ function onCellClick(row, cell, id, table_enum, skipPopulate)
 {
   if(skipPopulate == null)
     skipPopulate = false;
-
-  console.log(skipPopulate);
+    
   _isTableSelected = true;
   var elementRow = null;
   var elementCell = null;

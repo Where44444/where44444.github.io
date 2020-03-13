@@ -107,7 +107,7 @@ input_email.addEventListener("keyup", function(event) {
     var column = _selectedCell - 1;
     var cell = getCell(_selectedRow, column, _selectedTable);
     if(cell != null)
-      onCellClick(_selectedRow, column, cell.id, _selectedTable);
+      onCellClick(_selectedRow, column, cell.id, _selectedTable, true);
   }
 
   function moveUp(){
@@ -126,7 +126,7 @@ input_email.addEventListener("keyup", function(event) {
     var column = _selectedCell + 1;
     var cell = getCell(_selectedRow, column, _selectedTable);
     if(cell != null)
-      onCellClick(_selectedRow, column, cell.id, _selectedTable);
+      onCellClick(_selectedRow, column, cell.id, _selectedTable, true);
   }
 
   function moveDown(){

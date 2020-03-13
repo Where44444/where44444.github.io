@@ -231,6 +231,10 @@ function generateContent_Standard_New(){
 
 function onCellClick(row, cell, id, table_enum, skipPopulate)
 {
+  if(skipPopulate == null)
+    skipPopulate = false;
+
+  console.log(skipPopulate);
   _isTableSelected = true;
   var elementRow = null;
   var elementCell = null;
@@ -261,12 +265,12 @@ function onCellClick(row, cell, id, table_enum, skipPopulate)
   switch(_selectedTable){
     case TABLE_SEARCH_RESULTS:
       elementRow = document.getElementById("search_results_row_" + _selectedRow);
-      if(skipPopulate != null)
+      if(!skipPopulate)
         populateRecordBrowser(_indexesSearchResults[row], true);
     break;
     case TABLE_SIMILAR_STRINGS:
       elementRow = document.getElementById("similar_string_row_" + _selectedRow);
-      if(skipPopulate != null)
+      if(!skipPopulate)
         populateRecordBrowser(_indexesSimilarStrings[row], true);
     break;
     case TABLE_RECORD_BROWSER:

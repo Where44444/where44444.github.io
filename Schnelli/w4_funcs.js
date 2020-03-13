@@ -229,7 +229,7 @@ function generateContent_Standard_New(){
   setLargestRecordNumber();
 }
 
-function onCellClick(row, cell, id, table_enum)
+function onCellClick(row, cell, id, table_enum, skipPopulate)
 {
   _isTableSelected = true;
   var elementRow = null;
@@ -261,11 +261,13 @@ function onCellClick(row, cell, id, table_enum)
   switch(_selectedTable){
     case TABLE_SEARCH_RESULTS:
       elementRow = document.getElementById("search_results_row_" + _selectedRow);
-      populateRecordBrowser(_indexesSearchResults[row], true);
+      if(skipPopulate != null)
+        populateRecordBrowser(_indexesSearchResults[row], true);
     break;
     case TABLE_SIMILAR_STRINGS:
       elementRow = document.getElementById("similar_string_row_" + _selectedRow);
-      populateRecordBrowser(_indexesSimilarStrings[row], true);
+      if(skipPopulate != null)
+        populateRecordBrowser(_indexesSimilarStrings[row], true);
     break;
     case TABLE_RECORD_BROWSER:
       elementRow = document.getElementById("record_browser_row_" + _selectedRow);

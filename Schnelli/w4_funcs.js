@@ -81,6 +81,14 @@ function getRegexSafeSearchTerm(str)
   str2 = str2.replace(/\)/g, "\\)");
   str2 = str2.replace(/\+/g, "\\+");
   str2 = str2.replace(/\-/g, "\\-");
+  str2 = str2.replace(/\?/g, "\\?");
+  str2 = str2.replace(/\!/g, "\\!");
+  str2 = str2.replace(/\\/g, "\\");
+  str2 = str2.replace(/\*/g, "\\*");
+  str2 = str2.replace(/\,/g, "\\,");
+  str2 = str2.replace(/\./g, "\\.");
+  str2 = str2.replace(/\^/g, "\\^");
+  str2 = str2.replace(/\$/g, "\\$");
   return str2;
 }
 
@@ -382,11 +390,11 @@ function startEditRecord(record_id, rownum, row_id)
       "<button id='confirm_delete_record' onclick='confirmDeleteRecord(" + rownum + ")' style='display: none; color: red;'>Confirm Delete</button>" + 
       "<button id='cancel_delete_record' onclick='cancelDeleteRecord();' style='display: none;'>Cancel Delete</button>" + 
       "</div>" +
-      "<textarea id='edit_textarea_" + i + "' style='width: 50%;'>" + _content[rownum][i + 1] + 
+      "<textarea id='edit_textarea_" + i + "' style='width: 50%;' onfocus='deselectTable();' onchange='deselectTable();'>" + _content[rownum][i + 1] + 
       "</textarea ></div>";
     }
     else
-      cells1[i].innerHTML = "<textarea id='edit_textarea_" + i + "' style='width: " + indexWidths[i] + ";'>" + _content[rownum][i + 1] + "</textarea >";
+      cells1[i].innerHTML = "<textarea id='edit_textarea_" + i + "' style='width: " + indexWidths[i] + ";' onfocus='deselectTable();' onchange='deselectTable();'>" + _content[rownum][i + 1] + "</textarea >";
   }
 }
 
@@ -428,10 +436,10 @@ function startNewRecord(){
       "<button style='width: 60px;' onclick='saveNewRecord();'>Save</button>" + 
       "<button style='width: 60px;' onclick='cancelNewRecord();'>Cancel</button>" + 
       "</div>" +
-      "<textarea id='new_textarea_" + i + "' style='width: 50%;'>" + (_largestRecordNumber + 1) + "</textarea ></div></td>";
+      "<textarea id='new_textarea_" + i + "' style='width: 50%;' onfocus='deselectTable();' onchange='deselectTable();'>" + (_largestRecordNumber + 1) + "</textarea ></div></td>";
     }
     else
-      tableHTML += "<td><textarea id='new_textarea_" + i + "' style='width: " + indexWidths[i] + ";'></textarea ></td>";
+      tableHTML += "<td><textarea id='new_textarea_" + i + "' style='width: " + indexWidths[i] + ";' onfocus='deselectTable();' onchange='deselectTable();'></textarea ></td>";
   }
 
   tableHTML += "</tr></table><br>";
@@ -444,9 +452,11 @@ function cancelNewRecord(){
 
 function saveNewRecord()
 {
+  var partsListRef = firebase.database().ref('parts');
+  var newPartRef = partsListRef.push();
   _content.push(new Array);
   var row = _content[_content.length - 1];
-  row.push((_largestRecordNumber + 1) + "n");
+  row.push(newPartRef.key);
   for(var i = 0; i < indexes.length; ++i){
     row.push(document.getElementById("new_textarea_" + i).value);
   }
@@ -459,8 +469,6 @@ function saveNewRecord()
   for(var i = 0; i < indexes.length; ++i)
     partObj[indexes[i]] = row[i + 1];
   
-  var partsListRef = firebase.database().ref('parts');
-  var newPartRef = partsListRef.push();
   newPartRef.set(partObj);
 }
 
@@ -529,4 +537,71 @@ function searchResultsJumpToEdge(end){
   else{
     populateSearchResults(_searchResults.length - 1, false, true, -1);
   }
+}
+
+function highlightString(str, termToHighlightList, preHTML_List, postHTML_List)
+{
+  var matchList = [];
+  let match;
+  var indexToPreHTMLs = new Map();
+  var indexToPostHTMLs = new Map();
+
+  for(var i = 0; i < termToHighlightList.length; ++i){
+    var regexp = new RegExp(getRegexSafeSearchTerm(termToHighlightList[i]), "g");
+    while ((match = regexp.exec(str)) !== null) {
+      // console.log(`Found ${match[0]} start=${match.index} end=${regexp.lastIndex}.`);
+      // expected output: "Found football start=6 end=14."
+      // expected output: "Found foosball start=16 end=24."
+      if(indexToPreHTMLs.has(match.index))
+        indexToPreHTMLs.get(match.index).push(preHTML_List[i]);
+      else{
+        var value = [preHTML_List[i]];
+        indexToPreHTMLs.set(match.index, value);
+      }
+
+      if(indexToPostHTMLs.has(regexp.lastIndex))
+        indexToPostHTMLs.get(regexp.lastIndex).push(postHTML_List[i]);
+      else{
+        var value = [postHTML_List[i]];
+        indexToPostHTMLs.set(regexp.lastIndex, value);
+      }
+
+      if(!matchList.includes(match.index))
+        matchList.push(match.index);
+      if(!matchList.includes(regexp.lastIndex))
+        matchList.push(regexp.lastIndex);
+    }
+  }
+
+  matchList.sort(COMPARE_NUMBERS);
+  for(var i = matchList.length - 1; i >= 0; --i)
+  {
+    var index = matchList[i];
+    if(indexToPreHTMLs.has(index)){
+      var preHTML_List2 = indexToPreHTMLs.get(index);
+      for(var j = 0; j < preHTML_List2.length; ++j)
+        str = str.substring(0, index) + preHTML_List2[j] + str.substring(index, str.length);
+    }
+
+    if(indexToPostHTMLs.has(index)){
+      var postHTML_List2 = indexToPostHTMLs.get(index);
+      for(var j = 0; j < postHTML_List2.length; ++j)
+        str = str.substring(0, index) + postHTML_List2[j] + str.substring(index, str.length);
+    }
+  }
+  return str;
+}
+
+function showRecordBrowserMax(){
+  document.getElementById('save_record_browser_max').style.display = 'inline';
+  deselectTable();
+}
+
+function showSearchResultsMax(){
+  document.getElementById('save_search_results_max').style.display = 'inline';
+  deselectTable();
+}
+
+function setMinRepititions(){
+  _minRepititions = Number(document.getElementById("repititions_min").value);
 }

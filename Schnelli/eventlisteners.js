@@ -142,17 +142,24 @@ input_email.addEventListener("keyup", function(event) {
 
   function pageUp()
   {
-    var row = -1;;
-    if(_selectedTable == TABLE_RECORD_BROWSER && _currentRecordBrowserStartIndex > 0 && _selectedRow - _recordBrowserMax >= 0){
+    var row = null;
+    if(_selectedTable == TABLE_RECORD_BROWSER){
       populateRecordBrowser(_currentRecordBrowserStartIndex - _recordBrowserMax, false);
       row = _selectedRow - _recordBrowserMax;
+      if(row < 0)
+        row = 0;
+      if(row >= _content.length)
+        row = _content.length - 1;
     }
     
-    if(_selectedTable == TABLE_SEARCH_RESULTS && _currentSearchResultsStartIndex > 0){
-      populateSearchResults(_currentSearchResultsStartIndex - _searchResultsMax, false, false, _selectedRow);
+    if(_selectedTable == TABLE_SEARCH_RESULTS){
+      if(_currentSearchResultsStartIndex == 0)
+        populateSearchResults(_currentSearchResultsStartIndex - _searchResultsMax, true, false, -1);
+      else
+        populateSearchResults(_currentSearchResultsStartIndex - _searchResultsMax, false, false, _selectedRow);
     }
 
-    if(row != -1){
+    if(row != null){
       var cell = getCell(row, _selectedCell, _selectedTable);
       if(cell != null)
         onCellClick(row, _selectedCell, cell.id, _selectedTable);
@@ -161,17 +168,24 @@ input_email.addEventListener("keyup", function(event) {
 
   function pageDown()
   {
-    var row = -1;;
-    if(_selectedTable == TABLE_RECORD_BROWSER && _selectedRow + _recordBrowserMax < _content.length){
+    var row = null;
+    if(_selectedTable == TABLE_RECORD_BROWSER){
       populateRecordBrowser(_currentRecordBrowserStartIndex + _recordBrowserMax, false);
       row = _selectedRow + _recordBrowserMax;
+      if(row < 0)
+        row = 0;
+      if(row >= _content.length)
+        row = _content.length - 1;
     }
     
     if(_selectedTable == TABLE_SEARCH_RESULTS){
-      populateSearchResults(_currentSearchResultsStartIndex + _searchResultsMax, false, false, _selectedRow);
+      if(_currentSearchResultsStartIndex >= _searchResults.length - _searchResultsMax)
+        populateSearchResults(_currentSearchResultsStartIndex + _searchResultsMax, false, true, -1);
+      else
+        populateSearchResults(_currentSearchResultsStartIndex + _searchResultsMax, false, false, _selectedRow);
     }
 
-    if(row != -1){
+    if(row != null){
       var cell = getCell(row, _selectedCell, _selectedTable);
       if(cell != null)
         onCellClick(row, _selectedCell, cell.id, _selectedTable);

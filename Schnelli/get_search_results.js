@@ -19,7 +19,7 @@ onmessage = function(e) {
                 var result = row[j].toLowerCase().match(getRegexSafeSearchTerm(searchstring));
                 if(result != null)
                 {
-                    var content_string = row[j];
+                    var content_string = content[i][j];
                     var s = 0;
                     var start = 0;
                     var end = 0;
@@ -88,6 +88,14 @@ function getRegexSafeSearchTerm(str)
   str2 = str2.replace(/\)/g, "\\)");
   str2 = str2.replace(/\+/g, "\\+");
   str2 = str2.replace(/\-/g, "\\-");
+  str2 = str2.replace(/\?/g, "\\?");
+  str2 = str2.replace(/\!/g, "\\!");
+  str2 = str2.replace(/\\/g, "\\");
+  str2 = str2.replace(/\*/g, "\\*");
+  str2 = str2.replace(/\,/g, "\\,");
+  str2 = str2.replace(/\./g, "\\.");
+  str2 = str2.replace(/\^/g, "\\^");
+  str2 = str2.replace(/\$/g, "\\$");
   return str2;
 }
 

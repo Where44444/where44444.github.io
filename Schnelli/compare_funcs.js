@@ -7,3 +7,14 @@ function COMPARE_0_0( a, b ) {
     }
     return 0;
   }
+
+  function COMPARE_NUMBERS( a, b ) {
+    if ( Number(a) < Number(b) ){
+      return -1;
+    }
+    if ( Number(a) > Number(b) ){
+      return 1;
+    }
+    return 0;
+  }
+

@@ -32,6 +32,8 @@ var _recordBrowserMax = 10;
 
 var _largestRecordNumber = 0;
 
+var _minRepititions = 3;
+
 var TABLE_SEARCH_RESULTS = 0;
 var TABLE_SIMILAR_STRINGS = 1;
 var TABLE_RECORD_BROWSER = 2;
@@ -59,6 +61,7 @@ for(var i = 0; i < indexes.length; ++i){
 document.getElementById("radio_columns_checkboxes").innerHTML = checkboxHTML;
 document.getElementById("radio_columns_checkboxes_more").innerHTML = checkboxHTML_More;
 setRadioColumn();
+document.getElementById("repititions_min").value = _minRepititions;
 
 var firebaseConfig = {
   apiKey: "AIzaSyBiHDF9LJepi4QyOhHeayZT_etKN5AjlGs",
@@ -147,7 +150,7 @@ function loadContentDiv(){
     
     var numRecords = 0;
     snapshot.forEach(function(childSnapshot) {
-      _content[numRecords][0] = String(childSnapshot.key);
+      _content[numRecords][0] = childSnapshot.key;
       //indexToContentID[numRecords] = childSnapshot.key;
       for(var i = 0; i < numIndexes; ++i)
         _content[numRecords][i + 1] = String(childSnapshot.child(indexes[i]).val());
@@ -197,10 +200,11 @@ function search_query()
   }
 }
 
-function populateRecordBrowser(indexStart, highlightGreenTopRow)
+function populateRecordBrowser(indexStart, highlight_IndexStart_Green)
 {
   document.getElementById("record_browser_table_div").innerHTML = "";
 
+  var origIndexStart = indexStart;
   if(_content.length - indexStart < _recordBrowserMax)
     indexStart = _content.length - _recordBrowserMax;
   if(indexStart < 0)
@@ -219,7 +223,7 @@ function populateRecordBrowser(indexStart, highlightGreenTopRow)
     var numIndexes = indexes.length;
     var tableHTML = "<h1>Record Browser</h1><p style='display: inline;'>Showing " + (indexStart + 1) + " - " + (indexEnd + 1) + " of " + _content.length + " Record(s)</p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + 
     "<p style='display: inline;'>Table Size</p>&nbsp;&nbsp;" + 
-    "<input id=\"record_browser_max\" type=\"number\" value=" + _recordBrowserMax + " min=\"0\" onchange=\"document.getElementById('save_record_browser_max').style.display = 'inline';\" onfocus='deselectTable();'></input>" + 
+    "<input id=\"record_browser_max\" type=\"number\" value=" + _recordBrowserMax + " min=\"0\" onfocus='showRecordBrowserMax();' onchange='showRecordBrowserMax();'></input>" + 
     "<button id=\"save_record_browser_max\" onclick=\"updateRecordBrowserMax();\" style=\"display: none;\">Save</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick='startNewRecord();'>Add New Part +</button>" + 
     "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick='recordBrowserJumpToEdge(0);'>Jump to Top</button>" + 
     "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick='recordBrowserJumpToEdge(1);'>Jump to Bottom</button>" + 
@@ -255,8 +259,8 @@ function populateRecordBrowser(indexStart, highlightGreenTopRow)
     tableHTML += "</tr></table>";
     document.getElementById("record_browser_table_div").innerHTML = tableHTML;
   }
-  if(highlightGreenTopRow && document.getElementById("record_browser_row_" + indexStart) != null){
-    document.getElementById("record_browser_row_" + indexStart).style.backgroundColor = _tempTopRowColor;
+  if(highlight_IndexStart_Green && document.getElementById("record_browser_row_" + origIndexStart) != null){
+    document.getElementById("record_browser_row_" + origIndexStart).style.backgroundColor = _tempTopRowColor;
   }
 }
 
@@ -318,7 +322,6 @@ function populateSearchResults(indexStart, selectTopRow, selectBottomRow, rowToS
     }
 
     //Get string repetition info---------------------------------------------
-    var minRepitions = 3;
     var singleWordsToOccurences = new Map(); //Standardized (word) to      [[num occurences, color],             [actual word spellings], [row nums]]
     var doubleWordsToOccurences = new Map(); //Standardized (word word) to [[num occurences, color, word, word], [actual word spellings], [row nums]]
     for(var i = 0; i < array_trimmed.length; ++i)
@@ -395,14 +398,14 @@ function populateSearchResults(indexStart, selectTopRow, selectBottomRow, rowToS
     //Populate similar strings list--------------------------------------------------------------
     var wordsToSort = []; //[[Standardized word, color], [Actual Words], [row nums]]
     for (let [key, value] of doubleWordsToOccurences) {
-      if(value[0][0] >= minRepitions){
+      if(value[0][0] >= _minRepititions){
         var finalValue = [[key, value[0][1]], value[1], value[2]];
         wordsToSort.push(finalValue);
       }
     }
     
     for (let [key, value] of singleWordsToOccurences) {
-      if(value[0][0] >= minRepitions){
+      if(value[0][0] >= _minRepititions){
         var finalValue = [[key, value[0][1]], value[1], value[2]];
         wordsToSort.push(finalValue);
       }
@@ -412,6 +415,7 @@ function populateSearchResults(indexStart, selectTopRow, selectBottomRow, rowToS
     var similarHTML = "";
     var totalRows = 0;
     _indexesSimilarStrings = [];
+
     for(var i = 0; i < wordsToSort.length; ++i)
     {
       var wordData = wordsToSort[i];
@@ -436,19 +440,22 @@ function populateSearchResults(indexStart, selectTopRow, selectBottomRow, rowToS
         var rownum = wordData[2][j];
         _indexesSimilarStrings.push(_indexesSearchResults[rownum]);
         for(var k = 0; k < indexes.length; ++k){
+          
+          var termToHighlightList = [];
+          var preHTML_List = [];
+          var postHTML_List = [];
+
           var string = array_trimmed[rownum][k + 1];
           var color = wordData[0][1];
-          var textcolor = "black;";
-          // var textcolor = "white;";
-          // if(useBlackText(color[0]/255, color[1]/255, color[2]/255))
-          //   textcolor = "black;";
           var bgColor = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ");";
           for(var v = 0; v < wordData[1].length; ++v){
-            if(getRegexSafeSearchTerm(wordData[1][v]).length <= 1)
-              console.log("Small word to highlight detected |" + getRegexSafeSearchTerm(wordData[1][v]) + "|");
-            var re = new RegExp(getRegexSafeSearchTerm(wordData[1][v]), "g");
-            string = string.replace(re, "<span style='border: 3px solid " + bgColor + " color: " + textcolor + "'>" + wordData[1][v] + "</span>");
+            // if(getRegexSafeSearchTerm(wordData[1][v]).length <= 1)
+            //   console.log("Small word to highlight detected |" + getRegexSafeSearchTerm(wordData[1][v]) + "|");
+            termToHighlightList.push(wordData[1][v]);
+            preHTML_List.push("<span style='border: 3px solid " + bgColor + " color: black;'>");
+            postHTML_List.push("</span>");
           }
+          string = highlightString(string, termToHighlightList, preHTML_List, postHTML_List);
           var id2 = "similar_string_cell_" + totalRows + "_" + k;
           similarHTML += "<td id='" + id2 + "' onclick='onCellClick(" + totalRows + "," + k + ",\"" + id2 + "\"," + TABLE_SIMILAR_STRINGS + ");'><div class='tooltip'><span class='tooltiptext'>" + indexes[k] + "<br><br>" + array_trimmed[rownum][2] + "</span>" + string + "</div></td>";
         }
@@ -481,9 +488,9 @@ function populateSearchResults(indexStart, selectTopRow, selectBottomRow, rowToS
     //
     var typeHighlightBGSingle = new Map();
       for (let [key1, value1] of singleWordsToOccurences) {
-        if(value1[0][0] >= minRepitions)
+        if(value1[0][0] >= _minRepititions)
           for (let [key2, value2] of doubleWordsToOccurences) {
-            if(value2[0][0] >= minRepitions)
+            if(value2[0][0] >= _minRepititions)
               typeHighlightBGSingle.set(key1, (key1 != value2[0][2] && key1 != value2[0][3])); //Single word is not in a double word pair
           }
       }
@@ -491,53 +498,55 @@ function populateSearchResults(indexStart, selectTopRow, selectBottomRow, rowToS
     for(var i = 0; i < array_trimmed.length; ++i){
       for(var j = 1; j < array_trimmed[i].length; ++j){
 
+        var termToHighlightList = [];
+        var preHTML_List = [];
+        var postHTML_List = [];
         //Highlight search terms
         for(var s = 0; s < actualSearchStrings.length; ++s){
-          if(getRegexSafeSearchTerm(actualSearchStrings[s]).length <= 1)
-            console.log("Small word to highlight detected |" + getRegexSafeSearchTerm(actualSearchStrings[s]) + "|");
-          var re = new RegExp(getRegexSafeSearchTerm(actualSearchStrings[s]), "g");
-          array_trimmed[i][j] = array_trimmed[i][j].replace(re, "<span style='background: yellow; color: black;'><b>" + actualSearchStrings[s] + "</b></span>");
+          // if(getRegexSafeSearchTerm(actualSearchStrings[s]).length <= 1)
+          //   console.log("Small word to highlight detected |" + getRegexSafeSearchTerm(actualSearchStrings[s]) + "|");
+          termToHighlightList.push(actualSearchStrings[s]);
+          preHTML_List.push("<span style='background: yellow; color: black;'><b>");
+          postHTML_List.push("</b></span>");
         }
 
         //Highlight double words
           for (let [key, value] of doubleWordsToOccurences) {
-            if(value[0][0] >= minRepitions){
+            if(value[0][0] >= _minRepititions){
               var color = value[0][1];
-              var textcolor = "black;";
-              // var textcolor = "white;";
-              // if(useBlackText(color[0]/255, color[1]/255, color[2]/255))
-              //   textcolor = "black;";
               var bgColor = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ");";
               for(var v = 0; v < value[1].length; ++v){
-                if(getRegexSafeSearchTerm(value[1][v]) <= 1)
-                  console.log("Small word to highlight detected |" + getRegexSafeSearchTerm(value[1][v]) + "|");
-                var re = new RegExp(getRegexSafeSearchTerm(value[1][v]), "g");
-                array_trimmed[i][j] = array_trimmed[i][j].replace(re, "<span style='border: 3px solid " + bgColor + " color: " + textcolor + "'>" + value[1][v] + "</span>");
+                // if(getRegexSafeSearchTerm(value[1][v]) <= 1)
+                //   console.log("Small word to highlight detected |" + getRegexSafeSearchTerm(value[1][v]) + "|");
+                termToHighlightList.push(value[1][v]);
+                preHTML_List.push("<span style='border: 3px solid " + bgColor + " color: black;'>");
+                postHTML_List.push("</span>");
               }
             }
           }
 
           //Highlight single words
           for (let [key, value] of singleWordsToOccurences) {
-            if(value[0][0] >= minRepitions){
+            if(value[0][0] >= _minRepititions){
               var color = value[0][1];
-              var textcolor = "black;";
-              // var textcolor = "white;";
-              // if(useBlackText(color[0]/255, color[1]/255, color[2]/255))
-              //   textcolor = "black;";
               var bgColor = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ");";
               for(var v = 0; v < value[1].length; ++v){
-                // console.log("|" + getRegexSafeSearchTerm(value[1][v]) + "|");
-                if(getRegexSafeSearchTerm(value[1][v]) <= 1)
-                  console.log("Small word to highlight detected |" + getRegexSafeSearchTerm(value[1][v]) + "|");
-                var re = new RegExp(getRegexSafeSearchTerm(value[1][v]), "g");
-                if(typeHighlightBGSingle.get(key))
-                  array_trimmed[i][j] = array_trimmed[i][j].replace(re, "<span style='border: 3px solid " + bgColor + " color: " + textcolor + "'>" + value[1][v] + "</span>");
-                else
-                  array_trimmed[i][j] = array_trimmed[i][j].replace(re, "<span style='border-bottom: 3px solid " + bgColor + "'>" + value[1][v] + "</span>");
+                // if(getRegexSafeSearchTerm(value[1][v]) <= 1)
+                //   console.log("Small word to highlight detected |" + getRegexSafeSearchTerm(value[1][v]) + "|");
+                termToHighlightList.push(value[1][v]);
+                if(typeHighlightBGSingle.get(key)){
+                  preHTML_List.push("<span style='border: 3px solid " + bgColor + " color: black;'>");
+                  postHTML_List.push("</span>");
+                }
+                else{
+                  preHTML_List.push("<span style='border-bottom: 3px solid " + bgColor + "'>");
+                  postHTML_List.push("</span>");
+                }
               }
             }
           }
+
+          array_trimmed[i][j] = highlightString(array_trimmed[i][j], termToHighlightList, preHTML_List, postHTML_List);
 
       }
     }
@@ -546,7 +555,7 @@ function populateSearchResults(indexStart, selectTopRow, selectBottomRow, rowToS
   //Generate search results table-----------------------------------------------------------------
   var tableHTML = "<p style='display: inline;'>Showing " + (indexStart + 1) + " - " + (indexEnd + 1) + " of " + _searchResults.length + " Result(s)</p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + 
   "<p style='display: inline;'>Table Size</p>&nbsp;&nbsp;" + 
-  "<input id=\"search_results_max\" type=\"number\" value=" + _searchResultsMax + " min=\"0\" onchange=\"document.getElementById('save_search_results_max').style.display = 'inline';\" onfocus='deselectTable();'></input>" + 
+  "<input id=\"search_results_max\" type=\"number\" value=" + _searchResultsMax + " min=\"0\" onchange='showSearchResultsMax();' onfocus='showSearchResultsMax();'></input>" + 
   "<button id=\"save_search_results_max\" onclick=\"updateSearchResultsMax();\" style=\"display: none;\">Save</button>" +
   "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick='searchResultsJumpToEdge(0);'>Jump to Top</button>" + 
   "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick='searchResultsJumpToEdge(1);'>Jump to Bottom</button>" + 

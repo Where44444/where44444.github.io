@@ -22,7 +22,7 @@ var _ADVICE =     77;
 var _ATTN =       78;
 var _MODEL =      79;
 
-var LOCAL_MODE = true;
+var LOCAL_MODE = false;
 
 var _content;
 var _content_standard;

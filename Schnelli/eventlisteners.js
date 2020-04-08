@@ -6,7 +6,7 @@ var input_search = document.getElementById("search_input");
 // Execute a function when the user releases a key on the keyboard
 input_email.addEventListener("keyup", function(event) {
     // Number 13 is the "Enter" key on the keyboard
-    if (event.keyCode === 13) {
+    if (event.keyCode === KEY_ENTER) {
       // Cancel the default action, if needed
       event.preventDefault();
       // Trigger the button element with a click
@@ -15,48 +15,74 @@ input_email.addEventListener("keyup", function(event) {
   });
   
   input_password.addEventListener("keyup", function(event) {
-    if (event.keyCode === 13) {
+    if (event.keyCode === KEY_ENTER) {
       event.preventDefault();
       document.getElementById("login_button").click();
     }
   });
   
   input_search.addEventListener("keyup", function(event) {
-    if (event.keyCode === 13) {
+    if (event.keyCode === KEY_ENTER) {
       event.preventDefault();
-      document.getElementById("search_button").click();
+      document.getElementById("search_any_button").click();
+    }
+    else if (event.keyCode === KEY_UP_ARROW) {
+      event.preventDefault();
+      viewHistory(-1, -1);
+    }
+    else if (event.keyCode === KEY_DOWN_ARROW) {
+      event.preventDefault();
+      viewHistory(-1, 1);
     }
   });
 
-  var KEY_LEFT = 37;
-  var KEY_UP = 38;
-  var KEY_RIGHT = 39;
-  var KEY_DOWN = 40;
+  for(var i = 0; i < INDEXES_CONCAT.length; ++i){
+    document.getElementById("search_input_" + i).addEventListener("keyup", function(event) {
+      if (event.keyCode === KEY_ENTER) {
+        event.preventDefault();
+        document.getElementById("search_specific_button").click();
+      }
+      else if (event.keyCode === KEY_UP_ARROW) {
+        event.preventDefault();
+        viewHistory(null, -1);
+      }
+      else if (event.keyCode === KEY_DOWN_ARROW) {
+        event.preventDefault();
+        viewHistory(null, 1);
+      }
+    });
+  }
+
+  var KEY_ENTER = 13
+  var KEY_LEFT_ARROW = 37;
+  var KEY_UP_ARROW = 38;
+  var KEY_RIGHT_ARROW = 39;
+  var KEY_DOWN_ARROW = 40;
   var KEY_TAB = 9;
   var KEY_PAGE_UP = 33;
   var KEY_PAGE_DOWN = 34;
 
   document.addEventListener("keydown", function(event) { 
     switch(event.keyCode){
-        case KEY_LEFT: //Left Arrow
+        case KEY_LEFT_ARROW: //Left Arrow
           if(_isTableSelected){
             event.preventDefault();
             moveLeft();
           }
           break;
-        case KEY_UP: //Up Arrow
+        case KEY_UP_ARROW: //Up Arrow
           if(_isTableSelected){
             event.preventDefault();
             moveUp();
           }
           break;
-        case KEY_RIGHT: //Right Arrow
+        case KEY_RIGHT_ARROW: //Right Arrow
           if(_isTableSelected){
             event.preventDefault();
             moveRight();
           }
           break;
-        case KEY_DOWN: //Down Arrow
+        case KEY_DOWN_ARROW: //Down Arrow
           if(_isTableSelected){
             event.preventDefault();
             moveDown();
@@ -192,6 +218,51 @@ input_email.addEventListener("keyup", function(event) {
     }
   }
 
+  //index -1 = search any, dir -1 = back, 1 = forward
+  function viewHistory(index, dir)
+  {
+    if(index != null){
+      if(dir == -1){
+        if(_searchstring_any_history_index > 0)
+        {
+          --_searchstring_any_history_index;
+          if(_searchstring_any_history_index >= _searchstring_any_history.length)
+            _searchstring_any_history_index = _searchstring_any_history.length - 1;
+          document.getElementById("search_input").value = _searchstring_any_history[_searchstring_any_history_index];
+        }
+      }
+      else{
+        if(_searchstring_any_history_index < _searchstring_any_history.length - 1)
+        {
+          ++_searchstring_any_history_index;
+          if(_searchstring_any_history_index >= _searchstring_any_history.length)
+            _searchstring_any_history_index = _searchstring_any_history.length - 1;
+          document.getElementById("search_input").value = _searchstring_any_history[_searchstring_any_history_index];
+        }
+      }
+    }
+    else{
+      index = _selected_search_input;
+      if(dir == -1){
+        if(_searchstring_specific_history_index[index] > 0)
+        {
+          --_searchstring_specific_history_index[index];
+          if(_searchstring_specific_history_index[index] >= _searchstring_specific_history[index].length)
+            _searchstring_specific_history_index[index] = _searchstring_specific_history[index].length - 1;
+          document.getElementById("search_input_" + index).value = _searchstring_specific_history[index][_searchstring_specific_history_index[index]];
+        }
+      }
+      else{
+        if(_searchstring_specific_history_index[index] < _searchstring_specific_history[index].length - 1)
+        {
+          ++_searchstring_specific_history_index[index];
+          if(_searchstring_specific_history_index[index] >= _searchstring_specific_history[index].length)
+            _searchstring_specific_history_index[index] = _searchstring_specific_history[index].length - 1;
+          document.getElementById("search_input_" + index).value = _searchstring_specific_history[index][_searchstring_specific_history_index[index]];
+        }
+      }
+    }
+  }
   // function moveToNextTable(){
   //   var newTable = (_selectedTable + 1) % 3;
   //   var cell = getCell(0, 0, newTable);

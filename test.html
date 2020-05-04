@@ -75,13 +75,13 @@
         }
 
         function soapRequest(user, password){
-            console.log("v2 Starting request " + user + "|" + password);
+            console.log("v3 Starting request " + user + "|" + password);
             var str = '<?xml version="1.0"?>'
                     + '<soap:Envelope'
                     + 'xmlns:soap="http://www.w3.org/2003/05/soap-envelope/"'
                     + 'soap:encodingStyle="http://www.w3.org/2003/05/soap-encoding">'
                     + '<soap:Body>'
-                    + '  <m:GetOrder xmlns:m="https://encompass.com/soap">'
+                    + '  <m:GetOrder xmlns:m="https://encompass.com/soapservice">'
                     + '    <m:xmlUser>' + user + '</m:xmlUser>'
                     + '    <m:xmlPassword>' + password + '</m:xmlPassword>'
                     + '    <m:serviceName>XML.ORDER.STATUS</m:serviceName>'
@@ -105,13 +105,13 @@
                 }
                 return xhr;
             }
-            var xhr = createCORSRequest("POST", "https://encompass.com/soap");
+            var xhr = createCORSRequest("POST", "https://encompass.com/soapservice");
             if(!xhr){
             console.log("XHR issue");
             return;
             }
 
-            xhr.onload = function (){
+            xhr.onload = function(){
             var results = xhr.responseText;
             console.log(results);
             }

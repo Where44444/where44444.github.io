@@ -1826,7 +1826,7 @@ function reloadContentFromChangeAlert(alertOBJ)
       populateRecordBrowser(_currentRecordBrowserStartIndex, false);
       populateRecordViews();
     }
-    else //New Record
+    else if(!alertOBJ.deleted)//New Record
     {
       var content_line = [];
       for(var i = 0; i < INDEXES.length; ++i)
@@ -1861,7 +1861,7 @@ function reloadContentExtraFromChangeAlert(alertOBJ)
         _content_extra[alertOBJ.content_extra_index][rownum][0] = snapshot.val();
       }
     }
-    else //New record
+    else if(!alertOBJ.deleted) //New record
     {
       var arr = [snapshot.val(), partref.key];
       _content_extra[alertOBJ.content_extra_index].push(arr);

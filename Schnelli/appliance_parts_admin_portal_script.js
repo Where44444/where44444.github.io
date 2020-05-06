@@ -101,7 +101,7 @@ for(var i = 0; i < INDEXES_CONCAT.length; ++i){
       for(var j = 0; j < 5; ++j){
         var i2 = (i - 4) + j;
         var order_id2 = INDEX_ORDER[i2];
-        checkboxHTML += "<input id='search_input_" + order_id2 + "' type='text' style='width: 230px; position:absolute; left:" + ((i2 % 5) * 250 + 50) + "px;' onfocus='deselectTable(" + order_id2 + ");' onchange='setRadioColumnChecked(" + order_id2 + ")'>";
+        checkboxHTML += "<div style='position:absolute; left:" + ((i2 % 5) * 250 + 50) + "px;'><input id='search_input_" + order_id2 + "' type='text' style='width: 230px;' onfocus='deselectTable(" + order_id2 + ");' onfocusout='onSearchInputFocusOut();' onchange='onSearchInputChanged(" + order_id2 + ")'><div id='search_autocomplete_" + order_id2 + "'></div></div>";
       }
       if(i == 4)
         checkboxHTML += "<button id='search_specific_button' style='display: inline; width: 100px; position:absolute; left:" + ((i + 1) * 250 + 50) + "px;' onclick='search_query();'>Go</button>";
@@ -118,7 +118,7 @@ for(var i = 0; i < INDEXES_CONCAT.length; ++i){
       for(var j = 0; j < 5; ++j){
         var i2 = (i - 4) + j;
         var order_id2 = INDEX_ORDER[i2];
-        checkboxHTML_More += "<input id='search_input_" + order_id2 + "' type='text' style='width: 230px; position:absolute; left:" + ((i2 % 5) * 250 + 50) + "px;' onfocus='deselectTable(" + order_id2 + ");' onchange='setRadioColumnChecked(" + order_id2 + ")'>";
+        checkboxHTML_More += "<div style='position:absolute; left:" + ((i2 % 5) * 250 + 50) + "px;'><input id='search_input_" + order_id2 + "' type='text' style='width: 230px;' onfocus='deselectTable(" + order_id2 + ");' onfocusout='onSearchInputFocusOut();' onchange='onSearchInputChanged(" + order_id2 + ")'><div id='search_autocomplete_" + order_id2 + "'></div></div>";
       }
       checkboxHTML_More += "<br><br><br>";
     }
@@ -217,7 +217,7 @@ function loadContentDiv(){
   document.getElementById("message").innerHTML = "<p>Downloading parts from database... This may take up to 60 seconds</p>";
   document.getElementById("record_browser_div").style.display = "none";
 
-  // var partRef = firebase.database().ref('parts_db/P&A_PRI');
+  // var partRef = firebase.database().ref('parts_db/D_DNI');
   // partRef.remove();
 
 //   $.ajax({
@@ -275,13 +275,14 @@ else {
           populateRecordBrowser(0, false);
           _contentSortedReverse = true;
           sortContentByIndex(0);
+          loadChangeAlerts();
         });
       }
     });
   }
 }
 
-    var sortOrdersRef = firebase.database().ref('sort_orders');
+  var sortOrdersRef = firebase.database().ref('sort_orders');
   sortOrdersRef.on('value', function(snapshot) {
     var sortOrders = [];
     snapshot.forEach(function(childSnapshot) {
@@ -362,6 +363,8 @@ function search_query()
 
 function populateRecordBrowser(indexStart, highlight_IndexStart_Green)
 {
+  document.getElementById("wlmay_input_div").style.display = "block";
+
   document.getElementById("record_browser_table_div").innerHTML = "";
   var origIndexStart = indexStart;
   if(_content.length - indexStart < _recordBrowserMax)
@@ -389,7 +392,7 @@ function populateRecordBrowser(indexStart, highlight_IndexStart_Green)
     "<div id='add_part_table_div'></div>" +
     "<table class='clickable' id='record_browser_table'><tr>";
 
-    for(i = 0; i < INDEXES_CONCAT.length; ++i){
+    for(var i = 0; i < INDEXES_CONCAT.length; ++i){
       var index = INDEX_ORDER[i];
       var bgcolor = "inherit";
       if(_contentSortedIndex.includes(index))
@@ -397,7 +400,7 @@ function populateRecordBrowser(indexStart, highlight_IndexStart_Green)
       tableHTML += "<th class='clickable' onclick='sortContentByIndex(" + index + ");' style='background-color: " + bgcolor + ";'><div style='width: " + INDEX_WIDTHS_CONCAT[index] + ";'>" + INDEXES_CONCAT[index] + "</div></th>";
     }
 
-    // for(i = 0; i < MEMO_INDEXES.length; ++i){
+    // for(var i = 0; i < MEMO_INDEXES.length; ++i){
     //   var i2 = i + INDEXES.length;
     //   var bgcolor = "inherit";
     //   if((i2) == _contentSortedIndex)
@@ -418,11 +421,11 @@ function populateRecordBrowser(indexStart, highlight_IndexStart_Green)
         var index = INDEX_ORDER[j];
         var id2 = "record_browser_cell_" + i + "_" + j;
         if(index == 0)
-          tableHTML += "<td id='" + id2 + "' onmouseover='recordViewIconMouseOver(\"browser_" + i + "_" + j + "\");' onmouseout='recordViewIconMouseOut(\"browser_" + i + "_" + j + "\");' onclick='onCellClick(" + i + "," + j + ",\"" + id2 + "\"," + TABLE_RECORD_BROWSER + ");'><img id='edit_icon_" + numRows + "' src='pencil.png' width=20px height=20px onclick='startEditRecord(\"" + _content[i][_content[i].length - 1] + "\", " + i + ", \"record_browser_row_" + i + "\");'>&nbsp;&nbsp;&nbsp;&nbsp;<div class='tooltip'><span class='tooltiptext'>" + INDEXES_CONCAT[index] + "<br><br>" + _content[i][1] + "</span>" + _content[i][index] + "&nbsp;&nbsp;&nbsp;<img id='record_view_icon_browser_" + i + "_" + j + "' src='record_view.png' width=50px height=20px style='display: none;' onclick='addRecordView(\"" + _content[i][_content[i].length - 1] + "\");'></div></td>";
+          tableHTML += "<td id='" + id2 + "' onmouseover='recordViewIconMouseOver(\"browser_" + i + "_" + j + "\");' onmouseout='recordViewIconMouseOut(\"browser_" + i + "_" + j + "\");' onclick='onCellClick(" + i + "," + j + ",\"" + id2 + "\"," + TABLE_RECORD_BROWSER + ");'><img id='edit_icon_" + numRows + "' src='pencil.png' width=25px height=25px onclick='startEditRecord(\"" + _content[i][_content[i].length - 1] + "\", " + i + ", \"record_browser_row_" + i + "\");'>&nbsp;&nbsp;&nbsp;&nbsp;<img id='copy_icon_" + numRows + "' src='copy.png' width=30px height=30px onclick='startNewRecord(" + i + ");'>&nbsp;&nbsp;&nbsp;&nbsp;<div class='tooltip'><span class='tooltiptext'>" + INDEXES_CONCAT[index] + "<br><br>" + getHTMLSafeText(_content[i][1]) + "</span>" + getHTMLSafeText(_content[i][index]) + "&nbsp;&nbsp;&nbsp;<img id='record_view_icon_browser_" + i + "_" + j + "' src='record_view.png' width=50px height=20px style='display: none;' onclick='addRecordView(\"" + _content[i][_content[i].length - 1] + "\");'></div></td>";
         else if(index < INDEXES.length)
-          tableHTML += "<td id='" + id2 + "' onmouseover='recordViewIconMouseOver(\"browser_" + i + "_" + j + "\");' onmouseout='recordViewIconMouseOut(\"browser_" + i + "_" + j + "\");' onclick='onCellClick(" + i + "," + j + ",\"" + id2 + "\"," + TABLE_RECORD_BROWSER + ");'><div class='tooltip'><span class='tooltiptext'>" + INDEXES_CONCAT[index] + "<br><br>" + _content[i][1] + "</span>" + _content[i][index] + "&nbsp;&nbsp;&nbsp;<img id='record_view_icon_browser_" + i + "_" + j + "' src='record_view.png' width=50px height=20px style='display: none;' onclick='addRecordView(\"" + _content[i][_content[i].length - 1] + "\");'></div></td>";
-        else{ //Memo field
-          tableHTML += "<td id='" + id2 + "' onmouseover='recordViewIconMouseOver(\"browser_" + i + "_" + j + "\");' onmouseout='recordViewIconMouseOut(\"browser_" + i + "_" + j + "\");' onclick='onCellClick(" + i + "," + j + ",\"" + id2 + "\"," + TABLE_RECORD_BROWSER + ");'><div class='tooltip'><span class='tooltiptext'>" + INDEXES_CONCAT[index] + "<br><br>" + _content[i][1] + "</span>" + getExpandableHTML(_content[i][index], (i + "_" + j), 100, INDEX_WIDTHS_CONCAT[index]) + "&nbsp;&nbsp;&nbsp;<img id='record_view_icon_browser_" + i + "_" + j + "' src='record_view.png' width=50px height=20px style='display: none;' onclick='addRecordView(\"" + _content[i][_content[i].length - 1] + "\");'></div></td>";
+          tableHTML += "<td id='" + id2 + "' onmouseover='recordViewIconMouseOver(\"browser_" + i + "_" + j + "\");' onmouseout='recordViewIconMouseOut(\"browser_" + i + "_" + j + "\");' onclick='onCellClick(" + i + "," + j + ",\"" + id2 + "\"," + TABLE_RECORD_BROWSER + ");'><div class='tooltip'><span class='tooltiptext'>" + INDEXES_CONCAT[index] + "<br><br>" + getHTMLSafeText(_content[i][1]) + "</span>" + getHTMLSafeText(_content[i][index]) + "&nbsp;&nbsp;&nbsp;<img id='record_view_icon_browser_" + i + "_" + j + "' src='record_view.png' width=50px height=20px style='display: none;' onclick='addRecordView(\"" + _content[i][_content[i].length - 1] + "\");'></div></td>";
+        else{ //Memo field)
+          tableHTML += "<td id='" + id2 + "' onmouseover='recordViewIconMouseOver(\"browser_" + i + "_" + j + "\");' onmouseout='recordViewIconMouseOut(\"browser_" + i + "_" + j + "\");' onclick='onCellClick(" + i + "," + j + ",\"" + id2 + "\"," + TABLE_RECORD_BROWSER + ");'><div class='tooltip'><span class='tooltiptext'>" + INDEXES_CONCAT[index] + "<br><br>" + getHTMLSafeText(_content[i][1]) + "</span>" + getExpandableHTML(_content[i][index], (i + "_" + j), 100, INDEX_WIDTHS_CONCAT[index]) + "&nbsp;&nbsp;&nbsp;<img id='record_view_icon_browser_" + i + "_" + j + "' src='record_view.png' width=50px height=20px style='display: none;' onclick='addRecordView(\"" + _content[i][_content[i].length - 1] + "\");'></div></td>";
         }
       }
       // for(var j = 0; j < MEMO_INDEXES.length; ++j)
@@ -645,7 +648,7 @@ function populateSearchResults(indexStart, selectTopRow, selectBottomRow, rowToS
           }
           string = highlightString(string, termToHighlightList, preHTML_List, postHTML_List);
           var id2 = "similar_string_cell_" + totalRows + "_" + k;
-          similarHTML += "<td id='" + id2 + "' onclick='onCellClick(" + totalRows + "," + k + ",\"" + id2 + "\"," + TABLE_SIMILAR_STRINGS + ");'><div class='tooltip'><span class='tooltiptext'>" + INDEXES_CONCAT[index] + "<br><br>" + array_trimmed[rownum][2] + "</span>" + string + "</div></td>";
+          similarHTML += "<td id='" + id2 + "' onclick='onCellClick(" + totalRows + "," + k + ",\"" + id2 + "\"," + TABLE_SIMILAR_STRINGS + ");'><div class='tooltip'><span class='tooltiptext'>" + INDEXES_CONCAT[index] + "<br><br>" + array_trimmed[rownum][1] + "</span>" + string + "</div></td>";
         }
 
         similarHTML += "</tr>";
@@ -766,7 +769,7 @@ function populateSearchResults(indexStart, selectTopRow, selectBottomRow, rowToS
       var id2 = "search_results_cell_" + i + "_" + j;
       tableHTML += "<td onmouseover='recordViewIconMouseOver(\"search_" + i + "_" + j + "\");' onmouseout='recordViewIconMouseOut(\"search_" + i + "_" + j + "\");' id='" + id2 + "' onclick='onCellClick(" + i + "," + j + ",\"" + id2 + "\"," + TABLE_SEARCH_RESULTS + ");'>" + 
       "<div class='tooltip'><span class='tooltiptext' style='border: 3px solid black; background-color: white; color: black;'>" 
-      + INDEXES_CONCAT[index] + "<br><br>" + array_trimmed[i][2] + "</span>" + array_trimmed[i][index] + 
+      + INDEXES_CONCAT[index] + "<br><br>" + array_trimmed[i][1] + "</span>" + array_trimmed[i][index] + 
       "&nbsp;&nbsp;&nbsp;<img id='record_view_icon_search_" + i + "_" + j + "' src='record_view.png' width=50px height=20px style='display: none;' onclick='addRecordView(\"" + array_trimmed[i][array_trimmed[i].length - 1] + "\");'></div></td>";
     }
       // tableHTML += "<td><div style='width: " + headerWidths[j] + ";'>" + array[i][j] + "</div></td>";
@@ -814,12 +817,12 @@ function populateSortOrders()
     "<button id='sort_order_button_confirm_delete" + id1 + "' style='display: none; width: 100px; font-size: 20px; margin-top: 5px; color: red' onclick='confirmDeleteSortOrder(" + id1 + ");'>Confirm Delete</button>" + 
     "<button id='sort_order_button_cancel_delete" + id1 + "'  style='display: none; width: 100px; font-size: 20px; margin-top: 5px;' onclick='cancelDeleteSortOrder(" + id1 + ");'>Cancel Delete</button>" + 
     "</div>" +
-    "<p style='font-size: 20px;'>Name&nbsp;</p><input id='sort_order_name_" + id1 + "' type='text' style='width: 500px; font-size: 20px;'>" + 
+    "<p style='font-size: 20px;'>Name&nbsp;</p><input id='sort_order_name_" + id1 + "' type='text' style='width: 500px; font-size: 20px;' onfocus='deselectTable();'>" + 
     "</div>" +
     "<div id='sort_order_static_" + id1 + "'>" +
     "<img class='clickable' style='display: inline;' id='sort_order_edit_icon_" + i + "' src='pencil.png' width=20px height=20px onclick='startEditSortOrder(" + id1 + ");')>&nbsp;&nbsp;&nbsp;&nbsp;" + 
     "<button id='sort_order_sort_button_" + id1 +"' style='font-size: 20px;' onclick='sortContentBySortOrder(" + i + ");')>Sort</button>&nbsp;&nbsp;&nbsp;&nbsp;" +
-    "<p style='display: inline; font-size: 20px;'>" + _sort_orders[i].name + "</p>" +
+    "<p style='display: inline; font-size: 20px;'>" + getHTMLSafeText(_sort_orders[i].name) + "</p>" +
     "</div>" +
     "</td>";
     for(var j = 0; j < _sort_orders[i].sorted_indexes.length; ++j)
@@ -887,86 +890,131 @@ function populateRecordViews()
   for(var i = 0; i < _recordViews.length; ++i)
   {
     var rownum = getContentIndexFrom_DB_ID(_recordViews[i]);
-    var equip_type_text = _content[rownum][_EQUIP_TYPE];
-    var appl_brand_text = _content[rownum][_APPL_BRAND];
-    var descrip1_text =   _content[rownum][_DESCRIP1];
-    var descrip2_text =   _content[rownum][_DESCRIP2];
-    var comments_text =   _content[rownum][_COMMENTS];
-    if(i == 0){
-      first_record_rownum = rownum;
-    }
-    else{
-      var equip_type_indexes = getWordCompareIndexes(_content[first_record_rownum][_EQUIP_TYPE], equip_type_text, _recordViewHightlightType);
-      var appl_brand_indexes = getWordCompareIndexes(_content[first_record_rownum][_APPL_BRAND], appl_brand_text, _recordViewHightlightType);
-      var descrip1_indexes = getWordCompareIndexes(  _content[first_record_rownum][_DESCRIP1], descrip1_text,     _recordViewHightlightType);
-      var descrip2_indexes = getWordCompareIndexes(  _content[first_record_rownum][_DESCRIP2], descrip2_text,     _recordViewHightlightType);
-      var comments_indexes = getWordCompareIndexes(  _content[first_record_rownum][_COMMENTS], comments_text,     _recordViewHightlightType);
-      var preHTML = "<span style='background: salmon;'>";
-      if(_recordViewHightlightType == 1)
-        preHTML = "<span style='background: lightgreen;'>";
-      var postHTML = "</span>";
-      equip_type_text = highlightStringBasic(equip_type_text, equip_type_indexes.startIndexes, equip_type_indexes.endIndexes, preHTML, postHTML);
-      appl_brand_text = highlightStringBasic(appl_brand_text, appl_brand_indexes.startIndexes, appl_brand_indexes.endIndexes, preHTML, postHTML);
-      descrip1_text =   highlightStringBasic(descrip1_text,   descrip1_indexes.startIndexes,   descrip1_indexes.endIndexes,   preHTML, postHTML);
-      descrip2_text =   highlightStringBasic(descrip2_text,   descrip2_indexes.startIndexes,   descrip2_indexes.endIndexes,   preHTML, postHTML);
-      comments_text =   highlightStringBasic(comments_text,   comments_indexes.startIndexes,   comments_indexes.endIndexes,   preHTML, postHTML);
-    }
-    htmlToAdd += "<button style='width: 50px;' onclick='removeRecordView(" + i + ");')>X</button><div style='display: flex;'><div class='border_center' style='flex-grow: 1;'></div>" 
-    + "<div class='text1'>" + equip_type_text + " / " + appl_brand_text + "</div>"
-    + "<div class='border_center' style='flex-grow: 8;'></div></div>"
-    + "<div style='display: block; border-left: solid; border-bottom: solid; border-right: solid; border-width: 2px; border-color: black;'>" 
-    + "<p style='padding-left: 10px;'><b>DESCRIP1:</b> " + descrip1_text + "<br>"
-     + "<b>DESCRIP2: </b>" + descrip2_text + "</p>"
-    + "<p style='padding-left: 10px;'><b>COMMENTS:</b> " + comments_text + "</p>"
-    + "</div><div class=clickable style='font-size: 20px; background-color: #96BBFF' onclick='toggleDiv(null, \"record_view_details_" + i + "\")'><span id='record_view_details_" + i + "_expander_icon' style='font-size: 24px;'>+</span> Details</div>" 
-    + "<div id='record_view_details_" + i + "_div' style='display: none;'><table><tr><th></th>";
-    
-    for(var j = 0; j < RECORD_VIEW_HEADERS.length; ++j)
+    if(rownum != null)
     {
-      htmlToAdd += "<th style='width: " + RECORD_VIEW_HEADERS_WIDTHS[j] + ";'><p>" + RECORD_VIEW_HEADERS[j] + "</p></th>";
-    }
-    htmlToAdd += "</tr>";
-    for(var j = 0; j < EXTRA_DB.length; ++j)
-    {
-      var extraDBIndex = getExtraDBLinkIndex(j, _content[rownum][CONTENT_EXTRA_DB_INDEXES[j]]);
-      if(j == EXTRA_DB.length - 1) //Last row
-        htmlToAdd += "<tr style='border-top: solid; border-bottom: solid; border-width: 4px; border-color: black;'>";
-      else
-        htmlToAdd += "<tr>";
-      for(var k = 0; k < RECORD_VIEW_HEADERS.length; ++k)
-      { 
-        htmlToAdd += "<td>";
-        if(k == 0)
-          htmlToAdd += "<p>" + EXTRA_DB[j] + "</p></td><td>";
-        if(extraDBIndex != null){
-          for(var d = 0; d < RECORD_VIEW_HEADERS_ACTUAL_INDEXES[k].length; ++d){
-            var content1 = _content_extra[j][extraDBIndex][0][RECORD_VIEW_HEADERS_ACTUAL_INDEXES[k][d]];
-            if(content1 != null){
-              if(k == 9 || k == 10 || k == 11) //"CGS",   "RETAIL",     "SELL" in usd format
-              {
-                htmlToAdd += "<p>" + content1.toLocaleString("en-US", {style: "currency", currency: "USD", minimumFractionDigits: 2}) + "</p>";
+      var equip_type_text = _content[rownum][_EQUIP_TYPE];
+      var appl_brand_text = _content[rownum][_APPL_BRAND];
+      var descrip1_text =   _content[rownum][_DESCRIP1];
+      var descrip2_text =   _content[rownum][_DESCRIP2];
+      var comments_text =   _content[rownum][_COMMENTS];
+      if(i == 0){
+        first_record_rownum = rownum;
+      }
+      else{
+        var equip_type_indexes = getWordCompareIndexes(_content[first_record_rownum][_EQUIP_TYPE], equip_type_text, _recordViewHightlightType);
+        var appl_brand_indexes = getWordCompareIndexes(_content[first_record_rownum][_APPL_BRAND], appl_brand_text, _recordViewHightlightType);
+        var descrip1_indexes = getWordCompareIndexes(  _content[first_record_rownum][_DESCRIP1], descrip1_text,     _recordViewHightlightType);
+        var descrip2_indexes = getWordCompareIndexes(  _content[first_record_rownum][_DESCRIP2], descrip2_text,     _recordViewHightlightType);
+        var comments_indexes = getWordCompareIndexes(  _content[first_record_rownum][_COMMENTS], comments_text,     _recordViewHightlightType);
+        var preHTML = "<span style='background: salmon;'>";
+        if(_recordViewHightlightType == 1)
+          preHTML = "<span style='background: lightgreen;'>";
+        var postHTML = "</span>";
+        equip_type_text = highlightStringBasic(equip_type_text, equip_type_indexes.startIndexes, equip_type_indexes.endIndexes, preHTML, postHTML);
+        appl_brand_text = highlightStringBasic(appl_brand_text, appl_brand_indexes.startIndexes, appl_brand_indexes.endIndexes, preHTML, postHTML);
+        descrip1_text =   highlightStringBasic(descrip1_text,   descrip1_indexes.startIndexes,   descrip1_indexes.endIndexes,   preHTML, postHTML);
+        descrip2_text =   highlightStringBasic(descrip2_text,   descrip2_indexes.startIndexes,   descrip2_indexes.endIndexes,   preHTML, postHTML);
+        comments_text =   highlightStringBasic(comments_text,   comments_indexes.startIndexes,   comments_indexes.endIndexes,   preHTML, postHTML);
+      }
+      htmlToAdd += "<button style='width: 50px;' onclick='removeRecordView(" + i + ");')>X</button><div style='display: flex;'><div class='border_center' style='flex-grow: 1;'></div>" 
+      + "<div class='text1'>" + equip_type_text + " / " + appl_brand_text + "</div>"
+      + "<div class='border_center' style='flex-grow: 8;'></div></div>"
+      + "<div style='display: block; border-left: solid; border-bottom: solid; border-right: solid; border-width: 2px; border-color: black;'>" 
+      + "<p style='padding-left: 10px;'><b>DESCRIP1:</b> " + descrip1_text + "<br>"
+      + "<b>DESCRIP2: </b>" + descrip2_text + "</p>"
+      + "<p style='padding-left: 10px;'><b>COMMENTS:</b> " + comments_text + "</p>"
+      + "</div><div class=clickable style='font-size: 20px; background-color: #96BBFF' onclick='toggleDiv(null, \"record_view_details_" + i + "\")'><span id='record_view_details_" + i + "_expander_icon' style='font-size: 24px;'>+</span> Details</div>" 
+      + "<div id='record_view_details_" + i + "_div' style='display: none;'><table><tr><th></th>";
+      
+      for(var j = 0; j < RECORD_VIEW_HEADERS.length; ++j)
+      {
+        htmlToAdd += "<th style='width: " + RECORD_VIEW_HEADERS_WIDTHS[j] + ";'><p>" + RECORD_VIEW_HEADERS[j] + "</p></th>";
+      }
+      htmlToAdd += "<th>Reliable Parts</th><th>Encompass</th>";
+      htmlToAdd += "</tr>";
+      for(var j = 0; j < EXTRA_DB.length; ++j)
+      {
+        var extraDBIndex = getExtraDBLinkIndex(j, _content[rownum][CONTENT_EXTRA_DB_INDEXES[j]]);
+        if(j == EXTRA_DB.length - 1) //Last row
+          htmlToAdd += "<tr style='border-top: solid; border-bottom: solid; border-width: 4px; border-color: black;'>";
+        else
+          htmlToAdd += "<tr>";
+        var partSearchTerm = "";
+        for(var k = 0; k < RECORD_VIEW_HEADERS.length; ++k)
+        { 
+          htmlToAdd += "<td>";
+          if(k == 0)
+            htmlToAdd += "<p>" + EXTRA_DB[j] + "</p></td><td>";
+          if(extraDBIndex != null){
+            for(var d = 0; d < RECORD_VIEW_HEADERS_ACTUAL_INDEXES[k].length; ++d){
+              var content1 = _content_extra[j][extraDBIndex][0][RECORD_VIEW_HEADERS_ACTUAL_INDEXES[k][d]];
+              if(content1 != null){
+                if(k == 1) //PART#
+                  partSearchTerm = content1;
+                if(k == 9 || k == 10 || k == 11) //"CGS",   "RETAIL",     "SELL" in usd format
+                {
+                  htmlToAdd += "<p>" + content1.toLocaleString("en-US", {style: "currency", currency: "USD", minimumFractionDigits: 2}) + "</p>";
+                }
+                else
+                {
+                  htmlToAdd += "<p>" + content1 + "</p>";
+                }
+                break;
               }
-              else
-              {
-                htmlToAdd += "<p>" + content1 + "</p>";
-              }
-              break;
             }
           }
+          htmlToAdd += "</td>";
         }
+        htmlToAdd += "<td>";
+        if(removeExtraSpaces(partSearchTerm) != "")
+          htmlToAdd += "<a href='https://www.reliableparts.com/search?q=" + partSearchTerm + "' target='_blank'>Search</a>";
         htmlToAdd += "</td>";
+        htmlToAdd += "<td>";
+        if(removeExtraSpaces(partSearchTerm) != "")
+          htmlToAdd += "<a href='https://encompass.com/search?searchTerm=" + partSearchTerm + "' target='_blank'>Search</a>";
+        htmlToAdd += "</td>";
+        htmlToAdd += "</tr>";
       }
-      htmlToAdd += "</tr>";
+      var LKUPPN_CONTENT = getExpandableHTML(_content[rownum][_LOOK_UP_PN], (i + "_LOOK_UP_PN"), 80, "");
+      var ADVICE_CONTENT = getExpandableHTML(_content[rownum][_ADVICE],     (i + "_ADVICE"),     80, "");
+      var MODEL_CONTENT =  getExpandableHTML(_content[rownum][_MODEL],      (i + "_MODEL"),      80, "");
+      htmlToAdd += "<tr><td colspan=2 style='text-align: right;'>LAST</td>  <td colspan=2><b>" + _content[rownum][_PART_NUMBR] + "</b></td><td><b>" + _content[rownum][_LOCATION] + "</b></td><td colspan=4><b>" + _content[rownum][_MODIFIED] + "</b></td><td>KEEP  <b>" + _content[rownum][_KEEP] +      "</b></td><td>BULK <b>" + _content[rownum][_GET] + "</b></td><td style='text-align: right;'>Aside</td>                                                 </tr>"
+                + "<tr><td colspan=2 style='text-align: right;'>LKUPPN</td><td colspan=2>" + LKUPPN_CONTENT + "                      </td><td style='text-align: right;'>         ADVICE</td><td colspan=4>" + ADVICE_CONTENT + "                    </td><td>REORD <b>" + _content[rownum][_REORD_QTY] + "</b></td><td colspan=2 style='text-align: right;'>                                          Srce</td><td><b>" + _content[rownum][_SOURCE] + "</b></td></tr>"
+                + "<tr><td colspan=4>                                                                                                </td><td style='text-align: right;'>          MODEL</td><td colspan=4>" + MODEL_CONTENT + "                     </td><td>PREF  <b>" + _content[rownum][_FROM] +      "</b></td>                                                                                                                                             </tr>"
+                + "</table></div><br><br>";
     }
-    var LKUPPN_CONTENT = getExpandableHTML(_content[rownum][_LOOK_UP_PN], (i + "_LOOK_UP_PN"), 80, "");
-    var ADVICE_CONTENT = getExpandableHTML(_content[rownum][_ADVICE],     (i + "_ADVICE"),     80, "");
-    var MODEL_CONTENT =  getExpandableHTML(_content[rownum][_MODEL],      (i + "_MODEL"),      80, "");
-    htmlToAdd += "<tr><td colspan=2 style='text-align: right;'>LAST</td>  <td colspan=2><b>" + _content[rownum][_PART_NUMBR] + "</b></td><td><b>" + _content[rownum][_LOCATION] + "</b></td><td colspan=4><b>" + _content[rownum][_MODIFIED] + "</b></td><td>KEEP  <b>" + _content[rownum][_KEEP] +      "</b></td><td>BULK <b>" + _content[rownum][_GET] + "</b></td><td style='text-align: right;'>Aside</td>                                                 </tr>"
-               + "<tr><td colspan=2 style='text-align: right;'>LKUPPN</td><td colspan=2>" + LKUPPN_CONTENT + "                      </td><td style='text-align: right;'>         ADVICE</td><td colspan=4>" + ADVICE_CONTENT + "                    </td><td>REORD <b>" + _content[rownum][_REORD_QTY] + "</b></td><td colspan=2 style='text-align: right;'>                                          Srce</td><td><b>" + _content[rownum][_SOURCE] + "</b></td></tr>"
-               + "<tr><td colspan=4>                                                                                                </td><td style='text-align: right;'>          MODEL</td><td colspan=4>" + MODEL_CONTENT + "                     </td><td>PREF  <b>" + _content[rownum][_FROM] +      "</b></td>                                                                                                                                             </tr>"
-               + "</table></div><br><br>";
+    if(_recordViews.length > 0)
+      htmlToAdd += "</div>";
+    document.getElementById("record_views_div").innerHTML = htmlToAdd;
   }
-  if(_recordViews.length > 0)
-    htmlToAdd += "</div>";
-  document.getElementById("record_views_div").innerHTML = htmlToAdd;
+}
+
+document.getElementById("import_wlmay_pdf_input").onchange = function(event) 
+{
+  if(document.getElementById("import_wlmay_pdf_input").value != "")
+  {
+    var file = event.target.files[0];
+
+    //Step 2: Read the file using file reader
+    var fileReader = new FileReader();  
+
+    fileReader.onload = function() {
+
+        //Step 4:turn array buffer into typed array
+        var typedarray = new Uint8Array(this.result);
+
+        getPdfText(typedarray);
+        document.getElementById("wlmay_input_div").style.display = "none";
+        document.getElementById("wlmay_pdf_table_div").style.display = "block";
+    };
+    //Step 3:Read the file as ArrayBuffer
+    fileReader.readAsArrayBuffer(file);
+  }
+}
+
+function cancelWLMAYPDF()
+{
+  document.getElementById("wlmay_pdf_table_div").style.display = "none";
+  document.getElementById("wlmay_input_div").style.display = "block";
+  document.getElementById("import_wlmay_pdf_input").value = "";
 }

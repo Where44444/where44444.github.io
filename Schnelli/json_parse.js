@@ -134,16 +134,15 @@
         function processCSVData(allText) {
             var quotes = false;
             var row = 0;
-            var column = 1;
+            var column = 0;
             var start = 0;
             var end = 0;
             var _content = new Array(25862);
             // _indexToContentID = new Array(25862);
             for (var i = 0; i < _content.length; ++i) { 
                 _content[i] = new Array(indexes.length);
-                _content[i][0] = i + 1;
                 // _indexToContentID[i] = _content[i][0];
-                for(var j = 1; j < indexes.length + 1; ++j){
+                for(var j = 0; j < indexes.length + 1; ++j){
                 _content[i][j] = "";
                 }
             } 
@@ -155,17 +154,30 @@
                 }
                 else if(n == ',' && !quotes){
                     end = i;
-                    _content[row][column] = allText.substring(start, end);
+                    _content[row][column] = stripQuotations(allText.substring(start, end));
                     ++column;
                     start = i + 1;
                 }
                 else if(n == '\n'){
                     end = i;
-                    _content[row][column] = allText.substring(start, end);
-                    column = 1;
+                    _content[row][column] = stripQuotations(allText.substring(start, end));
+                    column = 0;
                     ++row;
                     start = i + 1;
                 }
             }
             return _content;
+        }
+
+        function stripQuotations(str)
+        {
+            if(str.length >= 2 && str[0] == "\"" && str[str.length - 1] == "\"")
+            {
+                return str.substring(1, str.length - 1);
+            }
+            if(str.length >= 3 && str[0] == "\"" && str[str.length - 2] == "\"" && str[str.length - 1] == "\r")
+            {
+                return str.substring(1, str.length - 2);
+            }
+            return str;
         }

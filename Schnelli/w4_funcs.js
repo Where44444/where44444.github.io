@@ -71,11 +71,32 @@
 function getExtraDBLinkIndex(_content_extra_db_index, pn)
 {
   if(pn.length > 0){
+    for(var i = 0; i < _content_extra[_content_extra_db_index].length; ++i) //Exact match PN
+    {
+      if(String(_content_extra[_content_extra_db_index][i][0].PN ) == pn)
+      {
+        return i;
+      }
+    }
+    for(var i = 0; i < _content_extra[_content_extra_db_index].length; ++i) //Exact match AKA
+    {
+      if(String(_content_extra[_content_extra_db_index][i][0].AKA) == pn)
+      {
+        return i;
+      }
+    }
     for(var i = 0; i < _content_extra[_content_extra_db_index].length; ++i)
     {
       var pn1 = getStandardPNString(pn);
-      if(getStandardPNString(String(_content_extra[_content_extra_db_index][i][0].PN )) == pn1 ||
-         getStandardPNString(String(_content_extra[_content_extra_db_index][i][0].AKA)) == pn1)
+      if(getStandardPNString(String(_content_extra[_content_extra_db_index][i][0].PN )) == pn1) //General match PN
+      {
+        return i;
+      }
+    }
+    for(var i = 0; i < _content_extra[_content_extra_db_index].length; ++i)
+    {
+      var pn1 = getStandardPNString(pn);
+      if(getStandardPNString(String(_content_extra[_content_extra_db_index][i][0].AKA)) == pn1) //General match AKA
       {
         return i;
       }
@@ -96,15 +117,19 @@ function processJSONData(objs){
       content_line.push(obj[MEMO_INDEXES[j]]);
     }
     content_line.push(i + "n");
-    // checkForExtraLink(5, content_line[15], i);
     _content.push(content_line);
+    // var in1 = 6;
+    // var link = getExtraDBLinkIndex(in1, content_line[CONTENT_EXTRA_DB_INDEXES[in1]]);
+    // if(link == null)
+    //   console.log(content_line[CONTENT_EXTRA_DB_INDEXES[in1]]);
   }
   generateContent_Standard();
   populateRecordBrowser(0, false);
 }
 
 function processJSONDataExtra(objs, _content_extra_index, keys){
-  if(_content_extra == null){
+  if(_content_extra == null)
+  {
     _content_extra = new Array(EXTRA_DB.length);
     for(var i = 0; i < EXTRA_DB.length; ++i)
       _content_extra[i] = []; 
@@ -112,8 +137,7 @@ function processJSONDataExtra(objs, _content_extra_index, keys){
 
   for(var i = 0; i < objs.length; ++i){
     var content_line = [];
-    var obj = objs[i];
-    content_line.push(obj);
+    content_line.push(objs[i]);
     // for(var j = 0; j < EXTRA_INDEXES.length; ++j){
     //   var item = obj[EXTRA_INDEXES[j]];
     //   if(item == null)
@@ -147,6 +171,21 @@ function is_standardized(str){
   return /^[a-z0-9 ]+$/i.test(str);
 }
 
+function removeExtraSpaces(str){
+  //Remove multiple spaces
+  var str2 = str.replace(/ {2,}/g, " ");
+
+  //Remove spaces at beginning of string
+  if(str2.charAt(0) == " ")
+    str2 = str2.substring(1, str2.length);
+
+  //Remove spaces at end of string
+  if(str2.charAt(str2.length - 1) == " ")
+    str2 = str2.substring(0, str2.length - 1);
+
+  return str2;
+}
+
 function standardizeString(str){
   var str2 = str.toLowerCase();
   
@@ -167,6 +206,13 @@ function standardizeString(str){
   return str2;
 }
 
+function escapeQuotations(str)
+{
+  var str2 = str.replace(/\"/g, "\\\"");
+  str2 = str2.replace(/\'/g, "\\\'");
+  return str2;
+}
+
 function useBlackText(r, g, b){
   var gamma = 2.2;
   var L = 0.2126 * Math.pow( r, gamma )
@@ -181,7 +227,7 @@ function getStandardPNString(str)
   while(modified)
   {
     var orig_length = str.length;
-    str = removeStartingZeroes(str);
+    // str = removeStartingZeroes(str);
     str = removeEndTilde(str);
     str = removeEndArrow(str);
     str = removeEndExclaim(str);
@@ -248,6 +294,13 @@ function getRegexSafeSearchTerm(str)
   return str2;
 }
 
+function getHTMLSafeText(str)
+{
+  var str2 = str.replace(/\</g, "&lt;");
+  str2 = str2.replace(/\>/g, "&gt;");
+  return str2;
+}
+
 function getStringNumberHash(s)
 {
   return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
@@ -308,8 +361,17 @@ function getContentIndexFrom_DB_ID(db_id){
     if(_content[i][_content[i].length - 1] == db_id)
       return i;
   }
-  console.log("Failed to find row with id " + db_id);
-  return 0;
+  console.log("Failed to find content row with id " + db_id);
+  return null;
+}
+
+function getContentExtraIndexFrom_DB_ID(db_id, db_index){
+  for(var i = 0; i < _content_extra[db_index].length; ++i){
+    if(_content_extra[db_index][i][1] == db_id)
+      return i;
+  }
+  console.log("Failed to find content extra row with id " + db_id);
+  return null;
 }
 
 function sortContentByIndex(index)
@@ -347,10 +409,13 @@ function sortContentByIndex(index)
     document.getElementById("record_browser_div").style.display = "block";
     if(_selectedTable == TABLE_RECORD_BROWSER && _selectedRecord_DB_ID != null){
       var index1 = getContentIndexFrom_DB_ID(_selectedRecord_DB_ID);
-      populateRecordBrowser(index1, false);
-      var cell = getCell(index1, _selectedCell, _selectedTable);
-      if(cell != null)
-        onCellClick(index1, _selectedCell, cell.id, _selectedTable);
+      if(index1 != null)
+      {
+        populateRecordBrowser(index1, false);
+        var cell = getCell(index1, _selectedCell, _selectedTable);
+        if(cell != null)
+          onCellClick(index1, _selectedCell, cell.id, _selectedTable);
+      }
     }
   }
 }
@@ -390,10 +455,13 @@ function sortContentBySortOrder(order_index)
     document.getElementById("record_browser_div").style.display = "block";
     if(_selectedTable == TABLE_RECORD_BROWSER && _selectedRecord_DB_ID != null){
       var index1 = getContentIndexFrom_DB_ID(_selectedRecord_DB_ID);
-      populateRecordBrowser(index1, false);
-      var cell = getCell(index1, _selectedCell, _selectedTable);
-      if(cell != null)
-        onCellClick(index1, _selectedCell, cell.id, _selectedTable);
+      if(index1 != null)
+      {
+        populateRecordBrowser(index1, false);
+        var cell = getCell(index1, _selectedCell, _selectedTable);
+        if(cell != null)
+          onCellClick(index1, _selectedCell, cell.id, _selectedTable);
+      }
     }
   }
 }
@@ -565,7 +633,8 @@ function setRadioColumnsChecked(bool)
   
 }
 
-function setRadioColumnChecked(index){
+function onSearchInputChanged(index)
+{
   if(document.getElementById("search_input_" + index).value == "")
     document.getElementById("column_checkbox_" + index).checked = false;
   else
@@ -629,13 +698,17 @@ function startEditRecord(record_id, rownum, row_id)
       "<button id='confirm_delete_record' onclick='confirmDeleteRecord(" + rownum + ")' style='display: none; color: red;'>Confirm Delete</button>" + 
       "<button id='cancel_delete_record' onclick='cancelDeleteRecord();' style='display: none;'>Cancel Delete</button>" + 
       "</div>" +
-      "<input type='text' id='edit_textarea_" + i + "' style='width: 50%;' onfocus='deselectTable();' onchange='deselectTable();' value=" + _content[rownum][index] + 
-      "></input ></div>";
+      "<input type='text' id='edit_textarea_" + i + "' style='width: 50%;' onfocus='deselectTable();' onchange='deselectTable();'></input></div>";
+      document.getElementById("edit_textarea_" + i).value = _content[rownum][index];
     }
-    else if(index < INDEXES.length)
-      cells1[i].innerHTML = "<input type='text' id='edit_textarea_" + i + "' style='width: " + INDEX_WIDTHS_CONCAT[index] + ";' onfocus='deselectTable();' onchange='deselectTable();' value=" + _content[rownum][index] + "></input>";
-    else
-      cells1[i].innerHTML = "<textarea id='edit_textarea_" + i + "' style='width: " + INDEX_WIDTHS_CONCAT[index] + ";' onfocus='deselectTable();' onchange='deselectTable();'>" + stringifyArrayEndChar(_content[rownum][index], "\n") + "</textarea>";
+    else if(index < INDEXES.length){
+      cells1[i].innerHTML = "<input type='text' id='edit_textarea_" + i + "' style='width: " + INDEX_WIDTHS_CONCAT[index] + ";' onfocus='deselectTable();' onchange='deselectTable();'></input>";
+      document.getElementById("edit_textarea_" + i).value = _content[rownum][index];
+    }
+    else{
+      cells1[i].innerHTML = "<textarea id='edit_textarea_" + i + "' style='width: " + INDEX_WIDTHS_CONCAT[index] + ";' onfocus='deselectTable();' onchange='deselectTable();'></textarea>";
+      document.getElementById("edit_textarea_" + i).innerHTML = stringifyArrayEndChar(_content[rownum][index], "\n");
+    }
   }
 }
 
@@ -652,16 +725,14 @@ function saveEditRecord(rownum)
   populateRecordBrowser(_currentRecordBrowserStartIndex, false);
   clearSearchResults();
 
-  var row = _content[rownum];
-  var partObj = new Object();
-  for(var i = 0; i < INDEXES.length; ++i)
-    partObj[INDEXES[i]] = row[i];
-  for(var i = 0; i < MEMO_INDEXES.length; ++i)
-    partObj[MEMO_INDEXES[i]] = row[i + INDEXES.length];
-
   if(!LOCAL_MODE){
-    var partRef = firebase.database().ref('parts_db/P&A_PRI/' + row[row.length - 1]);
-    partRef.set(partObj);
+    var row = _content[rownum];
+    var partObj = new Object();
+    for(var i = 0; i < INDEXES.length; ++i)
+      partObj[INDEXES[i]] = row[i];
+    for(var i = 0; i < MEMO_INDEXES.length; ++i)
+      partObj[MEMO_INDEXES[i]] = row[i + INDEXES.length];
+    writeToDatabase('parts_db/P&A_PRI/' + row[row.length - 1], partObj, true, true, false, null);
   }
 }
 
@@ -669,10 +740,27 @@ function cancelEditRecord(){
   populateRecordBrowser(_currentRecordBrowserStartIndex, false);
 }
 
-function startNewRecord(){
-  var tableHTML = "<br><br><table><tr>";
+function startNewRecord(indexToCopy){
+  var tableHTML = "<br><br><h1>New Record</h1><table><tr>";
+  var contentToCopy = new Array();
+  if(indexToCopy != null)
+  {
+    for(var i = 0; i < INDEXES_CONCAT.length; ++i)
+    {
+      var trueIndex = INDEX_ORDER[i];
+      if(trueIndex < INDEXES.length) //MEMO INDEX
+        contentToCopy.push(_content[indexToCopy][trueIndex]);
+      else
+        contentToCopy.push(stringifyArrayEndChar(_content[indexToCopy][trueIndex], "\n"));
+    }
+  }
+  else
+  {
+    for(var i = 0; i < INDEXES_CONCAT.length; ++i)
+      contentToCopy.push("");
+  }
 
-  for(i = 0; i < INDEXES_CONCAT.length; ++i){
+  for(var i = 0; i < INDEXES_CONCAT.length; ++i){
     var index = INDEX_ORDER[i];
     tableHTML += "<th><div style='width: " + INDEX_WIDTHS_CONCAT[index] + ";'>" + INDEXES_CONCAT[index] + "</div></th>";
   }
@@ -682,7 +770,8 @@ function startNewRecord(){
   for(var i = 0; i < INDEX_WIDTHS_CONCAT.length; ++i)
   {
     var index = INDEX_ORDER[i];
-    if(index == 0){
+    if(index == 0)
+    {
       tableHTML += "<td><div style='display: flex; align-items: center; justify-content: center;'>" + 
       "<div style='flex-direction: column;'>" +
       "<button style='width: 60px;' onclick='saveNewRecord();'>Save</button>" + 
@@ -698,20 +787,31 @@ function startNewRecord(){
 
   tableHTML += "</tr></table><br>";
   document.getElementById("add_part_table_div").innerHTML = tableHTML;
+  for(var i = 0; i < INDEX_WIDTHS_CONCAT.length; ++i)
+  {
+    var index = INDEX_ORDER[i];
+    if(index == 0)
+    {
+
+    }
+    else
+      document.getElementById("new_textarea_" + i).value = contentToCopy[i]; 
+  }
 }
 
-function cancelNewRecord(){
+function cancelNewRecord()
+{
   document.getElementById("add_part_table_div").innerHTML = "";
 }
 
 function saveNewRecord()
 {
-  var partsListRef = firebase.database().ref('parts_db/P&A_PRI');
+  var partsListRef = getDatabaseRef('parts_db/P&A_PRI');
   var newPartRef = (_largestRecordNumber + 1) + "n";
-  if(!LOCAL_MODE) 
+  if(!LOCAL_MODE)
     newPartRef = partsListRef.push();
 
-  _content.push(new Array(1 + INDEXES_CONCAT.length));
+  _content.push(new Array(INDEXES_CONCAT.length));
   var row = _content[_content.length - 1];
   for(var i = 0; i < INDEXES_CONCAT.length; ++i){
     var index = INDEX_ORDER[i];
@@ -720,8 +820,8 @@ function saveNewRecord()
     else
       row[index] = document.getElementById("new_textarea_" + i).value.split("\n");
   }
-  if(LOCAL_MODE)
-    row.push(newPartRef);
+  if(LOCAL_MODE) 
+    row.push(newPartRef); //Add key to end
   else
     row.push(newPartRef.key);
   
@@ -735,7 +835,7 @@ function saveNewRecord()
       partObj[INDEXES[i]] = row[i];
     for(var i = 0; i < MEMO_INDEXES.length; ++i)
       partObj[MEMO_INDEXES[i]] = row[i + INDEXES.length];
-    newPartRef.set(partObj);
+    writeToDatabase('parts_db/P&A_PRI/' + newPartRef.key, partObj, true, true, false, null);
   }
 }
 
@@ -760,8 +860,7 @@ function cancelDeleteRecord(){
 function confirmDeleteRecord(rownum)
 {
   if(!LOCAL_MODE){
-    var partRef = firebase.database().ref('parts_db/P&A_PRI/' + _content[rownum][_content[rownum].length - 1]);
-    partRef.remove();
+    deleteFromDatabase('parts_db/P&A_PRI/' + _content[rownum][_content[rownum].length - 1], true, true, false, null);
   }
 
   _content.splice(rownum, 1);
@@ -778,7 +877,7 @@ function startNewSortOrder(id1){
   "<div style='flex-direction: column; width: 100px;'>" + 
   "<button style='width: 70px; font-size: 20px;' onclick='saveNewSortOrder();'>Save</button><button style='width: 70px; font-size: 20px; margin-top: 5px;' onclick='cancelNewSortOrder();'>Cancel</button>" + 
   "</div>" +
-  "<p style='font-size: 20px;'>Name&nbsp;</p><input id='sort_order_name_0' type='text' style='width: 500px; font-size: 20px;'>" + 
+  "<p style='font-size: 20px;'>Name&nbsp;</p><input id='sort_order_name_0' type='text' style='width: 500px; font-size: 20px;' onfocus='deselectTable();'>" + 
   "</div>" +
   "</td>" + getSortOrderNewCell(id1, 0) + "</tr></table>";
   document.getElementById("sort_order_table_new_div").innerHTML = newHTML;
@@ -858,9 +957,9 @@ function saveNewSortOrder(){
     sortObj.name = document.getElementById("sort_order_name_0").value;
     sortObj.sorted_indexes = sorted_indexes;
 
-    var sortListRef = firebase.database().ref('sort_orders');
+    var sortListRef = getDatabaseRef('sort_orders');
     var newSortOrderRef = sortListRef.push();
-    newSortOrderRef.set(sortObj);
+    writeToDatabase('sort_orders/' + newSortOrderRef.key, sortObj, false, false, false, null);
   }
 
   cancelNewSortOrder();
@@ -898,8 +997,7 @@ function saveEditSortOrder(id1)
     sortObj.name = document.getElementById("sort_order_name_" + id1).value;
     sortObj.sorted_indexes = sorted_indexes;
 
-    var sortOrderRef = firebase.database().ref('sort_orders/' + _sort_orders[id1 - 1].key);
-    sortOrderRef.set(sortObj);
+    writeToDatabase('sort_orders/' + _sort_orders[id1 - 1].key, sortObj, false, false, false, null);
   }
   populateSortOrders();
 }
@@ -922,8 +1020,7 @@ function cancelDeleteSortOrder(id1){
 
 function confirmDeleteSortOrder(id1)
 {
-  var sortOrderRef = firebase.database().ref('sort_orders/' + _sort_orders[id1 - 1].key);
-  sortOrderRef.remove();
+  deleteFromDatabase('sort_orders/' + _sort_orders[id1 - 1].key, false, false, false, null);
   populateSortOrders();
 }
 
@@ -1175,11 +1272,15 @@ function getSortColor(index)
 }
 
 function recordViewIconMouseOver(id1){
-  document.getElementById("record_view_icon_" + id1).style.display = "";
+  var icon = document.getElementById("record_view_icon_" + id1);
+  if(icon != null)
+    document.getElementById("record_view_icon_" + id1).style.display = "";
 }
 
 function recordViewIconMouseOut(id1){
-  document.getElementById("record_view_icon_" + id1).style.display = "none";
+  var icon = document.getElementById("record_view_icon_" + id1);
+  if(icon != null)
+    document.getElementById("record_view_icon_" + id1).style.display = "none";
 }
 
 function addRecordView(key)
@@ -1292,5 +1393,482 @@ function toggleRecordViewMemo(id1)
     document.getElementById("record_view_memo_show_" + id1).style.display = "none";
     document.getElementById("record_view_memo_hide_" + id1).style.display = "";
   }
+}
 
+//^([0-9.]+\/)(.+\/)([0-9-.]+)
+//[4]
+//48.20/BIRKBY/PS/747-7493
+//35.36/BOOTH/PS/337-4913 
+
+
+//^([0-9.]+\/)(.+)
+//[3]
+//111.73/CARROLL/PS/
+
+//^([0-9.]+\/)(.+\/)([0-9-.]+)
+//6.26/PFLUM/603-6455
+//58.64/SCALES/521-8140
+//13.70/PARRISH,STK/747-8832
+//15.56/WALKER/458-201-9839 
+//0.00/MARTIN/954-9144
+
+//^(.+\/)([0-9-.]+)
+//MANLEY/PS/520-4610
+
+//^([0-9.]+\/)(.+)
+//[2]
+//5.57/PFLUM
+//45.94/PFLUM(2),STOCK
+//26.45/RESTOCK 
+//41.40/BAURER/
+
+//^(.+\/)([0-9-.]+)
+//RVSALES/689-3678
+//RUPE/520-2307
+//KUYKENDALL/517-1498
+//WHITTAKER INVEST/953.-7032
+
+function getPDFNumberNamePhone(str)
+{
+  var regexp = /^([0-9.]+\/)(.+\/)([0-9-.]+)/;
+  var result = str.match(regexp)
+  if(result != null)
+  {
+    var obj = [cleanPDFNumberNamePhoneString(result[1]), cleanPDFNumberNamePhoneString(result[2]), cleanPDFNumberNamePhoneString(result[3])];
+    return obj;
+  }
+  regexp = /^([0-9.]+\/)(.+)/;
+  result = str.match(regexp)
+  if(result != null)
+  {
+    var obj = [cleanPDFNumberNamePhoneString(result[1]), cleanPDFNumberNamePhoneString(result[2]), ""];
+    return obj;
+  }
+  regexp = /^(.+\/)([0-9-.]+)/;
+  result = str.match(regexp)
+  if(result != null)
+  {
+    var obj = ["", cleanPDFNumberNamePhoneString(result[1]), cleanPDFNumberNamePhoneString(result[2])];
+    return obj;
+  }
+
+  return null;
+}
+
+function cleanPDFNumberNamePhoneString(str)
+{
+  
+  //Remove multiple spaces
+  var str2 = str.replace(/ {2,}/g, " ");
+
+  //Remove spaces at beginning of string
+  if(str2.length > 0 && str2.charAt(0) == " ")
+    str2 = str2.substring(1, str2.length);
+
+  //Remove spaces at end of string
+  if(str2.length > 0 && str2.charAt(str2.length - 1) == " ")
+    str2 = str2.substring(0, str2.length - 1);
+
+  //Remove / at beginning of string
+  if(str2.length > 0 && str2.charAt(0) == "/")
+    str2 = str2.substring(1, str2.length);
+
+  //Remove / at end of string
+  if(str2.length > 0 && str2.charAt(str2.length - 1) == "/")
+    str2 = str2.substring(0, str2.length - 1);
+  
+    return str2;
+}
+
+//|X 421 Y    436| Pick Ticket No.
+//|X  26 YMAX 377| Ordered starts (Line 55), 1 line per part 
+//|X  74 YMAX 377| Shipped, 1 line per part (DATE LINE 51 IS ALSO AT X 74)
+//|X 124 YMAX 377| Back order, 1 line per part
+//|X 203 YMAX 377| Item No./Description, variable lines per part, always 23 lines long
+//|X 458 YMAX 377| Price, 1 line per part 
+//|X 516 YMAX 377| Amount, 1 line per part
+//|X  38 Y     62| (LAST PAGE) Subtotal
+//|X 121 Y     62| (LAST PAGE) Shipping & Handling
+//|X 200 Y     62| (LAST PAGE) Tax
+//|X 276 Y     62| (LAST PAGE) Subtotal
+//|X 355 Y     62| (LAST PAGE) Deposit
+//|X 510 Y     62| (LAST PAGE) Balance Due
+//|X 181 YMAX 377| U/M 1 line per part
+//WLMAY address info, 7 lines
+//|X 420 YMAX 377| Retail price, variable lines per part, first non-empty string is start of part section 
+
+//Ordered, Shipped, Back Order - parse until something with letters in it or more than 1 ., divide into 3 sections
+//Next 23 lines are Item No./Description
+//Price, Amount - Parse two times length of Ordered array, then divide into 2 sections, parse until theres a line with letters, then next line in x.xx number format is retail price
+//Retail price, use spacing to divide out Item No./Description array
+
+
+//Save array of y positions from ORDERED String Positions, multiply position by numpages - (currentpage - 1)
+
+var pageOn = 1;
+var pdfOn;
+var textContentArrayAll = [];
+function getPdfText(url) {
+  var loadingTask = pdfjsLib.getDocument(url);
+  loadingTask.promise.then(function(pdf) {
+    // console.log('PDF loaded ' + pdf.numPages);
+      pageOn = 1;
+      pdfOn = pdf;
+      textContentArrayAll = [];
+      processPage();
+  });
+}
+
+function processPage()
+{
+  if(pageOn <= pdfOn.numPages)
+  {
+    pdfOn.getPage(pageOn).then(function(page) {
+      page.getTextContent().then( function(textContent){
+        var textContentArray = textContent.items;
+        textContentArray.sort(COMPARE_PDF_TEXT_POSITIONS);
+        for(var i = 0; i < textContentArray.length; ++i) //Multiply heights to be higher at top of page
+        { 
+          textContentArray[i].adjustedHeight = Number(textContentArray[i].transform[PDF_TRANSFORM_Y]) + (10000 * (pdfOn.numPages - pageOn));
+        }
+        textContentArrayAll = textContentArrayAll.concat(textContentArray);
+
+        if(pageOn == 1) //First Page
+        {
+          setPDFTableValue(findPDFTextContentIndexByPosition(421, 436, textContentArray, null, null), textContentArray, "wlmay_pdf_pick_ticket_input");
+        }
+
+        if(pageOn == pdfOn.numPages) //Last Page
+        {
+          setPDFTableValue(findPDFTextContentIndexByPosition( 38,  62, textContentArray, null, null), textContentArray, "wlmay_pdf_subtotal0_input");
+          setPDFTableValue(findPDFTextContentIndexByPosition(121,  62, textContentArray, null, null), textContentArray, "wlmay_pdf_s&h_input");
+          setPDFTableValue(findPDFTextContentIndexByPosition(200,  62, textContentArray, null, null), textContentArray, "wlmay_pdf_tax_input");
+          setPDFTableValue(findPDFTextContentIndexByPosition(276,  62, textContentArray, null, null), textContentArray, "wlmay_pdf_subtotal1_input");
+          setPDFTableValue(findPDFTextContentIndexByPosition(355,  62, textContentArray, null, null), textContentArray, "wlmay_pdf_deposit_input");
+          setPDFTableValue(findPDFTextContentIndexByPosition(510,  62, textContentArray, null, null), textContentArray, "wlmay_pdf_balancedue_input");
+
+          var ORDERED_Indexes =      findPDFTextContentIndexByPosition( 26, null, textContentArrayAll, 377, null);
+          var SHIPPED_Indexes =      findPDFTextContentIndexByPosition( 74, null, textContentArrayAll, 377, null);
+          var BACKORDERED_Indexes =  findPDFTextContentIndexByPosition(124, null, textContentArrayAll, 377, null);
+          var ITEMDESC_Indexes =     findPDFTextContentIndexByPosition(203, null, textContentArrayAll, 377, null);
+          var RETAILPRICE_Indexes =  findPDFTextContentIndexByPosition(420, null, textContentArrayAll, 377, null);
+          var PRICE_Indexes =        findPDFTextContentIndexByPosition(458, null, textContentArrayAll, 377, null);
+          var AMOUNT_Indexes =       findPDFTextContentIndexByPosition(516, null, textContentArrayAll, 377, null);
+          var tableHTML = "<table id='wlmay_pdf_parts_table'><tr><th>Ordered</th><th>Shipped</th><th>Back Ordered</th><th>Item NO./Description</th><th>Retail Price</th><th>Price</th><th>Amount</th></tr>";
+          var current_ITEMDESC_Index = 0;
+          var columnRowIndexes = [0,0,0]; //RETAILPRICE, PRICE, AMOUNT
+          for(var i = 0; i < ORDERED_Indexes.length; ++i)
+          {
+            tableHTML += "<tr style='vertical-align: top;'>";
+            tableHTML += "<td><input onfocus='deselectTable();' type='text' value='" + removeExtraSpaces(textContentArrayAll[ORDERED_Indexes[i]].str) +     "'></td>";
+            tableHTML += "<td><input onfocus='deselectTable();' type='text' value='" + removeExtraSpaces(textContentArrayAll[SHIPPED_Indexes[i]].str) +     "'></td>";
+            tableHTML += "<td><input onfocus='deselectTable();' type='text' value='" + removeExtraSpaces(textContentArrayAll[BACKORDERED_Indexes[i]].str) + "'></td>";
+
+            var nextORDEREDHeight = -1;
+            if(i < ORDERED_Indexes.length - 1) //Not on last part
+            {
+              nextORDEREDHeight = textContentArrayAll[ORDERED_Indexes[i + 1]].adjustedHeight;
+            }
+            tableHTML += "<td><textarea onfocus='deselectTable();' style='width: 500px; height: 90px;'>";
+            var numberNamePhone = null;
+            while(current_ITEMDESC_Index < ITEMDESC_Indexes.length && textContentArrayAll[ITEMDESC_Indexes[current_ITEMDESC_Index]].adjustedHeight > nextORDEREDHeight)
+            {
+              var str = removeExtraSpaces(textContentArrayAll[ITEMDESC_Indexes[current_ITEMDESC_Index]].str);
+              if(str != "")
+              {
+                var numberNamePhoneTemp = getPDFNumberNamePhone(str);
+                if(numberNamePhoneTemp != null)
+                  numberNamePhone = numberNamePhoneTemp;
+                tableHTML += getHTMLSafeText(removeExtraSpaces(textContentArrayAll[ITEMDESC_Indexes[current_ITEMDESC_Index]].str)) + "\n";
+              }
+              ++current_ITEMDESC_Index;
+            }
+            if(tableHTML.charAt(tableHTML.length - 1) == "\n")
+              tableHTML = tableHTML.substring(0, tableHTML.length - 1);
+            tableHTML += "</textarea>";
+            if(numberNamePhone != null)
+            {
+              tableHTML += "<table><tr><th>Number</th><th>Name</th><th>Phone</th></tr>"
+              + "<tr>"
+              + "<td><input onfocus='deselectTable();' type='text' value='" + numberNamePhone[0] +"'></td>"
+              + "<td><input onfocus='deselectTable();' type='text' value='" + numberNamePhone[1] +"'></td>"
+              + "<td><input onfocus='deselectTable();' type='text' value='" + numberNamePhone[2] +"'></td>"
+              + "</tr></table>";
+            }
+            tableHTML += "</td>";
+
+            tableHTML += getPDFInputHTML(columnRowIndexes, 0, RETAILPRICE_Indexes, nextORDEREDHeight);
+            tableHTML += getPDFInputHTML(columnRowIndexes, 1, PRICE_Indexes,       nextORDEREDHeight);
+            tableHTML += getPDFInputHTML(columnRowIndexes, 2, AMOUNT_Indexes,      nextORDEREDHeight);
+
+            tableHTML += "</tr>";
+          }
+          tableHTML += "</table>";
+          document.getElementById("wlmay_pdf_parts_table_div").innerHTML = tableHTML;
+        }
+        else
+        {
+          ++pageOn;
+          processPage();
+        }
+      });
+    });
+  }
+}
+
+function getPDFInputHTML(columnRowIndexes, index, CONTENTIndexes, nextORDEREDHeight)
+{
+  var tableHTML = "<td>";
+  while(columnRowIndexes[index] < CONTENTIndexes.length && textContentArrayAll[CONTENTIndexes[columnRowIndexes[index]]].adjustedHeight > nextORDEREDHeight)
+  {
+    var str = removeExtraSpaces(textContentArrayAll[CONTENTIndexes[columnRowIndexes[index]]].str);
+    if(str != "")
+      tableHTML += "<input type='text' value='" + removeExtraSpaces(textContentArrayAll[CONTENTIndexes[columnRowIndexes[index]]].str) + "' onfocus='deselectTable();'>";
+    ++columnRowIndexes[index];
+  }
+  tableHTML += "</td>";
+  return tableHTML;
+}
+
+function setPDFTableValue(index, textcontentArray, id1)
+{
+  if(index != null)
+    document.getElementById(id1).value = removeExtraSpaces(textcontentArray[index].str);
+  else
+    document.getElementById(id1).value = "";
+}
+
+// function sortPDFTextContentIndexes(textContentArray, indexes)
+// {
+//   var arrayToSort = [];
+//   for(var i = 0; i < indexes.length; ++i)
+//   {
+//     arrayToSort.push([indexes[i], textContentArray[indexes[i]].transform[PDF_TRANSFORM_Y]]);
+//   }
+//   arrayToSort.sort(COMPARE_PDF_TEXT_POSITIONS);
+//   var returnArray = [];
+//   for(var i = 0; i < arrayToSort.length; ++i)
+//   {
+//     returnArray.push(arrayToSort[i][0]);
+//   }
+//   return returnArray;
+// }
+
+function COMPARE_PDF_TEXT_POSITIONS( a, b ) {
+    if ( Number(a.transform[PDF_TRANSFORM_Y]) < Number(b.transform[PDF_TRANSFORM_Y]) ){
+      return 1;
+    }
+    if ( Number(a.transform[PDF_TRANSFORM_Y]) > Number(b.transform[PDF_TRANSFORM_Y]) ){
+      return -1;
+    }
+  return 0;
+}
+
+var PDF_TRANSFORM_Y = 5;
+var PDF_TRANSFORM_X = 4;
+function findPDFTextContentIndexByPosition(px, py, textContentArray, YMaximum, YMinimum)
+{
+  if(YMaximum != null && YMinimum != null)
+  {
+    var indexArray = [];
+    for(var i = 0; i < textContentArray.length; ++i)
+      if(Number(textContentArray[i].transform[PDF_TRANSFORM_X]) == Number(px) 
+      && Number(textContentArray[i].transform[PDF_TRANSFORM_Y]) <= Number(YMaximum)
+      && Number(textContentArray[i].transform[PDF_TRANSFORM_Y]) >= Number(YMinimum))
+        indexArray.push(i);
+    return indexArray;
+  }
+  else if(YMaximum != null)
+  {
+    var indexArray = [];
+    for(var i = 0; i < textContentArray.length; ++i)
+      if(Number(textContentArray[i].transform[PDF_TRANSFORM_X]) == Number(px) 
+      && Number(textContentArray[i].transform[PDF_TRANSFORM_Y]) <= Number(YMaximum))
+        indexArray.push(i);
+    return indexArray;
+  }
+  else if(YMinimum != null)
+  {
+    var indexArray = [];
+    for(var i = 0; i < textContentArray.length; ++i)
+      if(Number(textContentArray[i].transform[PDF_TRANSFORM_X]) == Number(px) 
+      && Number(textContentArray[i].transform[PDF_TRANSFORM_Y]) >= Number(YMinimum))
+        indexArray.push(i);
+    return indexArray;
+  }
+  else
+  {
+    for(var i = 0; i < textContentArray.length; ++i)
+      if(Number(textContentArray[i].transform[PDF_TRANSFORM_X]) == Number(px) && Number(textContentArray[i].transform[PDF_TRANSFORM_Y]) == Number(py))
+        return i;
+    return null;
+  }
+}
+
+function deleteFromDatabase(key, addChangeAlert, is_content, is_content_extra, content_extra_index)
+{
+  if(!LOCAL_MODE){
+    var ref = firebase.database().ref(key);
+    ref.remove();
+    if(addChangeAlert)
+    {
+      addNewChangeAlert(key, true, is_content, is_content_extra, content_extra_index);
+    }
+  }
+}
+
+function writeToDatabase(key, value, addChangeAlert, is_content, is_content_extra, content_extra_index)
+{
+  if(!LOCAL_MODE){
+    var ref = firebase.database().ref(key);
+    ref.set(value);
+    if(addChangeAlert)
+    {
+      addNewChangeAlert(key, false, is_content, is_content_extra, content_extra_index);
+    }
+  }
+}
+
+function getDatabaseRef(key)
+{
+  return firebase.database().ref(key);
+}
+
+var millisInDay = 1000 * 60 * 60 * 24;
+function addNewChangeAlert(key, deleted, is_content, is_content_extra, content_extra_index)
+{
+  var changeAlertsRef = firebase.database().ref("change_alerts");
+  changeAlertsRef.once('value', function(snapshot) {
+    var numChildren = snapshot.numChildren();
+    var i = 0;
+    var obj = new Object();
+    obj.key = key;
+    obj.time = new Date().getTime();
+    obj.deleted = deleted;
+    obj.is_content = is_content;
+    obj.is_content_extra = is_content_extra;
+    obj.content_extra_index = content_extra_index;
+    var ref2 = firebase.database().ref("change_alerts").push();
+    if(numChildren == 0){
+      console.log("0Set change alert |" + key + "|");
+      ref2.set(obj);
+    }
+    else
+    {
+      snapshot.forEach(function(childSnapshot) {
+        ++i;
+        if(childSnapshot.val().key == key)
+          firebase.database().ref("change_alerts/" + childSnapshot.key).remove();
+        
+        if(i == numChildren)
+        {
+          console.log("1Set change alert |" + key + "|");
+          ref2.set(obj);
+        }
+      });
+    }
+  });
+}
+
+function loadChangeAlerts()
+{
+  var ref = firebase.database().ref("change_alerts");
+  ref.on('value', function(snapshot) {
+    snapshot.forEach(function(childSnapshot) {
+      var alertOBJ = childSnapshot.val();
+
+      if(alertOBJ.is_content)
+      {
+        reloadContentFromChangeAlert(alertOBJ);
+      }
+      else if(alertOBJ.is_content_extra)
+      {
+        reloadContentExtraFromChangeAlert(alertOBJ);
+      }
+
+      var timeElapsed = new Date().getTime() - Number(alertOBJ.time);
+      if(timeElapsed >= millisInDay)
+        firebase.database().ref("change_alerts/" + childSnapshot.key).remove();
+    });
+  });
+}
+
+function reloadContentFromChangeAlert(alertOBJ)
+{
+  var partref = firebase.database().ref(alertOBJ.key);
+  partref.once('value', function(snapshot) {
+    var rownum = getContentIndexFrom_DB_ID(snapshot.key);
+    if(rownum != null) //Edit Record
+    {
+      if(alertOBJ.deleted) //Delete Record
+      {
+        _content.splice(rownum, 1);
+        _content_standard.splice(rownum, 1);
+        populateRecordBrowser(_currentRecordBrowserStartIndex, false);
+        setLargestRecordNumber();
+      }
+      else //Edit Record
+      {
+        var content_line = [];
+        for(var i = 0; i < INDEXES.length; ++i)
+          content_line.push(String(snapshot.child(INDEXES[i]).val()));
+        for(var i = 0; i < MEMO_INDEXES.length; ++i)
+        {
+          var memolines = snapshot.child(MEMO_INDEXES[i]).val();
+          for(var j = 0; j < memolines.length; ++j)
+            memolines[j] = String(memolines[j]);
+          content_line.push(memolines);
+        }
+        for(var i = 0; i < content_line.length; ++i)
+          _content[rownum][i] = content_line[i];
+      }
+      generateContent_Standard_Row(rownum);
+      populateRecordBrowser(_currentRecordBrowserStartIndex, false);
+      populateRecordViews();
+    }
+    else //New Record
+    {
+      var content_line = [];
+      for(var i = 0; i < INDEXES.length; ++i)
+        content_line.push(String(snapshot.child(INDEXES[i]).val()));
+      for(var i = 0; i < MEMO_INDEXES.length; ++i)
+      {
+        var memolines = snapshot.child(MEMO_INDEXES[i]).val();
+        for(var j = 0; j < memolines.length; ++j)
+          memolines[j] = String(memolines[j]);
+        content_line.push(memolines);
+      }
+      content_line.push(partref.key);
+      _content.push(content_line);
+      generateContent_Standard_New();
+    }
+  });
+}
+
+function reloadContentExtraFromChangeAlert(alertOBJ)
+{
+  var partref = firebase.database().ref(alertOBJ.key);
+  partref.once('value', function(snapshot) {
+    var rownum = getContentExtraIndexFrom_DB_ID(snapshot.key, alertOBJ.content_extra_index);
+    if(rownum != null)
+    {
+      if(alertOBJ.deleted) //Delete Record
+      {
+        _content_extra[alertOBJ.content_extra_index].splice(rownum, 1);
+      }
+      else //Edit Record
+      {
+        _content_extra[alertOBJ.content_extra_index][rownum][0] = snapshot.val();
+      }
+    }
+    else //New record
+    {
+      var arr = [snapshot.val(), partref.key];
+      _content_extra[alertOBJ.content_extra_index].push(arr);
+    }
+    // console.log(rowNum);
+    // console.log(snapshot.val());
+    // console.log(_content_extra[alertOBJ.content_extra_index][rowNum][0]);
+    populateRecordViews();
+  });
 }

@@ -38,6 +38,11 @@
       font-family: Arial, Helvetica, sans-serif;
     }
 
+    textarea{
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 14px;
+    }
+
     table {
     font-family: arial, sans-serif;
     border-collapse: collapse;
@@ -283,8 +288,33 @@
     </div>
 
     <div id="content_div" style="display: none;">
+      
       <div id="fileinput_div"></div>
-      <button onclick="log_out();" id="logout_button">Log Out</button>
+      <button onclick="log_out();" id="logout_button">Log Out</button><br><br>
+      <div id="wlmay_input_div" style="display: none; border: solid 2px; border-color: #70A2FF;">
+        <p><a href="example_pdf_wlmay.png" alt="Example PDF" target="_blank"><img src="example_pdf_wlmay.png" width=57px height=74px></a>&nbsp;&nbsp;&nbsp;Import WLMAY PDF</p>
+        <input type="file" accept=".pdf" id="import_wlmay_pdf_input">
+      </div>
+      <div id="wlmay_pdf_table_div" style="display: none;">
+        <table>
+          <tr><th>Pick Ticket No.</th></tr>
+          <tr><td><input onfocus='deselectTable();' type="text" id="wlmay_pdf_pick_ticket_input"></td></tr>
+        </table>
+        <div id="wlmay_pdf_parts_table_div"></div>
+        <table>
+          <tr><th>Subtotal</th><th>Shipping & Handling</th><th>Tax</th><th>Subtotal</th><th>Deposit</th><th>Balance Due</th></tr>
+          <tr>
+            <td><input onfocus='deselectTable();' id="wlmay_pdf_subtotal0_input" type="text"></td>
+            <td><input onfocus='deselectTable();' id="wlmay_pdf_s&h_input" type="text"></td>
+            <td><input onfocus='deselectTable();' id="wlmay_pdf_tax_input" type="text"></td>
+            <td><input onfocus='deselectTable();' id="wlmay_pdf_subtotal1_input" type="text"></td>
+            <td><input onfocus='deselectTable();' id="wlmay_pdf_deposit_input" type="text"></td>
+            <td><input onfocus='deselectTable();' id="wlmay_pdf_balancedue_input" type="text"></td>
+          </tr>
+        </table>
+        <button onclick="cancelWLMAYPDF();">Cancel</button>
+        <p>Please verify these results with the original PDF!</p>
+      </div>
       <div id="sort_order_div" style="display: none;">
         <h1 class='clickable' onclick='toggleDiv(null, "sort_order_toggle");'><span id="sort_order_toggle_expander_icon" style="font-size: 50px; font-weight: 100;">-</span> Sort Orders</h1>
         <div id="sort_order_toggle_div">
@@ -338,10 +368,12 @@
       <p>Search Bars</p>
       <p>&nbsp;&nbsp;Up/Down Arrow Keys - Navigate Search History</p>
       <br>
-      <p>v 1.4</p>
+      <p>v 1.5</p>
     </div>
 
     <!-- <script type="text/javascript" src="get_search_results.js"></script> -->
+    <script type="text/javascript" src="pdfjs/pdf.js"></script>
+    <!-- <script type="text/javascript" src="pdfjs/pdf.worker.js"></script> -->
     <script type="text/javascript" src="w4_funcs.js"></script>
     <script type="text/javascript" src="compare_funcs.js"></script>
     <script type="text/javascript" src="appliance_parts_admin_portal_script.js"></script>

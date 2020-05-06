@@ -1,29 +1,124 @@
 
 <!DOCTYPE html>
 <html>
-<head>
+<head></head>
 <body>
+
+    <div id = "login_div">
+        <p>Email</p>
+        <input id="email_input" type="text">
+        <p>Password</p>
+        <input id="password_input" type="password" onsubmit="log_in()">
+        <p>Remember Me <input type="checkbox" id="remember_input"></p>
+        <button id="login_button" onclick="log_in()">Login</button>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/7.8.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.8.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.8.1/firebase-auth.js"></script>
     <script>
-        function fetchJSONFile(path, callback) {
-            var httpRequest = new XMLHttpRequest();
-            httpRequest.onreadystatechange = function() {
-                if (httpRequest.readyState === 4) {
-                    if (httpRequest.status === 200) {
-                        var data = JSON.parse(httpRequest.responseText);
-                        if (callback) callback(data);
-                    }
-                }
-            };
-            httpRequest.open('GET', path);
-            httpRequest.send(); 
+
+        var firebaseConfig = {
+        apiKey: "AIzaSyBiHDF9LJepi4QyOhHeayZT_etKN5AjlGs",
+        authDomain: "appliance-parts-f45cd.firebaseapp.com",
+        databaseURL: "https://appliance-parts-f45cd.firebaseio.com",
+        projectId: "appliance-parts-f45cd",
+        storageBucket: "appliance-parts-f45cd.appspot.com",
+        messagingSenderId: "671454569102",
+        appId: "1:671454569102:web:479b1d3a11bedf601c1fdf"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+            // User is signed in.
+            console.log("Signed into firebase");
+            document.getElementById("login_div").style.display = "none";
+            var loginRef = firebase.database().ref('encompass');
+            loginRef.once('value', function(snapshot) {
+                soapRequest(snapshot.val().user, snapshot.val().password);
+            });
+        }
+        else {
+            document.getElementById("login_div").style.display = "block";
+        }
+        });
+
+        function log_in(){
+        document.getElementById("login_div").style.display = "none";
+
+        var persistenceVar;
+        if(document.getElementById("remember_input").checked)
+            persistenceVar = firebase.auth.Auth.Persistence.LOCAL;
+        else
+            persistenceVar = firebase.auth.Auth.Persistence.NONE;
+
+            firebase.auth().setPersistence(persistenceVar).then(function() {
+                return firebase.auth().signInWithEmailAndPassword(document.getElementById("email_input").value, document.getElementById("password_input").value).then(function() {
+                loadContentDiv();
+                }).catch(function(error) {
+                // Handle Errors here.
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                console.log("login error " + errorMessage);
+                window.alert(errorMessage);
+                // ...
+                document.getElementById("login_div").style.display = "block";
+                });
+            }).catch(function(error) {
+                // Handle Errors here.
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                console.log("persistence error " + errorMessage);
+                window.alert(errorMessage);
+        });
         }
 
-        // this requests the file and executes a callback with the parsed result once
-        //   it is available
-        fetchJSONFile('csv/B_DNI.json', function(data){
-            // do something with your data
-            console.log(data);
-        });
+        function soapRequest(user, password){
+            console.log("v3 Starting request |" + user + "|" + password);
+            var str = '<?xml version="1.0"?>'
+                    + '<soap:Envelope'
+                    + 'xmlns:soap="http://www.w3.org/2003/05/soap-envelope/"'
+                    + 'soap:encodingStyle="http://www.w3.org/2003/05/soap-encoding">'
+                    + '<soap:Body>'
+                    + '  <m:GetOrder xmlns:m="https://cors-anywhere.herokuapp.com/https://encompass.com/soapservice">'
+                    + '    <m:xmlUser>' + user + '</m:xmlUser>'
+                    + '    <m:xmlPassword>' + password + '</m:xmlPassword>'
+                    + '    <m:serviceName>XML.ORDER.STATUS</m:serviceName>'
+                    + '    <m:serviceMode>SOAP</m:serviceMode>'
+                    + '    <m:referenceNumber>1-19461</m:referenceNumber>'
+                    + '  </m:GetOrder>'
+                    + '</soap:Body>'
+                    + '</soap:Envelope>';                                                    
+            function createCORSRequest(method, url) {
+                var xhr = new XMLHttpRequest();
+                if ("withCredentials" in xhr) {
+                    xhr.open(method, url, false);
+                } else if (typeof XDomainRequest != "undefined") {
+                    alert
+                    xhr = new XDomainRequest();
+                    xhr.open(method, url);
+                } else {
+                    console.log("CORS not supported");
+                    alert("CORS not supported");
+                    xhr = null;
+                }
+                return xhr;
+            }
+            var xhr = createCORSRequest("POST", "https://cors-anywhere.herokuapp.com/https://encompass.com/soapservice");
+            if(!xhr){
+            console.log("XHR issue");
+            return;
+            }
+
+            xhr.onload = function(){
+            var results = xhr.responseText;
+            console.log(results);
+            }
+
+            xhr.setRequestHeader('Content-Type', 'text/xml');
+            xhr.send(str);
+        }
     </script>
 </body>
 </html>

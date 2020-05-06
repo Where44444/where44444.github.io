@@ -1821,8 +1821,8 @@ function reloadContentFromChangeAlert(alertOBJ)
         }
         for(var i = 0; i < content_line.length; ++i)
           _content[rownum][i] = content_line[i];
+        generateContent_Standard_Row(rownum);
       }
-      generateContent_Standard_Row(rownum);
       populateRecordBrowser(_currentRecordBrowserStartIndex, false);
       populateRecordViews();
     }

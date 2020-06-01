@@ -36,4 +36,4 @@ var INVOICE_POST =
 + "<tr style='height: 60px;'><td colspan=5 style='font-size: 12px;'>SIGNATURE&nbsp;&nbsp;&nbsp;<input type='text' style='width: 600px; height: 30px;' id='invoice_input_signature'></td></tr>"
 + "<tr style='height: 120px;'><td colspan=5 ><textarea id='invoice_bottom_textarea_2' style='width: 700px; height: 100px; text-align: center;'></textarea></td></tr>"
 + "</table>"
-+ "<button style='width:150px; height:100px; font-size:30px; position:absolute; top:90px; left:900px;' onclick='finishInvoiceSale();'>Finish Sale</button>";
++ "<button class='no-print' style='width:150px; height:100px; font-size:30px; position:absolute; top:90px; left:900px;' onclick='finishInvoiceSale();'>Finish Sale</button>";

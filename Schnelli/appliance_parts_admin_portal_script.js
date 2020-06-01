@@ -223,67 +223,67 @@ function loadContentDiv(){
   // var partRef = firebase.database().ref('parts_db/D_DNI');
   // partRef.remove();
 
-//   $.ajax({
-//     type: "GET",
-//     url: "ascii_test.txt",
-//     dataType: "text",
-//     success: function(data) {processCSVData(data);}
-//  });
+  //   $.ajax({
+  //     type: "GET",
+  //     url: "ascii_test.txt",
+  //     dataType: "text",
+  //     success: function(data) {processCSVData(data);}
+  //  });
 
-if(LOCAL_MODE) {
-  // document.getElementById("fileinput_div").innerHTML = "<input id='fileinput_json' type='file' style='width: 500px; height: 200px;'></input><br>";
-  // document.getElementById('fileinput_json').addEventListener('change', readSingleFile_json, false);
-  fetchJSONRecursive(0);
-}
-else {
-  for(var i = 0; i < EXTRA_DB.length; ++i)
-  {
-    var extraDBRef = firebase.database().ref('parts_db/' + EXTRA_DB[i]);
-    extraDBRef.once('value', function(snapshot) {
-      var objs = [];
-      var keys = [];
-      snapshot.forEach(function(childSnapshot) {
-        objs.push(childSnapshot.val());
-        keys.push(childSnapshot.key);
-      });
-      processJSONDataExtra(objs, EXTRA_DB.indexOf(snapshot.key), keys);
-      ++_extraDBLoadedIndex;
-      if(_extraDBLoadedIndex == EXTRA_DB.length - 1) //Load big P&A_PRI after extra Databases loaded
-      {
-        var partsRef = firebase.database().ref('parts_db/P&A_PRI').orderByChild('RECORD_NUMBER');
-        partsRef.once('value', function(snapshot) {
-          document.getElementById("message").innerHTML = "<p>Processing parts...</p>";
-      
-          // var numChildren = snapshot.numChildren();
-          _content = [];
-          
-          var numRecords = 0;
-          snapshot.forEach(function(childSnapshot) {
-            var content_line = [];
-            //indexToContentID[numRecords] = childSnapshot.key;
-            for(var i = 0; i < INDEXES.length; ++i)
-              content_line.push(String(childSnapshot.child(INDEXES[i]).val()));
-            for(var i = 0; i < MEMO_INDEXES.length; ++i){
-              var memolines = childSnapshot.child(MEMO_INDEXES[i]).val();
-              for(var j = 0; j < memolines.length; ++j)
-                memolines[j] = String(memolines[j]);
-              content_line.push(memolines);
-            }
-            content_line.push(childSnapshot.key);
-            // document.getElementById("loading_parts").innerHTML = "<p>Processing parts...  " + (numRecords / numChildren) + "%</p>";
-            _content.push(content_line);
-            ++numRecords;
-          });
-          generateContent_Standard();
-          populateRecordBrowser(0, false);
-          _contentSortedReverse = true;
-          sortContentByIndex(0);
-          loadChangeAlerts();
-        });
-      }
-    });
+  if(LOCAL_MODE) {
+    // document.getElementById("fileinput_div").innerHTML = "<input id='fileinput_json' type='file' style='width: 500px; height: 200px;'></input><br>";
+    // document.getElementById('fileinput_json').addEventListener('change', readSingleFile_json, false);
+    fetchJSONRecursive(0);
   }
-}
+  else {
+    for(var i = 0; i < EXTRA_DB.length; ++i)
+    {
+      var extraDBRef = firebase.database().ref('parts_db/' + EXTRA_DB[i]);
+      extraDBRef.once('value', function(snapshot) {
+        var objs = [];
+        var keys = [];
+        snapshot.forEach(function(childSnapshot) {
+          objs.push(childSnapshot.val());
+          keys.push(childSnapshot.key);
+        });
+        processJSONDataExtra(objs, EXTRA_DB.indexOf(snapshot.key), keys);
+        ++_extraDBLoadedIndex;
+        if(_extraDBLoadedIndex == EXTRA_DB.length - 1) //Load big P&A_PRI after extra Databases loaded
+        {
+          var partsRef = firebase.database().ref('parts_db/P&A_PRI').orderByChild('RECORD_NUMBER');
+          partsRef.once('value', function(snapshot) {
+            document.getElementById("message").innerHTML = "<p>Processing parts...</p>";
+        
+            // var numChildren = snapshot.numChildren();
+            _content = [];
+            
+            var numRecords = 0;
+            snapshot.forEach(function(childSnapshot) {
+              var content_line = [];
+              //indexToContentID[numRecords] = childSnapshot.key;
+              for(var i = 0; i < INDEXES.length; ++i)
+                content_line.push(String(childSnapshot.child(INDEXES[i]).val()));
+              for(var i = 0; i < MEMO_INDEXES.length; ++i){
+                var memolines = childSnapshot.child(MEMO_INDEXES[i]).val();
+                for(var j = 0; j < memolines.length; ++j)
+                  memolines[j] = String(memolines[j]);
+                content_line.push(memolines);
+              }
+              content_line.push(childSnapshot.key);
+              // document.getElementById("loading_parts").innerHTML = "<p>Processing parts...  " + (numRecords / numChildren) + "%</p>";
+              _content.push(content_line);
+              ++numRecords;
+            });
+            generateContent_Standard();
+            populateRecordBrowser(0, false);
+            _contentSortedReverse = true;
+            sortContentByIndex(0);
+            loadChangeAlerts();
+          });
+        }
+      });
+    }
+  }
 
   var sortOrdersRef = firebase.database().ref('sort_orders');
   sortOrdersRef.on('value', function(snapshot) {
@@ -295,6 +295,27 @@ else {
     });
     _sort_orders = sortOrders;
     populateSortOrders();
+  });
+
+  var invoiceRef = firebase.database().ref('invoice');
+  invoiceRef.on('value', function(snapshot) {
+    snapshot.forEach(function(childSnapshot) {
+      if(childSnapshot.key == "address")
+      {
+        document.getElementById("invoice_address_textarea").value = childSnapshot.val();
+      }
+      else if(childSnapshot.key == "bottom")
+      {
+        document.getElementById("invoice_bottom_textarea").value = childSnapshot.val();
+      }
+      else if(childSnapshot.key == "last_order_no")
+      {
+        document.getElementById("invoice_last_order_no_input").value = childSnapshot.val();
+        var ele = document.getElementById("invoice_input_order_no");
+        if(ele != null)
+          ele.value = childSnapshot.val();
+      }
+    });
   });
 }
 
@@ -866,28 +887,31 @@ function populateSortOrders()
 
 // var EXTRA_INDEXES = ["PN", "AKA", "PART_NUMBR", "DESCRIP1", "COMMENTS", "VEND", "CAT", "PAGE", "SPL", "SPL_DATE", "SPL_FROM", "LOT_CT", "LOT_PR", "LOT_FROM", "REG", "REG_DATE", "REG_FROM", "SUGG", "VEND_RET", "SHOP_QTY", "TRK1_QTY", "TRK2_QTY", "TRK3_QTY", "USED_QTY", "LOCATION", "OTHER", "CGS", "FROM", "DATE", "OEM_PN", "CALCULATED", "FIXED", "SELL", "SELL", "ZOOM", "SOLD_YTD", "SOLD_DATE", "SOLD_AMT"]; //JS has no AKA, VEND   DNI and OEM has no OTHER, OEM_PN
 
-var EXTRA_DB_FIELDS = [["PN","AKA","PART_NUMBR","COMMON_PN","DESCRIP1","COMMENTS","PART_MFR","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT","POST_APPND"]
-                      ,["PN","AKA","PART_NUMBR","DESCRIP1","COMMENTS","PART_MFR","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
-                      ,["PN","AKA","PART_NUMBR","DESCRIP1","COMMENTS","GEM_ID","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
-                      ,["PN","AKA","PART_NUMBR","DESCRIP1","COMMENTS","RS_ID","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
-                      ,["PN","AKA","PART_NUMBR","DESCRIP1","COMMENTS","MM_ID","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
-                      ,["PN","JS_LINE_PN","PART_NUMBR","DESCRIP1","COMMENTS","JS_LINE","JS_ID","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
-                      ,["PN","AKA","PART_NUMBR","DESCRIP1","COMMENTS","APPL_MFR","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","COMMON_PN","CGS","FROM","DATE","OEM_PN2","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT","POST_APPND"]];
+var EXTRA_DB_FIELDS = /*B_DNI*/ [["PN","AKA","PART_NUMBR","COMMON_PN","DESCRIP1","COMMENTS","PART_MFR","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT","POST_APPND"]
+                       /*CHLX*/ ,["PN","AKA","PART_NUMBR","DESCRIP1","COMMENTS","PART_MFR","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
+                       /*F*/    ,["PN","AKA","PART_NUMBR","DESCRIP1","COMMENTS","PART_MFR","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
+                       /*GEM*/  ,["PN","AKA","PART_NUMBR","DESCRIP1","COMMENTS","GEM_ID","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
+                       /*H_RS*/ ,["PN","AKA","PART_NUMBR","DESCRIP1","COMMENTS","RS_ID","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
+                       /*I_MM*/ ,["PN","AKA","PART_NUMBR","DESCRIP1","COMMENTS","MM_ID","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
+                       /*JS*/   ,["PN","JS_LINE_PN","PART_NUMBR","DESCRIP1","COMMENTS","JS_LINE","JS_ID","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
+                       /*OEM*/  ,["PN","AKA","PART_NUMBR","DESCRIP1","COMMENTS","APPL_MFR","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","COMMON_PN","CGS","FROM","DATE","OEM_PN2","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT","POST_APPND"]];
 
-var EXTRA_DB =                 ["B_DNI", "CHLX",    "GEM",    "H_RS",  "I_MM",  "JS",    "OEM"];
-var EXTRA_DB_ACTUAL_INDEXES =  ["B_PN",  "CHLX_PN", "GEM_PN", "RS_PN", "MM_PN", "JS_PN", "OEM_PN"];
-var CONTENT_EXTRA_DB_INDEXES = [9,       10,        12,       13,      14,      15,      20];
+var EXTRA_DB =                 ["B_DNI", "CHLX",    "F",    "GEM",    "H_RS",  "I_MM",  "JS",    "OEM"];
+var EXTRA_DB_ACTUAL_INDEXES =  ["B_PN",  "CHLX_PN", "F_PN", "GEM_PN", "RS_PN", "MM_PN", "JS_PN", "OEM_PN"];
+var CONTENT_EXTRA_DB_INDEXES = [9,       10,        11,     12,       13,      14,      15,      20];
 
 var partChildDropDownHTML = "<select id='part_child_dropdown_select' onchange='setNewPartChildButton();' style='width: 300px;'>";
 for(var i = 0; i < EXTRA_DB.length; ++i)
 {
   partChildDropDownHTML += "<option value='" + EXTRA_DB[0] + "'>" + EXTRA_DB[i] + "</option>";
 }
+partChildDropDownHTML += "<option value='" + EXTRA_DB[0] + "'>--All--</option>";
 partChildDropDownHTML += "</select>";
 document.getElementById("part_child_dropdown_div").innerHTML = partChildDropDownHTML;
 setNewPartChildButton();
 
 //              PART_MFR PART_MFR GEM_ID RS_ID   MM_ID   JS_ID  APPL_MFR
+var RECORD_VIEW_DB_HEADER_WIDTH = "150px";
 var RECORD_VIEW_HEADERS =                 ["MFR",                                                         "PART#", "S",          "LOC",        "T1",         "T2",         "U",           "VEND",   "DATE",   "CGS",   "RETAIL",     "SELL"];
 var RECORD_VIEW_HEADERS_WIDTHS =          ["100px",                                                       "300px", "70px",       "100px",      "70px",       "70px",       "70px",        "100px",  "200px",  "100px", "100px",      "100px"];
 var RECORD_VIEW_HEADERS_ACTUAL_INDEXES = [["PART_MFR", "GEM_ID", "RS_ID", "MM_ID", "JS_ID", "APPL_MFR"], ["PN"],  ["SHOP_QTY"], ["LOCATION"], ["TRK1_QTY"], ["TRK2_QTY"], ["USED_QTY"],  ["FROM"], ["DATE"], ["CGS"], ["VEND_RET"], ["SELL"]];
@@ -950,7 +974,7 @@ function populateRecordViews()
       var bgstyle = "";
       if(i == _selected_record_view)
         bgstyle = "style='background-color: lightblue;'";
-      htmlToAdd += "<div class='clickable' id='record_view_" + i + "' " + bgstyle + " onclick='selectRecordView(" + i + ");')>";
+      htmlToAdd += "<div id='record_view_" + i + "' " + bgstyle + " onclick='selectRecordView(" + i + ");')>";
       htmlToAdd += "<button style='width: 50px;' onclick='removeRecordView(" + i + ");')>X</button><div style='display: flex;'><div class='border_center' style='flex-grow: 1;'></div>" 
       + "<div class='text1'>" + equip_type_text + " / " + appl_brand_text + "</div>"
       + "<div class='border_center' style='flex-grow: 8;'></div></div>"
@@ -961,19 +985,19 @@ function populateRecordViews()
       if(_recordViews_Key_To_Details_Open.has(_recordViews[i]) && _recordViews_Key_To_Details_Open.get(_recordViews[i]))
       {
         htmlToAdd += "</div><div class=clickable style='font-size: 20px; background-color: #96BBFF' onclick='toggleDiv(null, \"record_view_details_" + i + "\")'><span id='record_view_details_" + i + "_expander_icon' style='font-size: 24px;'>-</span> Details</div>";
-        htmlToAdd += "<div id='record_view_details_" + i + "_div' style='display: block;'><table><tr><th></th>";
+        htmlToAdd += "<div id='record_view_details_" + i + "_div' style='display: block;'><table><tr><th style='width: " + RECORD_VIEW_DB_HEADER_WIDTH + ";'></th>";
       }
       else
       {
         htmlToAdd += "</div><div class=clickable style='font-size: 20px; background-color: #96BBFF' onclick='toggleDiv(null, \"record_view_details_" + i + "\")'><span id='record_view_details_" + i + "_expander_icon' style='font-size: 24px;'>+</span> Details</div>";
-        htmlToAdd += "<div id='record_view_details_" + i + "_div' style='display: none;'><table><tr><th></th>";
+        htmlToAdd += "<div id='record_view_details_" + i + "_div' style='display: none;'><table><tr><th  style='width: " + RECORD_VIEW_DB_HEADER_WIDTH + ";'></th>";
       }
       
       for(var j = 0; j < RECORD_VIEW_HEADERS.length; ++j)
       {
         htmlToAdd += "<th style='width: " + RECORD_VIEW_HEADERS_WIDTHS[j] + ";'><p>" + RECORD_VIEW_HEADERS[j] + "</p></th>";
       }
-      htmlToAdd += "<th>Reliable Parts</th><th>Encompass</th>";
+      htmlToAdd += "<th>Reliable Parts</th><th>Encompass</th><th>Marcone</th>";
       htmlToAdd += "</tr>";
       for(var j = 0; j < EXTRA_DB.length; ++j)
       {
@@ -988,16 +1012,29 @@ function populateRecordViews()
         { 
           htmlToAdd += "<td>";
           if(k == 0)
-            htmlToAdd += "<p><img class='clickable' id='record_view_partnum_edit_icon_" + i + "_" + j + "' src='pencil.png' width=25px height=25px onclick='startEditRecordPartReference(" + i + "," + j + ");'>&nbsp;&nbsp;&nbsp;&nbsp;"
+          {
+            htmlToAdd += "<div style='width: 30px; display: inline-block;'>" + EXTRA_DB[j] + "</div>&nbsp;&nbsp;&nbsp;&nbsp;<img class='clickable' id='record_view_partnum_edit_icon_" + i + "_" + j + "' src='pencil.png' width=25px height=25px onclick='startEditRecordPartReference(" + i + "," + j + ");' style='position: relative; bottom: -6px;'>"
             + "<button id='record_view_partnum_save_button_"   + i + "_" + j + "' style='width: 70px; font-size: 20px; display: none; margin-bottom: 2px;' onclick='saveEditRecordPartReference(" + i + "," + j + ");'>Save</button>"
-            + "<button id='record_view_partnum_cancel_button_" + i + "_" + j + "' style='width: 70px; font-size: 20px; display: none;' onclick='populateRecordViews();'>Cancel</button>"
-            + EXTRA_DB[j] + "</p></td><td>";
-          if(k == 1)
+            + "<button id='record_view_partnum_cancel_button_" + i + "_" + j + "' style='width: 70px; font-size: 20px; display: none;' onclick='populateRecordViews();'>Cancel</button>" + "&nbsp;&nbsp;&nbsp;&nbsp;";
+            if(extraDBIndex != null)
+              htmlToAdd += "<div style='display: inline; font-size: 20px;' id='sell_div_" + i + "_" + j + "'><button id='sell_button_" + i + "_" + j + "' onclick='startSell(" + i + "," + j + ");')>Sell</button>"
+              + "<div id='sell_form_" + i + "_" + j + "' style='display: none;'>"
+              + "<p>Quantity</p>"
+              + "<button style='width: 100px;' onclick='changeSellQuantity(" + i + "," + j + ",  1);'>+</button><br>"
+              + "<input  style='width: 100px; height: 50px; font-size: 30px; text-align: center;' type='number' value='1' id='sell_quantity_" + i + "_" + j + "'><br>"
+              + "<button style='width: 100px;' onclick='changeSellQuantity(" + i + "," + j + ", -1);'>-</button><br><br>"
+              + "<button style='width: 150px; height: 30px;' onclick='confirmSell(" + i + "," + j + ",\"" + _content_partnum_for_extraDB + "\");'>Confirm</button><br><br>"
+              + "<button style='width: 150px; height: 30px;' onclick='populateRecordViews();'>Cancel</button></div></div>";
+            htmlToAdd += "</td><td>";
+          }
+          else if(k == 1)
           {
             partSearchTerm = _content_partnum_for_extraDB;
-            var pText = _content_partnum_for_extraDB;
+            var pText = "";
             if(extraDBIndex == null && removeExtraSpaces(_content_partnum_for_extraDB) != "")
-              pText += "<span style='color: red;'>&nbsp;&nbsp;&nbsp;Not Found in Child Database!</span>";
+              pText = _content_partnum_for_extraDB + "<span style='color: red;'>&nbsp;&nbsp;&nbsp;Not Found in Child Database!</span>";
+            else
+              pText = "<span class='clickable' style='color: blue;' onclick='jumpToChildPartFromRecordView(" + j + "," + extraDBIndex + ");'><u>" + _content_partnum_for_extraDB + "</u></span>";
             htmlToAdd += "<p id='record_view_partnum_text_" + i + "_" + j + "'>" + pText + "</p><input type='text' style='display: none;' id='record_view_partnum_input_" + i + "_" + j +"' onfocus='onPartNumFocus(" + i + "," + j + ");' value='" + _content_partnum_for_extraDB + "' onkeyup='partnum_input_keyup_event(event);' onkeydown='partnum_input_keydown_event(event);'><div style='position: absolute;' id='partnum_autocomplete_" + i + "_" + j + "'></div>";
           }
           if(extraDBIndex != null){
@@ -1037,14 +1074,18 @@ function populateRecordViews()
         if(removeExtraSpaces(partSearchTerm) != "")
           htmlToAdd += "<a href='https://encompass.com/search?searchTerm=" + getStandardPNWebSearchString(partSearchTerm) + "' target='_blank'>Search</a>";
         htmlToAdd += "</td>";
+        htmlToAdd += "<td>";
+        if(removeExtraSpaces(partSearchTerm) != "")
+          htmlToAdd += "<a href='https://beta.marcone.com/Home/SearchPartModelList?searchString=" + getStandardPNWebSearchString(partSearchTerm) + "&Type=Part' target='_blank'>Search</a>";
+        htmlToAdd += "</td>";
         htmlToAdd += "</tr>";
       }
       var LKUPPN_CONTENT = getExpandableHTML(_content[rownum][_LOOK_UP_PN], (i + "_LOOK_UP_PN"), 80, "");
       var ADVICE_CONTENT = getExpandableHTML(_content[rownum][_ADVICE],     (i + "_ADVICE"),     80, "");
       var MODEL_CONTENT =  getExpandableHTML(_content[rownum][_MODEL],      (i + "_MODEL"),      80, "");
-      htmlToAdd += "<tr><td colspan=2 style='text-align: right;'>LAST</td>  <td colspan=2><b>" + _content[rownum][_PART_NUMBR] + "</b></td><td><b>" + _content[rownum][_LOCATION] + "</b></td><td colspan=4><b>" + _content[rownum][_MODIFIED] + "</b></td><td>KEEP  <b>" + _content[rownum][_KEEP] +      "</b></td><td>BULK <b>" + _content[rownum][_GET] + "</b></td><td style='text-align: right;'>Aside</td>                                                 </tr>"
+      htmlToAdd += "<tr><td colspan=2 style='text-align: right;'>LAST</td>  <td colspan=2><b>" + _content[rownum][_PART_NUMBR] + "</b></td><td><b>" + _content[rownum][_LOCATION] + "</b></td><td colspan=4><b>" + _content[rownum][_MODIFIED] + "</b></td><td>KEEP  <b>" + _content[rownum][_KEEP] +      "</b></td><td>BULK <b>" + _content[rownum][_GET] + "</b></td><td colspan=2 style='text-align: right;'>Aside</td>                                                 </tr>"
                 + "<tr><td colspan=2 style='text-align: right;'>LKUPPN</td><td colspan=2>" + LKUPPN_CONTENT + "                      </td><td style='text-align: right;'>         ADVICE</td><td colspan=4>" + ADVICE_CONTENT + "                    </td><td>REORD <b>" + _content[rownum][_REORD_QTY] + "</b></td><td colspan=2 style='text-align: right;'>                                          Srce</td><td><b>" + _content[rownum][_SOURCE] + "</b></td></tr>"
-                + "<tr><td colspan=4>                                                                                                </td><td style='text-align: right;'>          MODEL</td><td colspan=4>" + MODEL_CONTENT + "                     </td><td>PREF  <b>" + _content[rownum][_FROM] +      "</b></td>                                                                                                                                             </tr>"
+                + "<tr><td colspan=4>                                                                                                </td><td style='text-align: right;'>          MODEL</td><td colspan=4>" + MODEL_CONTENT + "                     </td><td colspan=4>PREF  <b>" + _content[rownum][_FROM] +      "</b></td>                                                                                                                                             </tr>"
                 + "</table></div><br><br>";
     }
     htmlToAdd += "</div>";
@@ -1125,4 +1166,263 @@ function startNewPartChild()
   }
   htmlToAdd += "</table>";
   document.getElementById("part_child_new_table_div").innerHTML = htmlToAdd;
+}
+
+function generatePDFAddToDatabaseTable(index)
+{
+  var desc = document.getElementById("pdf_description_" + index).value.split("\n");
+  var pn = "";
+  var descrip1 = "";
+  var pnFound = false;
+  for(var i = 0; i < desc.length; ++i)
+  {
+    if(removeExtraSpaces(desc[i]) != "")
+    {
+      if(!pnFound)
+      {
+        pn = removePreWP(desc[i]);
+        pnFound = true;
+      }
+      else
+      {
+        descrip1 = desc[i];
+        break;
+      }
+    }
+  }
+  
+  var link = null;
+  var extradb = -1;
+  for(var i = 0; i < EXTRA_DB.length; ++i)
+  {
+    link = getExtraDBLinkIndex(i, pn);
+    if(link != null)
+    {
+      extradb = i;
+      break;
+    }
+  }
+  
+  var dealerprice_ele = document.getElementById("pdf_dealerprice_" + index);
+  var yourprice_ele = document.getElementById("pdf_yourprice_" + index);
+  var shippedamount_ele = document.getElementById("pdf_shipped_" + index);
+  var dealerprice = "";
+  var yourprice = "";
+  var shippedamount = "";
+  var newqty = "";
+  if(dealerprice_ele != null)
+    dealerprice = dealerprice_ele.value;
+  if(yourprice_ele != null)
+    yourprice = yourprice_ele.value;
+  if(shippedamount_ele != null)
+  {
+    shippedamount = shippedamount_ele.value;
+    newqty = Math.floor(Number(shippedamount));
+  }
+
+  if(link == null){
+    var notFoundHTML = "<span style='color: red;'>Could not find part number \"" + pn + "\" in any child databases!</span>";
+    notFoundHTML += "<p>Add new part child record?</p>";
+    notFoundHTML += "<select id='pdf_new_partchild_select_" + index + "' style='width: 300px;'>";
+    for(var i = 0; i < EXTRA_DB.length; ++i)
+    {
+      notFoundHTML += "<option value='" + EXTRA_DB[0] + "'>" + EXTRA_DB[i] + "</option>";
+    }
+    notFoundHTML += "</select>";
+    notFoundHTML += "&nbsp;&nbsp;<button onclick='startPDFNewChildRecord(" + index + ");'>Go</button>";
+    document.getElementById("pdf_add_to_database_table_" + index).innerHTML = notFoundHTML;
+  }
+  else
+  {
+    extraDBs_PDF.set(index, extradb);
+    extraDBLinks_PDF.set(index, link);
+    var partObj = _content_extra[extradb][link][0];
+    dealerprice = Number(partObj.REG);
+    yourprice = Number(partObj.SPL);
+    shippedamount = Number(partObj.SHOP_QTY);
+    if(dealerprice_ele != null)
+      dealerprice = dealerprice_ele.value;
+    if(yourprice_ele != null)
+      yourprice = yourprice_ele.value;
+    if(shippedamount_ele != null)
+      shippedamount = shippedamount_ele.value;
+    var dealerprice_change = "";
+    var yourprice_change = "";
+    var shippedamount_change = "";
+    //dealerprice -> REG
+    //yourprice -> SPL
+    //shippedamount -> SHOP_QTY
+    var diff = 0;
+    if(Number(dealerprice) == Number(partObj.REG) || removeExtraSpaces(dealerprice) == "")
+    {
+      dealerprice_change = "No Change";
+      dealerprice = partObj.REG;
+    }
+    else{
+      diff = get_plus_minus_usd_string(Number(dealerprice) - Number(partObj.REG));
+      dealerprice_change = "<img src='down_arrow.png' width=20px height=20px> " + diff;
+    }
+    if(Number(yourprice) == Number(partObj.SPL) || removeExtraSpaces(yourprice) == "")
+    {
+      yourprice_change = "No Change";
+      yourprice = partObj.SPL;
+    }
+    else {
+      diff = get_plus_minus_usd_string(Number(yourprice) - Number(partObj.SPL));
+      yourprice_change = "<img src='down_arrow.png' width=20px height=20px> " + diff;
+    }
+    if(removeExtraSpaces(shippedamount) == "")
+    {
+      shippedamount = 0;
+    }
+    newqty = 0;
+    newqty += Number(shippedamount);
+    newqty += Number(partObj.SHOP_QTY);
+    diff = newqty - Number(partObj.SHOP_QTY);
+    newqty = Math.floor(Number(newqty));
+    if(diff >= 0)
+      diff = "+" + diff;
+    shippedamount_change = "<img src='down_arrow.png' width=20px height=20px> " + diff;
+    var htmlToAdd = "";
+    if(removeExtraSpaces(partObj.FIXED) != "")
+      htmlToAdd += "<div style='color: red;'>Fixed price found!</div>";
+    htmlToAdd += "<table>"
+    + "<tr><th>DB</th><th>PN</th><th>AKA</th><th>REG</th><th>SPL</th><th>SHOP_QTY</th><th>FIXED</th></tr>"
+    + "<tr><td>" + EXTRA_DB[extradb] + "</td><td>" + partObj.PN + "</td><td>" + partObj.AKA + "</td><td>" + partObj.REG + "</td><td>" + partObj.SPL + "</td><td>" + partObj.SHOP_QTY + "</td><td>" + partObj.FIXED + "</td></tr>"
+    + "<tr><td></td><td></td><td></td><td>" + dealerprice_change + "</td><td>" + yourprice_change + "</td><td>" + shippedamount_change + "</td><td></td></tr>"
+    + "<tr><td>" + EXTRA_DB[extradb] + "</td><td>" + partObj.PN + "</td><td>" + partObj.AKA + "</td><td>" + dealerprice + "</td><td>" + yourprice +   "</td><td>" + newqty +           "</td><td>" + partObj.FIXED + "</td></tr>"
+    + "</table><button onclick='cancelPDFAddToDatabase(" + index + ");')>Cancel</button>&nbsp;&nbsp;<button onclick='confirmPDFAddToDatabase(" + index + ");')>Confirm</button>";
+    document.getElementById("pdf_add_to_database_table_" + index).innerHTML = htmlToAdd;
+  }
+  newREGs.set(index, dealerprice);
+  newSPLs.set(index, yourprice);
+  newSHOP_QTYs.set(index, newqty);
+  newPNs.set(index, pn);
+  newDESCRIP1s.set(index, descrip1);
+}
+
+function populateInvoice()
+{
+  var ele;
+  ele = document.getElementById("invoice_input_invoice_no");
+  if(ele != null)
+    _invoice_data.invoice_no = ele.value;
+  ele = document.getElementById("invoice_input_name");
+  if(ele != null)
+    _invoice_data.name = ele.value;
+  ele = document.getElementById("invoice_input_address");
+  if(ele != null)
+    _invoice_data.address = ele.value;
+  ele = document.getElementById("invoice_input_citystatezip");
+  if(ele != null)
+    _invoice_data.citystatezip = ele.value;
+  ele = document.getElementById("invoice_input_soldby");
+  if(ele != null)
+    _invoice_data.soldby = ele.value;
+  ele = document.getElementById("invoice_checkbox_cash");
+  if(ele != null)
+    _invoice_data.cash = ele.checked;
+  ele = document.getElementById("invoice_checkbox_charge");
+  if(ele != null)
+    _invoice_data.charge = ele.checked;
+  ele = document.getElementById("invoice_checkbox_cod");
+  if(ele != null)
+    _invoice_data.cod = ele.checked;
+  ele = document.getElementById("invoice_checkbox_merch");
+  if(ele != null)
+    _invoice_data.merch = ele.checked;
+  ele = document.getElementById("invoice_checkbox_paidout");
+  if(ele != null)
+    _invoice_data.paidout = ele.checked;
+  ele = document.getElementById("invoice_textarea_misc");
+  if(ele != null)
+    _invoice_data.misc = ele.value;
+  ele = document.getElementById("invoice_input_signature");
+  if(ele != null)
+    _invoice_data.signature = ele.value;
+  ele = document.getElementById("invoice_bottom_textarea_2");
+  if(ele != null)
+    _invoice_data.bottom = ele.value;
+
+  var numTotalRows = _invoice_objs.length;
+  var htmlToAdd = "";
+  if(numTotalRows > 0){
+    for(var i = 0; i < numTotalRows; ++i)
+    {
+      var obj = _invoice_objs[i];
+      if(i == 0)
+      {
+        htmlToAdd += INVOICE_PRE;
+      }
+      // else if(i % NUMROWS_PER_INVOICE == 0)
+      // {
+      //   //Add post then pre invoice html
+      //   htmlToAdd += INVOICE_POST + "</div>";
+      //   htmlToAdd += "<div style='position: absolute; top: " + (pageOn * 1000) + "px;'>" + INVOICE_PRE;
+      // }
+
+      if(i < _invoice_objs.length)
+      {
+        //Add filled row
+        htmlToAdd += "<tr class='in_td'><td>"
+        + "<input type='text' style='width: 53px; height: 15px; text-align: right;' id='invoice_input_qty_" + i + "' value='" + obj.amountToSell + "' disabled></td><td>"
+        + "<input type='text' style='width: 493px; height: 15px;' value='" + obj.PN + " | " + obj.DESCRIP1 + "' disabled></td><td>"
+        + "<input type='text' style='width: 48px; height: 15px; text-align: right;' id='invoice_input_sell_" + i + "' value='" + obj.SELL + "' onfocus='deselectTable();' onchange='calculateInvoiceAmounts();'></td><td>"
+        + "<input type='text' style='width: 53px; height: 15px; text-align: right;' id='invoice_input_amount_" + i + "' disabled></td><td class='no-print'>"
+        + "<button style='width: 20px; height: 20px; padding: 0px; color: white; background-color: red;' tabindex='-1' onclick='removeFromInvoice(" + i + ");')>x</button></td></tr>";
+      }
+      else
+      {
+        //Add empty row
+        htmlToAdd += "<tr class='in_td'><td></td><td></td><td></td><td></td><td class='no-print'></td></tr>";
+      }
+    }
+    //Add post invoice html
+    htmlToAdd += INVOICE_POST;
+  }
+  else
+  {
+    htmlToAdd = "<h2>No parts are queued for sale!</h2>";
+  }
+  document.getElementById("invoice_content").innerHTML = htmlToAdd;
+
+  if(numTotalRows > 0){
+    var today = new Date();
+    var dd = today.getDate();
+    var mm = today.getMonth()+1; //January is 0!
+    var yyyy = today.getFullYear();
+
+    if(dd<10) {
+        dd = '0'+dd
+    }
+
+    if(mm<10) {
+        mm = '0'+mm
+    }
+
+    today = mm + " / " + dd + " / " + yyyy;
+
+    document.getElementById("invoice_input_order_no").value = document.getElementById("invoice_last_order_no_input").value;
+    document.getElementById("invoice_input_date").value = today;
+    document.getElementById("invoice_address_textarea_2").innerHTML = document.getElementById("invoice_address_textarea").value;
+    document.getElementById("invoice_bottom_textarea_2").value = document.getElementById("invoice_bottom_textarea").value;
+
+    if(_invoice_data.invoice_no != null)
+    {
+      document.getElementById("invoice_input_invoice_no").value = _invoice_data.invoice_no;
+      document.getElementById("invoice_input_name").value = _invoice_data.name;
+      document.getElementById("invoice_input_address").value = _invoice_data.address;
+      document.getElementById("invoice_input_citystatezip").value = _invoice_data.citystatezip;
+      document.getElementById("invoice_input_soldby").value = _invoice_data.soldby;
+      document.getElementById("invoice_checkbox_cash").checked = _invoice_data.cash;
+      document.getElementById("invoice_checkbox_charge").checked = _invoice_data.charge;
+      document.getElementById("invoice_checkbox_cod").checked = _invoice_data.cod;
+      document.getElementById("invoice_checkbox_merch").checked = _invoice_data.merch;
+      document.getElementById("invoice_checkbox_paidout").checked = _invoice_data.paidout;
+      document.getElementById("invoice_textarea_misc").value = _invoice_data.misc;
+      document.getElementById("invoice_input_signature").value = _invoice_data.signature;
+      document.getElementById("invoice_bottom_textarea_2").value = _invoice_data.bottom;
+    }
+    calculateInvoiceAmounts();
+  }
 }

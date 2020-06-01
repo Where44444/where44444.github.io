@@ -1,0 +1,399 @@
+
+<!DOCTYPE html>
+<html>
+<head></head>
+<style>
+    body{
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .text1{
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    p{
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    label{
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    h1{
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    h2{
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    textarea{
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 14px;
+    }
+
+    table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    font-size: 14px;
+    }
+
+    td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 4px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 600;
+    }
+
+    tr:nth-child(even) {
+    background-color: #dddddd;
+    }
+    tr:nth-child(odd) {
+    background-color: white;
+    /* background-color: transparent; */
+    }
+
+      /* Tooltip container */
+    .tooltip {
+      position: relative;
+      display: inline-block;
+      border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+    }
+
+    /* Tooltip text */
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 300px;
+      background-color: #555;
+      color: #fff;
+      text-align: center;
+      padding: 5px 0;
+      border-radius: 6px;
+
+      /* Position the tooltip text */
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -150px;
+
+      /* Fade in tooltip */
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    /* Tooltip arrow */
+    .tooltip .tooltiptext::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: #555 transparent transparent transparent;
+    }
+
+    /* Show the tooltip text when you mouse over the tooltip container */
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .clickable{
+      font-family: Arial, Helvetica, sans-serif;
+      cursor: pointer;
+    }
+
+    /* RADIO BUTTON */
+    /* Customize the label (the container) */
+    .radiobutton_container {
+      display: block;
+      position: relative;
+      padding-left: 35px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      font-size: 22px;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    /* Hide the browser's default radio button */
+    .radiobutton_container input {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+      height: 0;
+      width: 0;
+    }
+
+    /* Create a custom radio button */
+    .radiomark {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 25px;
+      width: 25px;
+      background-color: #eee;
+      border-radius: 50%;
+    }
+
+    /* On mouse-over, add a grey background color */
+    .radiobutton_container:hover input ~ .radiomark {
+      background-color: #ccc;
+    }
+
+    /* When the radio button is checked, add a blue background */
+    .radiobutton_container input:checked ~ .radiomark {
+      background-color: #70A2FF;
+    }
+
+    /* Create the indicator (the dot/circle - hidden when not checked) */
+    .radiomark:after {
+      content: '';
+      position: absolute;
+      display: none;
+    }
+
+    /* Show the indicator (dot/circle) when checked */
+    .radiobutton_container input:checked ~ .radiomark:after {
+      display: block;
+    }
+
+    /* Style the indicator (dot/circle) */
+    .radiobutton_container .radiomark:after {
+      top: 9px;
+      left: 9px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: white;
+    }
+
+        /* Customize the label (the container) */
+    .checkBox_container {
+      display: block;
+      position: relative;
+      padding-left: 35px;
+      margin-bottom: 0px;
+      cursor: pointer;
+      font-size: 20px;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    /* Hide the browser's default checkbox */
+    .checkBox_container input {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+      height: 0;
+      width: 0;
+    }
+
+    /* Create a custom checkbox */
+    .checkmark {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 25px;
+      width: 25px;
+      background-color: #eee;
+    }
+
+    /* On mouse-over, add a grey background color */
+    .checkBox_container:hover input ~ .checkmark {
+      background-color: #ccc;
+    }
+
+    /* When the checkbox is checked, add a blue background */
+    .checkBox_container input:checked ~ .checkmark {
+      background-color: #70A2FF;
+    }
+
+    /* Create the checkmark/indicator (hidden when not checked) */
+    .checkmark:after {
+      content: '';
+      position: absolute;
+      display: none;
+    }
+
+    /* Show the checkmark when checked */
+    .checkBox_container input:checked ~ .checkmark:after {
+      display: block;
+    }
+
+    /* Style the checkmark/indicator */
+    .checkBox_container .checkmark:after {
+      left: 9px;
+      top: 5px;
+      width: 5px;
+      height: 10px;
+      border: solid white;
+      border-width: 0 3px 3px 0;
+      -webkit-transform: rotate(45deg);
+      -ms-transform: rotate(45deg);
+      transform: rotate(45deg);
+    }
+
+    button {
+        background-color: lightslategray;
+        border: none;
+        color: white;
+        padding: 4px 8px;
+        text-align: center;
+        font-size: 16px;
+        /* margin: 4px 2px; */
+        opacity: 0.8;
+        transition: 0.3s;
+        cursor: pointer;
+        border-radius: 8px;
+      }
+
+    button:hover {opacity: 1}
+
+    .button_disabled
+    {
+      opacity: 0.5;
+    }
+
+    .button_disabled:hover {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .border_center{
+      border-bottom: solid;
+      border-width: 2px;
+      border-color: black;
+      margin-bottom: 10px;
+    }
+
+    .tabButton{
+      font-family: Arial, Helvetica, sans-serif;
+      cursor: pointer;
+      flex-grow: 1;
+      text-align: center;
+      height: 60px;
+      padding-top: 40px;
+    }
+
+    @media print
+    {
+      .checkBox_container input {
+        position: absolute;
+        opacity: 1;
+        height: 0px;
+        width: 0px;
+      }
+
+      @page {size: portrait; margin: 1cm;}
+      body
+      {
+        margin: 0cm;
+        background-image: none;
+      }
+
+      input[type=text]
+      {
+        border: 0px;
+        background-color: transparent;
+      }
+
+      textarea
+      {
+        border: 0px;
+        background-color: transparent;
+      }
+
+      .no-print, .no-print *
+      {
+        display: none !important;
+      }
+
+      .no-print-hide, .no-print-hide *
+      {
+        visibility: hidden !important;
+      }
+
+      [class*='invoice_'] {
+        display: block;
+      }
+    }
+
+    [class*='invoice_'] {
+      position: absolute;
+      width: 100px;
+      height: 20px;
+      font-size: 12px;
+    }
+
+    .invoice_border
+    {
+      border: solid 3px;
+      border-radius: 10px;
+      border-color: #5B6275;
+    }
+
+    .in_td
+    {
+      height: 30px;
+    }
+</style>
+<body>
+  <button class='no-print' onclick=printClick(); style='width:150px; height:50px; font-size:30px; position:absolute; top:30px; left:900px;'>Print</button>
+  <div class='invoice_div'    style='top: 20px; left: 20px; text-align: center; width: 200px; height: 100px; font-size: 20px; color: #433C3A;' id='invoice_address_textarea_2'></div>
+  <div class='invoice_border' style='top: 20px; left: 500px; width: 200px; height: 40px; font-size: 18px;'>&nbsp;&nbsp;&nbsp;No.&nbsp;<input type='text' id='invoice_input_invoice_no' style='width: 133px; height: 30px; font-size: 20px;'></div>
+  <div class='invoice_border' style='top: 65px; left: 450px; width: 250px; height: 80px; background-color: #DFDEDB;'>
+    <div style='border-bottom: solid 2px #5B6275; height: 40px;'>
+      &nbsp;&nbsp;&nbsp;DATE&nbsp;<input type='text' id='invoice_input_date' style='width: 187px; height: 30px; font-size: 20px;'>
+    </div>
+    &nbsp;&nbsp;&nbsp;ORDER NO.&nbsp;<input type='text' id='invoice_input_order_no' style='width: 148px; height: 30px; font-size: 20px;'>
+  </div>
+  <div class='invoice_border' style='top: 150px; left: 0px; width: 700px; height: 120px;'>
+    <div style='border-bottom: solid 2px #5B6275; height: 40px;'>&nbsp;&nbsp;&nbsp;NAME            <input type='text' id='invoice_input_name'         style='position: absolute; left: 50px;  top: 0px;  width: 620px; height: 30px; font-size: 20px;'></div>
+    <div style='border-bottom: solid 2px #5B6275; height: 40px;'>&nbsp;&nbsp;&nbsp;ADDRESS         <input type='text' id='invoice_input_address'      style='position: absolute; left: 70px;  top: 42px; width: 600px; height: 30px; font-size: 20px;'></div>
+    &nbsp;&nbsp;&nbsp;CITY, STATE,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ZIP<input type='text' id='invoice_input_citystatezip' style='position: absolute; left: 100px; top: 84px; width: 570px; height: 30px; font-size: 20px;'>
+  </div>
+  <div class='invoice_border' style='top: 275px; left: 0px; width: 700px; height: 80px;'>
+    <div class='invoice_div' style='border-right: solid 2px #5B6275; width: 150px; height: 80px;'>
+      &nbsp;&nbsp;&nbsp;SOLD BY<br><textarea id='invoice_input_soldby' style='width: 140px; height: 50px; font-size: 14px;'></textarea>
+    </div>
+    <div class='invoice_div' style='border-right: solid 2px #5B6275; width: 350px; height: 80px; left: 150px;'>
+      <div style='position: absolute; top: 10px; left: 10px;  font-size: 16px;'><input type='checkbox' id='invoice_checkbox_cash'   >CASH                </div>
+      <div style='position: absolute; top: 40px; left: 10px;  font-size: 16px;'><input type='checkbox' id='invoice_checkbox_charge' >CHARGE              </div>
+      <div style='position: absolute; top: 10px; left: 120px; font-size: 16px;'><input type='checkbox' id='invoice_checkbox_cod'    >C.O.D.              </div>
+      <div style='position: absolute; top: 40px; left: 120px; font-size: 16px;'><input type='checkbox' id='invoice_checkbox_merch'  >MERCHANDISE RETURNED</div>
+      <div style='position: absolute; top: 10px; left: 240px; font-size: 16px;'><input type='checkbox' id='invoice_checkbox_paidout'>PAID OUT            </div>
+    </div>
+  </div>
+  <textarea class='invoice_div' style='top: 280px; left: 510px; width: 180px; height: 70px;' id='invoice_textarea_misc'></textarea>
+  <table class='invoice_border' style='top: 360px; left: 0px; width: unset; height: unset; border-radius: 0px;'>
+    <tr>
+      <th style='width: 55px;'>QUANTITY</th><th style='width: 500px; text-align: center;'>DESCRIPTION</th><th style='width: 55px;'>PRICE</th><th style='width: 55px;'>AMOUNT</th><th class='no-print'></th>
+    </tr>
+    <tr class='in_td'><td><input type='text' style='width: 53px; height: 15px; text-align: right;' disabled></td><td><input type='text' style='width: 493px; height: 15px;' disabled></td><td><input type='text' style='width: 48px; height: 15px; text-align: right;'></td><td><input type='text' style='width: 53px; height: 15px; text-align: right;' disabled></td><td class='no-print'><button style='width: 20px; height: 20px; padding: 0px; color: white; background-color: red;'>x</button></td></tr>
+    <tr class='in_td'><td></td><td></td><td></td><td></td><td class='no-print'></td></tr>
+    <tr class='in_td'><td></td><td></td><td></td><td></td><td class='no-print'></td></tr>
+    <tr class='in_td'><td></td><td></td><td></td><td></td><td class='no-print'></td></tr>
+    <tr class='in_td'><td></td><td></td><td></td><td></td><td class='no-print'></td></tr>
+    <tr class='in_td'><td></td><td></td><td></td><td></td><td class='no-print'></td></tr>
+    <tr class='in_td'><td></td><td></td><td></td><td></td><td class='no-print'></td></tr>
+    <tr class='in_td'><td></td><td></td><td></td><td></td><td class='no-print'></td></tr>
+    <tr class='in_td'><td></td><td></td><td></td><td></td><td class='no-print'></td></tr>
+    <tr class='in_td'><td></td><td></td><td></td><td></td><td class='no-print'></td></tr>
+    <tr class='in_td'><td></td><td></td><td></td><td></td><td class='no-print'></td></tr>
+    <tr class='in_td'><td></td><td></td><td></td><td></td><td class='no-print'></td></tr>
+    <tr class='in_td'><td></td><td></td><td></td><td></td><td class='no-print'></td></tr>
+    <tr class='in_td'><td colspan=2 style='text-align: right;'>Total</td><td colspan=2><input type='text' id='invoice_input_total' style='width: 110px; text-align: right;' disabled></td></tr>
+    <tr style='height: 60px;'><td colspan=5 style='font-size: 12px;'>SIGNATURE&nbsp;&nbsp;&nbsp;<input type='text' style='width: 600px; height: 30px;' id='invoice_input_signature'></td></tr>
+    <tr style='height: 120px;'><td colspan=5 ><textarea id='invoice_bottom_textarea_2' style='width: 700px; height: 100px; text-align: center;'></textarea></td></tr>
+  </table>
+  <button style='width:150px; height:100px; font-size:30px; position:absolute; top:90px; left:900px;' onclick='finishInvoiceSale();'>Finish Sale</button>
+</body>
+</html>

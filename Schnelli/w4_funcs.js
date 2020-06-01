@@ -76,16 +76,16 @@ function getExtraDBLinkIndex(_content_extra_db_index, pn) {
         return i;
       }
     }
-    for (var i = 0; i < _content_extra[_content_extra_db_index].length; ++i) //Exact match AKA
-    {
-      if (String(_content_extra[_content_extra_db_index][i][0].AKA) == pn) {
-        return i;
-      }
-    }
     for (var i = 0; i < _content_extra[_content_extra_db_index].length; ++i) {
       var pn1 = getStandardPNString(pn);
       if (getStandardPNString(String(_content_extra[_content_extra_db_index][i][0].PN)) == pn1) //General match PN
       {
+        return i;
+      }
+    }
+    for (var i = 0; i < _content_extra[_content_extra_db_index].length; ++i) //Exact match AKA
+    {
+      if (String(_content_extra[_content_extra_db_index][i][0].AKA) == pn) {
         return i;
       }
     }
@@ -180,6 +180,16 @@ function removeExtraSpaces(str) {
   return str2;
 }
 
+function removePreWP(str)
+{
+  var str2 = str.toLowerCase();
+  if(str2.length >= 2 && str2.charAt(0) == 'w' && str2.charAt(1) == 'p')
+  {
+    return str.substring(2, str.length);
+  }
+  return str;
+}
+
 function standardizeString(str) {
   var str2 = str.toLowerCase();
 
@@ -222,6 +232,7 @@ function getStandardPNString(str) {
     str = removeEndTilde(str);
     str = removeEndArrow(str);
     str = removeEndExclaim(str);
+    str = removeEndSemicolon(str);
     modified = (orig_length != str.length);
   }
   return str.toLowerCase();
@@ -1250,6 +1261,7 @@ function recordViewIconMouseOut(id1) {
 }
 
 function addRecordView(key) {
+  showSnackbar("Added to Record Views", 3000);
   _recordViews.push(key);
   populateRecordViews();
 }
@@ -1456,9 +1468,10 @@ var pageOn = 1;
 var pdfOn;
 var textContentArrayAll = [];
 function getPdfText(url) {
+  document.getElementById("wlmay_pdf_name").innerHTML = $("#import_wlmay_pdf_input").get(0).files[0].name;
   var loadingTask = pdfjsLib.getDocument(url);
   loadingTask.promise.then(function (pdf) {
-    // console.log('PDF loaded ' + pdf.numPages);
+    console.log('PDF loaded ' + pdf.numPages);
     pageOn = 1;
     pdfOn = pdf;
     textContentArrayAll = [];
@@ -1475,17 +1488,24 @@ function processPage() {
         for (var i = 0; i < textContentArray.length; ++i) //Multiply heights to be higher at top of page
         {
           textContentArray[i].adjustedHeight = Number(textContentArray[i].transform[PDF_TRANSFORM_Y]) + (10000 * (pdfOn.numPages - pageOn));
+          // console.log("X " + textContentArray[i].transform[PDF_TRANSFORM_X] + "| Y " + textContentArray[i].adjustedHeight + "|" + textContentArray[i].str);
         }
         textContentArrayAll = textContentArrayAll.concat(textContentArray);
 
         if (pageOn == 1) //First Page
         {
+          //Invoice NO. 523 715
+          //Invoice Date. 530 693
+          //Customer Purchase Order No. 43 471
+          setPDFTableValue(findPDFTextContentIndexByPosition(523, 715, textContentArray, null, null), textContentArray, "wlmay_pdf_invoice_no_input");
+          setPDFTableValue(findPDFTextContentIndexByPosition(530, 693, textContentArray, null, null), textContentArray, "wlmay_pdf_invoice_date_input");
+          setPDFTableValue(findPDFTextContentIndexByPosition( 43, 471, textContentArray, null, null), textContentArray, "wlmay_pdf_customer_po_no_input");
           setPDFTableValue(findPDFTextContentIndexByPosition(421, 436, textContentArray, null, null), textContentArray, "wlmay_pdf_pick_ticket_input");
         }
 
         if (pageOn == pdfOn.numPages) //Last Page
         {
-          setPDFTableValue(findPDFTextContentIndexByPosition(38, 62, textContentArray, null, null), textContentArray, "wlmay_pdf_subtotal0_input");
+          setPDFTableValue(findPDFTextContentIndexByPosition( 38, 62, textContentArray, null, null), textContentArray, "wlmay_pdf_subtotal0_input");
           setPDFTableValue(findPDFTextContentIndexByPosition(121, 62, textContentArray, null, null), textContentArray, "wlmay_pdf_s&h_input");
           setPDFTableValue(findPDFTextContentIndexByPosition(200, 62, textContentArray, null, null), textContentArray, "wlmay_pdf_tax_input");
           setPDFTableValue(findPDFTextContentIndexByPosition(276, 62, textContentArray, null, null), textContentArray, "wlmay_pdf_subtotal1_input");
@@ -1499,21 +1519,22 @@ function processPage() {
           var RETAILPRICE_Indexes = findPDFTextContentIndexByPosition(420, null, textContentArrayAll, 377, null);
           var PRICE_Indexes = findPDFTextContentIndexByPosition(458, null, textContentArrayAll, 377, null);
           var AMOUNT_Indexes = findPDFTextContentIndexByPosition(516, null, textContentArrayAll, 377, null);
-          var tableHTML = "<table id='wlmay_pdf_parts_table'><tr><th>Ordered</th><th>Shipped</th><th>Back Ordered</th><th>Item NO./Description</th><th>Retail Price</th><th>Price</th><th>Amount</th></tr>";
+          var tableHTML = "<table id='wlmay_pdf_parts_table'><tr><th></th><th>Ordered</th><th>Shipped</th><th>Back Ordered</th><th>Item NO./Description</th><th>Retail Price</th><th>Price</th><th>Amount</th></tr>";
           var current_ITEMDESC_Index = 0;
           var columnRowIndexes = [0, 0, 0]; //RETAILPRICE, PRICE, AMOUNT
           for (var i = 0; i < ORDERED_Indexes.length; ++i) {
             tableHTML += "<tr style='vertical-align: top;'>";
-            tableHTML += "<td><input onfocus='deselectTable();' type='text' value='" + removeExtraSpaces(textContentArrayAll[ORDERED_Indexes[i]].str) + "'></td>";
-            tableHTML += "<td><input onfocus='deselectTable();' type='text' value='" + removeExtraSpaces(textContentArrayAll[SHIPPED_Indexes[i]].str) + "'></td>";
-            tableHTML += "<td><input onfocus='deselectTable();' type='text' value='" + removeExtraSpaces(textContentArrayAll[BACKORDERED_Indexes[i]].str) + "'></td>";
+            tableHTML += "<td><button style='height: 100px;' id='startAddToDatabaseButton_" + i + "' onclick='generatePDFAddToDatabaseTable(" + i + ");'>Add to Database</button></td>"
+            tableHTML += "<td><input onfocus='deselectTable();' type='text' value='" + removeExtraSpaces(textContentArrayAll[ORDERED_Indexes[i]].str) + "'     id='pdf_ordered_" + i + "'></td>";
+            tableHTML += "<td><input onfocus='deselectTable();' type='text' value='" + removeExtraSpaces(textContentArrayAll[SHIPPED_Indexes[i]].str) + "'     id='pdf_shipped_" + i + "'></td>";
+            tableHTML += "<td><input onfocus='deselectTable();' type='text' value='" + removeExtraSpaces(textContentArrayAll[BACKORDERED_Indexes[i]].str) + "' id='pdf_backordered_" + i + "'></td>";
 
             var nextORDEREDHeight = -1;
             if (i < ORDERED_Indexes.length - 1) //Not on last part
             {
               nextORDEREDHeight = textContentArrayAll[ORDERED_Indexes[i + 1]].adjustedHeight;
             }
-            tableHTML += "<td><textarea onfocus='deselectTable();' style='width: 500px; height: 90px;'>";
+            tableHTML += "<td><textarea id='pdf_description_" + i + "' onfocus='deselectTable();' style='width: 500px; height: 90px;'>";
             var numberNamePhone = null;
             while (current_ITEMDESC_Index < ITEMDESC_Indexes.length && textContentArrayAll[ITEMDESC_Indexes[current_ITEMDESC_Index]].adjustedHeight > nextORDEREDHeight) {
               var str = removeExtraSpaces(textContentArrayAll[ITEMDESC_Indexes[current_ITEMDESC_Index]].str);
@@ -1529,20 +1550,20 @@ function processPage() {
               tableHTML = tableHTML.substring(0, tableHTML.length - 1);
             tableHTML += "</textarea>";
             if (numberNamePhone != null) {
-              tableHTML += "<table><tr><th>Number</th><th>Name</th><th>Phone</th></tr>"
+              tableHTML += "<table><tr><th>Dealer Price</th><th>Name</th><th>Phone</th></tr>"
                 + "<tr>"
-                + "<td><input onfocus='deselectTable();' type='text' value='" + numberNamePhone[0] + "'></td>"
-                + "<td><input onfocus='deselectTable();' type='text' value='" + numberNamePhone[1] + "'></td>"
-                + "<td><input onfocus='deselectTable();' type='text' value='" + numberNamePhone[2] + "'></td>"
+                + "<td><input onfocus='deselectTable();' type='text' value='" + numberNamePhone[0] + "' id='pdf_dealerprice_" + i + "'></td>"
+                + "<td><input onfocus='deselectTable();' type='text' value='" + numberNamePhone[1] + "' id='pdf_customername_" + i + "'></td>"
+                + "<td><input onfocus='deselectTable();' type='text' value='" + numberNamePhone[2] + "' id='pdf_customerphone_" + i + "'></td>"
                 + "</tr></table>";
             }
             tableHTML += "</td>";
 
-            tableHTML += getPDFInputHTML(columnRowIndexes, 0, RETAILPRICE_Indexes, nextORDEREDHeight);
-            tableHTML += getPDFInputHTML(columnRowIndexes, 1, PRICE_Indexes, nextORDEREDHeight);
-            tableHTML += getPDFInputHTML(columnRowIndexes, 2, AMOUNT_Indexes, nextORDEREDHeight);
+            tableHTML += getPDFInputHTML(columnRowIndexes, 0, RETAILPRICE_Indexes, nextORDEREDHeight, "pdf_retailprice_" + i);
+            tableHTML += getPDFInputHTML(columnRowIndexes, 1, PRICE_Indexes, nextORDEREDHeight, "pdf_yourprice_" + i);
+            tableHTML += getPDFInputHTML(columnRowIndexes, 2, AMOUNT_Indexes, nextORDEREDHeight, "pdf_totalamount_" + i);
 
-            tableHTML += "</tr>";
+            tableHTML += "</tr><tr><td id='pdf_add_to_database_table_" + i + "' colspan=8></td></tr>";
           }
           tableHTML += "</table>";
           document.getElementById("wlmay_pdf_parts_table_div").innerHTML = tableHTML;
@@ -1556,12 +1577,12 @@ function processPage() {
   }
 }
 
-function getPDFInputHTML(columnRowIndexes, index, CONTENTIndexes, nextORDEREDHeight) {
+function getPDFInputHTML(columnRowIndexes, index, CONTENTIndexes, nextORDEREDHeight, id) {
   var tableHTML = "<td>";
   while (columnRowIndexes[index] < CONTENTIndexes.length && textContentArrayAll[CONTENTIndexes[columnRowIndexes[index]]].adjustedHeight > nextORDEREDHeight) {
     var str = removeExtraSpaces(textContentArrayAll[CONTENTIndexes[columnRowIndexes[index]]].str);
     if (str != "")
-      tableHTML += "<input type='text' value='" + removeExtraSpaces(textContentArrayAll[CONTENTIndexes[columnRowIndexes[index]]].str) + "' onfocus='deselectTable();'>";
+      tableHTML += "<input type='text' value='" + removeExtraSpaces(textContentArrayAll[CONTENTIndexes[columnRowIndexes[index]]].str) + "' onfocus='deselectTable();' id='" + id + "'>";
     ++columnRowIndexes[index];
   }
   tableHTML += "</td>";
@@ -1638,22 +1659,18 @@ function findPDFTextContentIndexByPosition(px, py, textContentArray, YMaximum, Y
 }
 
 function deleteFromDatabase(key, addChangeAlert, is_content, is_content_extra, content_extra_db) {
-  if (!LOCAL_MODE) {
-    var ref = firebase.database().ref(key);
-    ref.remove();
-    if (addChangeAlert) {
-      addNewChangeAlert(key, true, is_content, is_content_extra, content_extra_db);
-    }
+  var ref = firebase.database().ref(key);
+  ref.remove();
+  if (addChangeAlert) {
+    addNewChangeAlert(key, true, is_content, is_content_extra, content_extra_db);
   }
 }
 
-function writeToDatabase(key, value, addChangeAlert, is_content, is_content_extra, content_extra_db) {
-  if (!LOCAL_MODE) {
-    var ref = firebase.database().ref(key);
-    ref.set(value);
-    if (addChangeAlert) {
-      addNewChangeAlert(key, false, is_content, is_content_extra, content_extra_db);
-    }
+function writeToDatabase(key_path, value, addChangeAlert, is_content, is_content_extra, content_extra_db) {
+  var ref = firebase.database().ref(key_path);
+  ref.set(value);
+  if (addChangeAlert) {
+    addNewChangeAlert(key_path, false, is_content, is_content_extra, content_extra_db);
   }
 }
 
@@ -1788,9 +1805,19 @@ function reloadContentExtraFromChangeAlert(alertOBJ) {
 }
 
 function startEditRecordPartReference(i1, j1) {
+  var selldiv = document.getElementById("sell_div_" + i1 + "_" + j1);
+  if(selldiv != null)
+    document.getElementById("sell_div_" + i1 + "_" + j1).style.display = "none";
   for (var i = 0; i < _recordViews.length; ++i) {
     for (var j = 0; j < EXTRA_DB.length; ++j) {
       var icon = document.getElementById("record_view_partnum_edit_icon_" + i + "_" + j);
+      if (icon != null)
+        icon.style.display = "none";
+    }
+  }
+  for (var i = 0; i < _recordViews.length; ++i) {
+    for (var j = 0; j < EXTRA_DB.length; ++j) {
+      var icon = document.getElementById("sell_button_" + i + "_" + j);
       if (icon != null)
         icon.style.display = "none";
     }
@@ -1817,8 +1844,9 @@ function saveEditRecordPartReference(i1, j1) {
     partObj[INDEXES[i]] = row[i];
   for (var i = 0; i < MEMO_INDEXES.length; ++i)
     partObj[MEMO_INDEXES[i]] = row[i + INDEXES.length];
-  writeToDatabase(key, partObj, true, true, false, null);
-  populateRecordViews();
+    populateRecordViews();
+    if(!LOCAL_MODE)
+      writeToDatabase(key, partObj, true, true, false, null);
 }
 
 function edit_content(rownum, field, value) {
@@ -1881,7 +1909,14 @@ function cancelNewPartChild()
 function setNewPartChildButton()
 {
   var db_index =  document.getElementById("part_child_dropdown_select").selectedIndex;
-  document.getElementById("part_child_button_new").innerHTML = "Add New Child Record in " + EXTRA_DB[db_index] + " +";
+  if(db_index < EXTRA_DB.length)
+  {
+    document.getElementById("part_child_button_new").innerHTML = "Add New Child Record in " + EXTRA_DB[db_index] + " +";
+    document.getElementById("part_child_button_new").style.display = "";
+  }
+  else
+    document.getElementById("part_child_button_new").style.display = "none";
+
 }
 
 function saveNewPartChild()
@@ -1895,27 +1930,48 @@ function saveNewPartChild()
   var newRef = getDatabaseRef("parts_db/" + EXTRA_DB[db_index]).push();
   _content_extra[db_index].push([newObj, newRef.key])
   if(!LOCAL_MODE)
-  writeToDatabase("parts_db/" + EXTRA_DB[db_index] + "/" + newRef.key, newObj, true, false, true, db_index);
+    writeToDatabase("parts_db/" + EXTRA_DB[db_index] + "/" + newRef.key, newObj, true, false, true, db_index);
   
   document.getElementById("part_child_button_new").style.display = "";
   document.getElementById("part_child_new_table_div").innerHTML = "";
   populateRecordViews();
 }
 
-var TAB_DIVS = ["TAB_search", "TAB_record_views", "TAB_record_browser", "TAB_part_child_record_manager", "TAB_sort_order", "TAB_fileinput"];
-var _selected_tab = 0;
+var TAB_DIVS = ["TAB_search", "TAB_record_views", "TAB_record_browser", "TAB_part_child_record_manager", "TAB_sort_order", "TAB_fileinput", "TAB_invoice_settings", "TAB_invoice"];
 var TAB_RECORD_VIEWS = 1;
+var TAB_RECORD_BROWSER = 2;
+var TAB_PART_CHILD_RECORD_MANAGER = 3;
+var TAB_INVOICE = 7;
+
+var _selected_tab = 0;
+var last_selected_tab = 0;
 
 function setTab(num)
 {
+  last_selected_tab = _selected_tab;
   _selected_tab = num;
   for(var i = 0; i < TAB_DIVS.length; ++i){
     document.getElementById(TAB_DIVS[i] + "_div").style.display = "none";
     document.getElementById(TAB_DIVS[i]         ).style.borderBottomColor = "#70A2FF";
   }
-
+  if(num == TAB_RECORD_VIEWS)
+    populateRecordViews();
+  else if(num == TAB_RECORD_BROWSER)
+    populateRecordBrowser(_currentRecordBrowserStartIndex, false);
   document.getElementById(TAB_DIVS[num] + "_div").style.display = "";
   document.getElementById(TAB_DIVS[num]).style.borderBottomColor = "transparent";
+  if(num == TAB_INVOICE)
+  {
+    document.getElementById("non_invoice_content").style.display = "none";
+    document.getElementById("exit_invoice_button").style.display = "block";
+    document.getElementById("invoice_content").style.display = "";
+    populateInvoice();
+  }
+  else{
+    document.getElementById("non_invoice_content").style.display = "";
+    document.getElementById("exit_invoice_button").style.display = "none";
+    document.getElementById("invoice_content").style.display = "none";
+  }
 }
 
 function selectRecordView(num)
@@ -1930,3 +1986,232 @@ function selectRecordView(num)
     document.getElementById("record_view_" + num).style.backgroundColor = "lightblue";
   }
 }
+
+function doesObjectArraySpecificIndexIncludeX(array, values, indexes)
+{
+  for(var i = 0; i < array.length; ++i)
+  {
+    var match = true;
+    for(var j = 0; j < values.length; ++j)
+    {
+      if(array[i][indexes[j]] != values[j])
+        match = false;
+    }
+    if(match)
+      return true;
+  }
+  return false;
+}
+
+function cancelPDFAddToDatabase(index)
+{
+  document.getElementById("pdf_add_to_database_table_" + index).innerHTML = "";
+}
+
+function get_plus_minus_usd_string(num)
+{
+  if(num >= 0)
+    num = "+" + num.toLocaleString("en-US", {style: "currency", currency: "USD", minimumFractionDigits: 2});
+  else
+    num = num.toLocaleString("en-US", {style: "currency", currency: "USD", minimumFractionDigits: 2});
+  return num;
+}
+
+var newREGs = new Map();
+var newSPLs = new Map();
+var newSHOP_QTYs = new Map();
+var newPNs = new Map();
+var newDESCRIP1s = new Map();
+var extraDBs_PDF = new Map();
+var extraDBLinks_PDF = new Map();
+function confirmPDFAddToDatabase(index)
+{
+  var extradb = extraDBs_PDF.get(index);
+  var link = extraDBLinks_PDF.get(index);
+  var partObj = _content_extra[extradb][link][0];
+  partObj.REG = newREGs.get(index);
+  partObj.SPL = newSPLs.get(index);
+  partObj.SHOP_QTY = newSHOP_QTYs.get(index);
+  document.getElementById("pdf_add_to_database_table_" + index).innerHTML = "";
+  document.getElementById("startAddToDatabaseButton_" + index).innerHTML = "Added";
+  document.getElementById("startAddToDatabaseButton_" + index).disabled = true;
+  document.getElementById("startAddToDatabaseButton_" + index).className = "button_disabled";
+  if(!LOCAL_MODE)
+    writeToDatabase("parts_db/" + EXTRA_DB[extradb] + "/" + _content_extra[extradb][link][1], partObj, true, false, true, extradb);
+}
+
+function startPDFNewChildRecord(index)
+{
+  document.getElementById("part_child_dropdown_select").selectedIndex = document.getElementById("pdf_new_partchild_select_" + index).selectedIndex;
+  setNewPartChildButton();
+  setTab(TAB_PART_CHILD_RECORD_MANAGER);
+  startNewPartChild();
+  document.getElementById("partchild_new_input_REG").value = newREGs.get(index);
+  document.getElementById("partchild_new_input_SPL").value = newSPLs.get(index);
+  document.getElementById("partchild_new_input_SHOP_QTY").value = newSHOP_QTYs.get(index);
+  document.getElementById("partchild_new_input_DESCRIP1").value = newDESCRIP1s.get(index);
+  document.getElementById("partchild_new_input_PN").value = newPNs.get(index);
+}
+
+function jumpToChildPartFromRecordView(extradb, index)
+{
+  document.getElementById("part_child_dropdown_select").selectedIndex = extradb;
+  setTab(TAB_PART_CHILD_RECORD_MANAGER);
+  _selected_child_part_db = extradb;
+  _selected_child_part_record = index;
+  populateChildPartRecordManager();
+  clearPartChildEditAutocomplete();
+  setNewPartChildButton();
+}
+
+function saveInvoiceInfoToDatabase()
+{
+  var address = document.getElementById("invoice_address_textarea").value;
+  var bottom =  document.getElementById("invoice_bottom_textarea").value;
+  var lastorderno =  document.getElementById("invoice_last_order_no_input").value;
+
+  writeToDatabase("invoice/address", address, false, false, false, null);
+  writeToDatabase("invoice/bottom", bottom, false, false, false, null);
+  writeToDatabase("invoice/last_order_no", lastorderno, false, false, false, null);
+  document.getElementById("invoice_info_button_save").style.display = "none";
+}
+
+function onInvoiceInfoChange()
+{
+  document.getElementById("invoice_info_button_save").style.display = "block";
+}
+
+function startSell(i1, j1)
+{
+  for (var i = 0; i < _recordViews.length; ++i) {
+    for (var j = 0; j < EXTRA_DB.length; ++j) {
+      var icon = document.getElementById("record_view_partnum_edit_icon_" + i + "_" + j);
+      if (icon != null)
+        icon.style.display = "none";
+    }
+  }
+  for (var i = 0; i < _recordViews.length; ++i) {
+    for (var j = 0; j < EXTRA_DB.length; ++j) {
+      var icon = document.getElementById("sell_button_" + i + "_" + j);
+      if (icon != null)
+        icon.style.display = "none";
+    }
+  }
+  document.getElementById("sell_form_" + i1 + "_" + j1).style.display = "";
+}
+
+function changeSellQuantity(i1, j1, amount)
+{
+  var currentval = Number(document.getElementById("sell_quantity_" + i1 + "_" + j1).value);
+  document.getElementById("sell_quantity_" + i1 + "_" + j1).value = currentval + Number(amount);
+}
+
+var _invoice_objs = [];
+var _invoice_data = new Object();
+function confirmSell(i1, j1, _content_partnum_for_extraDB)
+{
+  var extraDBIndex = getExtraDBLinkIndex(j1, _content_partnum_for_extraDB);
+  if(extraDBIndex != null)
+  {
+    var partObj = _content_extra[j1][extraDBIndex][0];
+    var currentAmount = Number(partObj.SHOP_QTY);
+    var amountToSell = Number(document.getElementById("sell_quantity_" + i1 + "_" + j1).value);
+    if(currentAmount > amountToSell)
+      partObj.SHOP_QTY = currentAmount - amountToSell;
+    else
+      partObj.SHOP_QTY = 0;
+    var partkey = _content_extra[j1][extraDBIndex][1];
+    if(!LOCAL_MODE)
+    {
+      writeToDatabase("parts_db/" + EXTRA_DB[j1] + "/" + partkey, partObj, true, false, true, j1);
+    }
+    var invoice_obj = new Object();
+    invoice_obj.amountToSell = amountToSell;
+    invoice_obj.DESCRIP1 = partObj.DESCRIP1;
+    invoice_obj.SELL = partObj.SELL;
+    invoice_obj.extradb = j1;
+    invoice_obj.partkey = partkey;
+    invoice_obj.PN = partObj.PN;
+    _invoice_objs.push(invoice_obj);
+    showSnackbar("Added to Invoice<br>Removed <u>" + amountToSell + "</u> " + partObj.PN + " from Inventory", 5000);
+  }
+  populateRecordViews();
+}
+
+var _snackbar_times_shown = 0;
+function showSnackbar(message, time_to_show)
+{
+  var x = document.getElementById("snackbar");
+  x.innerHTML = message;
+  if(x.className != "hide")
+    if(x.className == "refresh1")
+      x.className = "refresh2";
+    else
+      x.className = "refresh1";
+  else
+    x.className = "show";
+  ++_snackbar_times_shown;
+
+  setTimeout(function(){ 
+    --_snackbar_times_shown;
+    if(_snackbar_times_shown == 0)
+      x.className = "hide"; 
+  }, time_to_show);
+
+}
+
+function calculateInvoiceAmounts()
+{
+  var numTotalRows = _invoice_objs.length;
+  var total = 0;
+  for(var i = 0; i < numTotalRows; ++i)
+  {
+    _invoice_objs[i].SELL = document.getElementById("invoice_input_sell_" + i).value;
+    var amount = Number(document.getElementById("invoice_input_qty_" + i).value) * Number(document.getElementById("invoice_input_sell_" + i).value);
+    total += amount;
+    document.getElementById("invoice_input_amount_" + i).value = amount.toLocaleString("en-US", {style: "currency", currency: "USD", minimumFractionDigits: 2});
+  }
+  document.getElementById("invoice_input_total").value = total.toLocaleString("en-US", {style: "currency", currency: "USD", minimumFractionDigits: 2});
+}
+
+function removeFromInvoice(index)
+{
+  var invoice_obj = _invoice_objs[index];
+  var link = getContentExtraIndexFrom_DB_ID(invoice_obj.partkey, invoice_obj.extradb);
+  if(link != null){
+    var content_obj = _content_extra[invoice_obj.extradb][link][0];
+    var newAmount = Number(content_obj.SHOP_QTY) + Number(invoice_obj.amountToSell);
+    content_obj.SHOP_QTY = newAmount;
+    if(!LOCAL_MODE)
+    {
+      writeToDatabase("parts_db/" + EXTRA_DB[invoice_obj.extradb] + "/" + invoice_obj.partkey, content_obj, true, false, true, invoice_obj.extradb);
+    }
+    showSnackbar("Added <u>" + invoice_obj.amountToSell + "</u> " + content_obj.PN + " back into inventory", 3000);
+  }
+  else
+  {
+    window.alert("Couldn't find part in database! Failed to add quantity back into inventory!");
+  }
+  _invoice_objs.splice(index, 1);
+  populateInvoice();
+  calculateInvoiceAmounts();
+}
+
+function printClick(){
+  window.print();
+  return false;
+}
+
+function finishInvoiceSale()
+{
+  _invoice_objs = [];
+  populateInvoice();
+  setTab(last_selected_tab);
+  writeToDatabase("invoice/last_order_no", Number(document.getElementById("invoice_last_order_no_input").value) + 1, false, false, false, null);
+  _invoice_data = new Object();
+}
+
+// function deleteObject(object)
+// {
+//   for (var member in object) delete object[member];
+// }

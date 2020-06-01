@@ -18,6 +18,10 @@
   <body>
 
   <style>
+    body{
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
     .text1{
       font-family: Arial, Helvetica, sans-serif;
     }
@@ -268,6 +272,16 @@
 
     button:hover {opacity: 1}
 
+    .button_disabled
+    {
+      opacity: 0.5;
+    }
+
+    .button_disabled:hover {
+      opacity: 0.5;
+      cursor: default;
+    }
+
     .border_center{
       border-bottom: solid;
       border-width: 2px;
@@ -283,149 +297,314 @@
       height: 60px;
       padding-top: 40px;
     }
+
+    @media print
+    {
+      .checkBox_container input {
+        position: absolute;
+        opacity: 1;
+        height: 0px;
+        width: 0px;
+      }
+
+      @page {size: portrait; margin: 1cm;}
+      body
+      {
+        margin: 0cm;
+        background-image: none;
+      }
+
+      input[type=text]
+      {
+        border: 0px;
+        background-color: transparent;
+      }
+
+      textarea
+      {
+        border: 0px;
+        background-color: transparent;
+      }
+
+      .no-print, .no-print *
+      {
+        display: none !important;
+      }
+
+      .no-print-hide, .no-print-hide *
+      {
+        visibility: hidden !important;
+      }
+
+      [class*="invoice_"] {
+        display: block;
+      }
+
+      #snackbar
+      {
+        display: none !important;
+      }
+    }
+
+    [class*="invoice_"] {
+      position: absolute;
+      width: 100px;
+      height: 20px;
+      font-size: 12px;
+    }
+
+    .invoice_border
+    {
+      border: solid 3px;
+      border-radius: 10px;
+      border-color: #5B6275;
+    }
+
+    .in_td
+    {
+      height: 30px;
+    }
+
+        /* The snackbar - position it at the bottom and in the middle of the screen */
+    #snackbar {
+      visibility: hidden; /* Hidden by default. Visible on click */
+      min-width: 500px; /* Set a default minimum width */
+      margin-left: -250px; /* Divide value of min-width by 2 */
+      background-color: #333; /* Black background color */
+      color: #fff; /* White text color */
+      text-align: center; /* Centered text */
+      border-radius: 2px; /* Rounded borders */
+      padding: 16px; /* Padding */
+      position: fixed; /* Sit on top of the screen */
+      z-index: 1; /* Add a z-index if needed */
+      left: 50%; /* Center the snackbar */
+      bottom: 30px; /* 30px from the bottom */
+      font-size: 24px;
+    }
+
+    /* Show the snackbar when clicking on a button (class added with JavaScript) */
+    #snackbar.show {
+      visibility: visible; /* Show the snackbar */
+      /* Add animation: Take 0.5 seconds to fade in and out the snackbar.
+      However, delay the fade out process for 2.5 seconds */
+      animation: fadein 0.5s;
+      animation-fill-mode: both;
+    }
+
+    #snackbar.hide {
+      visibility: visible;
+      animation: fadeout 0.5s;
+      animation-fill-mode: both;
+    }
+
+    #snackbar.refresh1{
+      visibility: visible;
+      animation: refresh1 0.5s;
+      animation-fill-mode: both;
+    }
+
+    #snackbar.refresh2{
+      visibility: visible;
+      animation: refresh2 0.5s;
+      animation-fill-mode: both;
+    }
+    /* Animations to fade the snackbar in and out */
+
+
+    @keyframes fadein {
+      from {bottom: 0; opacity: 0; background-color: blue;}
+      to {bottom: 30px; opacity: 1; background-color: #333;}
+    }
+
+    @keyframes fadeout {
+      from {bottom: 30px; opacity: 1;}
+      to {bottom: 0; opacity: 0;}
+    }
+
+    @keyframes refresh1 {
+      from {background-color: blue;}
+      to {background-color: #333;}
+    }
+
+    @keyframes refresh2 {
+      from {background-color: blue;}
+      to {background-color: #333;}
+    }
   </style>
 
 <!-- <span><b>PLUMB</b></span> -->
-
-    <div id = "login_div" style="display: none;">
-      <h1>Schnelli Appliance Parts Database</h1>
-        <p>Email</p>
-        <input id="email_input" type="text" onfocus='deselectTable();'>
-        <p>Password</p>
-        <input id="password_input" type="password" onsubmit="log_in()" onfocus='deselectTable();'>
-        <p>Remember Me <input type="checkbox" id="remember_input"></p>
-        <button id="login_button" onclick="log_in()">Login</button>
-    </div>
-
-    <div id="content_div" style="display: none;">
-      <button onclick="log_out();" id="logout_button">Log Out</button><br><br>
-      
-      <div style="display: flex; flex-direction: row;">
-        <div id="TAB_search"                    class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(0);">Search</div>
-        <div id="TAB_record_views"              class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(1);">Record Views</div>
-        <div id="TAB_record_browser"            class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(2);">Record Browser</div>
-        <div id="TAB_part_child_record_manager" class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(3);">Part Child Record Manager</div>
-        <div id="TAB_sort_order"                class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(4);">Sort Orders</div>
-        <div id="TAB_fileinput"                 class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(5);">PDF Import</div>
+  <div class="hide" id="snackbar">Some text some message..</div>
+  <button class="no-print" id="exit_invoice_button" style="display: none; position: absolute; top: 120px; left: 10px;" onclick="setTab(last_selected_tab);">&lt; Back</button>
+  <div id="invoice_content" style="display: none;">
+  </div>
+  <div id="non_invoice_content">
+      <div id = "login_div" style="display: none;">
+        <h1>Schnelli Appliance Parts Database</h1>
+          <p>Email</p>
+          <input id="email_input" type="text" onfocus='deselectTable();'>
+          <p>Password</p>
+          <input id="password_input" type="password" onsubmit="log_in()" onfocus='deselectTable();'>
+          <p>Remember Me <input type="checkbox" id="remember_input"></p>
+          <button id="login_button" onclick="log_in()">Login</button>
       </div>
 
-      <div id="TAB_fileinput_div">
-        <div id="fileinput_div"></div>
-        <div id="wlmay_input_div" style="display: none; border: solid 2px; border-color: #70A2FF;">
-          <p><a href="example_pdf_wlmay.png" alt="Example PDF" target="_blank"><img src="example_pdf_wlmay.png" width=57px height=74px></a>&nbsp;&nbsp;&nbsp;Import WLMAY PDF</p>
-          <input type="file" accept=".pdf" id="import_wlmay_pdf_input">
-        </div>
-        <div id="wlmay_pdf_table_div" style="display: none;">
-          <table>
-            <tr><th>Pick Ticket No.</th></tr>
-            <tr><td><input onfocus='deselectTable();' type="text" id="wlmay_pdf_pick_ticket_input"></td></tr>
-          </table>
-          <div id="wlmay_pdf_parts_table_div"></div>
-          <table>
-            <tr><th>Subtotal</th><th>Shipping & Handling</th><th>Tax</th><th>Subtotal</th><th>Deposit</th><th>Balance Due</th></tr>
-            <tr>
-              <td><input onfocus='deselectTable();' id="wlmay_pdf_subtotal0_input" type="text"></td>
-              <td><input onfocus='deselectTable();' id="wlmay_pdf_s&h_input" type="text"></td>
-              <td><input onfocus='deselectTable();' id="wlmay_pdf_tax_input" type="text"></td>
-              <td><input onfocus='deselectTable();' id="wlmay_pdf_subtotal1_input" type="text"></td>
-              <td><input onfocus='deselectTable();' id="wlmay_pdf_deposit_input" type="text"></td>
-              <td><input onfocus='deselectTable();' id="wlmay_pdf_balancedue_input" type="text"></td>
-            </tr>
-          </table>
-          <button onclick="cancelWLMAYPDF();">Cancel</button>
-          <p>Please verify these results with the original PDF!</p>
-        </div>
-      </div>
-      <br><br>
-
-      <div id="TAB_sort_order_div">
-        <div id="sort_order_div" style="display: none;">
-          <h1 class='clickable' onclick='toggleDiv(null, "sort_order_toggle");'><span id="sort_order_toggle_expander_icon" style="font-size: 50px; font-weight: 100;">-</span> Sort Orders</h1>
-          <div id="sort_order_toggle_div">
-            <div id="sort_order_table_div"></div>
-            <button id="button_add_sort_order" onclick="startNewSortOrder(0);">Add New Sort Order +</button>
-            <div id="sort_order_table_new_div"></div>
-          </div>
-        </div>
-      </div>
-
-      <div id="TAB_part_child_record_manager_div">
-        <div id="part_child_record_manager" style="display: none;">
-          <h1>Part Child Record Manager</h1>
-          <div id="part_child_dropdown_div"></div>
-          <input type="text" id="part_child_edit_input" placeholder="Search For Part Number to Edit..." style="width: 300px;" onfocus="onPartChildEditFocus();" onkeyup="partchild_edit_input_keyup_event(event);" onkeydown="partchild_edit_input_keydown_event(event);">
-          <div id="partchild_edit_autocomplete" style="position: absolute;"></div>
-          <div id="part_child_edit_table_div"></div>
-          <br>
-          <button id="part_child_button_new" onclick="startNewPartChild();"></button>
-          <div id="part_child_new_table_div"></div>
-        </div>
-      </div>
-
-      <div id="TAB_search_div">
-        <div id="search_div" style="display: none;">
-          <p style="font-size: 20px;">Columns</p>
-          <label class="radiobutton_container" style="display: inline;">Any&nbsp;&nbsp;<input onchange="setRadioColumn();" type="radio" id="radio_columns_any" name="radio_columns" checked><span class="radiomark"></span></label>
-          <label class="radiobutton_container" style="display: inline;">Specific&nbsp;&nbsp;<input onchange="setRadioColumn();" type="radio" id="radio_columns_specific" name="radio_columns"><span class="radiomark"></span></label>
-          <span id="radio_columns_all_none_buttons_div">
-            <button style="display: inline-block; position:absolute; left: 230px; width: 70px;" onclick="setRadioColumnsChecked(true);">All</button>
-            <button style="display: inline-block; position:absolute; left: 310px; width: 70px;" onclick="setRadioColumnsChecked(false);">None</button>
-          </span>
-          <label class="checkBox_container" style="display: inline; position:absolute; left: 400px;">Exact Match (Ignores Capitalization)<input type="checkbox" id="search_exact_match"><span class="checkmark"></span></label>
-          <label class="checkBox_container" style="display: inline; position:absolute; left: 800px;">Highlighting<input type="checkbox" id="search_highlight_similar_words" checked><span class="checkmark"></span></label>
-          <label class="checkBox_container" style="display: inline; position:absolute; left: 980px;">Only Highlight Matches<input type="checkbox" id="search_highlight_only_matches" checked><span class="checkmark"></span></label>
-          <input id="repititions_min" type="number" min="0" onchange='setMinRepititions();' onfocus='deselectTable();' style="display: inline-block; position:absolute; left: 1260px; width: 50px; font-size: 20px;"><label style="position:absolute; left: 1320px; font-size: 20px;">Repititions required to highlight</label></input>
-          <div id="radio_columns_div">
-            <div id="radio_columns_checkboxes"      style="margin-top: 50px;"></div> <!-- Auto generated -->
-            <div id="radio_columns_checkboxes_more" style="display: none;"></div> <!-- Auto generated -->
-          </div>
-          <div id="search_any_input_div">
-            <h1>Search</h1>
-            <input id="search_input" type="text" style="width: 500px;" onfocus='deselectTable();'>
-            <button id="search_any_button" style="width: 100px;" onclick="search_query();">Go</button>
-          </div>
-        </div>
+      <div id="content_div" style="display: none;">
+        <button onclick="log_out();" id="logout_button">Log Out</button><br><br>
+        
         <div id="message"><p>Loading Parts...</p></div>
-        <div id="search_results_expander" onclick="toggle_search_results(2);" style="display: none;" class="clickable"><h1><span id="search_results_expander_icon" style="font-size: 50px; font-weight: 100;">+</span> Search Results</h1></div>
-        <div id="search_results_div" style="display: none; margin-left: 20px;">
-          <div id="search_results_table_div"></div>
-          <div id="similar_string_expander" style="display: none;" class="clickable" onclick="toggle_similar_strings();"><h1><span id="similar_strings_expander_icon" style="font-size: 50px; font-weight: 100;">+</span> Similar Words</h1></div>
-          <div id="similar_strings_div" style="display: none; margin-left: 20px;"></div>
-        </div>
-      </div>
 
-      <div id="TAB_record_views_div">
-        <div id="record_views_div">
+        <div style="display: flex; flex-direction: row;">
+          <div id="TAB_search"                    class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(0);">Search</div>
+          <div id="TAB_record_views"              class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(1);">Record Views</div>
+          <div id="TAB_record_browser"            class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(2);">Record Browser</div>
+          <div id="TAB_part_child_record_manager" class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(3);">Part Child Record Manager</div>
+          <div id="TAB_sort_order"                class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(4);">Sort Orders</div>
+          <div id="TAB_fileinput"                 class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(5);">PDF Import</div>
+          <div id="TAB_invoice_settings"          class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(6);">Invoice Settings</div>
+          <div id="TAB_invoice"                   class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(7);">Invoice</div>
         </div>
-      </div>
 
-      <div id="TAB_record_browser_div">
-        <div id="record_browser_div">
-          <h1 id="record_browser_heading" onclick="toggle_record_browser();" class="clickable"><span id="record_browser_expander_icon" style="font-size: 50px; font-weight: 100;">-</span> Record Browser</h1>
-          <div id="record_browser_table_div"></div>
+        <div id="TAB_fileinput_div">
+          <div id="fileinput_div"></div>
+          <div id="wlmay_input_div" style="display: none; border: solid 2px; border-color: #70A2FF;">
+            <p><a href="example_pdf_wlmay.png" alt="Example PDF" target="_blank"><img src="example_pdf_wlmay.png" width=57px height=74px></a>&nbsp;&nbsp;&nbsp;Import WLMAY PDF</p>
+            <input type="file" accept=".pdf" id="import_wlmay_pdf_input">
+          </div>
+          <div id="wlmay_pdf_table_div" style="display: none;">
+            <p id="wlmay_pdf_name"></p>
+            <table>
+              <tr><th>Invoice No.</th><th>Invoice Date</th><th>Customer Purchase Order No.</th><th>Pick Ticket No.</th></tr>
+              <tr>
+                <td><input onfocus='deselectTable();' type="text" id="wlmay_pdf_invoice_no_input"></td>
+                <td><input onfocus='deselectTable();' type="text" id="wlmay_pdf_invoice_date_input"></td>
+                <td><input onfocus='deselectTable();' type="text" id="wlmay_pdf_customer_po_no_input"></td>
+                <td><input onfocus='deselectTable();' type="text" id="wlmay_pdf_pick_ticket_input"></td>
+              </tr>
+            </table>
+            <div id="wlmay_pdf_parts_table_div"></div>
+            <table>
+              <tr><th>Subtotal</th><th>Shipping & Handling</th><th>Tax</th><th>Subtotal</th><th>Deposit</th><th>Balance Due</th></tr>
+              <tr>
+                <td><input onfocus='deselectTable();' id="wlmay_pdf_subtotal0_input" type="text"></td>
+                <td><input onfocus='deselectTable();' id="wlmay_pdf_s&h_input" type="text"></td>
+                <td><input onfocus='deselectTable();' id="wlmay_pdf_tax_input" type="text"></td>
+                <td><input onfocus='deselectTable();' id="wlmay_pdf_subtotal1_input" type="text"></td>
+                <td><input onfocus='deselectTable();' id="wlmay_pdf_deposit_input" type="text"></td>
+                <td><input onfocus='deselectTable();' id="wlmay_pdf_balancedue_input" type="text"></td>
+              </tr>
+            </table>
+            <button onclick="cancelWLMAYPDF();" style="width: 300px;">Cancel</button>
+            <p>Please verify these results with the original PDF!</p>
+          </div>
         </div>
+        <br><br>
+
+        <div id="TAB_sort_order_div">
+          <div id="sort_order_div" style="display: none;">
+            <h1 class='clickable' onclick='toggleDiv(null, "sort_order_toggle");'><span id="sort_order_toggle_expander_icon" style="font-size: 50px; font-weight: 100;">-</span> Sort Orders</h1>
+            <div id="sort_order_toggle_div">
+              <div id="sort_order_table_div"></div>
+              <button id="button_add_sort_order" onclick="startNewSortOrder(0);">Add New Sort Order +</button>
+              <div id="sort_order_table_new_div"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="TAB_part_child_record_manager_div">
+          <div id="part_child_record_manager" style="display: none;">
+            <h1>Part Child Record Manager</h1>
+            <div id="part_child_dropdown_div"></div>
+            <input type="text" id="part_child_edit_input" placeholder="Search For Part Number to Edit..." style="width: 300px;" onfocus="onPartChildEditFocus();" onkeyup="partchild_edit_input_keyup_event(event);" onkeydown="partchild_edit_input_keydown_event(event);">
+            <div id="partchild_edit_autocomplete" style="position: absolute;"></div>
+            <div id="part_child_edit_table_div"></div>
+            <br>
+            <button id="part_child_button_new" onclick="startNewPartChild();"></button>
+            <div id="part_child_new_table_div"></div>
+          </div>
+        </div>
+
+        <div id="TAB_search_div">
+          <div id="search_div" style="display: none;">
+            <p style="font-size: 20px;">Columns</p>
+            <label class="radiobutton_container" style="display: inline;">Any&nbsp;&nbsp;<input onchange="setRadioColumn();" type="radio" id="radio_columns_any" name="radio_columns" checked><span class="radiomark"></span></label>
+            <label class="radiobutton_container" style="display: inline;">Specific&nbsp;&nbsp;<input onchange="setRadioColumn();" type="radio" id="radio_columns_specific" name="radio_columns"><span class="radiomark"></span></label>
+            <span id="radio_columns_all_none_buttons_div">
+              <button style="display: inline-block; position:absolute; left: 230px; width: 70px;" onclick="setRadioColumnsChecked(true);">All</button>
+              <button style="display: inline-block; position:absolute; left: 310px; width: 70px;" onclick="setRadioColumnsChecked(false);">None</button>
+            </span>
+            <label class="checkBox_container" style="display: inline; position:absolute; left: 400px;">Exact Match (Ignores Capitalization)<input type="checkbox" id="search_exact_match"><span class="checkmark"></span></label>
+            <label class="checkBox_container" style="display: inline; position:absolute; left: 800px;">Highlighting<input type="checkbox" id="search_highlight_similar_words" checked><span class="checkmark"></span></label>
+            <label class="checkBox_container" style="display: inline; position:absolute; left: 980px;">Only Highlight Matches<input type="checkbox" id="search_highlight_only_matches" checked><span class="checkmark"></span></label>
+            <input id="repititions_min" type="number" min="0" onchange='setMinRepititions();' onfocus='deselectTable();' style="display: inline-block; position:absolute; left: 1260px; width: 50px; font-size: 20px;"><label style="position:absolute; left: 1320px; font-size: 20px;">Repititions required to highlight</label></input>
+            <div id="radio_columns_div">
+              <div id="radio_columns_checkboxes"      style="margin-top: 50px;"></div> <!-- Auto generated -->
+              <div id="radio_columns_checkboxes_more" style="display: none;"></div> <!-- Auto generated -->
+            </div>
+            <div id="search_any_input_div">
+              <h1>Search</h1>
+              <input id="search_input" type="text" style="width: 500px;" onfocus='deselectTable();'>
+              <button id="search_any_button" style="width: 100px;" onclick="search_query();">Go</button>
+            </div>
+          </div>
+          <div id="search_results_expander" onclick="toggle_search_results(2);" style="display: none;" class="clickable"><h1><span id="search_results_expander_icon" style="font-size: 50px; font-weight: 100;">+</span> Search Results</h1></div>
+          <div id="search_results_div" style="display: none; margin-left: 20px;">
+            <div id="search_results_table_div"></div>
+            <div id="similar_string_expander" style="display: none;" class="clickable" onclick="toggle_similar_strings();"><h1><span id="similar_strings_expander_icon" style="font-size: 50px; font-weight: 100;">+</span> Similar Words</h1></div>
+            <div id="similar_strings_div" style="display: none; margin-left: 20px;"></div>
+          </div>
+        </div>
+
+        <div id="TAB_record_views_div">
+          <div id="record_views_div">
+          </div>
+        </div>
+
+        <div id="TAB_record_browser_div">
+          <div id="record_browser_div">
+            <h1 id="record_browser_heading" onclick="toggle_record_browser();" class="clickable"><span id="record_browser_expander_icon" style="font-size: 50px; font-weight: 100;">-</span> Record Browser</h1>
+            <div id="record_browser_table_div"></div>
+          </div>
+        </div>
+        <br>
+
+        <div id="TAB_invoice_settings_div">
+          <h2>Address</h2>
+          <textarea id='invoice_address_textarea' style="width: 500px; height: 135px;" onfocus='deselectTable(); onInvoiceInfoChange();'></textarea>
+          <br>
+          <h2>Info at bottom</h2>
+          <textarea id='invoice_bottom_textarea'  style="width: 500px; height: 135px;" onfocus='deselectTable(); onInvoiceInfoChange();'></textarea>
+          <br>
+          <h2>Order No. (Increments Automatically)</h2>
+          <input type='text' id='invoice_last_order_no_input' style="width: 500px;" onfocus='deselectTable(); onInvoiceInfoChange();'>
+          <br>
+          <button id='invoice_info_button_save' style="width: 200px;" onclick="saveInvoiceInfoToDatabase();">Save</button>
+        </div>
+        
+        <div id="TAB_invoice_div">
+        </div>
+        
+        <h2>Hotkeys:</h2>
+        <p>Tables</p>
+        <p>&nbsp;&nbsp;Arrow Keys - Navigate</p>
+        <p>&nbsp;&nbsp;Page Up - Table Previous Page</p>
+        <p>&nbsp;&nbsp;Page Down - Table Next Page</p>
+        <p>Search Bars</p>
+        <p>&nbsp;&nbsp;Up/Down Arrow Keys - Navigate Search History</p>
+        <p>Record Views</p>
+        <p>&nbsp;&nbsp;Up/Down Arrow Keys - Navigate Through Rows</p>
+        <br>
+        <p>v 1.71</p>
       </div>
-      <br>
-      
-      <h2>Hotkeys:</h2>
-      <p>Tables</p>
-      <p>&nbsp;&nbsp;Arrow Keys - Navigate</p>
-      <p>&nbsp;&nbsp;Page Up - Table Previous Page</p>
-      <p>&nbsp;&nbsp;Page Down - Table Next Page</p>
-      <p>Search Bars</p>
-      <p>&nbsp;&nbsp;Up/Down Arrow Keys - Navigate Search History</p>
-      <p>Record Views</p>
-      <p>&nbsp;&nbsp;Up/Down Arrow Keys - Navigate Through Rows</p>
-      <br>
-      <p>v 1.71</p>
     </div>
 
     <!-- <script type="text/javascript" src="get_search_results.js"></script> -->
+    <script type="text/javascript" src="data.js"></script>
     <script type="text/javascript" src="pdfjs/pdf.js"></script>
     <!-- <script type="text/javascript" src="pdfjs/pdf.worker.js"></script> -->
     <script type="text/javascript" src="w4_funcs.js"></script>
     <script type="text/javascript" src="compare_funcs.js"></script>
     <script type="text/javascript" src="appliance_parts_admin_portal_script.js"></script>
     <script type="text/javascript" src="eventlisteners.js"></script>
+    
   </body>
 </html>

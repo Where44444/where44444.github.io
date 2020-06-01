@@ -3,121 +3,50 @@
 <html>
 <head></head>
 <body>
-    <div id = "login_div">
-        <p>Email</p>
-        <input id="email_input" type="text">
-        <p>Password</p>
-        <input id="password_input" type="password" onsubmit="log_in()">
-        <p>Remember Me <input type="checkbox" id="remember_input"></p>
-        <button id="login_button" onclick="log_in()">Login</button>
-    </div>
-
-    <script src="https://www.gstatic.com/firebasejs/7.8.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/7.8.1/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/7.8.1/firebase-auth.js"></script>
-    <script>
-
-        var firebaseConfig = {
-        apiKey: "AIzaSyBiHDF9LJepi4QyOhHeayZT_etKN5AjlGs",
-        authDomain: "appliance-parts-f45cd.firebaseapp.com",
-        databaseURL: "https://appliance-parts-f45cd.firebaseio.com",
-        projectId: "appliance-parts-f45cd",
-        storageBucket: "appliance-parts-f45cd.appspot.com",
-        messagingSenderId: "671454569102",
-        appId: "1:671454569102:web:479b1d3a11bedf601c1fdf"
-        };
-        firebase.initializeApp(firebaseConfig);
-
-        firebase.auth().onAuthStateChanged(function(user) {
-        if (user) {
-            // User is signed in.
-            console.log("Signed into firebase");
-            document.getElementById("login_div").style.display = "none";
-            var loginRef = firebase.database().ref('encompass');
-            loginRef.once('value', function(snapshot) {
-                soapRequest(snapshot.val().user, snapshot.val().password);
-            });
-        }
-        else {
-            document.getElementById("login_div").style.display = "block";
-        }
+    <script src="dojo.js"></script>
+    <script type="text/javascript">
+        if(typeof dojo=='undefined') {
+            document.writeln("<scr"+"ipt src='/wps/PA_S2K-T-Oders-JSR286/jscripts/dojo/dojo.js' ></scr"+"ipt>");
+        }else{} 
+        dojo.require("dojo.parser");
+        dojo.require("dojo.number");
+        dojo.require("dijit.Tooltip");
+        dojo.require("dijit.TitlePane");
+        dojo.require("dijit.form.Form");
+        dojo.require("dijit.form.Button");
+        dojo.require("dijit.form.NumberTextBox");
+    
+        dojo.addOnLoad(function(){
+            dojo.parser.parse("ns_Z7_J0I21AS0M8VA50AJV3SUL02004_parseContainer");
         });
-
-        function log_in(){
-        document.getElementById("login_div").style.display = "none";
-
-        var persistenceVar;
-        if(document.getElementById("remember_input").checked)
-            persistenceVar = firebase.auth.Auth.Persistence.LOCAL;
-        else
-            persistenceVar = firebase.auth.Auth.Persistence.NONE;
-
-            firebase.auth().setPersistence(persistenceVar).then(function() {
-                return firebase.auth().signInWithEmailAndPassword(document.getElementById("email_input").value, document.getElementById("password_input").value).then(function() {
-                loadContentDiv();
-                }).catch(function(error) {
-                // Handle Errors here.
-                var errorCode = error.code;
-                var errorMessage = error.message;
-                console.log("login error " + errorMessage);
-                window.alert(errorMessage);
-                // ...
-                document.getElementById("login_div").style.display = "block";
-                });
-            }).catch(function(error) {
-                // Handle Errors here.
-                var errorCode = error.code;
-                var errorMessage = error.message;
-                console.log("persistence error " + errorMessage);
-                window.alert(errorMessage);
-        });
+        var itemNum='8009';
+        var uom='EA';
+        
+        function mySubmit() {
+            document.fapNewPart.action='dl5/d5/L2dBISEvZ0FBIS9nQSEh/pw/Z7_J0I21AS0M8VA50AJV3SUL02004/act/id=UQDKyOtKsAL5A/p=S2KCommerceFindAPartPortletFormSubmit=newPart/451243563858/=/#Z7_J0I21AS0M8VA50AJV3SUL02004';
+            document.fapNewPart.submit();
+            return true;
         }
+    </script>	
 
-        function soapRequest(user, password){
-            console.log("v3 Starting request |" + user + "|" + password);
-            var str = '<?xml version="1.0"?>'
-                    + '<soap:Envelope'
-                    + 'xmlns:soap="http://www.w3.org/2003/05/soap-envelope/"'
-                    + 'soap:encodingStyle="http://www.w3.org/2003/05/soap-encoding">'
-                    + '<soap:Body>'
-                    + '  <m:GetOrder xmlns:m="https://cors-anywhere.herokuapp.com/https://encompass.com/soapservice">'
-                    + '    <m:xmlUser>' + user + '</m:xmlUser>'
-                    + '    <m:xmlPassword>' + password + '</m:xmlPassword>'
-                    + '    <m:serviceName>XML.ORDER.STATUS</m:serviceName>'
-                    + '    <m:serviceMode>SOAP</m:serviceMode>'
-                    + '    <m:referenceNumber>1-19461</m:referenceNumber>'
-                    + '  </m:GetOrder>'
-                    + '</soap:Body>'
-                    + '</soap:Envelope>';                                                    
-            function createCORSRequest(method, url) {
-                var xhr = new XMLHttpRequest();
-                if ("withCredentials" in xhr) {
-                    xhr.open(method, url, false);
-                } else if (typeof XDomainRequest != "undefined") {
-                    alert
-                    xhr = new XDomainRequest();
-                    xhr.open(method, url);
-                } else {
-                    console.log("CORS not supported");
-                    alert("CORS not supported");
-                    xhr = null;
-                }
-                return xhr;
-            }
-            var xhr = createCORSRequest("POST", "https://cors-anywhere.herokuapp.com/https://encompass.com/soapservice");
-            if(!xhr){
-            console.log("XHR issue");
-            return;
-            }
+    <DIV class="FAPContainer" id="ns_Z7_J0I21AS0M8VA50AJV3SUL02004_parseContainer">
+        <DIV class="FAPcnt fapTitle" id="FAPheader">
+            <FORM method="POST" dojoType="dijit.form.Form" action="dl5/d5/L2dBISEvZ0FBIS9nQSEh/pw/Z7_J0I21AS0M8VA50AJV3SUL02004/act/id=L_yOtKsAL5g/451243563858/=/#Z7_J0I21AS0M8VA50AJV3SUL02004" id="fapNewPart" name="fapNewPart" jsId="fapNewPart">
+                <span>
+                    <LABEL  for="S2KCommerceFindAPartPortletFormText">Enter Part Number:</LABEL>
+                    <INPUT name="S2KCommerceFindAPartPortletFormText" type="text"/>
+                    <input name="S2KCommerceFindAPartPortletFormSubmit" type="hidden" value="newPart">
+                    <BUTTON dojoType="dijit.form.Button" name="S2KCommerceFindAPartPortletFormSubmit" value="submit" onclick="return mySubmit()">
+                        <span class="bIcon"></span>
+                        <span class="bText">Submit</span>
+                    </BUTTON>
+                </span>
+            </FORM>
+        </DIV>
+        <DIV class="FAPcnt fapResults" id="FAPresults">
 
-            xhr.onload = function(){
-            var results = xhr.responseText;
-            console.log(results);
-            }
-
-            xhr.setRequestHeader('Content-Type', 'text/xml');
-            xhr.send(str);
-        }
-    </script>
+        </DIV>
+        <div class="wpthemeClear"></div>
+</div>
 </body>
 </html>

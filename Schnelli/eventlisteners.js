@@ -171,6 +171,7 @@ input_email.addEventListener("keyup", function(event) {
         //   }
         //   break;
     }
+    partnum_input_was_pressed_first = false;
   });
 
   document.addEventListener("keyup", function(event) { 
@@ -340,6 +341,7 @@ input_email.addEventListener("keyup", function(event) {
     }
   }
 
+  //SEARCH SPECIFIC AUTOCOMPLETE----------------------------------------------------------
   var MAX_SEARCH_SUGGESTIONS = 50;
   var _search_autocomplete_matches = new Array();
   var _selected_search_autocomplete = -1;
@@ -412,7 +414,7 @@ input_email.addEventListener("keyup", function(event) {
           var htmlToAdd = "";
           for(var i = 0; i < _search_autocomplete_matches.length; ++i)
           {
-            htmlToAdd += "<div id='search_autocomplete_match_" + i + "' class='text1' style='position: absolute; width: 230px; z-index: 2; background-color: white; border-top: 2px solid; border-bottom: 2px solid; border-color: grey;' onclick='searchInputAutocomplete(\"" + _search_autocomplete_matches[i] + "\")'>" + getHTMLSafeText(_search_autocomplete_matches[i]) + "</div><br>";
+            htmlToAdd += "<div class='clickable' id='search_autocomplete_match_" + i + "' class='text1' style='position: absolute; width: 230px; z-index: 2; background-color: white; border-top: 2px solid; border-bottom: 2px solid; border-color: grey;' onclick='searchInputOnClick(" + i + ");'>" + getHTMLSafeText(_search_autocomplete_matches[i]) + "</div><br>";
           }
           document.getElementById("search_autocomplete_" + _selected_search_input).innerHTML = htmlToAdd;
         }
@@ -437,16 +439,25 @@ input_email.addEventListener("keyup", function(event) {
     clearSearchAutocomplete();
   }
 
+  function searchInputOnClick(index)
+  {
+    _selected_search_autocomplete = index;
+    searchInputAutocomplete();
+  }
+
   function onSearchInputFocusOut()
   {
-    clearSearchAutocomplete();
+    // clearSearchAutocomplete();
   }
 
   function selectSearchAutocompleteUp()
   {
     if(_selected_search_autocomplete >= _search_autocomplete_matches.length)
       _selected_search_autocomplete = 0;
-    if(_search_autocomplete_matches.length > 0){      
+    if(_selected_search_autocomplete < 0)
+      _selected_search_autocomplete = 0;
+    if(_search_autocomplete_matches.length > 0)
+    {      
       for(var i = 0; i < _search_autocomplete_matches.length; ++i)
         document.getElementById("search_autocomplete_match_" + i).style.backgroundColor = "white";
       if(_selected_search_autocomplete > 0)
@@ -459,6 +470,8 @@ input_email.addEventListener("keyup", function(event) {
   {
     if(_selected_search_autocomplete >= _search_autocomplete_matches.length)
       _selected_search_autocomplete = 0;
+    if(_selected_search_autocomplete < 0)
+      _selected_search_autocomplete = 0;
     if(_search_autocomplete_matches.length > 0){      
       for(var i = 0; i < _search_autocomplete_matches.length; ++i)
         document.getElementById("search_autocomplete_match_" + i).style.backgroundColor = "white";
@@ -467,13 +480,9 @@ input_email.addEventListener("keyup", function(event) {
       document.getElementById("search_autocomplete_match_" + _selected_search_autocomplete).style.backgroundColor = _selectedCellColor;
     }
   }
-  // function moveToNextTable(){
-  //   var newTable = (_selectedTable + 1) % 3;
-  //   var cell = getCell(0, 0, newTable);
-  //   if(cell != null)
-  //     onCellClick(0, 0, cell.id, _selectedTable);
-  // }
+  //END SEARCH SPECIFIC AUTOCOMPLETE----------------------------------------------------------
 
+  //PART NUM AUTOCOMPLETE----------------------------------------------------------
   var MAX_PARTNUM_SUGGESTIONS = 50;
   var _partnum_autocomplete_matches = new Array();
   var _selected_partnum_autocomplete = -1;
@@ -508,7 +517,7 @@ input_email.addEventListener("keyup", function(event) {
       var htmlToAdd = "";
       for(var i = 0; i < _partnum_autocomplete_matches.length; ++i)
       {
-        htmlToAdd += "<div id='partnum_autocomplete_match_" + i + "' class='text1' style='position: absolute; width: 230px; z-index: 2; background-color: white; border-top: 2px solid; border-bottom: 2px solid; border-color: grey;'>" + getHTMLSafeText(_partnum_autocomplete_matches[i]) + "</div><br>";
+        htmlToAdd += "<div class='clickable' id='partnum_autocomplete_match_" + i + "' class='text1' style='position: absolute; width: 230px; z-index: 2; background-color: white; border-top: 2px solid; border-bottom: 2px solid; border-color: grey;' onclick='partNumInputOnClick(" + i + ");'>" + getHTMLSafeText(_partnum_autocomplete_matches[i]) + "</div><br>";
       }
       document.getElementById("partnum_autocomplete_" + _selected_partnum_input_i + "_" + _selected_partnum_input_j).innerHTML = htmlToAdd;
     }
@@ -532,6 +541,12 @@ input_email.addEventListener("keyup", function(event) {
     if(_selected_partnum_autocomplete >= 0 && _selected_partnum_autocomplete < _partnum_autocomplete_matches.length)
       document.getElementById("record_view_partnum_input_" + _selected_partnum_input_i + "_" + _selected_partnum_input_j).value = _partnum_autocomplete_matches[_selected_partnum_autocomplete];
       clearPartNumAutocomplete();
+  }
+
+  function partNumInputOnClick(index)
+  {
+    _selected_partnum_autocomplete = index;
+    partNumInputAutocomplete();
   }
 
   function onPartNumFocus(indexi, indexj)
@@ -563,8 +578,10 @@ input_email.addEventListener("keyup", function(event) {
     }
   }
 
+  var partnum_input_was_pressed_first = false;
   function partnum_input_keydown_event(event)
   {
+    partnum_input_was_pressed_first = true;
     if(event.keyCode == KEY_UP_ARROW)
     {
       selectPartNumAutocompleteUp();
@@ -579,6 +596,8 @@ input_email.addEventListener("keyup", function(event) {
   {
     if(_selected_partnum_autocomplete >= _partnum_autocomplete_matches.length)
       _selected_partnum_autocomplete = 0;
+    if(_selected_partnum_autocomplete < 0)
+      _selected_partnum_autocomplete = 0;
     if(_partnum_autocomplete_matches.length > 0){      
       for(var i = 0; i < _partnum_autocomplete_matches.length; ++i)
         document.getElementById("partnum_autocomplete_match_" + i).style.backgroundColor = "white";
@@ -592,6 +611,8 @@ input_email.addEventListener("keyup", function(event) {
   {
     if(_selected_partnum_autocomplete >= _partnum_autocomplete_matches.length)
       _selected_partnum_autocomplete = 0;
+    if(_selected_partnum_autocomplete < 0)
+      _selected_partnum_autocomplete = 0;
     if(_partnum_autocomplete_matches.length > 0){     
       for(var i = 0; i < _partnum_autocomplete_matches.length; ++i)
         document.getElementById("partnum_autocomplete_match_" + i).style.backgroundColor = "white";
@@ -600,10 +621,9 @@ input_email.addEventListener("keyup", function(event) {
       document.getElementById("partnum_autocomplete_match_" + _selected_partnum_autocomplete).style.backgroundColor = _selectedCellColor;
     }
   }
+//END PART NUM AUTOCOMPLETE----------------------------------------------------------
 
-
-//PART CHILD EDIT AUTOCOMPLETE
-
+//PART CHILD EDIT AUTOCOMPLETE----------------------------------------------------------
 function clearPartChildEditAutocomplete()
 {
   _partchild_edit_autocomplete_matches = [];
@@ -620,8 +640,8 @@ function clearPartChildEditAutocomplete()
     if(event.keyCode == KEY_ENTER)
     {
       // partNumInputAutocomplete();
-      _selected_child_part_db = document.getElementById("part_child_dropdown_select").selectedIndex;
-      _selected_child_part_record = _partchild_edit_autocomplete_matches[_selected_partchild_edit_autocomplete];
+      _selected_child_part_db = _partchild_edit_autocomplete_matches[_selected_partchild_edit_autocomplete].db;
+      _selected_child_part_record = _partchild_edit_autocomplete_matches[_selected_partchild_edit_autocomplete].row;
       populateChildPartRecordManager();
       clearPartChildEditAutocomplete();
     }
@@ -641,6 +661,14 @@ function clearPartChildEditAutocomplete()
     }
   }
 
+  function partchild_edit_row_click(index)
+  {
+    _selected_child_part_db = _partchild_edit_autocomplete_matches[index].db;
+    _selected_child_part_record = _partchild_edit_autocomplete_matches[index].row;
+    populateChildPartRecordManager();
+    clearPartChildEditAutocomplete();
+  }
+
   function partchild_edit_input_keydown_event(event)
   {
     if(event.keyCode == KEY_UP_ARROW)
@@ -657,6 +685,8 @@ function clearPartChildEditAutocomplete()
   {
     if(_selected_partchild_edit_autocomplete >= _partchild_edit_autocomplete_matches.length)
       _selected_partchild_edit_autocomplete = 0;
+    if(_selected_partchild_edit_autocomplete < 0)
+      _selected_partchild_edit_autocomplete = 0;
     if(_partchild_edit_autocomplete_matches.length > 0){
         for(var i = 0; i < _partchild_edit_autocomplete_matches.length; ++i)
           document.getElementById("partchild_edit_autocomplete_match_" + i).style.backgroundColor = "";
@@ -669,6 +699,8 @@ function clearPartChildEditAutocomplete()
   function selectPartChildEditAutocompleteDown()
   {
     if(_selected_partchild_edit_autocomplete >= _partchild_edit_autocomplete_matches.length)
+      _selected_partchild_edit_autocomplete = 0;
+    if(_selected_partchild_edit_autocomplete < 0)
       _selected_partchild_edit_autocomplete = 0;
     if(_partchild_edit_autocomplete_matches.length > 0){      
       for(var i = 0; i < _partchild_edit_autocomplete_matches.length; ++i)
@@ -697,17 +729,46 @@ function clearPartChildEditAutocomplete()
     if(searchstring != "")
     {
       var regexp = new RegExp(getRegexSafeSearchTerm(searchstring.toLowerCase()), "g");
-      for(var i = 0; i < _content_extra[_selected_extra_db].length; ++i)
+      if(_selected_extra_db >= EXTRA_DB.length) //Search any
       {
-        var part_child_edit_string = _content_extra[_selected_extra_db][i][0].PN;
-        if ((match = regexp.exec(part_child_edit_string.toLowerCase())) !== null) //If match found in whole string
-        { 
-          if(!_partchild_edit_autocomplete_matches.includes(i))
+        for(var h = 0; h < EXTRA_DB.length; ++h)
+        {
+          for(var i = 0; i < _content_extra[h].length; ++i)
           {
-            _partchild_edit_autocomplete_matches.push(i);
-            ++numMatches;
-            if(numMatches >= MAX_PARTCHILDEDIT_SUGGESTIONS)
-              break;
+            var part_child_edit_string = _content_extra[h][i][0].PN;
+            if ((match = regexp.exec(part_child_edit_string.toLowerCase())) !== null) //If match found in whole string
+            { 
+              if(!doesObjectArraySpecificIndexIncludeX(_partchild_edit_autocomplete_matches, [h, i], ["db", "row"]))
+              {
+                var obj = new Object();
+                obj.db = h;
+                obj.row = i;
+                _partchild_edit_autocomplete_matches.push(obj);
+                ++numMatches;
+                if(numMatches >= MAX_PARTCHILDEDIT_SUGGESTIONS)
+                  break;
+              }
+            }
+          }
+        }
+      }
+      else //Search specific db
+      {
+        for(var i = 0; i < _content_extra[_selected_extra_db].length; ++i)
+        {
+          var part_child_edit_string = _content_extra[_selected_extra_db][i][0].PN;
+          if ((match = regexp.exec(part_child_edit_string.toLowerCase())) !== null) //If match found in whole string
+          { 
+            if(!doesObjectArraySpecificIndexIncludeX(_partchild_edit_autocomplete_matches, [_selected_extra_db, i], ["db", "row"]))
+            {
+              var obj = new Object();
+              obj.db = _selected_extra_db;
+              obj.row = i;
+              _partchild_edit_autocomplete_matches.push(obj);
+              ++numMatches;
+              if(numMatches >= MAX_PARTCHILDEDIT_SUGGESTIONS)
+                break;
+            }
           }
         }
       }
@@ -715,6 +776,7 @@ function clearPartChildEditAutocomplete()
     if(_partchild_edit_autocomplete_matches.length > 0)
     {
       htmlToAdd += "<table style='position: absolute; z-index: 2;'><tr>";
+      htmlToAdd += "<th><p>DB</p></th>";
       for(var j = 0; j < RECORD_VIEW_HEADERS.length; ++j)
       {
         htmlToAdd += "<th><p>" + RECORD_VIEW_HEADERS[j] + "</p></th>";
@@ -722,8 +784,10 @@ function clearPartChildEditAutocomplete()
       htmlToAdd += "</tr>";
       for(var j = 0; j < _partchild_edit_autocomplete_matches.length; ++j)
       {
-        var extraDBIndex = _partchild_edit_autocomplete_matches[j];
-        htmlToAdd += "<tr id='partchild_edit_autocomplete_match_" + j + "'>";
+        var extraDBIndex = _partchild_edit_autocomplete_matches[j].row;
+        _selected_extra_db = _partchild_edit_autocomplete_matches[j].db;
+        htmlToAdd += "<tr class='clickable' id='partchild_edit_autocomplete_match_" + j + "' onclick='partchild_edit_row_click(" + j + ");'>";
+        htmlToAdd += "<td><p>" + EXTRA_DB[_selected_extra_db] + "</p></td>";
         for(var k = 0; k < RECORD_VIEW_HEADERS.length; ++k)
         { 
           htmlToAdd += "<td>";
@@ -753,41 +817,48 @@ function clearPartChildEditAutocomplete()
 
   function changeRecordViewUp()
   {
-    if(_recordViews.length > _selected_record_view)
+    if(!partnum_input_was_pressed_first)
     {
-      var rownum = getContentIndexFrom_DB_ID(_recordViews[_selected_record_view]);
-      if(rownum != null)
+      if(_recordViews.length > _selected_record_view)
       {
-        if(rownum > 0)
+        var rownum = getContentIndexFrom_DB_ID(_recordViews[_selected_record_view]);
+        if(rownum != null)
         {
-          var newID = _content[rownum - 1][_content[rownum - 1].length - 1];
-          if(_recordViews_Key_To_Details_Open.has(_recordViews[_selected_record_view]) && _recordViews_Key_To_Details_Open.get(_recordViews[_selected_record_view]))
-            _recordViews_Key_To_Details_Open.set(newID, true);
-          else
-            _recordViews_Key_To_Details_Open.set(newID, false);
-          _recordViews[_selected_record_view] = newID
-          populateRecordViews();
+          if(rownum > 0)
+          {
+            var newID = _content[rownum - 1][_content[rownum - 1].length - 1];
+            if(_recordViews_Key_To_Details_Open.has(_recordViews[_selected_record_view]) && _recordViews_Key_To_Details_Open.get(_recordViews[_selected_record_view]))
+              _recordViews_Key_To_Details_Open.set(newID, true);
+            else
+              _recordViews_Key_To_Details_Open.set(newID, false);
+            _recordViews[_selected_record_view] = newID
+            populateRecordViews();
+          }
         }
       }
     }
   }
-
+  //END PART CHILD EDIT AUTOCOMPLETE----------------------------------------------------------
+  
   function changeRecordViewDown()
   {
-    if(_recordViews.length > _selected_record_view)
+    if(!partnum_input_was_pressed_first)
     {
-      var rownum = getContentIndexFrom_DB_ID(_recordViews[_selected_record_view]);
-      if(rownum != null)
+      if(_recordViews.length > _selected_record_view)
       {
-        if(rownum < _content.length - 1)
+        var rownum = getContentIndexFrom_DB_ID(_recordViews[_selected_record_view]);
+        if(rownum != null)
         {
-          var newID = _content[rownum + 1][_content[rownum + 1].length - 1];
-          if(_recordViews_Key_To_Details_Open.has(_recordViews[_selected_record_view]) && _recordViews_Key_To_Details_Open.get(_recordViews[_selected_record_view]))
-            _recordViews_Key_To_Details_Open.set(newID, true);
-          else
-            _recordViews_Key_To_Details_Open.set(newID, false);
-          _recordViews[_selected_record_view] = newID
-          populateRecordViews();
+          if(rownum < _content.length - 1)
+          {
+            var newID = _content[rownum + 1][_content[rownum + 1].length - 1];
+            if(_recordViews_Key_To_Details_Open.has(_recordViews[_selected_record_view]) && _recordViews_Key_To_Details_Open.get(_recordViews[_selected_record_view]))
+              _recordViews_Key_To_Details_Open.set(newID, true);
+            else
+              _recordViews_Key_To_Details_Open.set(newID, false);
+            _recordViews[_selected_record_view] = newID
+            populateRecordViews();
+          }
         }
       }
     }

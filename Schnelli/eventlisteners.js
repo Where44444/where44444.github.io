@@ -105,8 +105,11 @@ input_email.addEventListener("keyup", function(event) {
         case KEY_UP_ARROW: //Up Arrow
           if(_selected_tab == TAB_RECORD_VIEWS)
           {
-            event.preventDefault();
-            changeRecordViewUp();
+            if(_selected_record_view >= 0)
+            {
+              event.preventDefault();
+              changeRecordViewUp();
+            }
           }
           else if(_isTableSelected){
             event.preventDefault();
@@ -122,8 +125,11 @@ input_email.addEventListener("keyup", function(event) {
         case KEY_DOWN_ARROW: //Down Arrow
           if(_selected_tab == TAB_RECORD_VIEWS)
           {
-            event.preventDefault();
-            changeRecordViewDown();
+            if(_selected_record_view >= 0)
+            {
+              event.preventDefault();
+              changeRecordViewDown();
+            }
           }
           else if(_isTableSelected){
             event.preventDefault();
@@ -215,9 +221,9 @@ input_email.addEventListener("keyup", function(event) {
 
   function moveUp(){
     var row = _selectedRow - 1;
-    if(_selectedTable == TABLE_RECORD_BROWSER && _indexesRecordBrowser[0] > 0 && _indexesRecordBrowser[0] > row) //Shift table bounds
+    if(_selectedTable == _TABLE_RECORD_BROWSER && _indexesRecordBrowser[0] > 0 && _indexesRecordBrowser[0] > row) //Shift table bounds
         populateRecordBrowser(_indexesRecordBrowser[0] - 1, false);
-    if(_selectedTable == TABLE_SEARCH_RESULTS && _currentSearchResultsStartIndex > 0 && _selectedRow == 0) //Shift table bounds
+    if(_selectedTable == _TABLE_SEARCH_RESULTS && _currentSearchResultsStartIndex > 0 && _selectedRow == 0) //Shift table bounds
         populateSearchResults(_currentSearchResultsStartIndex - 1, true, false, -1);
     
     var cell = getCell(row, _selectedCell, _selectedTable);
@@ -234,9 +240,9 @@ input_email.addEventListener("keyup", function(event) {
 
   function moveDown(){
     var row = _selectedRow + 1;
-    if(_selectedTable == TABLE_RECORD_BROWSER && _indexesRecordBrowser[_indexesRecordBrowser.length - 1] < _content.length - 1 && _indexesRecordBrowser[_indexesRecordBrowser.length - 1] < row) //Shift table bounds
+    if(_selectedTable == _TABLE_RECORD_BROWSER && _indexesRecordBrowser[_indexesRecordBrowser.length - 1] < _content.length - 1 && _indexesRecordBrowser[_indexesRecordBrowser.length - 1] < row) //Shift table bounds
       populateRecordBrowser(_indexesRecordBrowser[0] + 1, false);
-    if(_selectedTable == TABLE_SEARCH_RESULTS && _currentSearchResultsStartIndex < _searchResults.length - 1 && _selectedRow == _indexesSearchResults.length - 1) //Shift table bounds
+    if(_selectedTable == _TABLE_SEARCH_RESULTS && _currentSearchResultsStartIndex < _searchResults.length - 1 && _selectedRow == _indexesSearchResults.length - 1) //Shift table bounds
       populateSearchResults(_currentSearchResultsStartIndex + 1, false, true, -1);
     var cell = getCell(row, _selectedCell, _selectedTable);
     if(cell != null)
@@ -246,7 +252,7 @@ input_email.addEventListener("keyup", function(event) {
   function pageUp()
   {
     var row = null;
-    if(_selectedTable == TABLE_RECORD_BROWSER){
+    if(_selectedTable == _TABLE_RECORD_BROWSER){
       populateRecordBrowser(_currentRecordBrowserStartIndex - _recordBrowserMax, false);
       row = _selectedRow - _recordBrowserMax;
       if(row < 0)
@@ -255,7 +261,7 @@ input_email.addEventListener("keyup", function(event) {
         row = _content.length - 1;
     }
     
-    if(_selectedTable == TABLE_SEARCH_RESULTS){
+    if(_selectedTable == _TABLE_SEARCH_RESULTS){
       if(_currentSearchResultsStartIndex == 0)
         populateSearchResults(_currentSearchResultsStartIndex - _searchResultsMax, true, false, -1);
       else
@@ -272,7 +278,7 @@ input_email.addEventListener("keyup", function(event) {
   function pageDown()
   {
     var row = null;
-    if(_selectedTable == TABLE_RECORD_BROWSER){
+    if(_selectedTable == _TABLE_RECORD_BROWSER){
       populateRecordBrowser(_currentRecordBrowserStartIndex + _recordBrowserMax, false);
       row = _selectedRow + _recordBrowserMax;
       if(row < 0)
@@ -281,7 +287,7 @@ input_email.addEventListener("keyup", function(event) {
         row = _content.length - 1;
     }
     
-    if(_selectedTable == TABLE_SEARCH_RESULTS){
+    if(_selectedTable == _TABLE_SEARCH_RESULTS){
       if(_currentSearchResultsStartIndex >= _searchResults.length - _searchResultsMax)
         populateSearchResults(_currentSearchResultsStartIndex + _searchResultsMax, false, true, -1);
       else
@@ -529,9 +535,10 @@ input_email.addEventListener("keyup", function(event) {
     _selected_partnum_autocomplete = -1;
     for (var i = 0; i < _recordViews.length; ++i)
     {
-      for(var j = 0; j < EXTRA_DB.length; ++j)
+      for(var j = 0; j < _EXTRA_DB.length; ++j)
       {
-        document.getElementById("partnum_autocomplete_" + i + "_" + j).innerHTML = "";
+        if(j != 2) //Skip DNI ExtraDB
+          document.getElementById("partnum_autocomplete_" + i + "_" + j).innerHTML = "";
       }
     }
   }
@@ -729,9 +736,9 @@ function clearPartChildEditAutocomplete()
     if(searchstring != "")
     {
       var regexp = new RegExp(getRegexSafeSearchTerm(searchstring.toLowerCase()), "g");
-      if(_selected_extra_db >= EXTRA_DB.length) //Search any
+      if(_selected_extra_db >= _EXTRA_DB.length) //Search any
       {
-        for(var h = 0; h < EXTRA_DB.length; ++h)
+        for(var h = 0; h < _EXTRA_DB.length; ++h)
         {
           for(var i = 0; i < _content_extra[h].length; ++i)
           {
@@ -787,7 +794,7 @@ function clearPartChildEditAutocomplete()
         var extraDBIndex = _partchild_edit_autocomplete_matches[j].row;
         _selected_extra_db = _partchild_edit_autocomplete_matches[j].db;
         htmlToAdd += "<tr class='clickable' id='partchild_edit_autocomplete_match_" + j + "' onclick='partchild_edit_row_click(" + j + ");'>";
-        htmlToAdd += "<td><p>" + EXTRA_DB[_selected_extra_db] + "</p></td>";
+        htmlToAdd += "<td><p>" + _EXTRA_DB[_selected_extra_db] + "</p></td>";
         for(var k = 0; k < RECORD_VIEW_HEADERS.length; ++k)
         { 
           htmlToAdd += "<td>";
@@ -819,7 +826,7 @@ function clearPartChildEditAutocomplete()
   {
     if(!partnum_input_was_pressed_first)
     {
-      if(_recordViews.length > _selected_record_view)
+      if(_recordViews.length > _selected_record_view && _selected_record_view >= 0)
       {
         var rownum = getContentIndexFrom_DB_ID(_recordViews[_selected_record_view]);
         if(rownum != null)
@@ -844,7 +851,7 @@ function clearPartChildEditAutocomplete()
   {
     if(!partnum_input_was_pressed_first)
     {
-      if(_recordViews.length > _selected_record_view)
+      if(_recordViews.length > _selected_record_view && _selected_record_view >= 0)
       {
         var rownum = getContentIndexFrom_DB_ID(_recordViews[_selected_record_view]);
         if(rownum != null)
@@ -861,5 +868,18 @@ function clearPartChildEditAutocomplete()
           }
         }
       }
+    }
+  }
+
+  onChangeShouldHighlight();
+  function onChangeShouldHighlight()
+  {
+    if(document.getElementById("search_highlight").checked)
+    {
+      document.getElementById("search_highlight_div").style.display = "block";
+    }
+    else
+    {
+      document.getElementById("search_highlight_div").style.display = "none";
     }
   }

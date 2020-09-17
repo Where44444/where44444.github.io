@@ -68,6 +68,30 @@
 //   populateRecordBrowser(0, false);
 // }
 
+function getExtraDBPartManufacturer(i, j)
+{
+  var MFR_INDEXES = ["PART_MFR", "GEM_ID", "RS_ID", "MM_ID", "JS_ID", "APPL_MFR"];
+  var part = _content_extra[i][j][0];
+  for(var k = 0; k < MFR_INDEXES.length; ++k)
+  {
+    var mfr = part[MFR_INDEXES[k]];
+    if(mfr != null){
+      return mfr;
+    }
+  }
+}
+
+function getParentIndexFromID(id1)
+{
+  var numRecords = _content.length;
+  for(var i = 0; i < numRecords; ++i)
+  {
+    if(_content[i][_content[i].length - 1] == id1)
+      return i;
+  }
+  return null;
+}
+
 function getExtraDBLinkIndex(_content_extra_db_index, pn) {
   if (pn.length > 0) {
     for (var i = 0; i < _content_extra[_content_extra_db_index].length; ++i) //Exact match PN
@@ -105,11 +129,11 @@ function processJSONData(objs) {
   for (var i = 0; i < objs.length; ++i) {
     var content_line = [];
     var obj = objs[i];
-    for (var j = 0; j < INDEXES.length; ++j) {
-      content_line.push(String(obj[INDEXES[j]]));
+    for (var j = 0; j < _INDEXES.length; ++j) {
+      content_line.push(String(obj[_INDEXES[j]]));
     }
-    for (var j = 0; j < MEMO_INDEXES.length; ++j) {
-      content_line.push(obj[MEMO_INDEXES[j]]);
+    for (var j = 0; j < _MEMO_INDEXES.length; ++j) {
+      content_line.push(obj[_MEMO_INDEXES[j]]);
     }
     content_line.push(i + "n");
     _content.push(content_line);
@@ -124,8 +148,8 @@ function processJSONData(objs) {
 
 function processJSONDataExtra(objs, _content_extra_db, keys) {
   if (_content_extra == null) {
-    _content_extra = new Array(EXTRA_DB.length);
-    for (var i = 0; i < EXTRA_DB.length; ++i)
+    _content_extra = new Array(_EXTRA_DB.length);
+    for (var i = 0; i < _EXTRA_DB.length; ++i)
       _content_extra[i] = [];
   }
 
@@ -145,6 +169,8 @@ function processJSONDataExtra(objs, _content_extra_db, keys) {
       content_line.push(keys[i]);
     _content_extra[_content_extra_db].push(content_line);
   }
+  
+  _CHILD_PART_LINKS_CACHE = [];
 }
 
 function fetchJSONFile(path, callback) {
@@ -162,12 +188,12 @@ function fetchJSONFile(path, callback) {
 }
 
 function is_standardized(str) {
-  return /^[a-z0-9 ]+$/i.test(str);
+  return /^[a-z0-9 ]+$/i.test(String(str));
 }
 
 function removeExtraSpaces(str) {
   //Remove multiple spaces
-  var str2 = str.replace(/ {2,}/g, " ");
+  var str2 = String(str).replace(/ {2,}/g, " ");
 
   //Remove spaces at beginning of string
   if (str2.charAt(0) == " ")
@@ -182,7 +208,7 @@ function removeExtraSpaces(str) {
 
 function removePreWP(str)
 {
-  var str2 = str.toLowerCase();
+  var str2 = String(str).toLowerCase();
   if(str2.length >= 2 && str2.charAt(0) == 'w' && str2.charAt(1) == 'p')
   {
     return str.substring(2, str.length);
@@ -191,7 +217,7 @@ function removePreWP(str)
 }
 
 function standardizeString(str) {
-  var str2 = str.toLowerCase();
+  var str2 = String(str).toLowerCase();
 
   //Remove non numbers and letters and spaces
   str2 = str2.replace(/[^0-9a-z ]/g, "");
@@ -211,7 +237,7 @@ function standardizeString(str) {
 }
 
 function escapeQuotations(str) {
-  var str2 = str.replace(/\"/g, "\\\"");
+  var str2 = String(str).replace(/\"/g, "\\\"");
   str2 = str2.replace(/\'/g, "\\\'");
   return str2;
 }
@@ -224,7 +250,8 @@ function useBlackText(r, g, b) {
   return (L > 0.5);
 }
 
-function getStandardPNString(str) {
+function getStandardPNString(str1) {
+  var str = String(str1);
   var modified = true;
   while (modified) {
     var orig_length = str.length;
@@ -238,7 +265,8 @@ function getStandardPNString(str) {
   return str.toLowerCase();
 }
 
-function getStandardPNWebSearchString(str) {
+function getStandardPNWebSearchString(str1) {
+  var str = String(str1);
   var modified = true;
   while (modified) {
     var orig_length = str.length;
@@ -252,47 +280,53 @@ function getStandardPNWebSearchString(str) {
   return str.toLowerCase();
 }
 
-function removeStartingZeroes(str) {
+function removeStartingZeroes(str1) {
+  var str = String(str1);
   while (str.length > 0 && str[0] == "0")
     str = str.substring(1, str.length);
   return str;
 }
 
-function removeEndTilde(str) {
+function removeEndTilde(str1) {
+  var str = String(str1);
   if (str.length > 0 && str[str.length - 1] == "~")
     str = str.substring(0, str.length - 1);
   return str;
 }
 
-function removeEndArrow(str) {
+function removeEndArrow(str1) {
+  var str = String(str1);
   if (str.length > 1 && str[str.length - 2] == "-" && str[str.length - 1] == ">")
     str = str.substring(0, str.length - 2);
   return str;
 }
 
-function removeEndExclaim(str) {
+function removeEndExclaim(str1) {
+  var str = String(str1);
   if (str.length > 0 && str[str.length - 1] == "!")
     str = str.substring(0, str.length - 1);
   return str;
 }
 
-function removeEndSemicolon(str) {
+function removeEndSemicolon(str1) {
+  var str = String(str1);
   if (str.length > 0 && str[str.length - 1] == ";")
     str = str.substring(0, str.length - 1);
   return str;
 }
 
-function is_numeric(str) {
+function is_numeric(str1) {
+  var str = String(str1);
   return /^\d+$/.test(str);
 }
 
-function is_alphanumeric(str) {
+function is_alphanumeric(str1) {
+  var str = String(str1);
   return /^[a-z0-9]+$/i.test(str);
 }
 
 function getRegexSafeSearchTerm(str) {
-  //Remove non numbers and letters and spaces
-  var str2 = str.replace(/\\/g, "\\\\");
+  var str2 = String(str).replace(/\\/g, "\\\\");
   str2 = str2.replace(/\)/g, "\\)");
   str2 = str2.replace(/\(/g, "\\(");
   str2 = str2.replace(/\+/g, "\\+");
@@ -312,7 +346,7 @@ function getRegexSafeSearchTerm(str) {
 }
 
 function getHTMLSafeText(str) {
-  var str2 = str.replace(/\</g, "&lt;");
+  var str2 = String(str).replace(/\</g, "&lt;");
   str2 = str2.replace(/\>/g, "&gt;");
   return str2;
 }
@@ -321,7 +355,8 @@ function getStringNumberHash(s) {
   return s.split("").reduce(function (a, b) { a = ((a << 5) - a) + b.charCodeAt(0); return a & a }, 0);
 }
 
-function getColorFromString(str) {
+function getColorFromString(str1) {
+  var str = String(str1);
   var color = [Math.abs(getStringNumberHash(str + "!@#$%^&*()") % 256), Math.abs(getStringNumberHash(str + "!1234567890!") % 256), Math.abs(getStringNumberHash(str + "selamat pagi") % 256)];
   return color;
 }
@@ -361,7 +396,8 @@ function toggle_search_results(state) { //0 hidden, 1 shown, 2 toggle
 function toggle_similar_string_table(id) {
   var tableID = "similar_string_table_" + id;
   var expanderID = "similar_string_expander_" + id;
-  if (document.getElementById(tableID).style.display == "none") {
+  if (document.getElementById(tableID).style.display == "none") 
+  {
     document.getElementById(tableID).style.display = "block";
     document.getElementById(expanderID).innerHTML = "-";
   }
@@ -381,7 +417,8 @@ function getContentIndexFrom_DB_ID(db_id) {
 }
 
 function getContentExtraIndexFrom_DB_ID(db_id, db_index) {
-  for (var i = 0; i < _content_extra[db_index].length; ++i) {
+  for (var i = 0; i < _content_extra[db_index].length; ++i) 
+  {
     if (_content_extra[db_index][i][1] == db_id)
       return i;
   }
@@ -390,7 +427,8 @@ function getContentExtraIndexFrom_DB_ID(db_id, db_index) {
 }
 
 function sortContentByIndex(index) {
-  document.getElementById("message").innerHTML = "<p>Sorting by index...</p>";
+  showSnackbar("Sorting by index...", 6000);
+  // document.getElementById("message").innerHTML = "<p>Sorting by index...</p>";
   document.getElementById("sort_order_div").style.display = "none";
   document.getElementById("search_div").style.display = "none";
   document.getElementById("search_results_expander").style.display = "none";
@@ -398,7 +436,7 @@ function sortContentByIndex(index) {
   document.getElementById("record_browser_div").style.display = "none";
 
   var _selectedRecord_DB_ID = null;
-  if (_selectedTable == TABLE_RECORD_BROWSER && _selectedRow >= 0 && _selectedRow < _content.length) {
+  if (_selectedTable == _TABLE_RECORD_BROWSER && _selectedRow >= 0 && _selectedRow < _content.length) {
     _selectedRecord_DB_ID = _content[_selectedRow][_content[_selectedRow].length - 1];
   }
 
@@ -410,8 +448,8 @@ function sortContentByIndex(index) {
     _contentSortedReverse = false;
   }
 
-  var sortWorker = new Worker('sort_content_by_index.js');
-  sortWorker.postMessage([_content, index, INDEXES, _contentSortedReverse]);
+  var sortWorker = new Worker('workers/sort_content_by_index.js');
+  sortWorker.postMessage([_content, index, _INDEXES, _contentSortedReverse]);
   sortWorker.onmessage = function (e) {
     _content = e.data[0];
     generateContent_Standard();
@@ -421,7 +459,7 @@ function sortContentByIndex(index) {
     document.getElementById("sort_order_div").style.display = "block";
     document.getElementById("search_div").style.display = "block";
     document.getElementById("record_browser_div").style.display = "block";
-    if (_selectedTable == TABLE_RECORD_BROWSER && _selectedRecord_DB_ID != null) {
+    if (_selectedTable == _TABLE_RECORD_BROWSER && _selectedRecord_DB_ID != null) {
       var index1 = getContentIndexFrom_DB_ID(_selectedRecord_DB_ID);
       if (index1 != null) {
         populateRecordBrowser(index1, false);
@@ -434,7 +472,8 @@ function sortContentByIndex(index) {
 }
 
 function sortContentBySortOrder(order_index) {
-  document.getElementById("message").innerHTML = "<p>Sorting by index...</p>";
+  showSnackbar("Sorting by index...", 6000);
+  // document.getElementById("message").innerHTML = "<p>Sorting by index...</p>";
   document.getElementById("sort_order_div").style.display = "none";
   document.getElementById("search_div").style.display = "none";
   document.getElementById("search_results_expander").style.display = "none";
@@ -442,7 +481,7 @@ function sortContentBySortOrder(order_index) {
   document.getElementById("record_browser_div").style.display = "none";
 
   var _selectedRecord_DB_ID = null;
-  if (_selectedTable == TABLE_RECORD_BROWSER && _selectedRow >= 0 && _selectedRow < _content.length) {
+  if (_selectedTable == _TABLE_RECORD_BROWSER && _selectedRow >= 0 && _selectedRow < _content.length) {
     _selectedRecord_DB_ID = _content[_selectedRow][_content[_selectedRow].length - 1];
   }
 
@@ -454,8 +493,8 @@ function sortContentBySortOrder(order_index) {
     _contentSortedReverse = false;
   }
 
-  var sortWorker = new Worker('sort_content_by_sort_order.js');
-  sortWorker.postMessage([_content, sorted_indexes, INDEXES, _contentSortedReverse]);
+  var sortWorker = new Worker('workers/sort_content_by_sort_order.js');
+  sortWorker.postMessage([_content, sorted_indexes, _INDEXES, _contentSortedReverse]);
   sortWorker.onmessage = function (e) {
     _content = e.data[0];
     generateContent_Standard();
@@ -465,7 +504,7 @@ function sortContentBySortOrder(order_index) {
     document.getElementById("sort_order_div").style.display = "block";
     document.getElementById("search_div").style.display = "block";
     document.getElementById("record_browser_div").style.display = "block";
-    if (_selectedTable == TABLE_RECORD_BROWSER && _selectedRecord_DB_ID != null) {
+    if (_selectedTable == _TABLE_RECORD_BROWSER && _selectedRecord_DB_ID != null) {
       var index1 = getContentIndexFrom_DB_ID(_selectedRecord_DB_ID);
       if (index1 != null) {
         populateRecordBrowser(index1, false);
@@ -495,12 +534,12 @@ function generateContent_Standard_New() {
 }
 
 function getStandardRow(content_index) {
-  var ilength = INDEXES.length;
+  var ilength = _INDEXES.length;
   var newRow = [];
   for (var j = 0; j < ilength; ++j)
     newRow.push(standardizeString(_content[content_index][j]));
 
-  for (var j = 0; j < MEMO_INDEXES.length; ++j) {
+  for (var j = 0; j < _MEMO_INDEXES.length; ++j) {
     var memoIndex = j + ilength;
     var array1 = [];
     for (var k = 0; k < _content[content_index][memoIndex].length; ++k) {
@@ -520,15 +559,15 @@ function onCellClick(row, cell, id, table_enum, skipPopulate) {
   var elementRow = null;
   var elementCell = null;
   switch (_selectedTable) {
-    case TABLE_SEARCH_RESULTS:
+    case _TABLE_SEARCH_RESULTS:
       elementRow = document.getElementById("search_results_row_" + _selectedRow);
       elementCell = document.getElementById("search_results_cell_" + _selectedRow + "_" + _selectedCell);
       break;
-    case TABLE_SIMILAR_STRINGS:
+    case _TABLE_SIMILAR_STRINGS:
       elementRow = document.getElementById("similar_string_row_" + _selectedRow);
       elementCell = document.getElementById("similar_string_cell_" + _selectedRow + "_" + _selectedCell);
       break;
-    case TABLE_RECORD_BROWSER:
+    case _TABLE_RECORD_BROWSER:
       elementRow = document.getElementById("record_browser_row_" + _selectedRow);
       elementCell = document.getElementById("record_browser_cell_" + _selectedRow + "_" + _selectedCell);
       break;
@@ -544,17 +583,17 @@ function onCellClick(row, cell, id, table_enum, skipPopulate) {
   _selectedCell = cell;
 
   switch (_selectedTable) {
-    case TABLE_SEARCH_RESULTS:
+    case _TABLE_SEARCH_RESULTS:
       elementRow = document.getElementById("search_results_row_" + _selectedRow);
       if (!skipPopulate)
         populateRecordBrowser(_indexesSearchResults[row], true);
       break;
-    case TABLE_SIMILAR_STRINGS:
+    case _TABLE_SIMILAR_STRINGS:
       elementRow = document.getElementById("similar_string_row_" + _selectedRow);
       if (!skipPopulate)
         populateRecordBrowser(_indexesSimilarStrings[row], true);
       break;
-    case TABLE_RECORD_BROWSER:
+    case _TABLE_RECORD_BROWSER:
       elementRow = document.getElementById("record_browser_row_" + _selectedRow);
       break;
   }
@@ -571,6 +610,7 @@ function onCellClick(row, cell, id, table_enum, skipPopulate) {
 }
 
 function deselectTable(index) {
+  _selected_record_view = -1;
   if (index != null)
     _selected_search_input = index;
   _isTableSelected = false;
@@ -578,15 +618,15 @@ function deselectTable(index) {
   var elementCell;
 
   switch (_selectedTable) {
-    case TABLE_SEARCH_RESULTS:
+    case _TABLE_SEARCH_RESULTS:
       elementRow = document.getElementById("search_results_row_" + _selectedRow);
       elementCell = document.getElementById("search_results_cell_" + _selectedRow + "_" + _selectedCell);
       break;
-    case TABLE_SIMILAR_STRINGS:
+    case _TABLE_SIMILAR_STRINGS:
       elementRow = document.getElementById("similar_string_row_" + _selectedRow);
       elementCell = document.getElementById("similar_string_cell_" + _selectedRow + "_" + _selectedCell);
       break;
-    case TABLE_RECORD_BROWSER:
+    case _TABLE_RECORD_BROWSER:
       elementRow = document.getElementById("record_browser_row_" + _selectedRow);
       elementCell = document.getElementById("record_browser_cell_" + _selectedRow + "_" + _selectedCell);
       break;
@@ -601,13 +641,13 @@ function deselectTable(index) {
 function getCell(row, column, table_enum) {
   var elementCell = null;
   switch (table_enum) {
-    case TABLE_SEARCH_RESULTS:
+    case _TABLE_SEARCH_RESULTS:
       elementCell = document.getElementById("search_results_cell_" + row + "_" + column);
       break;
-    case TABLE_SIMILAR_STRINGS:
+    case _TABLE_SIMILAR_STRINGS:
       elementCell = document.getElementById("similar_string_cell_" + row + "_" + column);
       break;
-    case TABLE_RECORD_BROWSER:
+    case _TABLE_RECORD_BROWSER:
       elementCell = document.getElementById("record_browser_cell_" + row + "_" + column);
       break;
   }
@@ -628,7 +668,7 @@ function setRadioColumn() {
 }
 
 function setRadioColumnsChecked(bool) {
-  var total_index_length = INDEXES.length + MEMO_INDEXES.length;
+  var total_index_length = _INDEXES.length + _MEMO_INDEXES.length;
   for (var i = 0; i < total_index_length; ++i) {
     document.getElementById("column_checkbox_" + i).checked = bool;
     if (!bool)
@@ -687,7 +727,7 @@ function startEditRecord(record_id, rownum, row_id) {
   }
   var cells1 = document.getElementById(row_id).cells;
   for (var i = 0; i < INDEXES_CONCAT.length; ++i) {
-    var index = INDEX_ORDER[i];
+    var index = _INDEX_ORDER[i];
     if (index == 0) {
       cells1[i].innerHTML = "<div style='display: flex; align-items: center; justify-content: center;'>" +
         "<div style='flex-direction: column;'>" +
@@ -700,7 +740,7 @@ function startEditRecord(record_id, rownum, row_id) {
         "<input type='text' id='edit_textarea_" + i + "' style='width: 50%;' onfocus='deselectTable();' onchange='deselectTable();'></input></div>";
       document.getElementById("edit_textarea_" + i).value = _content[rownum][index];
     }
-    else if (index < INDEXES.length) {
+    else if (index < _INDEXES.length) {
       cells1[i].innerHTML = "<input type='text' id='edit_textarea_" + i + "' style='width: " + INDEX_WIDTHS_CONCAT[index] + ";' onfocus='deselectTable();' onchange='deselectTable();'></input>";
       document.getElementById("edit_textarea_" + i).value = _content[rownum][index];
     }
@@ -713,8 +753,8 @@ function startEditRecord(record_id, rownum, row_id) {
 
 function saveEditRecord(rownum) {
   for (var i = 0; i < INDEXES_CONCAT.length; ++i) {
-    var index = INDEX_ORDER[i];
-    if (index < INDEXES.length)
+    var index = _INDEX_ORDER[i];
+    if (index < _INDEXES.length)
       _content[rownum][index] = document.getElementById("edit_textarea_" + i).value;
     else //Memo Fields
       _content[rownum][index] = document.getElementById("edit_textarea_" + i).value.split("\n");
@@ -723,13 +763,26 @@ function saveEditRecord(rownum) {
   populateRecordBrowser(_currentRecordBrowserStartIndex, false);
   clearSearchResults();
 
-  if (!LOCAL_MODE) {
+  if (!_LOCAL_MODE) {
     var row = _content[rownum];
     var partObj = new Object();
-    for (var i = 0; i < INDEXES.length; ++i)
-      partObj[INDEXES[i]] = row[i];
-    for (var i = 0; i < MEMO_INDEXES.length; ++i)
-      partObj[MEMO_INDEXES[i]] = row[i + INDEXES.length];
+    for (var i = 0; i < _INDEXES.length; ++i)
+      partObj[_INDEXES[i]] = row[i];
+    for (var i = 0; i < _MEMO_INDEXES.length; ++i)
+      partObj[_MEMO_INDEXES[i]] = row[i + _INDEXES.length];
+    writeToDatabase('parts_db/P&A_PRI/' + row[row.length - 1], partObj, true, true, false, null);
+  }
+}
+
+function saveContentToDatabase(rownum)
+{
+  if (!_LOCAL_MODE) {
+    var row = _content[rownum];
+    var partObj = new Object();
+    for (var i = 0; i < _INDEXES.length; ++i)
+      partObj[_INDEXES[i]] = row[i];
+    for (var i = 0; i < _MEMO_INDEXES.length; ++i)
+      partObj[_MEMO_INDEXES[i]] = row[i + _INDEXES.length];
     writeToDatabase('parts_db/P&A_PRI/' + row[row.length - 1], partObj, true, true, false, null);
   }
 }
@@ -743,8 +796,8 @@ function startNewRecord(indexToCopy) {
   var contentToCopy = new Array();
   if (indexToCopy != null) {
     for (var i = 0; i < INDEXES_CONCAT.length; ++i) {
-      var trueIndex = INDEX_ORDER[i];
-      if (trueIndex < INDEXES.length) //MEMO INDEX
+      var trueIndex = _INDEX_ORDER[i];
+      if (trueIndex < _INDEXES.length) //MEMO INDEX
         contentToCopy.push(_content[indexToCopy][trueIndex]);
       else
         contentToCopy.push(stringifyArrayEndChar(_content[indexToCopy][trueIndex], "\n"));
@@ -756,14 +809,14 @@ function startNewRecord(indexToCopy) {
   }
 
   for (var i = 0; i < INDEXES_CONCAT.length; ++i) {
-    var index = INDEX_ORDER[i];
+    var index = _INDEX_ORDER[i];
     tableHTML += "<th><div style='width: " + INDEX_WIDTHS_CONCAT[index] + ";'>" + INDEXES_CONCAT[index] + "</div></th>";
   }
 
   tableHTML += "</tr><tr>"
 
   for (var i = 0; i < INDEX_WIDTHS_CONCAT.length; ++i) {
-    var index = INDEX_ORDER[i];
+    var index = _INDEX_ORDER[i];
     if (index == 0) {
       tableHTML += "<td><div style='display: flex; align-items: center; justify-content: center;'>" +
         "<div style='flex-direction: column;'>" +
@@ -772,7 +825,7 @@ function startNewRecord(indexToCopy) {
         "</div>" +
         "<input type='text' id='new_textarea_" + i + "' style='width: 50%;' onfocus='deselectTable();' onchange='deselectTable();' value=" + (_largestRecordNumber + 1) + "></input></div></td>";
     }
-    else if (index < INDEXES.length)
+    else if (index < _INDEXES.length)
       tableHTML += "<td><input type='text' id='new_textarea_" + i + "' style='width: " + INDEX_WIDTHS_CONCAT[index] + ";' onfocus='deselectTable();' onchange='deselectTable();'></input></td>";
     else
       tableHTML += "<td><textarea id='new_textarea_" + i + "' style='width: " + INDEX_WIDTHS_CONCAT[index] + ";' onfocus='deselectTable();' onchange='deselectTable();'></textarea></td>";
@@ -781,7 +834,7 @@ function startNewRecord(indexToCopy) {
   tableHTML += "</tr></table><br>";
   document.getElementById("add_part_table_div").innerHTML = tableHTML;
   for (var i = 0; i < INDEX_WIDTHS_CONCAT.length; ++i) {
-    var index = INDEX_ORDER[i];
+    var index = _INDEX_ORDER[i];
     if (index == 0) {
 
     }
@@ -797,19 +850,19 @@ function cancelNewRecord() {
 function saveNewRecord() {
   var partsListRef = getDatabaseRef('parts_db/P&A_PRI');
   var newPartRef = (_largestRecordNumber + 1) + "n";
-  if (!LOCAL_MODE)
+  if (!_LOCAL_MODE)
     newPartRef = partsListRef.push();
 
   _content.push(new Array(INDEXES_CONCAT.length));
   var row = _content[_content.length - 1];
   for (var i = 0; i < INDEXES_CONCAT.length; ++i) {
-    var index = INDEX_ORDER[i];
-    if (index < INDEXES.length)
+    var index = _INDEX_ORDER[i];
+    if (index < _INDEXES.length)
       row[index] = document.getElementById("new_textarea_" + i).value;
     else
       row[index] = document.getElementById("new_textarea_" + i).value.split("\n");
   }
-  if (LOCAL_MODE)
+  if (_LOCAL_MODE)
     row.push(newPartRef); //Add key to end
   else
     row.push(newPartRef.key);
@@ -818,12 +871,12 @@ function saveNewRecord() {
   populateRecordBrowser(_currentRecordBrowserStartIndex, false);
   clearSearchResults();
 
-  if (!LOCAL_MODE) {
+  if (!_LOCAL_MODE) {
     var partObj = new Object();
-    for (var i = 0; i < INDEXES.length; ++i)
-      partObj[INDEXES[i]] = row[i];
-    for (var i = 0; i < MEMO_INDEXES.length; ++i)
-      partObj[MEMO_INDEXES[i]] = row[i + INDEXES.length];
+    for (var i = 0; i < _INDEXES.length; ++i)
+      partObj[_INDEXES[i]] = row[i];
+    for (var i = 0; i < _MEMO_INDEXES.length; ++i)
+      partObj[_MEMO_INDEXES[i]] = row[i + _INDEXES.length];
     writeToDatabase('parts_db/P&A_PRI/' + newPartRef.key, partObj, true, true, false, null);
   }
 }
@@ -847,7 +900,7 @@ function cancelDeleteRecord() {
 }
 
 function confirmDeleteRecord(rownum) {
-  if (!LOCAL_MODE) {
+  if (!_LOCAL_MODE) {
     deleteFromDatabase('parts_db/P&A_PRI/' + _content[rownum][_content[rownum].length - 1], true, true, false, null);
   }
 
@@ -875,7 +928,7 @@ function startNewSortOrder(id1) {
 function getSortOrderNewCell(id1, id2) {
   var newHTML = "<td id='sort_order_cell_" + id1 + "_" + id2 + "'><div style='display: flex; align-items: center; justify-content: center;'><select id='sort_order_select_" + id1 + "_" + id2 + "' style='font-size: 20px;'>";
   for (var i = 0; i < INDEXES_CONCAT.length; ++i) {
-    var index = INDEX_ORDER[i];
+    var index = _INDEX_ORDER[i];
     newHTML += "<option value='" + INDEXES_CONCAT[0] + "'>" + INDEXES_CONCAT[index] + "</option>";
   }
   var plusScript = "appendSortOrderCell(" + id1 + "," + id2 + ");";
@@ -890,7 +943,7 @@ function getSortOrderNewCell(id1, id2) {
 function getSortOrderCell(id1, id2, defaultIndex) {
   var newHTML = "<td id='sort_order_cell_" + id1 + "_" + id2 + "'><div style='display: flex; align-items: center; justify-content: center;'><select id='sort_order_select_" + id1 + "_" + id2 + "' style='font-size: 20px; display: none;'>";
   for (var i = 0; i < INDEXES_CONCAT.length; ++i) {
-    var index = INDEX_ORDER[i];
+    var index = _INDEX_ORDER[i];
     newHTML += "<option value='" + INDEXES_CONCAT[defaultIndex] + "'>" + INDEXES_CONCAT[index] + "</option>";
   }
   var plusScript = "appendSortOrderCell(" + id1 + "," + id2 + ");";
@@ -1036,7 +1089,7 @@ function clearSearchResults() {
   document.getElementById("radio_columns_any").checked = true;
   document.getElementById("search_input").value = "";
   setRadioColumn();
-  search_query();
+  search_query(true);
 }
 
 function recordBrowserJumpToEdge(end) {
@@ -1048,9 +1101,9 @@ function recordBrowserJumpToEdge(end) {
     index = _content.length - 1;
   }
 
-  var cell = getCell(index, _selectedCell, TABLE_RECORD_BROWSER);
+  var cell = getCell(index, _selectedCell, _TABLE_RECORD_BROWSER);
   if (cell != null)
-    onCellClick(index, _selectedCell, cell.id, TABLE_RECORD_BROWSER);
+    onCellClick(index, _selectedCell, cell.id, _TABLE_RECORD_BROWSER);
 }
 
 function searchResultsJumpToEdge(end) {
@@ -1062,12 +1115,12 @@ function searchResultsJumpToEdge(end) {
   }
 }
 
-function highlightString(str, termToHighlightList, preHTML_List, postHTML_List) {
+function highlightString(str1, termToHighlightList, preHTML_List, postHTML_List) {
   var matchList = [];
   let match;
   var indexToPreHTMLs = new Map();
   var indexToPostHTMLs = new Map();
-
+  var str = String(str1);
   for (var i = 0; i < termToHighlightList.length; ++i) {
     var regexp = new RegExp(getRegexSafeSearchTerm(termToHighlightList[i]), "g");
     while ((match = regexp.exec(str)) !== null) {
@@ -1098,7 +1151,8 @@ function highlightString(str, termToHighlightList, preHTML_List, postHTML_List) 
   matchList.sort(COMPARE_NUMBERS);
   for (var i = matchList.length - 1; i >= 0; --i) {
     var index = matchList[i];
-    if (indexToPreHTMLs.has(index)) {
+    if (indexToPreHTMLs.has(index))
+    {
       var preHTML_List2 = indexToPreHTMLs.get(index);
       for (var j = 0; j < preHTML_List2.length; ++j)
         str = str.substring(0, index) + preHTML_List2[j] + str.substring(index, str.length);
@@ -1113,7 +1167,8 @@ function highlightString(str, termToHighlightList, preHTML_List, postHTML_List) 
   return str;
 }
 
-function highlightStringBasic(str, startIndexes, endIndexes, preHTML, postHTML) {
+function highlightStringBasic(str1, startIndexes, endIndexes, preHTML, postHTML) {
+  var str = String(str1);
   var str_length = str.length;
   var str2 = str;
   for (var i = str_length - 1; i >= 0; --i) {
@@ -1280,7 +1335,7 @@ function getWordCompareIndexes(str1, str2, type) {
   var ignoreIndexes = [];
   for (var i = 0; i < str2_split.length; ++i) {
     var str2_word = str2_split[i];
-    if (WORDS_TO_IGNORE.includes(str2_word)) {
+    if (_WORDS_TO_IGNORE.includes(str2_word)) {
       ignoreIndexes.push(i);
     }
     else {
@@ -1392,7 +1447,8 @@ function toggleRecordViewMemo(id1) {
 //KUYKENDALL/517-1498
 //WHITTAKER INVEST/953.-7032
 
-function getPDFNumberNamePhone(str) {
+function getPDFNumberNamePhone(str1) {
+  var str = String(str1);
   var regexp = /^([0-9.]+\/)(.+\/)([0-9-.]+)/;
   var result = str.match(regexp)
   if (result != null) {
@@ -1418,7 +1474,7 @@ function getPDFNumberNamePhone(str) {
 function cleanPDFNumberNamePhoneString(str) {
 
   //Remove multiple spaces
-  var str2 = str.replace(/ {2,}/g, " ");
+  var str2 = String(str).replace(/ {2,}/g, " ");
 
   //Remove spaces at beginning of string
   if (str2.length > 0 && str2.charAt(0) == " ")
@@ -1538,7 +1594,8 @@ function processPage() {
             var numberNamePhone = null;
             while (current_ITEMDESC_Index < ITEMDESC_Indexes.length && textContentArrayAll[ITEMDESC_Indexes[current_ITEMDESC_Index]].adjustedHeight > nextORDEREDHeight) {
               var str = removeExtraSpaces(textContentArrayAll[ITEMDESC_Indexes[current_ITEMDESC_Index]].str);
-              if (str != "") {
+              if (str != "") 
+              {
                 var numberNamePhoneTemp = getPDFNumberNamePhone(str);
                 if (numberNamePhoneTemp != null)
                   numberNamePhone = numberNamePhoneTemp;
@@ -1745,10 +1802,10 @@ function reloadContentFromChangeAlert(alertOBJ) {
       else //Edit Record
       {
         var content_line = [];
-        for (var i = 0; i < INDEXES.length; ++i)
-          content_line.push(String(snapshot.child(INDEXES[i]).val()));
-        for (var i = 0; i < MEMO_INDEXES.length; ++i) {
-          var memolines = snapshot.child(MEMO_INDEXES[i]).val();
+        for (var i = 0; i < _INDEXES.length; ++i)
+          content_line.push(String(snapshot.child(_INDEXES[i]).val()));
+        for (var i = 0; i < _MEMO_INDEXES.length; ++i) {
+          var memolines = snapshot.child(_MEMO_INDEXES[i]).val();
           for (var j = 0; j < memolines.length; ++j)
             memolines[j] = String(memolines[j]);
           content_line.push(memolines);
@@ -1763,10 +1820,10 @@ function reloadContentFromChangeAlert(alertOBJ) {
     else if (!alertOBJ.deleted)//New Record
     {
       var content_line = [];
-      for (var i = 0; i < INDEXES.length; ++i)
-        content_line.push(String(snapshot.child(INDEXES[i]).val()));
-      for (var i = 0; i < MEMO_INDEXES.length; ++i) {
-        var memolines = snapshot.child(MEMO_INDEXES[i]).val();
+      for (var i = 0; i < _INDEXES.length; ++i)
+        content_line.push(String(snapshot.child(_INDEXES[i]).val()));
+      for (var i = 0; i < _MEMO_INDEXES.length; ++i) {
+        var memolines = snapshot.child(_MEMO_INDEXES[i]).val();
         for (var j = 0; j < memolines.length; ++j)
           memolines[j] = String(memolines[j]);
         content_line.push(memolines);
@@ -1801,6 +1858,8 @@ function reloadContentExtraFromChangeAlert(alertOBJ) {
     // console.log(snapshot.val());
     // console.log(_content_extra[alertOBJ.content_extra_db][rowNum][0]);
     populateRecordViews();
+
+    _CHILD_PART_LINKS_CACHE = [];
   });
 }
 
@@ -1809,14 +1868,14 @@ function startEditRecordPartReference(i1, j1) {
   if(selldiv != null)
     document.getElementById("sell_div_" + i1 + "_" + j1).style.display = "none";
   for (var i = 0; i < _recordViews.length; ++i) {
-    for (var j = 0; j < EXTRA_DB.length; ++j) {
+    for (var j = 0; j < _EXTRA_DB.length; ++j) {
       var icon = document.getElementById("record_view_partnum_edit_icon_" + i + "_" + j);
       if (icon != null)
         icon.style.display = "none";
     }
   }
   for (var i = 0; i < _recordViews.length; ++i) {
-    for (var j = 0; j < EXTRA_DB.length; ++j) {
+    for (var j = 0; j < _EXTRA_DB.length; ++j) {
       var icon = document.getElementById("sell_button_" + i + "_" + j);
       if (icon != null)
         icon.style.display = "none";
@@ -1835,17 +1894,17 @@ function saveEditRecordPartReference(i1, j1) {
   var rownum = getContentIndexFrom_DB_ID(_recordViews[i1]);
   var value = document.getElementById("record_view_partnum_input_" + i1 + "_" + j1).value;
   if (rownum != null) {
-    edit_content(rownum, EXTRA_DB_ACTUAL_INDEXES[j1], value);
+    edit_content(rownum, _EXTRA_DB_ACTUAL_INDEXES[j1], value);
   }
   var key = "parts_db/P&A_PRI/" + _recordViews[i1];
   var row = _content[rownum];
   var partObj = new Object();
-  for (var i = 0; i < INDEXES.length; ++i)
-    partObj[INDEXES[i]] = row[i];
-  for (var i = 0; i < MEMO_INDEXES.length; ++i)
-    partObj[MEMO_INDEXES[i]] = row[i + INDEXES.length];
+  for (var i = 0; i < _INDEXES.length; ++i)
+    partObj[_INDEXES[i]] = row[i];
+  for (var i = 0; i < _MEMO_INDEXES.length; ++i)
+    partObj[_MEMO_INDEXES[i]] = row[i + _INDEXES.length];
     populateRecordViews();
-    if(!LOCAL_MODE)
+    if(!_LOCAL_MODE)
       writeToDatabase(key, partObj, true, true, false, null);
 }
 
@@ -1857,6 +1916,14 @@ function edit_content(rownum, field, value) {
   populateRecordViews();
 }
 
+function saveContentExtraToDatabase(i, j)
+{
+  var extraobj = _content_extra[i][j][0];
+  if(!_LOCAL_MODE)
+    writeToDatabase("parts_db/" + _EXTRA_DB[i] + "/" + _content_extra[i][j][1], extraobj, true, false, true, i);
+  _CHILD_PART_LINKS_CACHE = [];
+}
+
 function saveEditPartChild()
 {
   var extraobj = _content_extra[_selected_child_part_db][_selected_child_part_record][0];
@@ -1866,12 +1933,14 @@ function saveEditPartChild()
     newObj[key] = document.getElementById("partchild_edit_input_" + key).value;
   }
   _content_extra[_selected_child_part_db][_selected_child_part_record][0] = newObj;
-  if(!LOCAL_MODE)
-    writeToDatabase("parts_db/" + EXTRA_DB[_selected_child_part_db] + "/" + _content_extra[_selected_child_part_db][_selected_child_part_record][1], newObj, true, false, true, _selected_child_part_db);
+  if(!_LOCAL_MODE)
+    writeToDatabase("parts_db/" + _EXTRA_DB[_selected_child_part_db] + "/" + _content_extra[_selected_child_part_db][_selected_child_part_record][1], newObj, true, false, true, _selected_child_part_db);
   _selected_child_part_db = null;
   _selected_child_part_record = null;
   populateChildPartRecordManager();
   populateRecordViews();
+
+  _CHILD_PART_LINKS_CACHE = [];
 }
 
 function cancelEditPartChild()
@@ -1891,13 +1960,15 @@ function startDeleteEditPartChild() {
 
 function confirmDeleteEditPartChild() 
 {
-  if(!LOCAL_MODE)
-    deleteFromDatabase("parts_db/" + EXTRA_DB[_selected_child_part_db] + "/" + _content_extra[_selected_child_part_db][_selected_child_part_record][1], true, false, true, _selected_child_part_db);
+  if(!_LOCAL_MODE)
+    deleteFromDatabase("parts_db/" + _EXTRA_DB[_selected_child_part_db] + "/" + _content_extra[_selected_child_part_db][_selected_child_part_record][1], true, false, true, _selected_child_part_db);
   _content_extra[_selected_child_part_db].splice(_selected_child_part_record, 1);
   _selected_child_part_db = null;
   _selected_child_part_record = null;
   populateChildPartRecordManager();
   populateRecordViews();
+
+  _CHILD_PART_LINKS_CACHE = [];
 }
 
 function cancelNewPartChild()
@@ -1909,9 +1980,9 @@ function cancelNewPartChild()
 function setNewPartChildButton()
 {
   var db_index =  document.getElementById("part_child_dropdown_select").selectedIndex;
-  if(db_index < EXTRA_DB.length)
+  if(db_index < _EXTRA_DB.length)
   {
-    document.getElementById("part_child_button_new").innerHTML = "Add New Child Record in " + EXTRA_DB[db_index] + " +";
+    document.getElementById("part_child_button_new").innerHTML = "Add New Child Record in " + _EXTRA_DB[db_index] + " +";
     document.getElementById("part_child_button_new").style.display = "";
   }
   else
@@ -1923,25 +1994,30 @@ function saveNewPartChild()
 {
   var db_index =  document.getElementById("part_child_dropdown_select").selectedIndex;
   var newObj = new Object();
-  for (var i = 0; i < EXTRA_DB_FIELDS[db_index].length; ++i) 
+  for (var i = 0; i < _EXTRA_DB_FIELDS[db_index].length; ++i) 
   {
-    newObj[EXTRA_DB_FIELDS[db_index][i]] = document.getElementById("partchild_new_input_" + EXTRA_DB_FIELDS[db_index][i]).value;
+    newObj[_EXTRA_DB_FIELDS[db_index][i]] = document.getElementById("partchild_new_input_" + _EXTRA_DB_FIELDS[db_index][i]).value;
   }
-  var newRef = getDatabaseRef("parts_db/" + EXTRA_DB[db_index]).push();
+  var newRef = getDatabaseRef("parts_db/" + _EXTRA_DB[db_index]).push();
   _content_extra[db_index].push([newObj, newRef.key])
-  if(!LOCAL_MODE)
-    writeToDatabase("parts_db/" + EXTRA_DB[db_index] + "/" + newRef.key, newObj, true, false, true, db_index);
+  if(!_LOCAL_MODE)
+    writeToDatabase("parts_db/" + _EXTRA_DB[db_index] + "/" + newRef.key, newObj, true, false, true, db_index);
   
   document.getElementById("part_child_button_new").style.display = "";
   document.getElementById("part_child_new_table_div").innerHTML = "";
   populateRecordViews();
+
+  _CHILD_PART_LINKS_CACHE = [];
 }
 
-var TAB_DIVS = ["TAB_search", "TAB_record_views", "TAB_record_browser", "TAB_part_child_record_manager", "TAB_sort_order", "TAB_fileinput", "TAB_invoice_settings", "TAB_invoice"];
+var TAB_DIVS = ["TAB_search", "TAB_record_views", "TAB_record_browser", "TAB_part_child_record_manager", "TAB_sort_order", "TAB_fileinput", "TAB_reorders", "TAB_invoice_history", "TAB_invoice_settings", "TAB_invoice"];
+var TAB_SEARCH = 0;
 var TAB_RECORD_VIEWS = 1;
 var TAB_RECORD_BROWSER = 2;
 var TAB_PART_CHILD_RECORD_MANAGER = 3;
-var TAB_INVOICE = 7;
+var TAB_REORDERS = 6;
+var TAB_INVOICE_HISTORY = 7;
+var TAB_INVOICE = 9;
 
 var _selected_tab = 0;
 var last_selected_tab = 0;
@@ -1956,8 +2032,10 @@ function setTab(num)
   }
   if(num == TAB_RECORD_VIEWS)
     populateRecordViews();
-  else if(num == TAB_RECORD_BROWSER)
-    populateRecordBrowser(_currentRecordBrowserStartIndex, false);
+  if(num == TAB_RECORD_BROWSER){
+    populateRecordBrowser(_currentRecordBrowserStartIndex, _highlightgreen_requested);
+    _highlightgreen_requested = false;
+  }
   document.getElementById(TAB_DIVS[num] + "_div").style.display = "";
   document.getElementById(TAB_DIVS[num]).style.borderBottomColor = "transparent";
   if(num == TAB_INVOICE)
@@ -1972,18 +2050,32 @@ function setTab(num)
     document.getElementById("exit_invoice_button").style.display = "none";
     document.getElementById("invoice_content").style.display = "none";
   }
+
+  document.getElementById("invoice_from_history_content").style.display = "none";
+
+  if(num == TAB_REORDERS)
+  {
+    updateReorderParentIDs();
+  }
+
+  if(num != TAB_SEARCH && num != TAB_RECORD_VIEWS)
+    deselectTable();
+
+  if(num == TAB_INVOICE_HISTORY)
+    populateInvoiceHistory();
 }
 
 function selectRecordView(num)
 {
-  if(_recordViews.length > num)
+  if(_recordViews.length > num && _selected_record_view >= 0)
   {
     _selected_record_view = num;
     for(var i = 0; i < _recordViews.length; ++i)
     {
       document.getElementById("record_view_" + i).style.backgroundColor = "";
     }
-    document.getElementById("record_view_" + num).style.backgroundColor = "lightblue";
+    if(num >= 0)
+      document.getElementById("record_view_" + num).style.backgroundColor = "lightblue";
   }
 }
 
@@ -2036,8 +2128,15 @@ function confirmPDFAddToDatabase(index)
   document.getElementById("startAddToDatabaseButton_" + index).innerHTML = "Added";
   document.getElementById("startAddToDatabaseButton_" + index).disabled = true;
   document.getElementById("startAddToDatabaseButton_" + index).className = "button_disabled";
-  if(!LOCAL_MODE)
-    writeToDatabase("parts_db/" + EXTRA_DB[extradb] + "/" + _content_extra[extradb][link][1], partObj, true, false, true, extradb);
+  if(!_LOCAL_MODE)
+    writeToDatabase("parts_db/" + _EXTRA_DB[extradb] + "/" + _content_extra[extradb][link][1], partObj, true, false, true, extradb);
+
+  // var parent_indexes = getParentRecordIndexesWithChildPart(extradb, link);
+  // for(var i = 0; i < parent_indexes.length; ++i)
+  // {
+  //   console.log("Updating " + parent_indexes[i]);
+  //   updateReorder(parent_indexes[i]);
+  // }
 }
 
 function startPDFNewChildRecord(index)
@@ -2064,15 +2163,25 @@ function jumpToChildPartFromRecordView(extradb, index)
   setNewPartChildButton();
 }
 
+function searchChildPart(extradb, searchterm)
+{
+  document.getElementById("part_child_dropdown_select").selectedIndex = extradb;
+  setTab(TAB_PART_CHILD_RECORD_MANAGER);
+  document.getElementById("part_child_edit_input").value = removeEndSemicolon(searchterm);
+  onPartChildEditFocus();
+  showPartChildEditAutocomplete();
+  cancelEditPartChild();
+}
+
 function saveInvoiceInfoToDatabase()
 {
   var address = document.getElementById("invoice_address_textarea").value;
   var bottom =  document.getElementById("invoice_bottom_textarea").value;
-  var lastorderno =  document.getElementById("invoice_last_order_no_input").value;
+  var lastorderno =  document.getElementById("invoice_last_invoice_no_input").value;
 
   writeToDatabase("invoice/address", address, false, false, false, null);
   writeToDatabase("invoice/bottom", bottom, false, false, false, null);
-  writeToDatabase("invoice/last_order_no", lastorderno, false, false, false, null);
+  writeToDatabase("invoice/last_invoice_no", lastorderno, false, false, false, null);
   document.getElementById("invoice_info_button_save").style.display = "none";
 }
 
@@ -2084,14 +2193,14 @@ function onInvoiceInfoChange()
 function startSell(i1, j1)
 {
   for (var i = 0; i < _recordViews.length; ++i) {
-    for (var j = 0; j < EXTRA_DB.length; ++j) {
+    for (var j = 0; j < _EXTRA_DB.length; ++j) {
       var icon = document.getElementById("record_view_partnum_edit_icon_" + i + "_" + j);
       if (icon != null)
         icon.style.display = "none";
     }
   }
   for (var i = 0; i < _recordViews.length; ++i) {
-    for (var j = 0; j < EXTRA_DB.length; ++j) {
+    for (var j = 0; j < _EXTRA_DB.length; ++j) {
       var icon = document.getElementById("sell_button_" + i + "_" + j);
       if (icon != null)
         icon.style.display = "none";
@@ -2107,10 +2216,11 @@ function changeSellQuantity(i1, j1, amount)
 }
 
 var _invoice_objs = [];
-var _invoice_data = new Object();
-function confirmSell(i1, j1, _content_partnum_for_extraDB)
+function confirmSell(i1, j1, _content_partnum_for_extraDB, _parent_record_id)
 {
   var extraDBIndex = getExtraDBLinkIndex(j1, _content_partnum_for_extraDB);
+  var parentRecordIndex = getParentIndexFromID(_parent_record_id);
+  var parentRecordData = _content[parentRecordIndex];
   if(extraDBIndex != null)
   {
     var partObj = _content_extra[j1][extraDBIndex][0];
@@ -2121,9 +2231,9 @@ function confirmSell(i1, j1, _content_partnum_for_extraDB)
     else
       partObj.SHOP_QTY = 0;
     var partkey = _content_extra[j1][extraDBIndex][1];
-    if(!LOCAL_MODE)
+    if(!_LOCAL_MODE)
     {
-      writeToDatabase("parts_db/" + EXTRA_DB[j1] + "/" + partkey, partObj, true, false, true, j1);
+      writeToDatabase("parts_db/" + _EXTRA_DB[j1] + "/" + partkey, partObj, true, false, true, j1);
     }
     var invoice_obj = new Object();
     invoice_obj.amountToSell = amountToSell;
@@ -2132,8 +2242,13 @@ function confirmSell(i1, j1, _content_partnum_for_extraDB)
     invoice_obj.extradb = j1;
     invoice_obj.partkey = partkey;
     invoice_obj.PN = partObj.PN;
+    invoice_obj.equip_type = parentRecordData[_EQUIP_TYPE];
+    invoice_obj.mfr = getExtraDBPartManufacturer(j1, extraDBIndex);
+    invoice_obj.equip_design = parentRecordData[_EQUIP_DESIGN];
+    invoice_obj.parent_record_id = _parent_record_id;
     _invoice_objs.push(invoice_obj);
     showSnackbar("Added to Invoice<br>Removed <u>" + amountToSell + "</u> " + partObj.PN + " from Inventory", 5000);
+    updateReorder(parentRecordIndex);
   }
   populateRecordViews();
 }
@@ -2142,6 +2257,7 @@ var _snackbar_times_shown = 0;
 function showSnackbar(message, time_to_show)
 {
   var x = document.getElementById("snackbar");
+  x.style.display = "";
   x.innerHTML = message;
   if(x.className != "hide")
     if(x.className == "refresh1")
@@ -2155,7 +2271,14 @@ function showSnackbar(message, time_to_show)
   setTimeout(function(){ 
     --_snackbar_times_shown;
     if(_snackbar_times_shown == 0)
+    {
       x.className = "hide"; 
+
+      setTimeout(function(){ 
+        x.style.display = "none";
+      }, 500);
+
+    }
   }, time_to_show);
 
 }
@@ -2171,7 +2294,9 @@ function calculateInvoiceAmounts()
     total += amount;
     document.getElementById("invoice_input_amount_" + i).value = amount.toLocaleString("en-US", {style: "currency", currency: "USD", minimumFractionDigits: 2});
   }
-  document.getElementById("invoice_input_total").value = total.toLocaleString("en-US", {style: "currency", currency: "USD", minimumFractionDigits: 2});
+  var ele = document.getElementById("invoice_input_total");
+  if(ele != null) //If Invoice has parts in it, and in turn is generating HTML
+    document.getElementById("invoice_input_total").value = total.toLocaleString("en-US", {style: "currency", currency: "USD", minimumFractionDigits: 2});
 }
 
 function removeFromInvoice(index)
@@ -2182,11 +2307,15 @@ function removeFromInvoice(index)
     var content_obj = _content_extra[invoice_obj.extradb][link][0];
     var newAmount = Number(content_obj.SHOP_QTY) + Number(invoice_obj.amountToSell);
     content_obj.SHOP_QTY = newAmount;
-    if(!LOCAL_MODE)
+    if(!_LOCAL_MODE)
     {
-      writeToDatabase("parts_db/" + EXTRA_DB[invoice_obj.extradb] + "/" + invoice_obj.partkey, content_obj, true, false, true, invoice_obj.extradb);
+      writeToDatabase("parts_db/" + _EXTRA_DB[invoice_obj.extradb] + "/" + invoice_obj.partkey, content_obj, true, false, true, invoice_obj.extradb);
     }
     showSnackbar("Added <u>" + invoice_obj.amountToSell + "</u> " + content_obj.PN + " back into inventory", 3000);
+
+    var parentRecordIndex = getParentIndexFromID(invoice_obj.parent_record_id);
+    if(parentRecordIndex != null)
+      updateReorder(parentRecordIndex);
   }
   else
   {
@@ -2204,10 +2333,16 @@ function printClick(){
 
 function finishInvoiceSale()
 {
+  saveInvoiceToObject();
   _invoice_objs = [];
   populateInvoice();
   setTab(last_selected_tab);
-  writeToDatabase("invoice/last_order_no", Number(document.getElementById("invoice_last_order_no_input").value) + 1, false, false, false, null);
+  writeToDatabase("invoice/last_invoice_no", Number(document.getElementById("invoice_last_invoice_no_input").value) + 1, false, false, false, null);
+
+  var invoiceDataListRef = getDatabaseRef('invoice_data');
+  var newInvoiceRef = invoiceDataListRef.push();
+  _invoice_data.bottom = null;
+  writeToDatabase('invoice_data/' + newInvoiceRef.key, _invoice_data, false, false, false, null);
   _invoice_data = new Object();
 }
 
@@ -2215,3 +2350,103 @@ function finishInvoiceSale()
 // {
 //   for (var member in object) delete object[member];
 // }
+
+function updateReordFromRecordView(parentRecordID)
+{
+  var rownum = getParentIndexFromID(parentRecordID);
+  if(rownum != null)
+  {
+    updateReorder(rownum);
+  }
+  populateRecordViews();
+}
+
+function getParentRecordIndexesWithChildPart(extraDB_index, pn_index)
+{
+  var parentRecordRowNums = [];
+  for(var i = 0; i < _content.length; ++i)
+  {
+    var parent_to_part_index = getExtraDBLinkIndex(extraDB_index, _content[i][_CONTENT_EXTRA_DB_INDEXES[extraDB_index]]);
+    if(parent_to_part_index == pn_index)
+      parentRecordRowNums.push(i);
+  }
+  return parentRecordRowNums;
+}
+
+var _invoice_data = new Object();
+function saveInvoiceToObject()
+{
+  var ele;
+  ele = document.getElementById("invoice_input_customer_order_no");
+  if(ele != null)
+    _invoice_data.customer_order_no = ele.value;
+  ele = document.getElementById("invoice_input_name");
+  if(ele != null)
+    _invoice_data.name = ele.value;
+  ele = document.getElementById("invoice_input_address");
+  if(ele != null)
+    _invoice_data.address = ele.value;
+  ele = document.getElementById("invoice_input_citystatezip");
+  if(ele != null)
+    _invoice_data.citystatezip = ele.value;
+  ele = document.getElementById("invoice_input_soldby");
+  if(ele != null)
+    _invoice_data.soldby = ele.value;
+  ele = document.getElementById("invoice_textarea_specs");
+  if(ele != null)
+    _invoice_data.specs = ele.value;
+  ele = document.getElementById("invoice_textarea_misc");
+  if(ele != null)
+    _invoice_data.misc = ele.value;
+  ele = document.getElementById("invoice_input_signature");
+  if(ele != null)
+    _invoice_data.signature = ele.value;
+  ele = document.getElementById("invoice_bottom_textarea_2");
+  if(ele != null)
+    _invoice_data.bottom = ele.value;
+  ele = document.getElementById("invoice_input_total");
+  if(ele != null)
+    _invoice_data.total = ele.value;
+  ele = document.getElementById("invoice_input_invoice_no");
+  if(ele != null)
+    _invoice_data.invoice_no = ele.value;
+  ele = document.getElementById("invoice_input_date");
+  if(ele != null)
+    _invoice_data.date = ele.value;
+
+  var i = 0;
+  ele = document.getElementById("invoice_input_qty_" + i);
+  var invoice_parts = [];
+  while(ele != null)
+  {
+    invoice_parts.push([]);
+    invoice_parts[i].push(ele.value);
+    ele = document.getElementById("invoice_input_desc_" + i);
+    invoice_parts[i].push(ele.value);
+    ele = document.getElementById("invoice_input_sell_" + i);
+    invoice_parts[i].push(ele.value);
+    ele = document.getElementById("invoice_input_amount_" + i);
+    invoice_parts[i].push(ele.value);
+    ++i;
+    ele = document.getElementById("invoice_input_qty_" + i);
+  }
+  _invoice_data.invoice_parts = invoice_parts;
+}
+
+var retrieveInvoiceDataCallback = null;
+function retrieveInvoiceDataFromDatabase(callback)
+{
+  document.getElementById("button_update_invoice_history").style.display = "none";
+  retrieveInvoiceDataCallback = callback;
+  var invoiceDataRef = firebase.database().ref('invoice_data');
+  invoiceDataRef.once('value', function(snapshot) {
+    _content_invoice_history = [];
+    snapshot.forEach(function(childSnapshot) {
+      _content_invoice_history.push(childSnapshot.val());
+    });
+    if(retrieveInvoiceDataCallback != null)
+      retrieveInvoiceDataCallback();
+    document.getElementById("button_update_invoice_history").style.display = "";
+  });
+
+}

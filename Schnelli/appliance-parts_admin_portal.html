@@ -433,10 +433,12 @@
   </style>
 
 <!-- <span><b>PLUMB</b></span> -->
-  <div class="hide" id="snackbar">Some text some message..</div>
-  <button class="no-print" id="exit_invoice_button" style="display: none; position: absolute; top: 120px; left: 10px;" onclick="setTab(last_selected_tab);">&lt; Back</button>
-  <div id="invoice_content" style="display: none;">
-  </div>
+  <div id="local_mode_indicator" class="no-print"></div>
+  <div class="hide" id="snackbar" style="display: none;"></div>
+  <button class="no-print" id="exit_invoice_button" style="display: none; position: absolute; top: 0px; left: 10px;" onclick="setTab(last_selected_tab);">&lt; Back</button>
+  <button class="no-print" id="exit_invoice_from_history_button" style="display: none; position: absolute; top: 0px; left: 10px;" onclick="exitInvoiceFromHistory();">&lt; Back</button>
+  <div id="invoice_content" style="display: none;"></div>
+  <div id="invoice_from_history_content" style="display: none;"></div>
   <div id="non_invoice_content">
       <div id = "login_div" style="display: none;">
         <h1>Schnelli Appliance Parts Database</h1>
@@ -460,8 +462,10 @@
           <div id="TAB_part_child_record_manager" class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(3);">Part Child Record Manager</div>
           <div id="TAB_sort_order"                class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(4);">Sort Orders</div>
           <div id="TAB_fileinput"                 class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(5);">PDF Import</div>
-          <div id="TAB_invoice_settings"          class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(6);">Invoice Settings</div>
-          <div id="TAB_invoice"                   class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(7);">Invoice</div>
+          <div id="TAB_reorders"                  class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(6);">Reorders</div>
+          <div id="TAB_invoice_history"           class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(7);">Invoice History</div>
+          <div id="TAB_invoice_settings"          class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(8);">Invoice Settings</div>
+          <div id="TAB_invoice"                   class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(9);">Invoice</div>
         </div>
 
         <div id="TAB_fileinput_div">
@@ -525,25 +529,28 @@
 
         <div id="TAB_search_div">
           <div id="search_div" style="display: none;">
+                <label class="checkBox_container" style="display: block; " >Exact Match (Ignores Capitalization)<input type="checkbox" id="search_exact_match"><span class="checkmark"></span></label>
+            <br><label class="checkBox_container" style="display: block; " >Highlighting<input type="checkbox" id="search_highlight" onchange="onChangeShouldHighlight();" checked><span class="checkmark"></span></label>
+            <div id="search_highlight_div" style="display: block; position: relative; left: 50px;">
+              <br><label class="checkBox_container" style="display: block;" >Highlight Similar Words<input type="checkbox" id="search_highlight_similar_words"><span class="checkmark"></span></label>
+              <br><input id="repititions_min" type="number" min="0" onchange='setMinRepititions();' onfocus='deselectTable();' style="display: inline-block; width: 50px; font-size: 20px;"><label style="display: inline-block; font-size: 20px;">Repititions required to highlight</label></input>
+            </div>
+            <br><label class="checkBox_container" style="display: block; ">Child Part Links<input type="checkbox" id="search_add_child_part_links" checked><span class="checkmark"></span></label>
             <p style="font-size: 20px;">Columns</p>
             <label class="radiobutton_container" style="display: inline;">Any&nbsp;&nbsp;<input onchange="setRadioColumn();" type="radio" id="radio_columns_any" name="radio_columns" checked><span class="radiomark"></span></label>
             <label class="radiobutton_container" style="display: inline;">Specific&nbsp;&nbsp;<input onchange="setRadioColumn();" type="radio" id="radio_columns_specific" name="radio_columns"><span class="radiomark"></span></label>
             <span id="radio_columns_all_none_buttons_div">
-              <button style="display: inline-block; position:absolute; left: 230px; width: 70px;" onclick="setRadioColumnsChecked(true);">All</button>
-              <button style="display: inline-block; position:absolute; left: 310px; width: 70px;" onclick="setRadioColumnsChecked(false);">None</button>
+              <button style="display: inline-block; position: absolute; left: 230px; width: 70px;" onclick="setRadioColumnsChecked(true);">All</button>
+              <button style="display: inline-block; position: absolute; left: 310px; width: 70px;" onclick="setRadioColumnsChecked(false);">None</button>
             </span>
-            <label class="checkBox_container" style="display: inline; position:absolute; left: 400px;">Exact Match (Ignores Capitalization)<input type="checkbox" id="search_exact_match"><span class="checkmark"></span></label>
-            <label class="checkBox_container" style="display: inline; position:absolute; left: 800px;">Highlighting<input type="checkbox" id="search_highlight_similar_words" checked><span class="checkmark"></span></label>
-            <label class="checkBox_container" style="display: inline; position:absolute; left: 980px;">Only Highlight Matches<input type="checkbox" id="search_highlight_only_matches" checked><span class="checkmark"></span></label>
-            <input id="repititions_min" type="number" min="0" onchange='setMinRepititions();' onfocus='deselectTable();' style="display: inline-block; position:absolute; left: 1260px; width: 50px; font-size: 20px;"><label style="position:absolute; left: 1320px; font-size: 20px;">Repititions required to highlight</label></input>
-            <div id="radio_columns_div">
+           <div id="radio_columns_div">
               <div id="radio_columns_checkboxes"      style="margin-top: 50px;"></div> <!-- Auto generated -->
               <div id="radio_columns_checkboxes_more" style="display: none;"></div> <!-- Auto generated -->
             </div>
             <div id="search_any_input_div">
               <h1>Search</h1>
-              <input id="search_input" type="text" style="width: 500px;" onfocus='deselectTable();'>
-              <button id="search_any_button" style="width: 100px;" onclick="search_query();">Go</button>
+              <input id="search_input" type="text" style="width: 1000px; height: 100px; font-size: 50px;" onfocus='deselectTable();'>
+              <button id="search_any_button" style="position: relative; bottom: 13px; width: 100px; height: 100px;" onclick="search_query();">Go</button>
             </div>
           </div>
           <div id="search_results_expander" onclick="toggle_search_results(2);" style="display: none;" class="clickable"><h1><span id="search_results_expander_icon" style="font-size: 50px; font-weight: 100;">+</span> Search Results</h1></div>
@@ -555,6 +562,7 @@
         </div>
 
         <div id="TAB_record_views_div">
+          <p>Press the <img title='Open Record View' src='record_view.png' width=50px height=20px> icon in 'Search' or 'Record Browser' to add a part children record view</p>
           <div id="record_views_div">
           </div>
         </div>
@@ -567,6 +575,31 @@
         </div>
         <br>
 
+        <div id="TAB_reorders_div">
+          <button id="button_update_reorders" onclick="updateReorders();">Update Reorders</button>
+          <div id="table_reorders_div"></div>
+        </div>
+
+        <div id="TAB_invoice_history_div">
+          <div id="invoice_history_internal_div">
+            <button id="button_update_invoice_history" onclick="retrieveInvoiceDataFromDatabase(populateInvoiceHistory);">Update Invoice History</button>
+            <h3>Filter by</h3>
+            <table>
+              <tr><td>Date</td><td>Name</td><td>Total</td><td>Invoice No.</td><td>Any Field</td></tr>
+              <tr>
+              <td><input type="text" id="invoice_history_filter_time" name="invoice_history_filter_time" value=""></td>
+              <td><input type="text" id="invoice_history_filter_name" value="" oninput="populateInvoiceHistory();"></td>
+              <td><input type="text" id="invoice_history_filter_total" value="" oninput="populateInvoiceHistory();"></td>
+              <td><input type="text" id="invoice_history_filter_invoice_no" value="" oninput="populateInvoiceHistory();"></td>
+              <td><input type="text" id="invoice_history_filter_invoice_any_field" value="" oninput="populateInvoiceHistory();"></td>
+              </tr>
+            </table>
+            <button id="button_clear_invoice_filters" onclick="clearInvoiceFilters();">Clear Filters</button>
+            <br><br>
+            <div id="table_invoice_history_div"></div>
+          </div>
+        </div>
+
         <div id="TAB_invoice_settings_div">
           <h2>Address</h2>
           <textarea id='invoice_address_textarea' style="width: 500px; height: 135px;" onfocus='deselectTable(); onInvoiceInfoChange();'></textarea>
@@ -574,8 +607,8 @@
           <h2>Info at bottom</h2>
           <textarea id='invoice_bottom_textarea'  style="width: 500px; height: 135px;" onfocus='deselectTable(); onInvoiceInfoChange();'></textarea>
           <br>
-          <h2>Order No. (Increments Automatically)</h2>
-          <input type='text' id='invoice_last_order_no_input' style="width: 500px;" onfocus='deselectTable(); onInvoiceInfoChange();'>
+          <h2>Invoice No. (Increments Automatically)</h2>
+          <input type='text' id='invoice_last_invoice_no_input' style="width: 500px;" onfocus='deselectTable(); onInvoiceInfoChange();'>
           <br>
           <button id='invoice_info_button_save' style="width: 200px;" onclick="saveInvoiceInfoToDatabase();">Save</button>
         </div>
@@ -597,12 +630,12 @@
       </div>
     </div>
 
-    <!-- <script type="text/javascript" src="get_search_results.js"></script> -->
+    <!-- <script type="text/javascript" src="workers/get_search_results.js"></script> -->
     <script type="text/javascript" src="data.js"></script>
     <script type="text/javascript" src="pdfjs/pdf.js"></script>
     <!-- <script type="text/javascript" src="pdfjs/pdf.worker.js"></script> -->
     <script type="text/javascript" src="w4_funcs.js"></script>
-    <script type="text/javascript" src="compare_funcs.js"></script>
+    <script type="text/javascript" src="workers/compare_funcs.js"></script>
     <script type="text/javascript" src="appliance_parts_admin_portal_script.js"></script>
     <script type="text/javascript" src="eventlisteners.js"></script>
     

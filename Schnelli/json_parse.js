@@ -1,14 +1,14 @@
         // console.log(JSON.stringify(myobj));
         var indexes = ["RECORD_NUMBER","DESCRIP1","DESCRIP2","COMMENTS","EQUIP_TYPE","EQUIP_DSGN","APPL_BRAND","APPL_MFR","PART_TYPE","B_PN",   "CHLX_PN","F_PN",   "GEM_PN", "RS_PN",  "MM_PN",  "JS_PN",  "K_PN",   "L_PN",   "M_PN",   "N_PN",   "OEM_PN", "PART_NUMBR", "Q_PN",   "SOURCE", "UNIT",   "KEEP",   "REORD_QTY","GET",    "PICKED", "TAG",    "FROM",   "CGS",    "DATE",   "FRT_IN", "QUESTIONS","MODIFIED","NEW",    "NEWER",  "LOCATION","SPECMETHOD","SPEC01NAME","SPEC01HINT","SPEC01DATA","SPEC02NAME","SPEC02HINT","SPEC02DATA","SPEC03NAME","SPEC03HINT","SPEC03DATA","SPEC04NAME","SPEC04HINT","SPEC04DATA","SPEC05NAME","SPEC05HINT","SPEC05DATA","SPEC06NAME","SPEC06HINT","SPEC06DATA","SPEC07NAME","SPEC07HINT","SPEC07DATA","SPEC08NAME","SPEC08HINT","SPEC08DATA","SPEC09NAME","SPEC09HINT","SPEC09DATA","SPEC10NAME","SPEC10HINT","SPEC10DATA","SPEC11NAME","SPEC11HINT","SPEC11DATA","SPEC12NAME","SPEC12HINT","SPEC12DATA"];
 
-        function readSingleFile_ascii(evt) {
+        function readSingleFile_PA_PRI(evt) {
             var f = evt.target.files[0];
             if (f) {
                 var r = new FileReader();
                 r.onload = function(e) { 
                     var contents = e.target.result;
-                    _content_ascii = processCSVData(contents);
-                    console.log("ascii " + _content_ascii.length);
+                    _content_PA_PRI = processCSVData(contents);
+                    console.log("ascii " + _content_PA_PRI.length);
                 }
                 r.readAsText(f);
             } else {
@@ -24,6 +24,8 @@
                     var contents = e.target.result;
                     _content_look_up_pn = processLSTData(contents);
                     console.log("look_up_pn " + _content_look_up_pn.length);
+                    console.log(_content_look_up_pn[0]);
+                    console.log(_content_look_up_pn[1]);
                 }
                 r.readAsText(f);
             } else {
@@ -76,13 +78,13 @@
             }
         }
 
-        var _content_ascii;
+        var _content_PA_PRI;
         var _content_look_up_pn;
         var _content_advice;
         var _content_attn;
         var _content_model;
 
-        document.getElementById('fileinput_ascii').addEventListener('change', readSingleFile_ascii, false);
+        document.getElementById('fileinput_ascii').addEventListener('change', readSingleFile_PA_PRI, false);
         document.getElementById('fileinput_look_up_pn').addEventListener('change', readSingleFile_look_up_pn, false);
         document.getElementById('fileinput_advice').addEventListener('change', readSingleFile_advice, false);
         document.getElementById('fileinput_attn').addEventListener('change', readSingleFile_attn, false);
@@ -90,10 +92,10 @@
 
         function generateJSON(){
             var objs = [];
-            for(var i = 0; i < _content_ascii.length; ++i){
+            for(var i = 0; i < _content_PA_PRI.length; ++i){
                 var myObj = new Object();
                 for(var j = 0; j < indexes.length; ++j)
-                    myObj[indexes[j]] = _content_ascii[i][j];
+                    myObj[indexes[j]] = _content_PA_PRI[i][j];
                 myObj.LOOK_UP_PN = _content_look_up_pn[i];
                 myObj.ADVICE = _content_advice[i];
                 myObj.ATTN = _content_attn[i];
@@ -169,8 +171,9 @@
             return _content;
         }
 
-        function stripQuotations(str)
+        function stripQuotations(str1)
         {
+            var str = String(str1);
             if(str.length >= 2 && str[0] == "\"" && str[str.length - 1] == "\"")
             {
                 return str.substring(1, str.length - 1);

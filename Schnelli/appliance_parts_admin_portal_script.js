@@ -1288,12 +1288,14 @@ function saveEditRecordViewData(index)
     _content[rownum][_SOURCE    ] = String(document.getElementById("record_view_data_input_SOURCE_" + index).value);
     _content[rownum][_MODEL     ] = String(document.getElementById("record_view_data_input_MODEL_" + index).value).split("\n"); //TextArea
     _content[rownum][_FROM      ] = String(document.getElementById("record_view_data_input_FROM_" + index).value);
+    var edb_indexes = [];
     for(var j = 0; j < _EXTRA_DB.length; ++j)
     {
       var _content_partnum_for_extraDB = _content[rownum][_CONTENT_EXTRA_DB_INDEXES[j]];
       var extraDBIndex = getExtraDBLinkIndex(j, _content_partnum_for_extraDB);
       if(extraDBIndex != null)
       {
+        edb_indexes.push(extraDBIndex);
         for(var k = 0; k < RECORD_VIEW_HEADERS.length; ++k)
         {
           var ele = document.getElementById("record_view_data_input_" + RECORD_VIEW_HEADERS[k] + "_" + index + "_" + j);
@@ -1302,8 +1304,14 @@ function saveEditRecordViewData(index)
             _content_extra[j][extraDBIndex][0][RECORD_VIEW_HEADERS_ACTUAL_INDEXES[k][j]] = String(ele.value);
           }
         }
-        saveContentExtraToDatabase(j, extraDBIndex); 
       }
+      else
+        edb_indexes.push(null);
+    }
+    for(var j = 0; j < _EXTRA_DB.length; ++j)
+    {
+      if(edb_indexes[j] != null)
+        saveContentExtraToDatabase(j, edb_indexes[j]); 
     }
     saveContentToDatabase(rownum);
   }

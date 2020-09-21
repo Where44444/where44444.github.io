@@ -18,6 +18,26 @@ var _EXTRA_DB =                 ["B_DNI", "CHLX",    "DNI",  "F",    "GEM",    "
 var _EXTRA_DB_ACTUAL_INDEXES =  ["B_PN",  "CHLX_PN", "Q_PN", "F_PN", "GEM_PN", "RS_PN", "MM_PN", "JS_PN", "OEM_PN"];
 var _CONTENT_EXTRA_DB_INDEXES = [ 9,       10,        22,     11,     12,       13,      14,      15,      20];
 var _EXTRA_DB_COMMENTS_PREFIXES = ["B", "C", "D", "F", "G", "H", "I", "J", "O"];
+
+var RECORD_VIEW_DB_HEADER_WIDTH = "150px";
+var RECORD_VIEW_HEADERS =                 ["MFR",                                                         "PART#", "S",          "LOC",        "T1",         "T2",         "U",           "VEND",   "DATE",   "CGS",   "RETAIL",     "SELL"];
+var RECORD_VIEW_HEADERS_WIDTHS =          ["100px",                                                       "300px", "70px",       "100px",      "70px",       "70px",       "70px",        "100px",  "200px",  "100px", "100px",      "100px"];
+// var RECORD_VIEW_HEADERS_ACTUAL_INDEXES = [["PART_MFR", "GEM_ID", "RS_ID", "MM_ID", "JS_ID", "APPL_MFR"], ["PN"],  ["SHOP_QTY"], ["LOCATION"], ["TRK1_QTY"], ["TRK2_QTY"], ["USED_QTY"],  ["FROM"], ["DATE"], ["CGS"], ["VEND_RET"], ["SELL"]];
+var RECORD_VIEW_HEADERS_ACTUAL_INDEXES = [
+ ["PART_MFR", "PART_MFR", "APPL_MFR", "PART_MFR", "GEM_ID", "RS_ID", "MM_ID", "JS_ID", "APPL_MFR"], 
+ ["PN","PN","PN","PN","PN","PN","PN","PN","PN"],  
+ ["SHOP_QTY","SHOP_QTY","SHOP_QTY","SHOP_QTY","SHOP_QTY","SHOP_QTY","SHOP_QTY","SHOP_QTY","SHOP_QTY"],
+ ["LOCATION","LOCATION","LOCATION","LOCATION","LOCATION","LOCATION","LOCATION","LOCATION","LOCATION"], 
+ ["TRK1_QTY","TRK1_QTY","TRK1_QTY","TRK1_QTY","TRK1_QTY","TRK1_QTY","TRK1_QTY","TRK1_QTY","TRK1_QTY"], 
+ ["TRK2_QTY","TRK2_QTY","TRK2_QTY","TRK2_QTY","TRK2_QTY","TRK2_QTY","TRK2_QTY","TRK2_QTY","TRK2_QTY"],
+ ["USED_QTY","USED_QTY","USED_QTY","USED_QTY","USED_QTY","USED_QTY","USED_QTY","USED_QTY","USED_QTY"],  
+ ["FROM","FROM","FROM","FROM","FROM","FROM","FROM","FROM","FROM"], 
+ ["DATE","DATE","DATE","DATE","DATE","DATE","DATE","DATE","DATE"], 
+ ["CGS","CGS","CGS","CGS","CGS","CGS","CGS","CGS","CGS"], 
+ ["VEND_RET","VEND_RET","VEND_RET","VEND_RET","VEND_RET","VEND_RET","VEND_RET","VEND_RET","VEND_RET"], 
+ ["SELL","SELL","SELL","SELL","SELL","SELL","SELL","SELL","SELL"]
+];
+
 var _DESCRIP1 =     1;
 var _DESCRIP2 =     2;
 var _COMMENTS =     3;
@@ -37,7 +57,7 @@ var _ADVICE =      77;
 var _ATTN =        78;
 var _MODEL =       79;
 
-var _LOCAL_MODE = false;
+var _LOCAL_MODE = true;
 if(_LOCAL_MODE)
 {
   document.getElementById("local_mode_indicator").innerHTML = "Local Mode ON";
@@ -971,24 +991,6 @@ document.getElementById("part_child_dropdown_div").innerHTML = partChildDropDown
 setNewPartChildButton();
 
 //              PART_MFR PART_MFR PART_MFR GEM_ID RS_ID   MM_ID   JS_ID  APPL_MFR
-var RECORD_VIEW_DB_HEADER_WIDTH = "150px";
-var RECORD_VIEW_HEADERS =                 ["MFR",                                                         "PART#", "S",          "LOC",        "T1",         "T2",         "U",           "VEND",   "DATE",   "CGS",   "RETAIL",     "SELL"];
-var RECORD_VIEW_HEADERS_WIDTHS =          ["100px",                                                       "300px", "70px",       "100px",      "70px",       "70px",       "70px",        "100px",  "200px",  "100px", "100px",      "100px"];
-// var RECORD_VIEW_HEADERS_ACTUAL_INDEXES = [["PART_MFR", "GEM_ID", "RS_ID", "MM_ID", "JS_ID", "APPL_MFR"], ["PN"],  ["SHOP_QTY"], ["LOCATION"], ["TRK1_QTY"], ["TRK2_QTY"], ["USED_QTY"],  ["FROM"], ["DATE"], ["CGS"], ["VEND_RET"], ["SELL"]];
-var RECORD_VIEW_HEADERS_ACTUAL_INDEXES = [
- ["PART_MFR", "PART_MFR", "PART_MFR", "GEM_ID", "RS_ID", "MM_ID", "JS_ID", "APPL_MFR"], 
- ["PN","PN","PN","PN","PN","PN","PN","PN"],  
- ["SHOP_QTY","SHOP_QTY","SHOP_QTY","SHOP_QTY","SHOP_QTY","SHOP_QTY","SHOP_QTY","SHOP_QTY"],
- ["LOCATION","LOCATION","LOCATION","LOCATION","LOCATION","LOCATION","LOCATION","LOCATION"], 
- ["TRK1_QTY","TRK1_QTY","TRK1_QTY","TRK1_QTY","TRK1_QTY","TRK1_QTY","TRK1_QTY","TRK1_QTY"], 
- ["TRK2_QTY","TRK2_QTY","TRK2_QTY","TRK2_QTY","TRK2_QTY","TRK2_QTY","TRK2_QTY","TRK2_QTY"],
- ["USED_QTY","USED_QTY","USED_QTY","USED_QTY","USED_QTY","USED_QTY","USED_QTY","USED_QTY"],  
- ["FROM","FROM","FROM","FROM","FROM","FROM","FROM","FROM"], 
- ["DATE","DATE","DATE","DATE","DATE","DATE","DATE","DATE"], 
- ["CGS","CGS","CGS","CGS","CGS","CGS","CGS","CGS"], 
- ["VEND_RET","VEND_RET","VEND_RET","VEND_RET","VEND_RET","VEND_RET","VEND_RET","VEND_RET"], 
- ["SELL","SELL","SELL","SELL","SELL","SELL","SELL","SELL"]
-];
 
 var _recordViews = [];
 var _recordViews_Key_To_Details_Open = new Map();
@@ -1286,7 +1288,6 @@ function saveEditRecordViewData(index)
     _content[rownum][_SOURCE    ] = String(document.getElementById("record_view_data_input_SOURCE_" + index).value);
     _content[rownum][_MODEL     ] = String(document.getElementById("record_view_data_input_MODEL_" + index).value).split("\n"); //TextArea
     _content[rownum][_FROM      ] = String(document.getElementById("record_view_data_input_FROM_" + index).value);
-    saveContentToDatabase(rownum);
     for(var j = 0; j < _EXTRA_DB.length; ++j)
     {
       var _content_partnum_for_extraDB = _content[rownum][_CONTENT_EXTRA_DB_INDEXES[j]];
@@ -1304,6 +1305,7 @@ function saveEditRecordViewData(index)
         saveContentExtraToDatabase(j, extraDBIndex); 
       }
     }
+    saveContentToDatabase(rownum);
   }
   populateRecordViews();
 }
@@ -1642,11 +1644,13 @@ function updateReorder(rownum)
     {
       var partObj = _content_extra[j][partObjIndex][0];
       qty += Number(partObj.SHOP_QTY);
+      console.log(j + "|" + partObj.SHOP_QTY);
     }
   }
   // var reorder = Number(_content[rownum][_REORD_QTY]);
   var bulk = Number(_content[rownum][_GET]);
   var keep = Number(_content[rownum][_KEEP]);
+  console.log(qty + "|" + keep + "|" + bulk);
   if(bulk > 0)
   {
     if(qty < keep)

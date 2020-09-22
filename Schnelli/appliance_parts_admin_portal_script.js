@@ -1706,7 +1706,7 @@ function updateReordersRecursive()
   {
     var rownum = content_rownums_changed[i];
     if(rownum != null)
-      saveContentToDatabase(rownum, false);
+      saveContentToDatabase(rownum, true);
   }
 
   if(_slice_end < _content.length - 1)

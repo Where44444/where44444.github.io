@@ -787,7 +787,7 @@ function saveContentToDatabase(rownum, addChangeAlert)
       partObj[_INDEXES[i]] = row[i];
     for (var i = 0; i < _MEMO_INDEXES.length; ++i)
       partObj[_MEMO_INDEXES[i]] = row[i + _INDEXES.length];
-    writeToDatabase('parts_db/P&A_PRI/' + row[row.length - 1], partObj, true, true, false, null);
+    writeToDatabase('parts_db/P&A_PRI/' + row[row.length - 1], partObj, addChangeAlert, true, false, null);
   }
 }
 

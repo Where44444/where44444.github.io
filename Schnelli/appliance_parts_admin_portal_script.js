@@ -1,3 +1,9 @@
+var _LOCAL_MODE = false;
+if(_LOCAL_MODE)
+{
+  document.getElementById("local_mode_indicator").innerHTML = "Local Mode ON";
+}
+
 var _INDEX_ORDER = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38,   76, 77, 78, 79,   39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75];
 var _INDEXES = ["RECORD_NUMBER","DESCRIP1","DESCRIP2","COMMENTS","EQUIP_TYPE","EQUIP_DSGN","APPL_BRAND","APPL_MFR","PART_TYPE","B_PN",   "CHLX_PN","F_PN",   "GEM_PN", "RS_PN",  "MM_PN",  "JS_PN",  "K_PN",   "L_PN",   "M_PN",   "N_PN",   "OEM_PN", "PART_NUMBR", "Q_PN",   "SOURCE", "UNIT",   "KEEP",   "REORD_QTY","GET",    "PICKED", "TAG",    "FROM",   "CGS",    "DATE",   "FRT_IN", "QUESTIONS","MODIFIED","NEW",    "NEWER",  "LOCATION","SPECMETHOD","SPEC01NAME","SPEC01HINT","SPEC01DATA","SPEC02NAME","SPEC02HINT","SPEC02DATA","SPEC03NAME","SPEC03HINT","SPEC03DATA","SPEC04NAME","SPEC04HINT","SPEC04DATA","SPEC05NAME","SPEC05HINT","SPEC05DATA","SPEC06NAME","SPEC06HINT","SPEC06DATA","SPEC07NAME","SPEC07HINT","SPEC07DATA","SPEC08NAME","SPEC08HINT","SPEC08DATA","SPEC09NAME","SPEC09HINT","SPEC09DATA","SPEC10NAME","SPEC10HINT","SPEC10DATA","SPEC11NAME","SPEC11HINT","SPEC11DATA","SPEC12NAME","SPEC12HINT","SPEC12DATA"];
 var _INDEX_WIDTHS = ["initial",  "200px",   "200px",   "400px",   "initial",   "initial",   "initial",   "initial", "initial",  "initial","initial","initial","initial","initial","initial","initial","initial","initial","initial","initial","initial","initial",    "initial","initial","initial","initial","initial",  "initial","initial","initial","initial","initial","initial","initial","initial",  "initial", "initial","initial","initial", "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial"   ];
@@ -57,12 +63,6 @@ var _LOOK_UP_PN =  76;
 var _ADVICE =      77;
 var _ATTN =        78;
 var _MODEL =       79;
-
-var _LOCAL_MODE = false;
-if(_LOCAL_MODE)
-{
-  document.getElementById("local_mode_indicator").innerHTML = "Local Mode ON";
-}
 
 var _content = null;
 var _content_standard = null;
@@ -1624,17 +1624,17 @@ function populateInvoice()
   }
 }
 
-function updateReordersWorker_Local(_content_slice)
+function updateReordersWorker_Local(startIndex, endIndex)
 {
   var content_rownums_changed = [];
   var content_ids_changed = [];
-  for(var i = 0; i < _content_slice.length; ++i)
+  for(var i = startIndex; i <= endIndex; ++i)
   {
     var qty = 0;
     var contentChanged = false;
     for(var j = 0; j < _CONTENT_EXTRA_DB_INDEXES.length; ++j)
     {
-      var childPN = _content_slice[i][_CONTENT_EXTRA_DB_INDEXES[j]];
+      var childPN = _content[i][_CONTENT_EXTRA_DB_INDEXES[j]];
       var partObjIndex = getExtraDBLinkIndex(j, childPN);
       if(partObjIndex != null)
       {
@@ -1643,62 +1643,64 @@ function updateReordersWorker_Local(_content_slice)
       }
     }
     // var reorder = Number(_content[i][_REORD_QTY]);
-    var bulk = Number(_content_slice[i][_GET]);
-    var keep = Number(_content_slice[i][_KEEP]);
+    var bulk = Number(_content[i][_GET]);
+    var keep = Number(_content[i][_KEEP]);
     if(bulk > 0)
     {
       if(qty < keep)
       {
-        _content_slice[i][_REORD_QTY] = String(bulk);
+        if(Number(_content[i][_REORD_QTY]) != bulk)
+        {
+          _content[i][_REORD_QTY] = String(bulk);
           contentChanged = true;
+        }
       }
       else
       {
-        _content_slice[i][_REORD_QTY] = "0";
+        if(Number(_content[i][_REORD_QTY]) != 0)
+        {
+          _content[i][_REORD_QTY] = "0";
           contentChanged = true;
+        }
       }
     }
     else
     {
       if(qty < keep)
       {
-        _content_slice[i][_REORD_QTY] = String(keep - qty);
+        if(Number(_content[i][_REORD_QTY]) != keep - qty)
+        {
+          _content[i][_REORD_QTY] = String(keep - qty);
           contentChanged = true;
+        }
       }
       else
       {
-        _content_slice[i][_REORD_QTY] = "0";
+        if(Number(_content[i][_REORD_QTY]) != 0)
+        {
+          _content[i][_REORD_QTY] = "0";
           contentChanged = true;
+        }
       }
     }
-    if(contentChanged){
+    if(contentChanged)
+    {
       content_rownums_changed.push(i);
-      content_ids_changed.push(_content_slice[i][_content_slice[i].length - 1]);
+      content_ids_changed.push(_content[i][_content[i].length - 1]);
     }
   }
-  return [1, _content_slice, content_ids_changed, content_rownums_changed];
+  return [content_ids_changed, content_rownums_changed];
 }
 
 
-var _content_slices = [];
-var slice_inc = 0;
+var _slice_start = 0;
+var _sliceSize = 2000;
+var _slice_end = 0;
 function updateReordersRecursive()
 {
-  var data = updateReordersWorker_Local(_content_slices[slice_inc]);
-  var content_slice_returned = data[1];
-  var content_ids_changed = data[2];
-  var content_slice_rownums_changed = data[3];
-  var content_rownums_changed = [];
-
-  for(var i = 0; i < content_ids_changed.length; ++i)
-    content_rownums_changed.push(getContentIndexFrom_DB_ID(content_ids_changed[i]));
-  
-  for(var i = 0; i < content_rownums_changed.length; ++i)
-  {
-    var rownum = content_rownums_changed[i];
-    if(rownum != null)
-      _content[rownum] = content_slice_returned[content_slice_rownums_changed[i]];
-  }
+  var data = updateReordersWorker_Local(_slice_start, _slice_end);
+  var content_ids_changed = data[0];
+  var content_rownums_changed = data[1];
 
   for(var i = 0; i < content_rownums_changed.length; ++i)
   {
@@ -1707,10 +1709,14 @@ function updateReordersRecursive()
       saveContentToDatabase(rownum);
   }
 
-  if(slice_inc < _content_slices.length - 1)
+  if(_slice_end < _content.length - 1)
   {
-    ++slice_inc;
-    showSnackbar("Updating reorders... " + Math.floor((slice_inc / _content_slices.length) * 100) + "%", 10000);
+    _slice_start = _slice_end + 1;
+    if(_slice_end + _sliceSize > _content.length - 1)
+      _slice_end = _content.length - 1;
+    else
+      _slice_end += _sliceSize;
+    showSnackbar("Updating reorders... " + Math.floor((_slice_end / _content.length) * 100) + "%", 10000);
     setTimeout(function(){
       updateReordersRecursive();
     }, 200);
@@ -1726,26 +1732,10 @@ function updateReordersRecursive()
 
 function updateReorders()
 {
-  _content_slices = [];
-  var numAdded = 0;
-  var sliceSize = 2000;
-  while(numAdded < _content.length)
+  _slice_start = 0;
+  _slice_end = _sliceSize - 1;
+  if(_content.length > 0)
   {
-    if(_content.length - numAdded >= sliceSize)
-    {
-      _content_slices.push(_content.slice(numAdded, numAdded + sliceSize));
-      numAdded += sliceSize;
-    }
-    else
-    {
-      _content_slices.push(_content.slice(numAdded, _content.length));
-      numAdded = _content.length;
-    }
-  }
-
-  if(_content_slices.length > 0)
-  {
-    slice_inc = 0;
     document.getElementById("button_update_reorders").style.display = "none";
     updateReordersRecursive();
   }

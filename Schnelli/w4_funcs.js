@@ -787,6 +787,7 @@ function saveContentToDatabase(rownum, addChangeAlert)
       partObj[_INDEXES[i]] = row[i];
     for (var i = 0; i < _MEMO_INDEXES.length; ++i)
       partObj[_MEMO_INDEXES[i]] = row[i + _INDEXES.length];
+    console.log("Saving to db|" + rownum + "|" + addChangeAlert);
     writeToDatabase('parts_db/P&A_PRI/' + row[row.length - 1], partObj, addChangeAlert, true, false, null);
   }
 }
@@ -1778,9 +1779,11 @@ function loadChangeAlerts() {
 
       if (alertOBJ.is_content) {
         reloadContentFromChangeAlert(alertOBJ);
+        showSnackbar("Loading new changes for P&A_PRI...", 3000);
       }
       else if (alertOBJ.is_content_extra) {
         reloadContentExtraFromChangeAlert(alertOBJ);
+        showSnackbar("Loading new changes for Part Child Data...", 3000);
       }
 
       var timeElapsed = new Date().getTime() - Number(alertOBJ.time);

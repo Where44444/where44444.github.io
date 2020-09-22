@@ -776,8 +776,10 @@ function saveEditRecord(rownum) {
   }
 }
 
-function saveContentToDatabase(rownum)
+function saveContentToDatabase(rownum, addChangeAlert)
 {
+  if(addChangeAlert == null)
+    addChangeAlert = true;
   if (!_LOCAL_MODE) {
     var row = _content[rownum];
     var partObj = new Object();

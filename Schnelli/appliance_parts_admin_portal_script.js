@@ -1624,9 +1624,109 @@ function populateInvoice()
   }
 }
 
+function updateReordersWorker_Local(_content_slice)
+{
+  var content_rownums_changed = [];
+  var content_ids_changed = [];
+  for(var i = 0; i < _content_slice.length; ++i)
+  {
+    var qty = 0;
+    var contentChanged = false;
+    for(var j = 0; j < _CONTENT_EXTRA_DB_INDEXES.length; ++j)
+    {
+      var childPN = _content_slice[i][_CONTENT_EXTRA_DB_INDEXES[j]];
+      var partObjIndex = getExtraDBLinkIndex(j, childPN);
+      if(partObjIndex != null)
+      {
+        var partObj = _content_extra[j][partObjIndex][0];
+        qty += Number(partObj.SHOP_QTY);
+      }
+    }
+    // var reorder = Number(_content[i][_REORD_QTY]);
+    var bulk = Number(_content_slice[i][_GET]);
+    var keep = Number(_content_slice[i][_KEEP]);
+    if(bulk > 0)
+    {
+      if(qty < keep)
+      {
+        _content_slice[i][_REORD_QTY] = String(bulk);
+          contentChanged = true;
+      }
+      else
+      {
+        _content_slice[i][_REORD_QTY] = "0";
+          contentChanged = true;
+      }
+    }
+    else
+    {
+      if(qty < keep)
+      {
+        _content_slice[i][_REORD_QTY] = String(keep - qty);
+          contentChanged = true;
+      }
+      else
+      {
+        _content_slice[i][_REORD_QTY] = "0";
+          contentChanged = true;
+      }
+    }
+    if(contentChanged){
+      content_rownums_changed.push(i);
+      content_ids_changed.push(_content_slice[i][_content_slice[i].length - 1]);
+    }
+  }
+  return [1, _content_slice, content_ids_changed, content_rownums_changed];
+}
+
+
+var _content_slices = [];
+var slice_inc = 0;
+function updateReordersRecursive()
+{
+  var data = updateReordersWorker_Local(_content_slices[slice_inc]);
+  var content_slice_returned = data[1];
+  var content_ids_changed = data[2];
+  var content_slice_rownums_changed = data[3];
+  var content_rownums_changed = [];
+
+  for(var i = 0; i < content_ids_changed.length; ++i)
+    content_rownums_changed.push(getContentIndexFrom_DB_ID(content_ids_changed[i]));
+  
+  for(var i = 0; i < content_rownums_changed.length; ++i)
+  {
+    var rownum = content_rownums_changed[i];
+    if(rownum != null)
+      _content[rownum] = content_slice_returned[content_slice_rownums_changed[i]];
+  }
+
+  for(var i = 0; i < content_rownums_changed.length; ++i)
+  {
+    var rownum = content_rownums_changed[i];
+    if(rownum != null)
+      saveContentToDatabase(rownum);
+  }
+
+  if(slice_inc < _content_slices.length - 1)
+  {
+    ++slice_inc;
+    showSnackbar("Updating reorders... " + Math.floor((slice_inc / _content_slices.length) * 100) + "%", 10000);
+    setTimeout(function(){
+      updateReordersRecursive();
+    }, 200);
+  }
+  else
+  {
+    document.getElementById("button_update_reorders").style.display = "";
+    updateReorderParentIDs();
+    showSnackbar("Reorders update complete!", 3000);
+  }
+}
+
+
 function updateReorders()
 {
-  var _content_slices = [];
+  _content_slices = [];
   var numAdded = 0;
   var sliceSize = 2000;
   while(numAdded < _content.length)
@@ -1645,56 +1745,13 @@ function updateReorders()
 
   if(_content_slices.length > 0)
   {
-    var slice_inc = 0;
-    var reorderWorker = new Worker('workers/update_reorders.js');
-    reorderWorker.postMessage([_content_slices[slice_inc], _content_extra, _CONTENT_EXTRA_DB_INDEXES, _GET, _KEEP, _REORD_QTY]);
+    slice_inc = 0;
     document.getElementById("button_update_reorders").style.display = "none";
-
-    reorderWorker.onmessage = function (e) {
-      if(e.data[0] == 1)
-      { //Finished
-        var content_slice_returned = e.data[1];
-        var content_ids_changed = e.data[2];
-        var content_slice_rownums_changed = e.data[3];
-        var content_rownums_changed = [];
-
-        for(var i = 0; i < content_ids_changed.length; ++i)
-          content_rownums_changed.push(getContentIndexFrom_DB_ID(content_ids_changed[i]));
-        
-        for(var i = 0; i < content_rownums_changed.length; ++i)
-        {
-          var rownum = content_rownums_changed[i];
-          if(rownum != null)
-            _content[rownum] = content_slice_returned[content_slice_rownums_changed[i]];
-        }
-
-        for(var i = 0; i < content_rownums_changed.length; ++i)
-        {
-          var rownum = content_rownums_changed[i];
-          if(rownum != null)
-            saveContentToDatabase(rownum);
-        }
-
-        if(slice_inc < _content_slices.length - 1)
-        {
-          ++slice_inc;
-          showSnackbar("Updating reorders... " + Math.floor((slice_inc / _content_slices.length) * 100) + "%", 10000);
-          reorderWorker.postMessage([_content_slices[slice_inc], _content_extra, _CONTENT_EXTRA_DB_INDEXES, _GET, _KEEP, _REORD_QTY]);
-        }
-        else
-        {
-          document.getElementById("button_update_reorders").style.display = "";
-          updateReorderParentIDs();
-          showSnackbar("Reorders update complete!", 3000);
-        }
-      }
-      else //Status update
-      {
-        // showSnackbar("Updating reorders... " + Math.floor(e.data[1] * 100) + "%", 3000);
-      }
-    }
+    updateReordersRecursive();
   }
 }
+
+
 
 function updateReorder(rownum)
 {

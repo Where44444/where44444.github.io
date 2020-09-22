@@ -348,6 +348,8 @@ function getRegexSafeSearchTerm(str) {
 function getHTMLSafeText(str) {
   var str2 = String(str).replace(/\</g, "&lt;");
   str2 = str2.replace(/\>/g, "&gt;");
+  str2 = str2.replace("\"", "&quot;");
+  str2 = str2.replace("\'", "&apos;");
   return str2;
 }
 
@@ -1581,9 +1583,9 @@ function processPage() {
           for (var i = 0; i < ORDERED_Indexes.length; ++i) {
             tableHTML += "<tr style='vertical-align: top;'>";
             tableHTML += "<td><button style='height: 100px;' id='startAddToDatabaseButton_" + i + "' onclick='generatePDFAddToDatabaseTable(" + i + ");'>Add to Database</button></td>"
-            tableHTML += "<td><input onfocus='deselectTable();' type='text' value='" + removeExtraSpaces(textContentArrayAll[ORDERED_Indexes[i]].str) + "'     id='pdf_ordered_" + i + "'></td>";
-            tableHTML += "<td><input onfocus='deselectTable();' type='text' value='" + removeExtraSpaces(textContentArrayAll[SHIPPED_Indexes[i]].str) + "'     id='pdf_shipped_" + i + "'></td>";
-            tableHTML += "<td><input onfocus='deselectTable();' type='text' value='" + removeExtraSpaces(textContentArrayAll[BACKORDERED_Indexes[i]].str) + "' id='pdf_backordered_" + i + "'></td>";
+            tableHTML += "<td><input onfocus='deselectTable();' type='text' value='" + getHTMLSafeText(removeExtraSpaces(textContentArrayAll[ORDERED_Indexes[i]].str)) + "'     id='pdf_ordered_" + i + "'></td>";
+            tableHTML += "<td><input onfocus='deselectTable();' type='text' value='" + getHTMLSafeText(removeExtraSpaces(textContentArrayAll[SHIPPED_Indexes[i]].str)) + "'     id='pdf_shipped_" + i + "'></td>";
+            tableHTML += "<td><input onfocus='deselectTable();' type='text' value='" + getHTMLSafeText(removeExtraSpaces(textContentArrayAll[BACKORDERED_Indexes[i]].str)) + "' id='pdf_backordered_" + i + "'></td>";
 
             var nextORDEREDHeight = -1;
             if (i < ORDERED_Indexes.length - 1) //Not on last part
@@ -1609,9 +1611,9 @@ function processPage() {
             if (numberNamePhone != null) {
               tableHTML += "<table><tr><th>Dealer Price</th><th>Name</th><th>Phone</th></tr>"
                 + "<tr>"
-                + "<td><input onfocus='deselectTable();' type='text' value='" + numberNamePhone[0] + "' id='pdf_dealerprice_" + i + "'></td>"
-                + "<td><input onfocus='deselectTable();' type='text' value='" + numberNamePhone[1] + "' id='pdf_customername_" + i + "'></td>"
-                + "<td><input onfocus='deselectTable();' type='text' value='" + numberNamePhone[2] + "' id='pdf_customerphone_" + i + "'></td>"
+                + "<td><input onfocus='deselectTable();' type='text' value='" + getHTMLSafeText(numberNamePhone[0]) + "' id='pdf_dealerprice_" + i + "'></td>"
+                + "<td><input onfocus='deselectTable();' type='text' value='" + getHTMLSafeText(numberNamePhone[1]) + "' id='pdf_customername_" + i + "'></td>"
+                + "<td><input onfocus='deselectTable();' type='text' value='" + getHTMLSafeText(numberNamePhone[2]) + "' id='pdf_customerphone_" + i + "'></td>"
                 + "</tr></table>";
             }
             tableHTML += "</td>";
@@ -1639,7 +1641,7 @@ function getPDFInputHTML(columnRowIndexes, index, CONTENTIndexes, nextORDEREDHei
   while (columnRowIndexes[index] < CONTENTIndexes.length && textContentArrayAll[CONTENTIndexes[columnRowIndexes[index]]].adjustedHeight > nextORDEREDHeight) {
     var str = removeExtraSpaces(textContentArrayAll[CONTENTIndexes[columnRowIndexes[index]]].str);
     if (str != "")
-      tableHTML += "<input type='text' value='" + removeExtraSpaces(textContentArrayAll[CONTENTIndexes[columnRowIndexes[index]]].str) + "' onfocus='deselectTable();' id='" + id + "'>";
+      tableHTML += "<input type='text' value='" + getHTMLSafeText(removeExtraSpaces(textContentArrayAll[CONTENTIndexes[columnRowIndexes[index]]].str)) + "' onfocus='deselectTable();' id='" + id + "'>";
     ++columnRowIndexes[index];
   }
   tableHTML += "</td>";
@@ -2237,7 +2239,7 @@ function confirmSell(i1, j1, _content_partnum_for_extraDB, _parent_record_id)
     }
     var invoice_obj = new Object();
     invoice_obj.amountToSell = amountToSell;
-    invoice_obj.DESCRIP1 = partObj.DESCRIP1;
+    invoice_obj.DESCRIP1 = parentRecordData[_DESCRIP1];
     invoice_obj.SELL = partObj.SELL;
     invoice_obj.extradb = j1;
     invoice_obj.partkey = partkey;

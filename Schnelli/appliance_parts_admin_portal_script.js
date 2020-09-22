@@ -5,14 +5,14 @@ var _MEMO_INDEXES = ["LOOK_UP_PN", "ADVICE", "ATTN", "MODEL"]; //76, 77, 78, 79 
 var _MEMO_INDEX_WIDTHS = ["400px",  "400px",  "400px","400px"];
 var _WORDS_TO_IGNORE = ["the","at","there","some","my","of","be","use","her","than","and","this","an","would","a","have","each","make","to","from","which","like","been","in","or","she","him","call","is","one","do","into","who","you","had","how","time","that","by","their","has","its","it","word","if","look","now","he","but","will","two","find","was","not","up","more","for","what","down","on","all","about","go","day","are","were","out","see","did","as","we","get","with","when","then","no","come","his","your","them","way","made","they","can","these","could","may","i","said","so"];
 var _EXTRA_DB_FIELDS = /*B_DNI*/ [["PN","AKA","PART_NUMBR","COMMON_PN","DESCRIP1","COMMENTS","PART_MFR","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT","POST_APPND"]
-                       /*CHLX*/ ,["PN","AKA","PART_NUMBR","DESCRIP1","COMMENTS","PART_MFR","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
-                       /*DNI*/  ,["PN","AKA","PART_NUMBR","DESCRIP1","COMMENTS","APPL_MFR","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","COMMON_PN","CGS","FROM","DATE","OEM_PN2","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT","POST_APPND"]
-                       /*F*/    ,["PN","AKA","PART_NUMBR","DESCRIP1","COMMENTS","PART_MFR","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
-                       /*GEM*/  ,["PN","AKA","PART_NUMBR","DESCRIP1","COMMENTS","GEM_ID","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
-                       /*H_RS*/ ,["PN","AKA","PART_NUMBR","DESCRIP1","COMMENTS","RS_ID","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
-                       /*I_MM*/ ,["PN","AKA","PART_NUMBR","DESCRIP1","COMMENTS","MM_ID","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
-                       /*JS*/   ,["PN","JS_LINE_PN","PART_NUMBR","DESCRIP1","COMMENTS","JS_LINE","JS_ID","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
-                       /*OEM*/  ,["PN","AKA","PART_NUMBR","DESCRIP1","COMMENTS","APPL_MFR","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","COMMON_PN","CGS","FROM","DATE","OEM_PN2","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT","POST_APPND"]];
+                       /*CHLX*/ , ["PN","AKA","PART_NUMBR",            "DESCRIP1","COMMENTS","PART_MFR","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
+                       /*DNI*/  , ["PN","AKA","PART_NUMBR",            "DESCRIP1","COMMENTS","APPL_MFR","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","COMMON_PN","CGS","FROM","DATE","OEM_PN2","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT","POST_APPND"]
+                       /*F*/    , ["PN","AKA","PART_NUMBR",            "DESCRIP1","COMMENTS","PART_MFR","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
+                       /*GEM*/  , ["PN","AKA","PART_NUMBR",            "DESCRIP1","COMMENTS","GEM_ID","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
+                       /*H_RS*/ , ["PN","AKA","PART_NUMBR",            "DESCRIP1","COMMENTS","RS_ID","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
+                       /*I_MM*/ , ["PN","AKA","PART_NUMBR",            "DESCRIP1","COMMENTS","MM_ID","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
+                       /*JS*/   , ["PN","JS_LINE_PN","PART_NUMBR",     "DESCRIP1","COMMENTS","JS_LINE","JS_ID","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
+                       /*OEM*/  , ["PN","AKA","PART_NUMBR",            "DESCRIP1","COMMENTS","APPL_MFR","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","COMMON_PN","CGS","FROM","DATE","OEM_PN2","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT","POST_APPND"]];
 
 var _EXTRA_DB =                 ["B_DNI", "CHLX",    "DNI",  "F",    "GEM",    "H_RS",  "I_MM",  "JS",    "OEM"];
 var _EXTRA_DB_ACTUAL_INDEXES =  ["B_PN",  "CHLX_PN", "Q_PN", "F_PN", "GEM_PN", "RS_PN", "MM_PN", "JS_PN", "OEM_PN"];
@@ -20,8 +20,8 @@ var _CONTENT_EXTRA_DB_INDEXES = [ 9,       10,        22,     11,     12,       
 var _EXTRA_DB_COMMENTS_PREFIXES = ["B", "C", "D", "F", "G", "H", "I", "J", "O"];
 
 var RECORD_VIEW_DB_HEADER_WIDTH = "150px";
-var RECORD_VIEW_HEADERS =                 ["MFR",                                                         "PART#", "S",          "LOC",        "T1",         "T2",         "U",           "VEND",   "DATE",   "CGS",   "RETAIL",     "SELL"];
-var RECORD_VIEW_HEADERS_WIDTHS =          ["100px",                                                       "300px", "70px",       "100px",      "70px",       "70px",       "70px",        "100px",  "200px",  "100px", "100px",      "100px"];
+var RECORD_VIEW_HEADERS =                 ["MFR",                                                         "PART#", "S",          "LOC",        "T1",         "T2",         "U",           "VEND",   "DATE",   "CGS",   "RETAIL",     "SELL",  "COMMENT"];
+var RECORD_VIEW_HEADERS_WIDTHS =          ["100px",                                                       "300px", "70px",       "100px",      "70px",       "70px",       "70px",        "100px",  "200px",  "100px", "100px",      "100px", "50px"];
 // var RECORD_VIEW_HEADERS_ACTUAL_INDEXES = [["PART_MFR", "GEM_ID", "RS_ID", "MM_ID", "JS_ID", "APPL_MFR"], ["PN"],  ["SHOP_QTY"], ["LOCATION"], ["TRK1_QTY"], ["TRK2_QTY"], ["USED_QTY"],  ["FROM"], ["DATE"], ["CGS"], ["VEND_RET"], ["SELL"]];
 var RECORD_VIEW_HEADERS_ACTUAL_INDEXES = [
  ["PART_MFR", "PART_MFR", "APPL_MFR", "PART_MFR", "GEM_ID", "RS_ID", "MM_ID", "JS_ID", "APPL_MFR"], 
@@ -35,7 +35,8 @@ var RECORD_VIEW_HEADERS_ACTUAL_INDEXES = [
  ["DATE","DATE","DATE","DATE","DATE","DATE","DATE","DATE","DATE"], 
  ["CGS","CGS","CGS","CGS","CGS","CGS","CGS","CGS","CGS"], 
  ["VEND_RET","VEND_RET","VEND_RET","VEND_RET","VEND_RET","VEND_RET","VEND_RET","VEND_RET","VEND_RET"], 
- ["SELL","SELL","SELL","SELL","SELL","SELL","SELL","SELL","SELL"]
+ ["SELL","SELL","SELL","SELL","SELL","SELL","SELL","SELL","SELL"],
+ ["COMMENTS","COMMENTS","COMMENTS","COMMENTS","COMMENTS","COMMENTS","COMMENTS","COMMENTS","COMMENTS"]
 ];
 
 var _DESCRIP1 =     1;
@@ -1061,13 +1062,13 @@ function populateRecordViews()
       + "<button id='record_view_data_cancel_button_" + i + "' style='width: 70px; font-size: 20px; display: none;' onclick='populateRecordViews();'>Cancel</button>"
       + "<div style='display: flex;'><div class='border_center' style='flex-grow: 1;'></div>" 
       + "<div class='text1'>" 
-      + "<span id='record_view_data_read_equip_type_" + i + "'>" + equip_type_text + "</span><input type='text' onfocus='deselectTable();' id='record_view_data_input_equip_type_" + i + "' style='width: 50px; display: none;' value='" + _content[rownum][_EQUIP_TYPE] + "'>" + " / " 
-      + "<span id='record_view_data_read_appl_brand_" + i + "'>" + appl_brand_text + "</span><input type='text' onfocus='deselectTable();' id='record_view_data_input_appl_brand_" + i + "' style='width: 50px; display: none;' value='" + _content[rownum][_APPL_BRAND] + "'>" + "</div>"
+      + "<span id='record_view_data_read_equip_type_" + i + "'>" + equip_type_text + "</span><input type='text' onfocus='deselectTable();' id='record_view_data_input_equip_type_" + i + "' style='width: 50px; display: none;' value='" + getHTMLSafeText(_content[rownum][_EQUIP_TYPE]) + "'>" + " / " 
+      + "<span id='record_view_data_read_appl_brand_" + i + "'>" + appl_brand_text + "</span><input type='text' onfocus='deselectTable();' id='record_view_data_input_appl_brand_" + i + "' style='width: 50px; display: none;' value='" + getHTMLSafeText(_content[rownum][_APPL_BRAND]) + "'>" + "</div>"
       + "<div class='border_center' style='flex-grow: 8;'></div></div>"
       + "<div style='display: block; border-left: solid; border-bottom: solid; border-right: solid; border-width: 2px; border-color: black;'>" 
-      + "<p style='padding-left: 10px;'><b>DESCRIP1:</b> <span id='record_view_data_read_descrip1_" + i + "'>" + descrip1_text + "</span><input type='text' onfocus='deselectTable();' id='record_view_data_input_descrip1_" + i + "' style='width: 90%; display: none;' value='" + _content[rownum][_DESCRIP1] + "'><br>"
-      + "<b>DESCRIP2: </b><span id='record_view_data_read_descrip2_" + i + "'>" + descrip2_text + "</span><input type='text' onfocus='deselectTable();' id='record_view_data_input_descrip2_" + i + "' style='width: 90%; display: none;' value='" + _content[rownum][_DESCRIP2] + "'></p>"
-      + "<p style='padding-left: 10px;'><b>COMMENTS:</b> <span id='record_view_data_read_comments_" + i + "'>" + comments_text + "</span><input type='text' onfocus='deselectTable();' id='record_view_data_input_comments_" + i + "' style='width: 90%; display: none;' value='" + _content[rownum][_COMMENTS] + "'></p>";
+      + "<p style='padding-left: 10px;'><b>DESCRIP1:</b> <span id='record_view_data_read_descrip1_" + i + "'>" + descrip1_text + "</span><input type='text' onfocus='deselectTable();' id='record_view_data_input_descrip1_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_DESCRIP1]) + "'><br>"
+      + "<b>DESCRIP2: </b><span id='record_view_data_read_descrip2_" + i + "'>" + descrip2_text + "</span><input type='text' onfocus='deselectTable();' id='record_view_data_input_descrip2_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_DESCRIP2]) + "'></p>"
+      + "<p style='padding-left: 10px;'><b>COMMENTS:</b> <span id='record_view_data_read_comments_" + i + "'>" + comments_text + "</span><input type='text' onfocus='deselectTable();' id='record_view_data_input_comments_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_COMMENTS]) + "'></p>";
       if(_recordViews_Key_To_Details_Open.has(_recordViews[i]) && _recordViews_Key_To_Details_Open.get(_recordViews[i]))
       {
         htmlToAdd += "</div><div class=clickable style='font-size: 20px; background-color: #96BBFF' onclick='toggleDiv(null, \"record_view_details_" + i + "\")'><span id='record_view_details_" + i + "_expander_icon' style='font-size: 24px;'>-</span> Details</div>";
@@ -1123,7 +1124,7 @@ function populateRecordViews()
                 pText = _content_partnum_for_extraDB + "<span style='color: red;'>&nbsp;&nbsp;&nbsp;Not Found in Child Database!</span>";
               else
                 pText = "<span class='clickable' style='color: blue;' onclick='jumpToChildPartFromRecordView(" + j + "," + extraDBIndex + ");'><u>" + _content_partnum_for_extraDB + "</u></span>";
-              htmlToAdd += "<p id='record_view_partnum_text_" + i + "_" + j + "' style='display: inline;'>" + pText + "</p><input type='text' style='display: none;' id='record_view_partnum_input_" + i + "_" + j +"' onfocus='onPartNumFocus(" + i + "," + j + ");' value='" + _content_partnum_for_extraDB + "' onkeyup='partnum_input_keyup_event(event);' onkeydown='partnum_input_keydown_event(event);'><div style='position: absolute;' id='partnum_autocomplete_" + i + "_" + j + "'></div>"
+              htmlToAdd += "<p id='record_view_partnum_text_" + i + "_" + j + "' style='display: inline;'>" + pText + "</p><input type='text' style='display: none;' id='record_view_partnum_input_" + i + "_" + j +"' onfocus='onPartNumFocus(" + i + "," + j + ");' value='" + getHTMLSafeText(_content_partnum_for_extraDB) + "' onkeyup='partnum_input_keyup_event(event);' onkeydown='partnum_input_keydown_event(event);'><div style='position: absolute;' id='partnum_autocomplete_" + i + "_" + j + "'></div>"
               + "<button id='record_view_partnum_save_button_"   + i + "_" + j + "' style='width: 70px; font-size: 20px; display: none; margin-bottom: 2px;' onclick='saveEditRecordPartReference(" + i + "," + j + ");'>Save</button>"
               + "<button id='record_view_partnum_cancel_button_" + i + "_" + j + "' style='width: 70px; font-size: 20px; display: none;' onclick='populateRecordViews();'>Cancel</button>" + "&nbsp;&nbsp;&nbsp;&nbsp;";
             }
@@ -1138,13 +1139,22 @@ function populateRecordViews()
                 {
                   htmlToAdd += "<span id='record_view_data_read_" + RECORD_VIEW_HEADERS[k] + "_" + i + "_" + j + "'>" + content1.toLocaleString("en-US", {style: "currency", currency: "USD", minimumFractionDigits: 2}) + "</span>";
                 }
+                else if(k == 12) //"COMMENTS"
+                {
+                  var htmlCheck = "<input type='checkbox' disabled>";
+                  if(content1.replace(" ", "").length > 0)
+                  {
+                    htmlCheck = "<div class='tooltip'><span class='tooltiptext'>" + content1 + "</span><input type='checkbox' checked disabled></div>";
+                  }
+                  htmlToAdd += "<span id='record_view_data_read_" + RECORD_VIEW_HEADERS[k] + "_" + i + "_" + j + "'>" + htmlCheck + "</span>";
+                }
                 else
                 {
                   htmlToAdd += "<span id='record_view_data_read_" + RECORD_VIEW_HEADERS[k] + "_" + i + "_" + j + "'>" + content1 + "</span>";
                 }
                 if(k != 1) //Add input for editing values
                 {
-                  htmlToAdd += "<input type='text' onfocus='deselectTable();' id='record_view_data_input_" + RECORD_VIEW_HEADERS[k] + "_" + i + "_" + j + "' style='width: 90%; display: none;' value='" + content1 + "'>";
+                  htmlToAdd += "<input type='text' onfocus='deselectTable();' id='record_view_data_input_" + RECORD_VIEW_HEADERS[k] + "_" + i + "_" + j + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(content1) + "'>";
                 }
               }
             }
@@ -1175,17 +1185,17 @@ function populateRecordViews()
       var LKUPPN_CONTENT = getExpandableHTML(_content[rownum][_LOOK_UP_PN], (i + "_LOOK_UP_PN"), 80, "");
       var ADVICE_CONTENT = getExpandableHTML(_content[rownum][_ADVICE],     (i + "_ADVICE"),     80, "");
       var MODEL_CONTENT =  getExpandableHTML(_content[rownum][_MODEL],      (i + "_MODEL"),      80, "");
-      var INPUT_PART_NUMBR = "<input type='text' onfocus='deselectTable();' id='record_view_data_input_PART_NUMBR_" + i + "' style='width: 90%; display: none;' value='" + _content[rownum][_PART_NUMBR] + "'>" ;
-      var INPUT_LOCATION =   "<input type='text' onfocus='deselectTable();' id='record_view_data_input_LOCATION_" + i + "' style='width: 90%; display: none;' value='" + _content[rownum][_LOCATION] + "'>" ;
-      var INPUT_MODIFIED =   "<input type='text' onfocus='deselectTable();' id='record_view_data_input_MODIFIED_" + i + "' style='width: 90%; display: none;' value='" + _content[rownum][_MODIFIED] + "'>" ;
-      var INPUT_KEEP =       "<input type='text' onfocus='deselectTable();' id='record_view_data_input_KEEP_" + i + "' style='width: 90%; display: none;' value='" + _content[rownum][_KEEP] + "'>" ;
-      var INPUT_GET =        "<input type='text' onfocus='deselectTable();' id='record_view_data_input_GET_" + i + "' style='width: 90%; display: none;' value='" + _content[rownum][_GET] + "'>" ;
-      var INPUT_LKUPPN =     "<textarea          onfocus='deselectTable();' id='record_view_data_input_LKUPPN_" + i + "' style='width: 90%; display: none;'>" + stringifyArrayEndChar(_content[rownum][_LOOK_UP_PN], "\n") + "</textarea>" ;
-      var INPUT_ADVICE =     "<textarea          onfocus='deselectTable();' id='record_view_data_input_ADVICE_" + i + "' style='width: 90%; display: none;'>" + stringifyArrayEndChar(_content[rownum][_ADVICE], "\n") + "</textarea>" ;
-      var INPUT_REORD_QTY =  "<input type='text' onfocus='deselectTable();' id='record_view_data_input_REORD_QTY_" + i + "' style='width: 90%; display: none;' value='" + _content[rownum][_REORD_QTY] + "'>" ;
-      var INPUT_SOURCE =     "<input type='text' onfocus='deselectTable();' id='record_view_data_input_SOURCE_" + i + "' style='width: 90%; display: none;' value='" + _content[rownum][_SOURCE] + "'>" ;
-      var INPUT_MODEL =      "<textarea          onfocus='deselectTable();' id='record_view_data_input_MODEL_" + i + "' style='width: 90%; display: none;'>" + stringifyArrayEndChar(_content[rownum][_MODEL], "\n") + "</textarea>";
-      var INPUT_FROM =       "<input type='text' onfocus='deselectTable();' id='record_view_data_input_FROM_" + i + "' style='width: 90%; display: none;' value='" + _content[rownum][_FROM] + "'>" ;
+      var INPUT_PART_NUMBR = "<input type='text' onfocus='deselectTable();' id='record_view_data_input_PART_NUMBR_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_PART_NUMBR]) + "'>" ;
+      var INPUT_LOCATION =   "<input type='text' onfocus='deselectTable();' id='record_view_data_input_LOCATION_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_LOCATION]) + "'>" ;
+      var INPUT_MODIFIED =   "<input type='text' onfocus='deselectTable();' id='record_view_data_input_MODIFIED_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_MODIFIED]) + "'>" ;
+      var INPUT_KEEP =       "<input type='text' onfocus='deselectTable();' id='record_view_data_input_KEEP_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_KEEP]) + "'>" ;
+      var INPUT_GET =        "<input type='text' onfocus='deselectTable();' id='record_view_data_input_GET_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_GET]) + "'>" ;
+      var INPUT_LKUPPN =     "<textarea          onfocus='deselectTable();' id='record_view_data_input_LKUPPN_" + i + "' style='width: 90%; display: none;'>" + getHTMLSafeText(stringifyArrayEndChar(_content[rownum][_LOOK_UP_PN], "\n")) + "</textarea>" ;
+      var INPUT_ADVICE =     "<textarea          onfocus='deselectTable();' id='record_view_data_input_ADVICE_" + i + "' style='width: 90%; display: none;'>" + getHTMLSafeText(stringifyArrayEndChar(_content[rownum][_ADVICE], "\n")) + "</textarea>" ;
+      var INPUT_REORD_QTY =  "<input type='text' onfocus='deselectTable();' id='record_view_data_input_REORD_QTY_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_REORD_QTY]) + "'>" ;
+      var INPUT_SOURCE =     "<input type='text' onfocus='deselectTable();' id='record_view_data_input_SOURCE_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_SOURCE]) + "'>" ;
+      var INPUT_MODEL =      "<textarea          onfocus='deselectTable();' id='record_view_data_input_MODEL_" + i + "' style='width: 90%; display: none;'>" + getHTMLSafeText(stringifyArrayEndChar(_content[rownum][_MODEL], "\n")) + "</textarea>";
+      var INPUT_FROM =       "<input type='text' onfocus='deselectTable();' id='record_view_data_input_FROM_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_FROM]) + "'>" ;
 
       htmlToAdd += "<tr><td colspan=2 style='text-align: right;'>LAST</td>" 
       + "<td colspan=2><b><span id='record_view_data_read_PART_NUMBR_" + i + "'>" + _content[rownum][_PART_NUMBR] + "</span>" + INPUT_PART_NUMBR + "</b></td>"
@@ -1365,7 +1375,7 @@ function populateChildPartRecordManager()
     for (let [key, value] of Object.entries(extraobj)) 
     {
       htmlToAdd += "<tr><th>" + key + "</th>";
-      htmlToAdd += "<td><input type='text' onfocus='deselectTable();' id='partchild_edit_input_" + key + "' value='" + value + "' style='width: 1000px;'></td></tr>";
+      htmlToAdd += "<td><input type='text' onfocus='deselectTable();' id='partchild_edit_input_" + key + "' value='" + getHTMLSafeText(value) + "' style='width: 1000px;'></td></tr>";
     }
     htmlToAdd += "</table>";
     document.getElementById("part_child_edit_table_div").innerHTML = htmlToAdd;
@@ -1555,9 +1565,9 @@ function populateInvoice()
       {
         //Add filled row
         htmlToAdd += "<tr class='in_td'><td>"
-        + "<input type='text' style='width: 53px; height: 15px; text-align: right;' id='invoice_input_qty_" + i + "' value='" + obj.amountToSell + "' disabled></td><td>"
-        + "<input type='text' style='width: 493px; height: 15px;' value='" + obj.PN + " | " + obj.DESCRIP1 + "' id='invoice_input_desc_" + i + "' disabled></td><td>"
-        + "<input type='text' style='width: 48px; height: 15px; text-align: right;' id='invoice_input_sell_" + i + "' value='" + obj.SELL + "' onfocus='deselectTable();' onchange='calculateInvoiceAmounts();'></td><td>"
+        + "<input type='text' style='width: 53px; height: 15px; text-align: right;' id='invoice_input_qty_" + i + "' value='" + getHTMLSafeText(obj.amountToSell) + "' disabled></td><td>"
+        + "<input type='text' style='width: 493px; height: 15px;' value='" + getHTMLSafeText(obj.PN) + " | " + getHTMLSafeText(obj.DESCRIP1) + "' id='invoice_input_desc_" + i + "' disabled></td><td>"
+        + "<input type='text' style='width: 48px; height: 15px; text-align: right;' id='invoice_input_sell_" + i + "' value='" + getHTMLSafeText(obj.SELL) + "' onfocus='deselectTable();' onchange='calculateInvoiceAmounts();'></td><td>"
         + "<input type='text' style='width: 53px; height: 15px; text-align: right;' id='invoice_input_amount_" + i + "' disabled></td><td class='no-print'>"
         + "<button style='width: 20px; height: 20px; padding: 0px; color: white; background-color: red;' tabindex='-1' onclick='removeFromInvoice(" + i + ");')>x</button></td></tr>";
       }
@@ -1616,26 +1626,72 @@ function populateInvoice()
 
 function updateReorders()
 {
-  var reorderWorker = new Worker('workers/update_reorders.js');
-  reorderWorker.postMessage([_content, _content_extra, _CONTENT_EXTRA_DB_INDEXES, _GET, _KEEP, _REORD_QTY]);
-  document.getElementById("button_update_reorders").style.display = "none";
-
-  reorderWorker.onmessage = function (e) {
-    if(e.data[0] == 1)
-    { //Finished
-      _content = e.data[1];
-      var content_rownums_changed = e.data[2];
-      for(var i = 0; i < content_rownums_changed.length; ++i)
-      {
-        saveContentToDatabase(content_rownums_changed[i]);
-      }
-      document.getElementById("button_update_reorders").style.display = "";
-      updateReorderParentIDs();
-      showSnackbar("Reorders update complete!", 3000);
-    }
-    else //Status update
+  var _content_slices = [];
+  var numAdded = 0;
+  var sliceSize = 2000;
+  while(numAdded < _content.length)
+  {
+    if(_content.length - numAdded >= sliceSize)
     {
-      showSnackbar("Updating reorders... " + Math.floor(e.data[1] * 100) + "%", 3000);
+      _content_slices.push(_content.slice(numAdded, numAdded + sliceSize));
+      numAdded += sliceSize;
+    }
+    else
+    {
+      _content_slices.push(_content.slice(numAdded, _content.length));
+      numAdded = _content.length;
+    }
+  }
+
+  if(_content_slices.length > 0)
+  {
+    var slice_inc = 0;
+    var reorderWorker = new Worker('workers/update_reorders.js');
+    reorderWorker.postMessage([_content_slices[slice_inc], _content_extra, _CONTENT_EXTRA_DB_INDEXES, _GET, _KEEP, _REORD_QTY]);
+    document.getElementById("button_update_reorders").style.display = "none";
+
+    reorderWorker.onmessage = function (e) {
+      if(e.data[0] == 1)
+      { //Finished
+        var content_slice_returned = e.data[1];
+        var content_ids_changed = e.data[2];
+        var content_slice_rownums_changed = e.data[3];
+        var content_rownums_changed = [];
+
+        for(var i = 0; i < content_ids_changed.length; ++i)
+          content_rownums_changed.push(getContentIndexFrom_DB_ID(content_ids_changed[i]));
+        
+        for(var i = 0; i < content_rownums_changed.length; ++i)
+        {
+          var rownum = content_rownums_changed[i];
+          if(rownum != null)
+            _content[rownum] = content_slice_returned[content_slice_rownums_changed[i]];
+        }
+
+        for(var i = 0; i < content_rownums_changed.length; ++i)
+        {
+          var rownum = content_rownums_changed[i];
+          if(rownum != null)
+            saveContentToDatabase(rownum);
+        }
+
+        if(slice_inc < _content_slices.length - 1)
+        {
+          ++slice_inc;
+          showSnackbar("Updating reorders... " + Math.floor((slice_inc / _content_slices.length) * 100) + "%", 10000);
+          reorderWorker.postMessage([_content_slices[slice_inc], _content_extra, _CONTENT_EXTRA_DB_INDEXES, _GET, _KEEP, _REORD_QTY]);
+        }
+        else
+        {
+          document.getElementById("button_update_reorders").style.display = "";
+          updateReorderParentIDs();
+          showSnackbar("Reorders update complete!", 3000);
+        }
+      }
+      else //Status update
+      {
+        // showSnackbar("Updating reorders... " + Math.floor(e.data[1] * 100) + "%", 3000);
+      }
     }
   }
 }
@@ -1652,13 +1708,11 @@ function updateReorder(rownum)
     {
       var partObj = _content_extra[j][partObjIndex][0];
       qty += Number(partObj.SHOP_QTY);
-      console.log(j + "|" + partObj.SHOP_QTY);
     }
   }
   // var reorder = Number(_content[rownum][_REORD_QTY]);
   var bulk = Number(_content[rownum][_GET]);
   var keep = Number(_content[rownum][_KEEP]);
-  console.log(qty + "|" + keep + "|" + bulk);
   if(bulk > 0)
   {
     if(qty < keep)
@@ -1819,10 +1873,10 @@ function viewInvoiceFromHistory(index)
     // {
       //Add filled row
       htmlToAdd += "<tr class='in_td'><td>"
-      + "<input type='text' style='width: 53px; height: 15px; text-align: right;' id='invoice_input_qty_" + i + "' value='" + invoice_parts[0] + "' ></td><td>"
-      + "<input type='text' style='width: 493px; height: 15px;' value='" + invoice_parts[1] +"' id='invoice_input_desc_" + i + "' ></td><td>"
-      + "<input type='text' style='width: 48px; height: 15px; text-align: right;' id='invoice_input_sell_" + i + "' value='" + invoice_parts[2] + "' onfocus='deselectTable();' onchange='calculateInvoiceAmounts();'></td><td>"
-      + "<input type='text' style='width: 53px; height: 15px; text-align: right;' id='invoice_input_amount_" + i + "' value='" + invoice_parts[3] + "' ></td><td class='no-print'></tr>";
+      + "<input type='text' style='width: 53px; height: 15px; text-align: right;' id='invoice_input_qty_" + i + "' value='" + getHTMLSafeText(invoice_parts[0]) + "' ></td><td>"
+      + "<input type='text' style='width: 493px; height: 15px;' value='" + getHTMLSafeText(invoice_parts[1]) +"' id='invoice_input_desc_" + i + "' ></td><td>"
+      + "<input type='text' style='width: 48px; height: 15px; text-align: right;' id='invoice_input_sell_" + i + "' value='" + getHTMLSafeText(invoice_parts[2]) + "' onfocus='deselectTable();' onchange='calculateInvoiceAmounts();'></td><td>"
+      + "<input type='text' style='width: 53px; height: 15px; text-align: right;' id='invoice_input_amount_" + i + "' value='" + getHTMLSafeText(invoice_parts[3]) + "' ></td><td class='no-print'></tr>";
     // }
     // else
     // {

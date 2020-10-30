@@ -33,8 +33,8 @@ onmessage = function(e) {
       }
     }
     else{
-      var strA = a[compareIndex1].toLowerCase();
-      var strB = b[compareIndex1].toLowerCase();
+      var strA = String(a[compareIndex1]).toLowerCase();
+      var strB = String(b[compareIndex1]).toLowerCase();
       if ( strA < strB ){
         return -1;
       }
@@ -56,8 +56,8 @@ onmessage = function(e) {
       }
     }
     else{
-      var strA = a[compareIndex1].toLowerCase();
-      var strB = b[compareIndex1].toLowerCase();
+      var strA = String(a[compareIndex1]).toLowerCase();
+      var strB = String(b[compareIndex1]).toLowerCase();
       if ( strA < strB ){
         return 1;
       }
@@ -96,7 +96,7 @@ onmessage = function(e) {
   function stringifyArray(array){
     var result = "";
     for(var i = 0; i < array.length; ++i){
-        result += array[i];
+        result += String(array[i]);
         if(i != array.length - 1)
             result += " ";
     }

@@ -38,17 +38,17 @@ onmessage = function(e) {
                 
                 var content_to_search;
                 if(j < indexes.length)
-                    content_to_search = row[j].toLowerCase();
+                    content_to_search = String(row[j]).toLowerCase();
                 else
                     content_to_search = stringifyArray(row[j]).toLowerCase();
                 for(var sss = 0; sss < searchStrings_Separated.length && continueSearchingRow; ++sss){
-                    searchstring = searchStrings_Separated[sss];
+                    searchstring = String(searchStrings_Separated[sss]);
                     var result = content_to_search.match(getRegexSafeSearchTerm(searchstring));
                     if(result != null)
                     {
                         var content_string;
                         if(j < indexes.length)
-                            content_string = content[i][j];
+                            content_string = String(content[i][j]);
                         else
                             content_string = stringifyArray(content[i][j]);
                         var s = 0;
@@ -167,7 +167,7 @@ function standardizeString(str1){
   function stringifyArray(array){
       var result = "";
       for(var i = 0; i < array.length; ++i){
-          result += array[i];
+          result += String(array[i]);
           if(i != array.length - 1)
               result += " ";
       }

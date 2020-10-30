@@ -20,8 +20,10 @@ onmessage = function(e) {
     var _table_HTML_0 = "";
     var numLinkCells = array_trimmed.length * 2; //_DESCRIP2 and _COMMENTS
     var numLinkCellsProcessed = 0;
+    var _row_ids = [];
     for(var i = 0; i < array_trimmed.length; ++i){
       _table_HTML_0 += "<tr id='search_results_row_" + i + "'>";
+      _row_ids.push(array_trimmed[i][array_trimmed[i].length - 1]);
       for(var j = 0; j < INDEXES_CONCAT.length; ++j){
         var index = _INDEX_ORDER[j];
         var cellContent = array_trimmed[i][index];
@@ -47,7 +49,7 @@ onmessage = function(e) {
       }
       _table_HTML_0 += "</tr>";
   }
-    var results = [1, _table_HTML_0, _CHILD_PART_LINKS_CACHE];
+    var results = [1, _table_HTML_0, _CHILD_PART_LINKS_CACHE, _row_ids];
     postMessage(results);
   }
 
@@ -165,16 +167,16 @@ function getExtraDBLinkIndex(_content_extra_db_index, pn) {
               matchedWords.push(word);
               if(word.length > 1 && word[1] == ":") //PN with B: C: etc prefix before it
               {
-              var prefix_index = -1;
-              for(var j = 0; j < _EXTRA_DB_COMMENTS_PREFIXES.length; ++j)
-              {
-                  if(word[0] == _EXTRA_DB_COMMENTS_PREFIXES[j])
-                  {
-                    prefix_index = j;
-                  }
-              }
-              if(prefix_index != -1)
-              {
+                var prefix_index = -1;
+                for(var j = 0; j < _EXTRA_DB_COMMENTS_PREFIXES.length; ++j)
+                {
+                    if(word[0] == _EXTRA_DB_COMMENTS_PREFIXES[j])
+                    {
+                      prefix_index = j;
+                    }
+                }
+                if(prefix_index != -1)
+                {
                   var extraDBIndex = getExtraDBLinkIndex(prefix_index, word.substring(2, word.length));
                   if(extraDBIndex != null)
                   {
@@ -212,7 +214,7 @@ function getExtraDBLinkIndex(_content_extra_db_index, pn) {
                 }
               }
               
-              if(word.length > 0 && !buttonAdded) //PN without B: C: etc prefix before it
+              if(word.length > 1 && !buttonAdded) //PN without B: C: etc prefix before it
               {
                   var extraDBIndex = null;
                   for(var j = 0; j < _EXTRA_DB.length; ++j)

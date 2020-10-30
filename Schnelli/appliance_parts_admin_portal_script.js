@@ -1,4 +1,4 @@
-var _LOCAL_MODE = true;
+var _LOCAL_MODE = false;
 if(_LOCAL_MODE)
 {
   document.getElementById("local_mode_indicator").innerHTML = "Local Mode ON";

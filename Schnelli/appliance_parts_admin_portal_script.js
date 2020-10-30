@@ -1,9 +1,10 @@
-var _LOCAL_MODE = false;
+var _LOCAL_MODE = true;
 if(_LOCAL_MODE)
 {
   document.getElementById("local_mode_indicator").innerHTML = "Local Mode ON";
 }
 
+var _overlay_window_open = false;
 var _INDEX_ORDER = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38,   76, 77, 78, 79,   39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75];
 var _INDEXES = ["RECORD_NUMBER","DESCRIP1","DESCRIP2","COMMENTS","EQUIP_TYPE","EQUIP_DSGN","APPL_BRAND","APPL_MFR","PART_TYPE","B_PN",   "CHLX_PN","F_PN",   "GEM_PN", "RS_PN",  "MM_PN",  "JS_PN",  "K_PN",   "L_PN",   "M_PN",   "N_PN",   "OEM_PN", "PART_NUMBR", "Q_PN",   "SOURCE", "UNIT",   "KEEP",   "REORD_QTY","GET",    "PICKED", "TAG",    "FROM",   "CGS",    "DATE",   "FRT_IN", "QUESTIONS","MODIFIED","NEW",    "NEWER",  "LOCATION","SPECMETHOD","SPEC01NAME","SPEC01HINT","SPEC01DATA","SPEC02NAME","SPEC02HINT","SPEC02DATA","SPEC03NAME","SPEC03HINT","SPEC03DATA","SPEC04NAME","SPEC04HINT","SPEC04DATA","SPEC05NAME","SPEC05HINT","SPEC05DATA","SPEC06NAME","SPEC06HINT","SPEC06DATA","SPEC07NAME","SPEC07HINT","SPEC07DATA","SPEC08NAME","SPEC08HINT","SPEC08DATA","SPEC09NAME","SPEC09HINT","SPEC09DATA","SPEC10NAME","SPEC10HINT","SPEC10DATA","SPEC11NAME","SPEC11HINT","SPEC11DATA","SPEC12NAME","SPEC12HINT","SPEC12DATA"];
 var _INDEX_WIDTHS = ["initial",  "200px",   "200px",   "400px",   "initial",   "initial",   "initial",   "initial", "initial",  "initial","initial","initial","initial","initial","initial","initial","initial","initial","initial","initial","initial","initial",    "initial","initial","initial","initial","initial",  "initial","initial","initial","initial","initial","initial","initial","initial",  "initial", "initial","initial","initial", "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial"   ];
@@ -20,10 +21,10 @@ var _EXTRA_DB_FIELDS = /*B_DNI*/ [["PN","AKA","PART_NUMBR","COMMON_PN","DESCRIP1
                        /*JS*/   , ["PN","JS_LINE_PN","PART_NUMBR",     "DESCRIP1","COMMENTS","JS_LINE","JS_ID","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
                        /*OEM*/  , ["PN","AKA","PART_NUMBR",            "DESCRIP1","COMMENTS","APPL_MFR","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","COMMON_PN","CGS","FROM","DATE","OEM_PN2","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT","POST_APPND"]];
 
-var _EXTRA_DB =                 ["B_DNI", "CHLX",    "DNI",  "F",    "GEM",    "H_RS",  "I_MM",  "JS",    "OEM"];
-var _EXTRA_DB_ACTUAL_INDEXES =  ["B_PN",  "CHLX_PN", "Q_PN", "F_PN", "GEM_PN", "RS_PN", "MM_PN", "JS_PN", "OEM_PN"];
-var _CONTENT_EXTRA_DB_INDEXES = [ 9,       10,        22,     11,     12,       13,      14,      15,      20];
-var _EXTRA_DB_COMMENTS_PREFIXES = ["B", "C", "D", "F", "G", "H", "I", "J", "O"];
+var _EXTRA_DB =                   ["B_DNI", "CHLX",    "DNI",  "F",    "GEM",    "H_RS",  "I_MM",  "JS",    "OEM"];
+var _EXTRA_DB_ACTUAL_INDEXES =    ["B_PN",  "CHLX_PN", "Q_PN", "F_PN", "GEM_PN", "RS_PN", "MM_PN", "JS_PN", "OEM_PN"];
+var _EXTRA_DB_COMMENTS_PREFIXES = ["B",     "C",       "D",    "F",    "G",      "H",     "I",     "J",     "O"];
+var _CONTENT_EXTRA_DB_INDEXES =   [ 9,       10,        22,     11,     12,       13,      14,      15,      20];
 
 var RECORD_VIEW_DB_HEADER_WIDTH = "150px";
 var RECORD_VIEW_HEADERS =                 ["MFR",                                                         "PART#", "S",          "LOC",        "T1",         "T2",         "U",           "VEND",   "DATE",   "CGS",   "RETAIL",     "SELL",  "COMMENT"];
@@ -64,6 +65,8 @@ var _ADVICE =      77;
 var _ATTN =        78;
 var _MODEL =       79;
 
+var _ALPHABET = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+
 var _content = null;
 var _content_standard = null;
 var _content_invoice_history = null;
@@ -78,7 +81,9 @@ var _selectedRowColor = "#96BBFF"; //Light blue
 var _selectedCellColor = "#70A2FF"; //Slightly Less Light blue
 var _tempTopRowColor = "#A0FF77"; //Light green
 
-var _sort_orders;
+var _sort_orders = null;
+var _google_cse_api_key = "";
+var _google_cse_api_key_loaded = false;
 
 var _isTableSelected = false;
 var _selectedTable = _TABLE_RECORD_BROWSER;
@@ -127,6 +132,13 @@ var INDEX_WIDTHS_CONCAT = _INDEX_WIDTHS.concat(_MEMO_INDEX_WIDTHS);
 
 var _CHILD_PART_LINKS_CACHE = [];
 
+function initialLoadingFinished() //Called after all parts are downloaded and processed
+{
+  document.getElementById("content_div").style.display = "block";
+  setTab(TAB_MAINMENU);
+  setKeyboardShortcutBar();
+}
+
 $(function() {
   $('input[name=invoice_history_filter_time]').daterangepicker({
     // timePicker: true,
@@ -147,8 +159,6 @@ $(function() {
     // console.log("Date|" + date1.getTime());
   });
 });
-
-setTab(0);
 
 for(var i = 0; i < INDEXES_CONCAT.length; ++i){
   _searchstring_specific_history.push(new Array());
@@ -208,14 +218,43 @@ firebase.initializeApp(firebaseConfig);
 
 firebase.auth().onAuthStateChanged(function(user) {
   if (user) {
-    // User is signed in.
+    // User is signed in. Has saved login info
     loadContentDiv();
+    _LOGGED_IN = true;
   }
   else {
     document.getElementById("login_div").style.display = "block";
   }
+setKeyboardShortcutBar();
 });
 
+function clearData()
+{
+  _content = null;
+  _content_standard = null;
+  _content_invoice_history = null;
+  
+  _content_extra = null;
+  _sort_orders = null;
+  _selectedCellLastID = null;
+  
+  _searchResults = [];
+  
+  _indexesSearchResults = [];
+  _indexesSimilarStrings = [];
+  _indexesRecordBrowser = [];
+  
+  _searchstring_any_history = [];
+  _searchstring_specific_history = [];
+  _searchstring_specific_history_index = [];
+  _CHILD_PART_LINKS_CACHE = [];
+  _CHANGE_ALERTS_CACHE = [];
+
+  _google_cse_api_key = "";
+  _google_cse_api_key_loaded = false;
+}
+
+var _LOGGED_IN = false;
 function log_out(){
   firebase.auth().signOut().then(function() {
     document.getElementById("login_div").style.display = "block";
@@ -223,11 +262,9 @@ function log_out(){
     document.getElementById("sort_order_div").style.display = "none";
     document.getElementById("content_div").style.display = "none";
     document.getElementById("search_div").style.display = "none";
-    _content = null;
-    _content_standard = null;
-    _content_extra = null;
-
-    _CHILD_PART_LINKS_CACHE = [];
+    clearData();
+    _LOGGED_IN = false;
+    setKeyboardShortcutBar();
 
   }).catch(function(error) {
     window.alert(errorMessage);
@@ -246,6 +283,8 @@ function log_in(){
     firebase.auth().setPersistence(persistenceVar).then(function() {
         return firebase.auth().signInWithEmailAndPassword(document.getElementById("email_input").value, document.getElementById("password_input").value).then(function() {
           loadContentDiv();
+          _LOGGED_IN = true;
+          setKeyboardShortcutBar();
           }).catch(function(error) {
           // Handle Errors here.
           var errorCode = error.code;
@@ -283,7 +322,6 @@ var _extraDBLoadedIndex = -1;
 function loadContentDiv(){
   document.getElementById("email_input").value = "";
   document.getElementById("password_input").value = "";
-  document.getElementById("content_div").style.display = "block";
   showSnackbar("Downloading parts from database... This may take up to 60 seconds", 10000);
   // document.getElementById("message").innerHTML = "<p>Downloading parts from database... This may take up to 60 seconds</p>";
   document.getElementById("record_browser_div").style.display = "none";
@@ -348,6 +386,7 @@ function loadContentDiv(){
             _contentSortedReverse = true;
             sortContentByIndex(0);
             loadChangeAlerts();
+            initialLoadingFinished();
           });
         }
       });
@@ -387,12 +426,20 @@ function loadContentDiv(){
     });
   });
 
+  var googleCSEAPI_Ref = firebase.database().ref('google_cse_api/key');
+  googleCSEAPI_Ref.once('value', function(snapshot) {
+    _google_cse_api_key = snapshot.val();
+    _google_cse_api_key_loaded = true;
+  });
+
   retrieveInvoiceDataFromDatabase(null);
 }
 
-function search_query(supressSnackbar)
+function search_query(supressSnackbar, suppressSetTab)
 {
-  document.getElementById("search_results_expander").style.display = "none";
+  if(suppressSetTab == null)
+    setTab(TAB_SEARCH_RESULTS);
+  // document.getElementById("search_results_expander").style.display = "none";
   document.getElementById("search_results_div").style.display = "none";
   document.getElementById("similar_string_expander").style.display = "none";
   var searchstring_any = standardizeString(document.getElementById("search_input").value);
@@ -458,7 +505,7 @@ function search_query(supressSnackbar)
         else{
           results.splice(0,1);
           _searchResults = results;
-          populateSearchResults(0, false, false, -1);
+          populateSearchResults(0, true, false, -1);
         }
       }
     }
@@ -466,6 +513,7 @@ function search_query(supressSnackbar)
 }
 
 var _highlightgreen_requested = false;
+var _RECORD_BROWSER_ROW_IDS = [];
 function populateRecordBrowser(indexStart, highlight_IndexStart_Green)
 {
   _highlightgreen_requested = highlight_IndexStart_Green;
@@ -491,11 +539,12 @@ function populateRecordBrowser(indexStart, highlight_IndexStart_Green)
     document.getElementById("message").innerHTML = "";
     document.getElementById("record_browser_div").style.display = "block";
     var tableHTML = "<p style='display: inline;'>Showing " + (indexStart + 1) + " - " + (indexEnd + 1) + " of " + _content.length + " Record(s)</p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + 
-    "<p style='display: inline;'>Table Size</p>&nbsp;&nbsp;" + 
+    "<p style='display: inline; background-color: #70A2FF;'>Table Si<span style='color: white;'>z</span>e</p>&nbsp;&nbsp;" + 
     "<input id=\"record_browser_max\" type=\"number\" value=" + _recordBrowserMax + " min=\"0\" onfocus='showRecordBrowserMax();' onchange='showRecordBrowserMax();'></input>" + 
-    "<button id=\"save_record_browser_max\" onclick=\"updateRecordBrowserMax();\" style=\"display: none;\">Save</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick='startNewRecord();'>Add New Part +</button>" + 
-    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick='recordBrowserJumpToEdge(0);'>Jump to Top</button>" + 
-    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick='recordBrowserJumpToEdge(1);'>Jump to Bottom</button>" + 
+    "<button id=\"save_record_browser_max\" onclick=\"updateRecordBrowserMax();\" style=\"display: none;'\">Save</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button id='button_record_browser_add_new_part' onclick='startNewRecord();' style='background-color: #70A2FF; color: black;'><span style='color: white;'>A</span>dd New Part +</button>" + 
+    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button id='button_record_browser_jump_top'    onclick='recordBrowserJumpToEdge(0);' style='background-color: #70A2FF; color: black;'>Jump to <span style='color: white;'>T</span>op</button>" + 
+    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button id='button_record_browser_jump_bottom' onclick='recordBrowserJumpToEdge(1);' style='background-color: #70A2FF; color: black;'>Jump to <span style='color: white;'>B</span>ottom</button>" + 
+    "<p style='background-color: #70A2FF;'>R<span style='color: white;'>e</span>cord Browser</p>" +
     "<div id='add_part_table_div'></div>" +
     "<table class='clickable' id='record_browser_table'><thead><tr>";
 
@@ -521,9 +570,11 @@ function populateRecordBrowser(indexStart, highlight_IndexStart_Green)
 
     _indexesRecordBrowser = [];
     var numRows = 0;
+    _RECORD_BROWSER_ROW_IDS = [];
     for (var i = indexStart; i <= indexEnd; ++i) {
       tableHTML += "<tr id='record_browser_row_" + i + "'>"
       _indexesRecordBrowser.push(i);
+      _RECORD_BROWSER_ROW_IDS.push(_content[i][_content[i].length - 1]);
       for(var j = 0; j < INDEXES_CONCAT.length; ++j)
       {
         var index = _INDEX_ORDER[j];
@@ -559,389 +610,419 @@ var _table_HTML_0 = "";
 var _select_top_row = false;
 var _select_bottom_row = false;
 var _row_to_select = 0;
+var _adding_child_part_links = false;
+var _SEARCH_RESULTS_ROW_IDS = [];
+var _SIMILAR_STRINGS_ROW_IDS = [];
 function populateSearchResults(indexStart, selectTopRow, selectBottomRow, rowToSelect)
 {
-  _select_top_row = selectTopRow;
-  _select_bottom_row = selectBottomRow;
-  _row_to_select = rowToSelect;
-  document.getElementById("similar_strings_div").innerHTML = "";
-  if(_searchResults.length - indexStart < _searchResultsMax)
-    indexStart = _searchResults.length - _searchResultsMax;
-  if(indexStart < 0)
-    indexStart = 0;
-  if(indexStart > _searchResults.length - 1)
-    indexStart = _searchResults.length - 1;
-  var indexEnd = indexStart + (_searchResultsMax - 1);
-  if(_searchResults.length - 1 < indexEnd)
-    indexEnd = _searchResults.length - 1;
+  if(!_adding_child_part_links)
+  {
+    _select_top_row = selectTopRow;
+    _select_bottom_row = selectBottomRow;
+    _row_to_select = rowToSelect;
+    document.getElementById("similar_strings_div").innerHTML = "";
+    if(_searchResults.length - indexStart < _searchResultsMax)
+      indexStart = _searchResults.length - _searchResultsMax;
+    if(indexStart < 0)
+      indexStart = 0;
+    if(indexStart > _searchResults.length - 1)
+      indexStart = _searchResults.length - 1;
+    var indexEnd = indexStart + (_searchResultsMax - 1);
+    if(_searchResults.length - 1 < indexEnd)
+      indexEnd = _searchResults.length - 1;
 
-    _currentSearchResultsStartIndex = indexStart;
+      _currentSearchResultsStartIndex = indexStart;
 
-  var shouldHighlight = document.getElementById("search_highlight").checked;
+    var shouldHighlight = document.getElementById("search_highlight").checked;
 
-  _indexesSearchResults = [];
-  array_trimmed = [];
-  var numRows = 0;
-  for (var i = indexStart; i <= indexEnd; ++i) {
-    array_trimmed.push(new Array());
-    var currentIndex = _searchResults[i][0];
-    _indexesSearchResults.push(currentIndex);
-    for(var j = 0; j < INDEXES_CONCAT.length; ++j){
-      if(j < _INDEXES.length)
-        array_trimmed[numRows].push(_content[currentIndex][j]);
-      else
-        array_trimmed[numRows].push(copyArray1D(_content[currentIndex][j]));
-    }
-    array_trimmed[numRows].push(_content[currentIndex][_content[currentIndex].length - 1]);
-    ++numRows;
-  }
-
-  if(shouldHighlight){
-    var actualSearchStrings = [];
+    _indexesSearchResults = [];
+    array_trimmed = [];
+    var numRows = 0;
     for (var i = indexStart; i <= indexEnd; ++i) {
-      // var len = table.rows.length;
-      // var row = table.insertRow(len);
-      var matchingcells = _searchResults[i][1];
+      array_trimmed.push(new Array());
+      var currentIndex = _searchResults[i][0];
+      _indexesSearchResults.push(currentIndex);
       for(var j = 0; j < INDEXES_CONCAT.length; ++j){
-          // var cell1 = row.insertCell(j);
-          // cell1.innerHTML = array_trimmed[i][j];
-          if(matchingcells.includes(j)){
-            for(var k = 0; k < matchingcells.length; ++k){
-              if(matchingcells[k] == j){
-                var stringToHighlight = _searchResults[i][2][k];
-                if(!actualSearchStrings.includes(stringToHighlight))
-                  actualSearchStrings.push(stringToHighlight);
-                // var re = new RegExp(stringToHighlight,"g");
-                // cell1.innerHTML = cell1.innerHTML.replace(re, "<span style='background: yellow;'>" + stringToHighlight + "</span>");
-              }
-            }
-          }
+        if(j < _INDEXES.length)
+          array_trimmed[numRows].push(_content[currentIndex][j]);
+        else
+          array_trimmed[numRows].push(copyArray1D(_content[currentIndex][j]));
       }
+      array_trimmed[numRows].push(_content[currentIndex][_content[currentIndex].length - 1]);
+      ++numRows;
     }
 
-    //Get string repetition info---------------------------------------------
-    var singleWordsToOccurences = new Map(); //Standardized (word) to      [[num occurences, color],             [actual word spellings], [row nums]]
-    var doubleWordsToOccurences = new Map(); //Standardized (word word) to [[num occurences, color, word, word], [actual word spellings], [row nums]]
-    for(var i = 0; i < array_trimmed.length; ++i)
-    {
-      var row = array_trimmed[i];
-      for(var j = 0; j < INDEXES_CONCAT.length; ++j)
-      {
-        var index = _INDEX_ORDER[j];
-        var string;
-        if(index < _INDEXES.length)
-          string = row[index];
-        else
-          string = stringifyArrayEndChar(row[index], " ");
-        var lastCharWasSpace = true;
-        var start0 = 0;
-        var end = 0;
-        var start1 = 0;
-        for(var k = 0; k < string.length; ++k)
-        {
-          var char = string[k];
-          var charIsSpace = (char == " ");
-          var endOfString = (k + 1 == string.length);
-          if(lastCharWasSpace && !charIsSpace){ //Beginning of word
-            start0 = start1;
-            start1 = k;
-          }
-          else if((!lastCharWasSpace && charIsSpace) || endOfString){ //Space at end of word or end of string
-            if(endOfString)
-              end = k + 1;
-            else
-              end = k;
-            var singleWord = string.substring(start1, end);
-            var singleWordStandard = standardizeString(singleWord);
-            if(!_WORDS_TO_IGNORE.includes(singleWordStandard) && singleWordStandard.length > 1){
-              if(singleWordsToOccurences.has(singleWordStandard)){
-                var value = singleWordsToOccurences.get(singleWordStandard)
-                value[0][0] = value[0][0] + 1;
-                if(!value[2].includes(i))
-                  value[2].push(i);
-                if(!value[1].includes(singleWord)){
-                  value[1].push(singleWord);
+    if(shouldHighlight){
+      var actualSearchStrings = [];
+      for (var i = indexStart; i <= indexEnd; ++i) {
+        // var len = table.rows.length;
+        // var row = table.insertRow(len);
+        var matchingcells = _searchResults[i][1];
+        for(var j = 0; j < INDEXES_CONCAT.length; ++j){
+            // var cell1 = row.insertCell(j);
+            // cell1.innerHTML = array_trimmed[i][j];
+            if(matchingcells.includes(j)){
+              for(var k = 0; k < matchingcells.length; ++k){
+                if(matchingcells[k] == j){
+                  var stringToHighlight = _searchResults[i][2][k];
+                  if(!actualSearchStrings.includes(stringToHighlight))
+                    actualSearchStrings.push(stringToHighlight);
+                  // var re = new RegExp(stringToHighlight,"g");
+                  // cell1.innerHTML = cell1.innerHTML.replace(re, "<span style='background: yellow;'>" + stringToHighlight + "</span>");
                 }
               }
-              else{
-                // var color = [Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)];
-                var color = getColorFromString(singleWordStandard);
-                var value = [[1, color], [singleWord], [i]];
-                singleWordsToOccurences.set(singleWordStandard, value);
-              }
             }
-            if(start0 != start1){
-              var doubleWord = string.substring(start0, end);
-              var doubleWordStandard = standardizeString(doubleWord);
-              var doubleWordSplit = doubleWordStandard.split(" ");
-              if(!_WORDS_TO_IGNORE.includes(doubleWordSplit[0]) && !_WORDS_TO_IGNORE.includes(doubleWordSplit[1]) && doubleWordStandard.length > 3){
-                if(doubleWordsToOccurences.has(doubleWordStandard)){
-                  var value = doubleWordsToOccurences.get(doubleWordStandard)
+        }
+      }
+
+      //Get string repetition info---------------------------------------------
+      var singleWordsToOccurences = new Map(); //Standardized (word) to      [[num occurences, color],             [actual word spellings], [row nums]]
+      var doubleWordsToOccurences = new Map(); //Standardized (word word) to [[num occurences, color, word, word], [actual word spellings], [row nums]]
+      for(var i = 0; i < array_trimmed.length; ++i)
+      {
+        var row = array_trimmed[i];
+        for(var j = 0; j < INDEXES_CONCAT.length; ++j)
+        {
+          var index = _INDEX_ORDER[j];
+          var string;
+          if(index < _INDEXES.length)
+            string = row[index];
+          else
+            string = stringifyArrayEndChar(row[index], " ");
+          var lastCharWasSpace = true;
+          var start0 = 0;
+          var end = 0;
+          var start1 = 0;
+          for(var k = 0; k < string.length; ++k)
+          {
+            var char = string[k];
+            var charIsSpace = (char == " ");
+            var endOfString = (k + 1 == string.length);
+            if(lastCharWasSpace && !charIsSpace){ //Beginning of word
+              start0 = start1;
+              start1 = k;
+            }
+            else if((!lastCharWasSpace && charIsSpace) || endOfString){ //Space at end of word or end of string
+              if(endOfString)
+                end = k + 1;
+              else
+                end = k;
+              var singleWord = string.substring(start1, end);
+              var singleWordStandard = standardizeString(singleWord);
+              if(!_WORDS_TO_IGNORE.includes(singleWordStandard) && singleWordStandard.length > 1){
+                if(singleWordsToOccurences.has(singleWordStandard)){
+                  var value = singleWordsToOccurences.get(singleWordStandard)
                   value[0][0] = value[0][0] + 1;
                   if(!value[2].includes(i))
                     value[2].push(i);
-                  if(!value[1].includes(doubleWord)){
-                    value[1].push(doubleWord);
+                  if(!value[1].includes(singleWord)){
+                    value[1].push(singleWord);
                   }
                 }
                 else{
                   // var color = [Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)];
-                  var color = getColorFromString(doubleWordStandard);
-                  var value = [   [1, color, doubleWordSplit[0], doubleWordSplit[1]],  [doubleWord], [i]];
-                  doubleWordsToOccurences.set(doubleWordStandard, value);
+                  var color = getColorFromString(singleWordStandard);
+                  var value = [[1, color], [singleWord], [i]];
+                  singleWordsToOccurences.set(singleWordStandard, value);
+                }
+              }
+              if(start0 != start1){
+                var doubleWord = string.substring(start0, end);
+                var doubleWordStandard = standardizeString(doubleWord);
+                var doubleWordSplit = doubleWordStandard.split(" ");
+                if(!_WORDS_TO_IGNORE.includes(doubleWordSplit[0]) && !_WORDS_TO_IGNORE.includes(doubleWordSplit[1]) && doubleWordStandard.length > 3){
+                  if(doubleWordsToOccurences.has(doubleWordStandard)){
+                    var value = doubleWordsToOccurences.get(doubleWordStandard)
+                    value[0][0] = value[0][0] + 1;
+                    if(!value[2].includes(i))
+                      value[2].push(i);
+                    if(!value[1].includes(doubleWord)){
+                      value[1].push(doubleWord);
+                    }
+                  }
+                  else{
+                    // var color = [Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)];
+                    var color = getColorFromString(doubleWordStandard);
+                    var value = [   [1, color, doubleWordSplit[0], doubleWordSplit[1]],  [doubleWord], [i]];
+                    doubleWordsToOccurences.set(doubleWordStandard, value);
+                  }
                 }
               }
             }
+            lastCharWasSpace = charIsSpace;
           }
-          lastCharWasSpace = charIsSpace;
         }
       }
-    }
 
-    //Populate similar strings list--------------------------------------------------------------
-    var highlightSimilarWords = document.getElementById("search_highlight_similar_words").checked;
-    var wordsToSort = []; //[[Standardized word, color], [Actual Words], [row nums]]
-    for (let [key, value] of doubleWordsToOccurences) {
-      if(value[0][0] >= _minRepititions && highlightSimilarWords){
-        var finalValue = [[key, value[0][1]], value[1], value[2]];
-        wordsToSort.push(finalValue);
+      //Populate similar strings list--------------------------------------------------------------
+      var highlightSimilarWords = document.getElementById("search_highlight_similar_words").checked;
+      var wordsToSort = []; //[[Standardized word, color], [Actual Words], [row nums]]
+      for (let [key, value] of doubleWordsToOccurences) {
+        if(value[0][0] >= _minRepititions && highlightSimilarWords){
+          var finalValue = [[key, value[0][1]], value[1], value[2]];
+          wordsToSort.push(finalValue);
+        }
       }
-    }
-    
-    for (let [key, value] of singleWordsToOccurences) {
-      if(value[0][0] >= _minRepititions && highlightSimilarWords)
-      {
-        var finalValue = [[key, value[0][1]], value[1], value[2]];
-        wordsToSort.push(finalValue);
-      }
-    }
-    
-    wordsToSort.sort(COMPARE_0_0);
-    var similarHTML = "";
-    var totalRows = 0;
-    _indexesSimilarStrings = [];
-
-    for(var i = 0; i < wordsToSort.length; ++i)
-    {
-      var wordData = wordsToSort[i];
-      var resultsLabel = "results";
-      if(wordData[2].length == 1)
-        resultsLabel = "result";
-      similarHTML += "<div class='clickable' onclick='toggle_similar_string_table(" + i + ");'><p><span id='similar_string_expander_" + i + "'>+</span> " + wordData[1][0] + " (" + wordData[2].length + " " + resultsLabel + ")</p></div>";
       
-      similarHTML += "<table class='clickable' style='margin-left: 20px; display: none;' id='similar_string_table_" + i + "'><tr>";
-      for(var j = 0; j < INDEXES_CONCAT.length; ++j){
-        var index = _INDEX_ORDER[j];
-        var bgcolor = "inherit";
-        if(_contentSortedIndex.includes(index))
-            bgcolor = getSortColor(index);
-        similarHTML += "<th class='clickable' onclick='sortContentByIndex(" + index + ");' style='background-color: " + bgcolor + ";'><div style='width: " + INDEX_WIDTHS_CONCAT[index] + ";'>" + INDEXES_CONCAT[index] + "</div></th>";
+      for (let [key, value] of singleWordsToOccurences) {
+        if(value[0][0] >= _minRepititions && highlightSimilarWords)
+        {
+          var finalValue = [[key, value[0][1]], value[1], value[2]];
+          wordsToSort.push(finalValue);
+        }
       }
-      similarHTML += "</tr>";
-      for(var j = 0; j < wordData[2].length; ++j){
-        similarHTML += "<tr id='similar_string_row_" + totalRows + "'>";
-        var rownum = wordData[2][j];
-        _indexesSimilarStrings.push(_indexesSearchResults[rownum]);
-        for(var k = 0; k < INDEXES_CONCAT.length; ++k){
-          var index = _INDEX_ORDER[k];
+      
+      wordsToSort.sort(COMPARE_0_0);
+      var similarHTML = "";
+      var totalRows = 0;
+      _indexesSimilarStrings = [];
+      _SIMILAR_STRINGS_ROW_IDS = [];
+      for(var i = 0; i < wordsToSort.length; ++i)
+      {
+        var wordData = wordsToSort[i];
+        var resultsLabel = "results";
+        if(wordData[2].length == 1)
+          resultsLabel = "result";
+        similarHTML += "<div class='clickable' onclick='toggle_similar_string_table(" + i + ");'><p><span id='similar_string_expander_" + i + "'>+</span> " + wordData[1][0] + " (" + wordData[2].length + " " + resultsLabel + ")</p></div>";
+        
+        similarHTML += "<table class='clickable' style='margin-left: 20px; display: none;' id='similar_string_table_" + i + "'><tr>";
+        for(var j = 0; j < INDEXES_CONCAT.length; ++j){
+          var index = _INDEX_ORDER[j];
+          var bgcolor = "inherit";
+          if(_contentSortedIndex.includes(index))
+              bgcolor = getSortColor(index);
+          similarHTML += "<th class='clickable' onclick='sortContentByIndex(" + index + ");' style='background-color: " + bgcolor + ";'><div style='width: " + INDEX_WIDTHS_CONCAT[index] + ";'>" + INDEXES_CONCAT[index] + "</div></th>";
+        }
+        similarHTML += "</tr>";
+        for(var j = 0; j < wordData[2].length; ++j){
+          similarHTML += "<tr id='similar_string_row_" + totalRows + "'>";
+          var rownum = wordData[2][j];
+          _SIMILAR_STRINGS_ROW_IDS.push(array_trimmed[rownum][array_trimmed[rownum].length - 1]);
+          _indexesSimilarStrings.push(_indexesSearchResults[rownum]);
+          for(var k = 0; k < INDEXES_CONCAT.length; ++k){
+            var index = _INDEX_ORDER[k];
+            var termToHighlightList = [];
+            var preHTML_List = [];
+            var postHTML_List = [];
+
+            var string;
+            if(index < _INDEXES.length) //Regular Field
+              string = array_trimmed[rownum][index];
+            else //Memo field, Array of Strings
+              string = stringifyArrayEndChar(array_trimmed[rownum][index], " ");
+            
+            var color = wordData[0][1];
+            var bgColor = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ");";
+            for(var v = 0; v < wordData[1].length; ++v){
+              // if(getRegexSafeSearchTerm(wordData[1][v]).length <= 1)
+              //   console.log("Small word to highlight detected |" + getRegexSafeSearchTerm(wordData[1][v]) + "|");
+              termToHighlightList.push(wordData[1][v]);
+              preHTML_List.push("<span style='border: 3px solid " + bgColor + " color: black;'>");
+              postHTML_List.push("</span>");
+            }
+            string = highlightString(string, termToHighlightList, preHTML_List, postHTML_List);
+            var id2 = "similar_string_cell_" + totalRows + "_" + k;
+            similarHTML += "<td id='" + id2 + "' onclick='onCellClick(" + totalRows + "," + k + ",\"" + id2 + "\"," + _TABLE_SIMILAR_STRINGS + ");'><div class='tooltip'><span class='tooltiptext'>" + INDEXES_CONCAT[index] + " for:<br><br>" + array_trimmed[rownum][1] + "</span>" + string + "</div></td>";
+          }
+
+          similarHTML += "</tr>";
+          ++totalRows;
+        }
+        similarHTML += "</table>";
+      }
+      document.getElementById("similar_string_expander").style.display = "block";
+      document.getElementById("similar_strings_div").innerHTML = similarHTML;
+
+      //Highlight array strings with regex---------------------------------------------
+
+      //Go through array of matched search term phrases
+      //  Make bold and yellow background
+      //
+      //Go through singleword map
+      //  If more than 2 values in the value array
+      //    check if the standard word is in the first slot of any entries in the double word map, set typeHighlightSingle map to false
+      //    else set to true
+      //
+      //Go through double word map
+      //  If more than 2 values in the value array
+      //    highlight with background
+      //
+      //Go through single word map
+      //  If more than 2 values in the value array
+      //    highlight with type from typeHighlightSingle map
+      //
+      var typeHighlightBGSingle = new Map();
+        for (let [key1, value1] of singleWordsToOccurences) {
+          if(value1[0][0] >= _minRepititions && highlightSimilarWords)
+            for (let [key2, value2] of doubleWordsToOccurences) {
+              if(value2[0][0] >= _minRepititions && highlightSimilarWords)
+                typeHighlightBGSingle.set(key1, (key1 != value2[0][2] && key1 != value2[0][3])); //Single word is not in a double word pair
+            }
+        }
+
+      for(var i = 0; i < array_trimmed.length; ++i){
+        for(var j = 1; j < array_trimmed[i].length; ++j){
+          var index = _INDEX_ORDER[j - 1];
           var termToHighlightList = [];
           var preHTML_List = [];
           var postHTML_List = [];
-
-          var string;
-          if(index < _INDEXES.length) //Regular Field
-            string = array_trimmed[rownum][index];
-          else //Memo field, Array of Strings
-            string = stringifyArrayEndChar(array_trimmed[rownum][index], " ");
-          
-          var color = wordData[0][1];
-          var bgColor = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ");";
-          for(var v = 0; v < wordData[1].length; ++v){
-            // if(getRegexSafeSearchTerm(wordData[1][v]).length <= 1)
-            //   console.log("Small word to highlight detected |" + getRegexSafeSearchTerm(wordData[1][v]) + "|");
-            termToHighlightList.push(wordData[1][v]);
-            preHTML_List.push("<span style='border: 3px solid " + bgColor + " color: black;'>");
-            postHTML_List.push("</span>");
-          }
-          string = highlightString(string, termToHighlightList, preHTML_List, postHTML_List);
-          var id2 = "similar_string_cell_" + totalRows + "_" + k;
-          similarHTML += "<td id='" + id2 + "' onclick='onCellClick(" + totalRows + "," + k + ",\"" + id2 + "\"," + _TABLE_SIMILAR_STRINGS + ");'><div class='tooltip'><span class='tooltiptext'>" + INDEXES_CONCAT[index] + " for:<br><br>" + array_trimmed[rownum][1] + "</span>" + string + "</div></td>";
-        }
-
-        similarHTML += "</tr>";
-        ++totalRows;
-      }
-      similarHTML += "</table>";
-    }
-    document.getElementById("similar_string_expander").style.display = "block";
-    document.getElementById("similar_strings_div").innerHTML = similarHTML;
-
-    //Highlight array strings with regex---------------------------------------------
-
-    //Go through array of matched search term phrases
-    //  Make bold and yellow background
-    //
-    //Go through singleword map
-    //  If more than 2 values in the value array
-    //    check if the standard word is in the first slot of any entries in the double word map, set typeHighlightSingle map to false
-    //    else set to true
-    //
-    //Go through double word map
-    //  If more than 2 values in the value array
-    //    highlight with background
-    //
-    //Go through single word map
-    //  If more than 2 values in the value array
-    //    highlight with type from typeHighlightSingle map
-    //
-    var typeHighlightBGSingle = new Map();
-      for (let [key1, value1] of singleWordsToOccurences) {
-        if(value1[0][0] >= _minRepititions && highlightSimilarWords)
-          for (let [key2, value2] of doubleWordsToOccurences) {
-            if(value2[0][0] >= _minRepititions && highlightSimilarWords)
-              typeHighlightBGSingle.set(key1, (key1 != value2[0][2] && key1 != value2[0][3])); //Single word is not in a double word pair
-          }
-      }
-
-    for(var i = 0; i < array_trimmed.length; ++i){
-      for(var j = 1; j < array_trimmed[i].length; ++j){
-        var index = _INDEX_ORDER[j - 1];
-        var termToHighlightList = [];
-        var preHTML_List = [];
-        var postHTML_List = [];
-        //Highlight search terms
-        for(var s = 0; s < actualSearchStrings.length; ++s){
-          // if(getRegexSafeSearchTerm(actualSearchStrings[s]).length <= 1)
-          //   console.log("Small word to highlight detected |" + getRegexSafeSearchTerm(actualSearchStrings[s]) + "|");
-          termToHighlightList.push(actualSearchStrings[s]);
-          preHTML_List.push("<span style='background: yellow; color: black;'><b>");
-          postHTML_List.push("</b></span>");
-        }
-
-        //Highlight double words
-          for (let [key, value] of doubleWordsToOccurences) {
-            if(value[0][0] >= _minRepititions && highlightSimilarWords){
-              var color = value[0][1];
-              var bgColor = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ");";
-              for(var v = 0; v < value[1].length; ++v){
-                // if(getRegexSafeSearchTerm(value[1][v]) <= 1)
-                //   console.log("Small word to highlight detected |" + getRegexSafeSearchTerm(value[1][v]) + "|");
-                termToHighlightList.push(value[1][v]);
-                preHTML_List.push("<span style='border: 3px solid " + bgColor + " color: black;'>");
-                postHTML_List.push("</span>");
-              }
-            }
+          //Highlight search terms
+          for(var s = 0; s < actualSearchStrings.length; ++s){
+            // if(getRegexSafeSearchTerm(actualSearchStrings[s]).length <= 1)
+            //   console.log("Small word to highlight detected |" + getRegexSafeSearchTerm(actualSearchStrings[s]) + "|");
+            termToHighlightList.push(actualSearchStrings[s]);
+            preHTML_List.push("<span style='background: yellow; color: black;'><b>");
+            postHTML_List.push("</b></span>");
           }
 
-          //Highlight single words
-          for (let [key, value] of singleWordsToOccurences) {
-            if(value[0][0] >= _minRepititions && highlightSimilarWords){
-              var color = value[0][1];
-              var bgColor = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ");";
-              for(var v = 0; v < value[1].length; ++v){
-                // if(getRegexSafeSearchTerm(value[1][v]) <= 1)
-                //   console.log("Small word to highlight detected |" + getRegexSafeSearchTerm(value[1][v]) + "|");
-                termToHighlightList.push(value[1][v]);
-                if(typeHighlightBGSingle.get(key)){
+          //Highlight double words
+            for (let [key, value] of doubleWordsToOccurences) {
+              if(value[0][0] >= _minRepititions && highlightSimilarWords){
+                var color = value[0][1];
+                var bgColor = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ");";
+                for(var v = 0; v < value[1].length; ++v){
+                  // if(getRegexSafeSearchTerm(value[1][v]) <= 1)
+                  //   console.log("Small word to highlight detected |" + getRegexSafeSearchTerm(value[1][v]) + "|");
+                  termToHighlightList.push(value[1][v]);
                   preHTML_List.push("<span style='border: 3px solid " + bgColor + " color: black;'>");
                   postHTML_List.push("</span>");
                 }
-                else{
-                  preHTML_List.push("<span style='border-bottom: 3px solid " + bgColor + "'>");
-                  postHTML_List.push("</span>");
+              }
+            }
+
+            //Highlight single words
+            for (let [key, value] of singleWordsToOccurences) {
+              if(value[0][0] >= _minRepititions && highlightSimilarWords){
+                var color = value[0][1];
+                var bgColor = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ");";
+                for(var v = 0; v < value[1].length; ++v){
+                  // if(getRegexSafeSearchTerm(value[1][v]) <= 1)
+                  //   console.log("Small word to highlight detected |" + getRegexSafeSearchTerm(value[1][v]) + "|");
+                  termToHighlightList.push(value[1][v]);
+                  if(typeHighlightBGSingle.get(key)){
+                    preHTML_List.push("<span style='border: 3px solid " + bgColor + " color: black;'>");
+                    postHTML_List.push("</span>");
+                  }
+                  else{
+                    preHTML_List.push("<span style='border-bottom: 3px solid " + bgColor + "'>");
+                    postHTML_List.push("</span>");
+                  }
                 }
               }
             }
-          }
 
-          if(index < _INDEXES.length)
-            array_trimmed[i][index] = highlightString(array_trimmed[i][index], termToHighlightList, preHTML_List, postHTML_List);
-          else
-            array_trimmed[i][index] = highlightString(stringifyArrayEndChar(array_trimmed[i][index], " "), termToHighlightList, preHTML_List, postHTML_List);
+            if(index < _INDEXES.length)
+              array_trimmed[i][index] = highlightString(array_trimmed[i][index], termToHighlightList, preHTML_List, postHTML_List);
+            else
+              array_trimmed[i][index] = highlightString(stringifyArrayEndChar(array_trimmed[i][index], " "), termToHighlightList, preHTML_List, postHTML_List);
 
+        }
       }
     }
+
+    //Generate search results table-----------------------------------------------------------------
+    _table_HTML_0 = "<p style='display: inline;'>Showing " + (indexStart + 1) + " - " + (indexEnd + 1) + " of " + _searchResults.length + " Result(s)</p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + 
+    "<p style='display: inline; background-color: #70A2FF;'>Table <span style='color: white;'>S</span>ize</p>&nbsp;&nbsp;" + 
+    "<input id=\"search_results_max\" type=\"number\" value=" + _searchResultsMax + " min=\"0\" onchange='showSearchResultsMax();' onfocus='showSearchResultsMax();'></input>" + 
+    "<button id=\"save_search_results_max\" onclick=\"updateSearchResultsMax();\" style=\"display: none;\">Save</button>" +
+    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button id='button_search_results_jump_top'    onclick='searchResultsJumpToEdge(0);' style='background-color: #70A2FF; color: black;'>Jump to <span style='color: white;'>T</span>op</button>" + 
+    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button id='button_search_results_jump_bottom' onclick='searchResultsJumpToEdge(1);' style='background-color: #70A2FF; color: black;'>Jump to <span style='color: white;'>B</span>ottom</button>" + 
+    "<p style='background-color: #70A2FF;'>S<span style='color: white;'>e</span>arch Results</p>" +
+    "<table class='clickable'><tr>";
+    for(var i = 0; i < INDEXES_CONCAT.length; ++i){
+      var index = _INDEX_ORDER[i];
+      var bgcolor = "inherit";
+      if(_contentSortedIndex.includes(i))
+          bgcolor = getSortColor(i);
+          _table_HTML_0 += "<th class='clickable' onclick='sortContentByIndex(" + index + ");' style='background-color: " + bgcolor + ";'><div style='width: " + INDEX_WIDTHS_CONCAT[index] + ";'>" + INDEXES_CONCAT[index] + "</div></th>";
+    }
+    _table_HTML_0 += "</tr>";
+
+    var childPartButtonWorker = new Worker('workers/add_child_part_button_html.js');
+    var shouldAddChildPartLinks = document.getElementById("search_add_child_part_links").checked;
+    _adding_child_part_links = true;
+    childPartButtonWorker.postMessage([_EXTRA_DB, _EXTRA_DB_COMMENTS_PREFIXES, _content_extra, array_trimmed, INDEXES_CONCAT, _DESCRIP1, _INDEX_ORDER, _DESCRIP2, _COMMENTS, _TABLE_SEARCH_RESULTS, shouldAddChildPartLinks, _CHILD_PART_LINKS_CACHE]);
+
+    childPartButtonWorker.onmessage = function (e) {
+      if(e.data[0] == 1){ //Finished
+        _table_HTML_0 += e.data[1];
+        _CHILD_PART_LINKS_CACHE = e.data[2];
+        _SEARCH_RESULTS_ROW_IDS = e.data[3];
+
+        _table_HTML_0 += "</table>";
+        document.getElementById("search_results_table_div").innerHTML = _table_HTML_0;
+      
+        //Set state of divs-------------------------------------------------------
+        // document.getElementById("search_results_expander").style.display = "block";
+        // toggle_search_results(1);
+        document.getElementById("search_results_div").style.display = "";
+        document.getElementById("message").innerHTML = "";
+      
+        if(_select_top_row){
+          var cell = getCell(0, _selectedCell, _TABLE_SEARCH_RESULTS);
+          if(cell != null)
+            onCellClick(0, _selectedCell, cell.id, _TABLE_SEARCH_RESULTS);
+        }
+        else if(_select_bottom_row){
+          var cell = getCell(array_trimmed.length - 1, _selectedCell, _TABLE_SEARCH_RESULTS);
+          if(cell != null)
+            onCellClick(array_trimmed.length - 1, _selectedCell, cell.id, _TABLE_SEARCH_RESULTS);
+        }
+        else if(_row_to_select >= 0){
+          var cell = getCell(_row_to_select, _selectedCell, _TABLE_SEARCH_RESULTS);
+          if(cell != null)
+            onCellClick(_row_to_select, _selectedCell, cell.id, _TABLE_SEARCH_RESULTS);
+        }
+        _adding_child_part_links = false;
+      }
+      else //Percent status update message
+      {
+        showSnackbar("Adding Child Part Links... " + Math.floor(e.data[1] * 100) + "%", 3000);
+        // document.getElementById("message").innerHTML = "<br><br><br><p>Adding Child Part Links... " + Math.floor(e.data[1] * 100) + "%</p>";
+      }
+    }//END onMessage from PartChildButton worker
+
   }
-
-  //Generate search results table-----------------------------------------------------------------
-  _table_HTML_0 = "<p style='display: inline;'>Showing " + (indexStart + 1) + " - " + (indexEnd + 1) + " of " + _searchResults.length + " Result(s)</p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + 
-  "<p style='display: inline;'>Table Size</p>&nbsp;&nbsp;" + 
-  "<input id=\"search_results_max\" type=\"number\" value=" + _searchResultsMax + " min=\"0\" onchange='showSearchResultsMax();' onfocus='showSearchResultsMax();'></input>" + 
-  "<button id=\"save_search_results_max\" onclick=\"updateSearchResultsMax();\" style=\"display: none;\">Save</button>" +
-  "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick='searchResultsJumpToEdge(0);'>Jump to Top</button>" + 
-  "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick='searchResultsJumpToEdge(1);'>Jump to Bottom</button>" + 
-  "<table class='clickable'><tr>";
-  for(var i = 0; i < INDEXES_CONCAT.length; ++i){
-    var index = _INDEX_ORDER[i];
-    var bgcolor = "inherit";
-    if(_contentSortedIndex.includes(i))
-        bgcolor = getSortColor(i);
-        _table_HTML_0 += "<th class='clickable' onclick='sortContentByIndex(" + index + ");' style='background-color: " + bgcolor + ";'><div style='width: " + INDEX_WIDTHS_CONCAT[index] + ";'>" + INDEXES_CONCAT[index] + "</div></th>";
-  }
-  _table_HTML_0 += "</tr>";
-
-  var childPartButtonWorker = new Worker('workers/add_child_part_button_html.js');
-  var shouldAddChildPartLinks = document.getElementById("search_add_child_part_links").checked;
-  childPartButtonWorker.postMessage([_EXTRA_DB, _EXTRA_DB_COMMENTS_PREFIXES, _content_extra, array_trimmed, INDEXES_CONCAT, _DESCRIP1, _INDEX_ORDER, _DESCRIP2, _COMMENTS, _TABLE_SEARCH_RESULTS, shouldAddChildPartLinks, _CHILD_PART_LINKS_CACHE]);
-
-  childPartButtonWorker.onmessage = function (e) {
-    if(e.data[0] == 1){ //Finished
-      _table_HTML_0 += e.data[1];
-      _CHILD_PART_LINKS_CACHE = e.data[2];
-
-      _table_HTML_0 += "</table>";
-      document.getElementById("search_results_table_div").innerHTML = _table_HTML_0;
-    
-      //Set state of divs-------------------------------------------------------
-      document.getElementById("search_results_expander").style.display = "block";
-      toggle_search_results(1);
-      document.getElementById("message").innerHTML = "";
-    
-      if(_select_top_row){
-        var cell = getCell(0, _selectedCell, _TABLE_SEARCH_RESULTS);
-        if(cell != null)
-          onCellClick(0, _selectedCell, cell.id, _TABLE_SEARCH_RESULTS);
-      }
-      else if(_select_bottom_row){
-        var cell = getCell(array_trimmed.length - 1, _selectedCell, _TABLE_SEARCH_RESULTS);
-        if(cell != null)
-          onCellClick(array_trimmed.length - 1, _selectedCell, cell.id, _TABLE_SEARCH_RESULTS);
-      }
-      else if(_row_to_select >= 0){
-        var cell = getCell(_row_to_select, _selectedCell, _TABLE_SEARCH_RESULTS);
-        if(cell != null)
-          onCellClick(_row_to_select, _selectedCell, cell.id, _TABLE_SEARCH_RESULTS);
-      }
-    }
-    else //Percent status update message
-    {
-      showSnackbar("Adding Child Part Links... " + Math.floor(e.data[1] * 100) + "%", 3000);
-      // document.getElementById("message").innerHTML = "<br><br><br><p>Adding Child Part Links... " + Math.floor(e.data[1] * 100) + "%</p>";
-    }
-  }//END onMessage from PartChildButton worker
 } //END populateSearchResults
 
+var _SortOrderKeyCodes = [];
 function populateSortOrders()
 {
+  _SortOrderKeyCodes = [];
   document.getElementById("sort_order_table_div").innerHTML = "";
   var newHTML = "<table>";
+  var shortcut_window_html = "";
   for(var i = 0; i < _sort_orders.length; ++i)
   {
+    var quickLetter = "0";
+    var keyCode = "";
+    if(i < _ALPHABET.length)
+    {
+      quickLetter = _ALPHABET[i];
+      keyCode = "Key" + quickLetter;
+    }
+    else
+    {
+      quickLetter = String(i - _ALPHABET.length);
+      keyCode = "Digit" + quickLetter;
+    }
+    _SortOrderKeyCodes.push(keyCode);
+    
     var id1 = i + 1;
-    newHTML += "<tr id='sort_order_row_" + id1 + "'><td>" + 
+    newHTML += "<tr id='sort_order_row_" + id1 + "'><td>" + quickLetter + "</td><td>" + 
     "<div style='display: none; align-items: center; justify-content: center;' id='sort_order_buttons_" + id1 + "'>" +
     "<div style='flex-direction: column; width: 100px;'>" + 
-    "<button id='sort_order_button_save" + id1 + "' style='width: 70px; font-size: 20px;' onclick='saveEditSortOrder(" + id1 + ");'>Save</button>" + 
-    "<button id='sort_order_button_cancel" + id1 + "' style='width: 70px; font-size: 20px; margin-top: 5px;' onclick='populateSortOrders();'>Cancel</button>" + 
-    "<button id='sort_order_button_delete" + id1 + "' style='width: 70px; font-size: 20px; margin-top: 5px; color: red' onclick='startDeleteSortOrder(" + id1 + ");'>Delete</button>" + 
-    "<button id='sort_order_button_confirm_delete" + id1 + "' style='display: none; width: 100px; font-size: 20px; margin-top: 5px; color: red' onclick='confirmDeleteSortOrder(" + id1 + ");'>Confirm Delete</button>" + 
-    "<button id='sort_order_button_cancel_delete" + id1 + "'  style='display: none; width: 100px; font-size: 20px; margin-top: 5px;' onclick='cancelDeleteSortOrder(" + id1 + ");'>Cancel Delete</button>" + 
+    "<button id='sort_order_button_save" + id1 + "'           style='background-color: #70A2FF; color: black; width: 70px; font-size: 20px;' onclick='saveEditSortOrder(" + id1 + ");'><span style='color: white;'>S</span>ave</button>" + 
+    "<button id='sort_order_button_cancel" + id1 + "'         style='background-color: #70A2FF; color: black; width: 70px; font-size: 20px; margin-top: 5px;' onclick='populateSortOrders();'><span style='color: white;'>C</span>ancel</button>" + 
+    "<button id='sort_order_button_delete" + id1 + "'         style='background-color: #70A2FF; color: red;   width: 70px; font-size: 20px; margin-top: 5px;' onclick='startDeleteSortOrder(" + id1 + ");'><span style='color: white;'>D</span>elete</button>" + 
+    "<button id='sort_order_button_confirm_delete" + id1 + "' style='background-color: #70A2FF; color: red;   display: none; width: 100px; font-size: 20px; margin-top: 5px;' onclick='confirmDeleteSortOrder(" + id1 + ");'>Confirm <span style='color: white;'>D</span>elete</button>" + 
+    "<button id='sort_order_button_cancel_delete" + id1 + "'  style='background-color: #70A2FF; color: black; display: none; width: 100px; font-size: 20px; margin-top: 5px;' onclick='cancelDeleteSortOrder(" + id1 + ");'><span style='color: white;'>C</span>ancel Delete</button>" + 
     "</div>" +
     "<p style='font-size: 20px;'>Name&nbsp;</p><input id='sort_order_name_" + id1 + "' type='text' style='width: 500px; font-size: 20px;' onfocus='deselectTable();'>" + 
     "</div>" +
     "<div id='sort_order_static_" + id1 + "'>" +
-    "<img class='clickable' style='display: inline;' id='sort_order_edit_icon_" + i + "' src='pencil.png' width=20px height=20px onclick='startEditSortOrder(" + id1 + ");')>&nbsp;&nbsp;&nbsp;&nbsp;" + 
-    "<button id='sort_order_sort_button_" + id1 +"' style='font-size: 20px;' onclick='sortContentBySortOrder(" + i + ");')>Sort</button>&nbsp;&nbsp;&nbsp;&nbsp;" +
+    "<img class='clickable' style='display: inline;' id='sort_order_edit_icon_" + i + "' src='pencil.png' width=20px height=20px onclick='startEditSortOrder(" + id1 + ");'>&nbsp;&nbsp;&nbsp;&nbsp;" + 
+    "<button id='sort_order_sort_button_" + id1 +"' style='font-size: 20px;' onclick='sortContentBySortOrder(" + i + ");'>Sort</button>&nbsp;&nbsp;&nbsp;&nbsp;" +
     "<p style='display: inline; font-size: 20px;'>" + getHTMLSafeText(_sort_orders[i].name) + "</p>" +
     "</div>" +
     "</td>";
@@ -951,9 +1032,14 @@ function populateSortOrders()
       newHTML += getSortOrderCell(id1, j, index);
     }
     newHTML += "</tr>";
+
+    shortcut_window_html += "<span style='color: white;'>" + quickLetter + "</span>. ." + getHTMLSafeText(_sort_orders[i].name) + "<br>";
   }
   newHTML += "</table>";
   document.getElementById("sort_order_table_div").innerHTML = newHTML;
+  document.getElementById("key_shortcut_index_window").innerHTML = shortcut_window_html;
+  document.getElementById("key_shortcut_index_window_edit").innerHTML = shortcut_window_html;
+  setKeyboardShortcutBar();
 }
 
 
@@ -979,9 +1065,9 @@ function populateSortOrders()
 //If highlight differences is checked, make reverse start and end index array, ignore start end indexes that are one char long
 //Else highlight similarities
 
-// var EXTRA_INDEXES = ["PN", "AKA", "PART_NUMBR", "DESCRIP1", "COMMENTS", "VEND", "CAT", "PAGE", "SPL", "SPL_DATE", "SPL_FROM", "LOT_CT", "LOT_PR", "LOT_FROM", "REG", "REG_DATE", "REG_FROM", "SUGG", "VEND_RET", "SHOP_QTY", "TRK1_QTY", "TRK2_QTY", "TRK3_QTY", "USED_QTY", "LOCATION", "OTHER", "CGS", "FROM", "DATE", "OEM_PN", "CALCULATED", "FIXED", "SELL", "SELL", "ZOOM", "SOLD_YTD", "SOLD_DATE", "SOLD_AMT"]; //JS has no AKA, VEND   DNI and OEM has no OTHER, OEM_PN
+// var EXTRA_INDEXES = ["PN", "AKA", "PART_NUMBR", "DESCRIP1", "COMMENTS", "VEND", "CAT", "PAGE", "SPL", "SPL_DATE", "SPL_FROM",* "LOT_CT", "LOT_PR", "LOT_FROM", "REG", "REG_DATE", "REG_FROM", "SUGG", "VEND_RET", "SHOP_QTY", "TRK1_QTY", "TRK2_QTY", "TRK3_QTY", "USED_QTY", "LOCATION", "OTHER", "CGS", "FROM", "DATE", "OEM_PN", "CALCULATED", "FIXED", "SELL", "SELL", "ZOOM", "SOLD_YTD", "SOLD_DATE", "SOLD_AMT"]; //JS has no AKA, VEND   DNI and OEM has no OTHER, OEM_PN
 
-var partChildDropDownHTML = "<select id='part_child_dropdown_select' onchange='setNewPartChildButton();' style='width: 300px;'>";
+var partChildDropDownHTML = "<span style='background-color: #70A2FF; color: black;'>Da<span style='color: white;'>t</span>abase&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><select id='part_child_dropdown_select' onchange='setNewPartChildButton();' style='width: 300px;'>";
 for(var i = 0; i < _EXTRA_DB.length; ++i)
 {
   partChildDropDownHTML += "<option value='" + _EXTRA_DB[0] + "'>" + _EXTRA_DB[i] + "</option>";
@@ -997,6 +1083,7 @@ var _recordViews = [];
 var _recordViews_Key_To_Details_Open = new Map();
 var _recordViewHightlightType = 0;
 var _selected_record_view = 0;
+var _last_selected_record_view = 0;
 
 function populateRecordViews()
 {
@@ -1015,11 +1102,12 @@ function populateRecordViews()
   else
     similarities_checked = "checked";
   if(_recordViews.length > 0)
-    htmlToAdd += "<h1 class='clickable' onclick='toggleDiv(null, \"record_views_table\");'><span id='record_views_table_expander_icon' style='font-size: 50px; font-weight: 100;'>-</span> Record Views</h1>"
-    + "<div id='record_views_table_div'>"
-    + "<label class='radiobutton_container' style='display: inline;'>Show Differences&nbsp;&nbsp;<input  onchange='setRecordViewHighlightType(0);' type='radio' id='radio_record_views_differences' name='radio_record_views_highlighting'" + differences_checked + "><span class='radiomark'></span></label>"
-    + "<label class='radiobutton_container' style='display: inline;'>Show Similarities&nbsp;&nbsp;<input onchange='setRecordViewHighlightType(1);' type='radio' id='radio_record_views_similarities' name='radio_record_views_highlighting'" + similarities_checked + "><span class='radiomark'></span></label>"
-    + "<br><br>";
+    htmlToAdd += 
+    // "<h1 class='clickable' onclick='toggleDiv(null, \"record_views_table\");'><span id='record_views_table_expander_icon' style='font-size: 50px; font-weight: 100;'>-</span> Record Views</h1>" + 
+    "<div id='record_views_table_div'>" +
+    "<label class='radiobutton_container' style='display: inline;'>Show Differences&nbsp;&nbsp;<input  onchange='setRecordViewHighlightType(0);' type='radio' id='radio_record_views_differences' name='radio_record_views_highlighting'" + differences_checked + "><span class='radiomark'></span></label>" +
+    "<label class='radiobutton_container' style='display: inline;'>Show Similarities&nbsp;&nbsp;<input onchange='setRecordViewHighlightType(1);' type='radio' id='radio_record_views_similarities' name='radio_record_views_highlighting'" + similarities_checked + "><span class='radiomark'></span></label>" +
+    "<br><br>";
   
   var first_record_rownum = 0;
   for(var i = 0; i < _recordViews.length; ++i)
@@ -1054,12 +1142,13 @@ function populateRecordViews()
       var bgstyle = "";
       if(i == _selected_record_view)
         bgstyle = "style='background-color: lightblue;'";
-      htmlToAdd += "<div id='record_view_" + i + "' " + bgstyle + " onclick='selectRecordView(" + i + ");')>";
-      htmlToAdd += "<button style='width: 50px;' onclick='removeRecordView(" + i + ");') id='button_record_view_exit_" + i + "'>X</button> "
-      + "<button onclick='populateRecordBrowser(" + rownum + ",true); setTab(" + TAB_RECORD_BROWSER + ");' id='button_record_view_jump_to_browser_" + i + "'>Browser</button> "
+      htmlToAdd += "<div id='record_view_" + i + "' " + bgstyle + " onclick='selectRecordView(" + i + ");'>";
+      htmlToAdd += "<span style='color: white; background-color: #70A2FF; font-size: 30px;'>&nbsp;" + (i + 1) + "&nbsp;</span>&nbsp;";
+      htmlToAdd += "<button style='width: 50px; background-color: #70A2FF;' onclick='removeRecordView(" + i + ");' id='button_record_view_exit_" + i + "'>X</button> "
+      + "<button style='background-color: #70A2FF; color: black;' onclick='populateRecordBrowser(" + rownum + ",true); setTab(" + TAB_RECORD_BROWSER + ");' id='button_record_view_jump_to_browser_" + i + "'><span style='color: white;'>B</span>rowser</button> "
       + "<img class='clickable' id='record_view_data_edit_icon_" + i + "' src='pencil.png' onclick='startEditRecordViewData(" + i + ")'; width=25px height=25px style='position: relative; top: 6px;'>"
-      + "<button id='record_view_data_save_button_"   + i  + "' style='width: 70px; font-size: 20px; display: none;' onclick='saveEditRecordViewData(" + i + ");'>Save</button>&nbsp;"
-      + "<button id='record_view_data_cancel_button_" + i + "' style='width: 70px; font-size: 20px; display: none;' onclick='populateRecordViews();'>Cancel</button>"
+      + "<button id='record_view_data_save_button_"   + i  + "' style='width: 70px; font-size: 20px; display: none; background-color: #70A2FF; color: black;' onclick='saveEditRecordViewData(" + i + ");'><span style='color: white;'>S</span>ave</button>&nbsp;"
+      + "<button id='record_view_data_cancel_button_" + i + "'  style='width: 70px; font-size: 20px; display: none; background-color: #70A2FF; color: black;' onclick='populateRecordViews();'><span style='color: white;'>C</span>ancel</button>"
       + "<div style='display: flex;'><div class='border_center' style='flex-grow: 1;'></div>" 
       + "<div class='text1'>" 
       + "<span id='record_view_data_read_equip_type_" + i + "'>" + equip_type_text + "</span><input type='text' onfocus='deselectTable();' id='record_view_data_input_equip_type_" + i + "' style='width: 50px; display: none;' value='" + getHTMLSafeText(_content[rownum][_EQUIP_TYPE]) + "'>" + " / " 
@@ -1069,14 +1158,17 @@ function populateRecordViews()
       + "<p style='padding-left: 10px;'><b>DESCRIP1:</b> <span id='record_view_data_read_descrip1_" + i + "'>" + descrip1_text + "</span><input type='text' onfocus='deselectTable();' id='record_view_data_input_descrip1_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_DESCRIP1]) + "'><br>"
       + "<b>DESCRIP2: </b><span id='record_view_data_read_descrip2_" + i + "'>" + descrip2_text + "</span><input type='text' onfocus='deselectTable();' id='record_view_data_input_descrip2_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_DESCRIP2]) + "'></p>"
       + "<p style='padding-left: 10px;'><b>COMMENTS:</b> <span id='record_view_data_read_comments_" + i + "'>" + comments_text + "</span><input type='text' onfocus='deselectTable();' id='record_view_data_input_comments_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_COMMENTS]) + "'></p>";
-      if(_recordViews_Key_To_Details_Open.has(_recordViews[i]) && _recordViews_Key_To_Details_Open.get(_recordViews[i]))
+      var details_expanded = true;
+      if(_recordViews_Key_To_Details_Open.has(_recordViews[i]) && !_recordViews_Key_To_Details_Open.get(_recordViews[i]))
+        details_expanded = false;
+      if(details_expanded)
       {
-        htmlToAdd += "</div><div class=clickable style='font-size: 20px; background-color: #96BBFF' onclick='toggleDiv(null, \"record_view_details_" + i + "\")'><span id='record_view_details_" + i + "_expander_icon' style='font-size: 24px;'>-</span> Details</div>";
+        htmlToAdd += "</div><div id='div_recordview_collapser_" + i + "' class=clickable style='font-size: 20px; background-color: #96BBFF' onclick='toggleDiv(null, \"record_view_details_" + i + "\")'><span id='record_view_details_" + i + "_expander_icon' style='font-size: 24px; color: white;'>-</span> Details</div>";
         htmlToAdd += "<div id='record_view_details_" + i + "_div' style='display: block;'><table><tr><th style='width: " + RECORD_VIEW_DB_HEADER_WIDTH + ";'></th>";
       }
       else
       {
-        htmlToAdd += "</div><div class=clickable style='font-size: 20px; background-color: #96BBFF' onclick='toggleDiv(null, \"record_view_details_" + i + "\")'><span id='record_view_details_" + i + "_expander_icon' style='font-size: 24px;'>+</span> Details</div>";
+        htmlToAdd += "</div><div id='div_recordview_collapser_" + i + "' class=clickable style='font-size: 20px; background-color: #96BBFF' onclick='toggleDiv(null, \"record_view_details_" + i + "\")'><span id='record_view_details_" + i + "_expander_icon' style='font-size: 24px; color: white;'>+</span> Details</div>";
         htmlToAdd += "<div id='record_view_details_" + i + "_div' style='display: none;'><table><tr><th  style='width: " + RECORD_VIEW_DB_HEADER_WIDTH + ";'></th>";
       }
       
@@ -1084,7 +1176,7 @@ function populateRecordViews()
       {
         htmlToAdd += "<th style='width: " + RECORD_VIEW_HEADERS_WIDTHS[j] + ";'><p>" + RECORD_VIEW_HEADERS[j] + "</p></th>";
       }
-      htmlToAdd += "<th>Reliable Parts</th><th>Encompass</th><th>Marcone</th>";
+      htmlToAdd += "<th>Reliable Parts</th><th>Encompass</th><th>Marcone</th><th>Image</th>";
       htmlToAdd += "</tr>";
       var parent_record_id = _content[rownum][INDEXES_CONCAT.length];
       for(var j = 0; j < _EXTRA_DB.length; ++j)
@@ -1105,14 +1197,14 @@ function populateRecordViews()
             {
               htmlToAdd += "<div style='width: 30px; display: inline-block;'>" + _EXTRA_DB[j] + "</div>";
               if(extraDBIndex != null)
-                htmlToAdd += "<div style='display: inline; font-size: 20px;' id='sell_div_" + i + "_" + j + "'><button id='sell_button_" + i + "_" + j + "' onclick='startSell(" + i + "," + j + ");')>Sell</button>"
+                htmlToAdd += "<div style='display: inline; font-size: 20px;' id='sell_div_" + i + "_" + j + "'><br><button style='background-color: #70A2FF; color: black;' id='sell_button_" + i + "_" + j + "' onclick='startSell(" + i + "," + j + ");'><span style='color: white;'>S</span>ell</button>"
                 + "<div id='sell_form_" + i + "_" + j + "' style='display: none;'>"
                 + "<p>Quantity</p>"
                 + "<button style='width: 100px;' onclick='changeSellQuantity(" + i + "," + j + ",  1);'>+</button><br>"
                 + "<input onfocus='deselectTable();' style='width: 100px; height: 50px; font-size: 30px; text-align: center;' type='number' value='1' id='sell_quantity_" + i + "_" + j + "'><br>"
                 + "<button style='width: 100px;' onclick='changeSellQuantity(" + i + "," + j + ", -1);'>-</button><br><br>"
-                + "<button style='width: 150px; height: 30px;' onclick='confirmSell(" + i + "," + j + ",\"" + _content_partnum_for_extraDB + "\",\"" + parent_record_id + "\");'>Confirm</button><br><br>"
-                + "<button style='width: 150px; height: 30px;' onclick='populateRecordViews();'>Cancel</button></div></div>";
+                + "<button id='button_record_view_sell_confirm_" + i + "_" + j + "' style='width: 150px; height: 30px; background-color: #70A2FF; color: black;' onclick='confirmSell(" + i + "," + j + ",\"" + _content_partnum_for_extraDB + "\",\"" + parent_record_id + "\");'>Confirm <span style='color: white;'>S</span>ell</button><br><br>"
+                + "<button id='button_record_view_sell_cancel_" + i + "_" + j + "'  style='width: 150px; height: 30px; background-color: #70A2FF; color: black;' onclick='populateRecordViews();'><span style='color: white;'>C</span>ancel</button></div></div>";
               htmlToAdd += "</td><td>";
             }
             else if(k == 1)
@@ -1120,13 +1212,18 @@ function populateRecordViews()
               htmlToAdd += "<img class='clickable' id='record_view_partnum_edit_icon_" + i + "_" + j + "' src='pencil.png' width=25px height=25px onclick='startEditRecordPartReference(" + i + "," + j + ");' style='position: relative; bottom: -6px;'>&nbsp;&nbsp;";
               partSearchTerm = _content_partnum_for_extraDB;
               var pText = "";
-              if(extraDBIndex == null && removeExtraSpaces(_content_partnum_for_extraDB) != "")
+              var clean_content_partnum_for_extraDB = removeExtraSpaces(_content_partnum_for_extraDB);
+              if(extraDBIndex == null && clean_content_partnum_for_extraDB != "")
                 pText = _content_partnum_for_extraDB + "<span style='color: red;'>&nbsp;&nbsp;&nbsp;Not Found in Child Database!</span>";
+              else if(clean_content_partnum_for_extraDB == "")
+              {
+                pText = "";
+              }
               else
-                pText = "<span class='clickable' style='color: blue;' onclick='jumpToChildPartFromRecordView(" + j + "," + extraDBIndex + ");'><u>" + _content_partnum_for_extraDB + "</u></span>";
+                pText = "<span id='span_recordviews_jump_to_child_part_" + i + "_" + j + "' class='clickable' style='color: blue;' onclick='jumpToChildPartFromRecordView(" + j + "," + extraDBIndex + ");'><u>" + _content_partnum_for_extraDB + "</u></span>";
               htmlToAdd += "<p id='record_view_partnum_text_" + i + "_" + j + "' style='display: inline;'>" + pText + "</p><input type='text' style='display: none;' id='record_view_partnum_input_" + i + "_" + j +"' onfocus='onPartNumFocus(" + i + "," + j + ");' value='" + getHTMLSafeText(_content_partnum_for_extraDB) + "' onkeyup='partnum_input_keyup_event(event);' onkeydown='partnum_input_keydown_event(event);'><div style='position: absolute;' id='partnum_autocomplete_" + i + "_" + j + "'></div>"
-              + "<button id='record_view_partnum_save_button_"   + i + "_" + j + "' style='width: 70px; font-size: 20px; display: none; margin-bottom: 2px;' onclick='saveEditRecordPartReference(" + i + "," + j + ");'>Save</button>"
-              + "<button id='record_view_partnum_cancel_button_" + i + "_" + j + "' style='width: 70px; font-size: 20px; display: none;' onclick='populateRecordViews();'>Cancel</button>" + "&nbsp;&nbsp;&nbsp;&nbsp;";
+              + "<button id='record_view_partnum_save_button_"   + i + "_" + j + "' style='width: 70px; font-size: 20px; display: none; background-color: #70A2FF; color: black; margin-bottom: 2px;' onclick='saveEditRecordPartReference(" + i + "," + j + ");'><span style='color: white;'>S</span>ave</button>"
+              + "<button id='record_view_partnum_cancel_button_" + i + "_" + j + "' style='width: 70px; font-size: 20px; display: none; background-color: #70A2FF; color: black;' onclick='populateRecordViews();'><span style='color: white;'>C</span>ancel</button>" + "&nbsp;&nbsp;&nbsp;&nbsp;";
             }
             if(extraDBIndex != null){
               var content1 = _content_extra[j][extraDBIndex][0][RECORD_VIEW_HEADERS_ACTUAL_INDEXES[k][j]];
@@ -1168,16 +1265,24 @@ function populateRecordViews()
             htmlToAdd += "</td>";
           }
           htmlToAdd += "<td>";
-          if(removeExtraSpaces(partSearchTerm) != "")
+          var clean_partSearchTerm = removeExtraSpaces(partSearchTerm);
+          if(clean_partSearchTerm != "")
             htmlToAdd += "<a href='https://www.reliableparts.com/search?q=" + getStandardPNWebSearchString(partSearchTerm) + "' target='_blank'>Search</a>";
           htmlToAdd += "</td>";
           htmlToAdd += "<td>";
-          if(removeExtraSpaces(partSearchTerm) != "")
+          if(clean_partSearchTerm != "")
             htmlToAdd += "<a href='https://encompass.com/search?searchTerm=" + getStandardPNWebSearchString(partSearchTerm) + "' target='_blank'>Search</a>";
           htmlToAdd += "</td>";
           htmlToAdd += "<td>";
-          if(removeExtraSpaces(partSearchTerm) != "")
-            htmlToAdd += "<a href='https://beta.marcone.com/Home/SearchPartModelList?searchString=" + getStandardPNWebSearchString(partSearchTerm) + "&Type=Part' target='_blank'>Search</a>";
+          if(clean_partSearchTerm != "")
+          htmlToAdd += "<a href='https://beta.marcone.com/Home/SearchPartModelList?searchString=" + getStandardPNWebSearchString(partSearchTerm) + "&Type=Part' target='_blank'>Search</a>";
+          htmlToAdd += "</td>";
+          htmlToAdd += "<td>";
+          if(clean_partSearchTerm != "")
+          {
+            htmlToAdd += "<button id='button_recordview_image_everywhere_"   + i + "_" + j + "' style='background-color: #70A2FF; color: black;'                  onclick='showRecordViewImage(\"" + partSearchTerm + "\", 0);'><div class='tooltip'><span class='tooltiptext'>Search entire<br>internet<br>for images</span>E<span style='color: white;'>v</span>erywhere</button>";
+            htmlToAdd += "<button id='button_recordview_image_distributors_" + i + "_" + j + "' style='background-color: #70A2FF; color: black; margin-top: 2px;' onclick='showRecordViewImage(\"" + partSearchTerm + "\", 1);'><div class='tooltip'><span class='tooltiptext'>Search Encompass,<br>Marcone,<br>Reliable Parts,<br>and WL MAY<br>websites for images</span><span style='color: white;'>D</span>istributors</button>";
+          }
           htmlToAdd += "</td>";
           htmlToAdd += "</tr>";
         }
@@ -1218,10 +1323,12 @@ function populateRecordViews()
     if(_recordViews.length > 0)
       htmlToAdd += "</div>";
     document.getElementById("record_views_div").innerHTML = htmlToAdd;
+    selectRecordView(_last_selected_record_view);
 }
 
 function startEditRecordViewData(index)
 {
+  hideRecordViewEditAndSellIcons();
   deselectTable();
   document.getElementById("button_record_view_exit_" + index).style.display = "none";
   document.getElementById("button_record_view_jump_to_browser_" + index).style.display = "none";
@@ -1274,6 +1381,9 @@ function startEditRecordViewData(index)
       }
     }
   }
+  var ele2 = document.getElementById("record_view_data_input_equip_type_" + index);
+  ele2.focus();
+  ele2.select();
 }
 
 function saveEditRecordViewData(index)
@@ -1298,6 +1408,7 @@ function saveEditRecordViewData(index)
     _content[rownum][_SOURCE    ] = String(document.getElementById("record_view_data_input_SOURCE_" + index).value);
     _content[rownum][_MODEL     ] = String(document.getElementById("record_view_data_input_MODEL_" + index).value).split("\n"); //TextArea
     _content[rownum][_FROM      ] = String(document.getElementById("record_view_data_input_FROM_" + index).value);
+    generateContent_Standard_Row(rownum);
     var edb_indexes = [];
     for(var j = 0; j < _EXTRA_DB.length; ++j)
     {
@@ -1356,20 +1467,23 @@ function cancelWLMAYPDF()
   document.getElementById("wlmay_pdf_table_div").style.display = "none";
   document.getElementById("wlmay_input_div").style.display = "block";
   document.getElementById("import_wlmay_pdf_input").value = "";
+  document.activeElement.blur();
+  setKeyboardShortcutBar();
 }
 
 var _selected_child_part_db = null;
 var _selected_child_part_record = null;
 function populateChildPartRecordManager()
 {
+  clickPCRM_NewCancelButton();
   if(_selected_child_part_db != null && _selected_child_part_record != null)
   {
     var htmlToAdd = 
-      "<button id='partchild_edit_button_save'           style='margin: 5px;' onclick='saveEditPartChild();'>Save</button>" 
-    + "<button id='partchild_edit_button_cancel'         style='margin: 5px;' onclick='cancelEditPartChild();'>Cancel</button>"
-    + "<button id='partchild_edit_button_delete'         style='margin: 5px; color: red;' onclick='startDeleteEditPartChild();'>Delete</button>"
-    + "<button id='partchild_edit_button_confirm_delete' style='display: none; margin: 5px; color: red' onclick='confirmDeleteEditPartChild();'>Confirm Delete</button>"
-    + "<button id='partchild_edit_button_cancel_delete'  style='display: none; margin: 5px; ' onclick='populateChildPartRecordManager();'>Cancel Delete</button>"
+      "<button id='partchild_edit_button_save'           style='margin: 5px;                background-color: #70A2FF; color: black;' onclick='saveEditPartChild();'     ><span style='color: white;'>S</span>ave</button>" 
+    + "<button id='partchild_edit_button_cancel'         style='margin: 5px;                background-color: #70A2FF; color: black;' onclick='cancelEditPartChild();'   ><span style='color: white;'>C</span>ancel</button>"
+    + "<button id='partchild_edit_button_delete'         style='margin: 5px;                background-color: #70A2FF; color: red;'   onclick='startDeleteEditPartChild();'><span style='color: white;'>D</span>elete</button>"
+    + "<button id='partchild_edit_button_confirm_delete' style='display: none; margin: 5px; background-color: #70A2FF; color: red;'   onclick='confirmDeleteEditPartChild();'>Confirm <span style='color: white;'>D</span>elete</button>"
+    + "<button id='partchild_edit_button_cancel_delete'  style='display: none; margin: 5px; background-color: #70A2FF; color: black;' onclick='populateChildPartRecordManager();'><span style='color: white;'>C</span>ancel Delete</button>"
     + "<table>";
     var extraobj = _content_extra[_selected_child_part_db][_selected_child_part_record][0];
     for (let [key, value] of Object.entries(extraobj)) 
@@ -1382,15 +1496,23 @@ function populateChildPartRecordManager()
   }
   else
     document.getElementById("part_child_edit_table_div").innerHTML = "";
+
+  var ele = document.getElementById("partchild_edit_input_PN");
+  if(ele != null)
+  {
+    ele.focus();
+    ele.select();
+  }
 }
 
 function startNewPartChild()
 {
+  clickPCRM_EditCancelButton();
   document.getElementById("part_child_button_new").style.display = "none";
   var db_index =  document.getElementById("part_child_dropdown_select").selectedIndex;
   var htmlToAdd = 
-  "<button id='partchild_new_button_save'           style='margin: 5px;' onclick='saveNewPartChild();'  >Save</button>" 
-+ "<button id='partchild_new_button_cancel'         style='margin: 5px;' onclick='cancelNewPartChild();'>Cancel</button>"
+  "<button id='partchild_new_button_save'           style='margin: 5px; background-color: #70A2FF; color: black;' onclick='saveNewPartChild();'  ><span style='color: white;'>S</span>ave</button>" 
++ "<button id='partchild_new_button_cancel'         style='margin: 5px; background-color: #70A2FF; color: black;' onclick='cancelNewPartChild();'><span style='color: white;'>C</span>ancel</button>"
 + "<table>";
   for (var i = 0; i < _EXTRA_DB_FIELDS[db_index].length; ++i) 
   {
@@ -1399,6 +1521,11 @@ function startNewPartChild()
   }
   htmlToAdd += "</table>";
   document.getElementById("part_child_new_table_div").innerHTML = htmlToAdd;
+  var ele = document.getElementById("partchild_new_input_PN");
+  if(ele != null){
+    ele.focus();
+    ele.select();
+  }
 }
 
 function generatePDFAddToDatabaseTable(index)
@@ -1462,8 +1589,14 @@ function generatePDFAddToDatabaseTable(index)
       notFoundHTML += "<option value='" + _EXTRA_DB[0] + "'>" + _EXTRA_DB[i] + "</option>";
     }
     notFoundHTML += "</select>";
-    notFoundHTML += "&nbsp;&nbsp;<button onclick='startPDFNewChildRecord(" + index + ");'>Go</button>";
+    notFoundHTML += "&nbsp;&nbsp;<button id='button_pdfimport_newpartchild_submit' style='background-color: #70A2FF; color: black;' onclick='startPDFNewChildRecord(" + index + ");'><span style='color: white;'>S</span>ubmit</button>";
+    notFoundHTML += "&nbsp;&nbsp;<button id='button_pdfimport_newpartchild_cancel' style='background-color: #70A2FF; color: black;' onclick='cancelPDFAddToDatabase(" + index + ");'><span style='color: white;'>C</span>ancel</button>";
     document.getElementById("pdf_add_to_database_table_" + index).innerHTML = notFoundHTML;
+    var ele = document.getElementById("pdf_new_partchild_select_" + index);
+    if(ele != null)
+    {
+      ele.focus();
+    }
   }
   else
   {
@@ -1524,19 +1657,24 @@ function generatePDFAddToDatabaseTable(index)
     + "<tr><td>" + _EXTRA_DB[extradb] + "</td><td>" + partObj.PN + "</td><td>" + partObj.AKA + "</td><td>" + partObj.REG + "</td><td>" + partObj.SPL + "</td><td>" + partObj.SHOP_QTY + "</td><td>" + partObj.FIXED + "</td></tr>"
     + "<tr><td></td><td></td><td></td><td>" + dealerprice_change + "</td><td>" + yourprice_change + "</td><td>" + shippedamount_change + "</td><td></td></tr>"
     + "<tr><td>" + _EXTRA_DB[extradb] + "</td><td>" + partObj.PN + "</td><td>" + partObj.AKA + "</td><td>" + dealerprice + "</td><td>" + yourprice +   "</td><td>" + newqty +           "</td><td>" + partObj.FIXED + "</td></tr>"
-    + "</table><button onclick='cancelPDFAddToDatabase(" + index + ");')>Cancel</button>&nbsp;&nbsp;<button onclick='confirmPDFAddToDatabase(" + index + ");')>Confirm</button>";
+    + "</table>"
+    + "<button id='button_pdfimport_save_addrow'   style='background-color: #70A2FF; color: black;' onclick='confirmPDFAddToDatabase(" + index + ");'><span style='color: white;'>S</span>ave</button>&nbsp;&nbsp;"
+    + "<button id='button_pdfimport_cancel_addrow' style='background-color: #70A2FF; color: black;' onclick='cancelPDFAddToDatabase(" + index + ");' ><span style='color: white;'>C</span>ancel</button>";
     document.getElementById("pdf_add_to_database_table_" + index).innerHTML = htmlToAdd;
+    document.getElementById("pdf_add_to_database_table_" + index).scrollIntoView({ behavior: "auto", block: "nearest", inline: "nearest" });
+    document.activeElement.blur();
   }
   newREGs.set(index, dealerprice);
   newSPLs.set(index, yourprice);
   newSHOP_QTYs.set(index, newqty);
   newPNs.set(index, pn);
   newDESCRIP1s.set(index, descrip1);
+  setPDFAddToDatabaseButtons(false);
 }
 
 function populateInvoice()
 {
-  document.getElementById("invoice_from_history_content").innerHTML = "";
+  clearInvoicesContent();
   saveInvoiceToObject();
   var numTotalRows = _invoice_objs.length;
   var htmlToAdd = "";
@@ -1569,7 +1707,7 @@ function populateInvoice()
         + "<input type='text' style='width: 493px; height: 15px;' value='" + getHTMLSafeText(obj.PN) + " | " + getHTMLSafeText(obj.DESCRIP1) + "' id='invoice_input_desc_" + i + "' disabled></td><td>"
         + "<input type='text' style='width: 48px; height: 15px; text-align: right;' id='invoice_input_sell_" + i + "' value='" + getHTMLSafeText(obj.SELL) + "' onfocus='deselectTable();' onchange='calculateInvoiceAmounts();'></td><td>"
         + "<input type='text' style='width: 53px; height: 15px; text-align: right;' id='invoice_input_amount_" + i + "' disabled></td><td class='no-print'>"
-        + "<button style='width: 20px; height: 20px; padding: 0px; color: white; background-color: red;' tabindex='-1' onclick='removeFromInvoice(" + i + ");')>x</button></td></tr>";
+        + "<button id='button_invoice_remove_" + i + "' style='width: 20px; height: 20px; padding: 0px; color: white; background-color: red;' tabindex='-1' onclick='removeFromInvoice(" + i + ");'>x</button></td></tr>";
       }
       else
       {
@@ -1696,17 +1834,24 @@ function updateReordersWorker_Local(startIndex, endIndex)
 var _slice_start = 0;
 var _sliceSize = 2000;
 var _slice_end = 0;
+var _MAX_REORDER_CHANGEALERTS = 20;
 function updateReordersRecursive()
 {
   var data = updateReordersWorker_Local(_slice_start, _slice_end);
-  var content_ids_changed = data[0];
+  // var content_ids_changed = data[0];
   var content_rownums_changed = data[1];
 
   for(var i = 0; i < content_rownums_changed.length; ++i)
   {
     var rownum = content_rownums_changed[i];
     if(rownum != null)
-      saveContentToDatabase(rownum, true);
+    {
+      if(_numReorderChangeAlertsSent < _MAX_REORDER_CHANGEALERTS)
+      {
+        saveContentToDatabase(rownum, true);
+        ++_numReorderChangeAlertsSent;
+      }
+    }
   }
 
   if(_slice_end < _content.length - 1)
@@ -1723,20 +1868,28 @@ function updateReordersRecursive()
   }
   else
   {
+    _reorders_updating = false;
     document.getElementById("button_update_reorders").style.display = "";
     updateReorderParentIDs();
-    showSnackbar("Reorders update complete!", 3000);
+    if(_numReorderChangeAlertsSent < _MAX_REORDER_CHANGEALERTS)
+      showSnackbar("Reorders update complete!", 3000);
+    else
+      showSnackbar("Reorders update complete, too many changes were made to the database, other machines running PartScouter will need to restart the program!", 10000);
   }
 }
 
-
+var _reorders_updating = false;
+var _numReorderChangeAlertsSent = 0;
 function updateReorders()
 {
   _slice_start = 0;
   _slice_end = _sliceSize - 1;
   if(_content.length > 0)
   {
+    _reorders_updating = true;
+    document.getElementById("table_reorders_div").innerHTML = "";
     document.getElementById("button_update_reorders").style.display = "none";
+    _numReorderChangeAlertsSent = 0;
     updateReordersRecursive();
   }
 }
@@ -1796,37 +1949,45 @@ function updateReorder(rownum)
 var _reorder_parent_ids = [];
 function updateReorderParentIDs()
 {
-  _reorder_parent_ids = [];
-  for(var i = 0; i < _content.length; ++i)
+  if(!_reorders_updating)
   {
-    if(Number(_content[i][_REORD_QTY]) > 0)
+    _reorder_parent_ids = [];
+    for(var i = 0; i < _content.length; ++i)
     {
-      _reorder_parent_ids.push(_content[i][_content[i].length - 1]);
+      if(Number(_content[i][_REORD_QTY]) > 0)
+      {
+        _reorder_parent_ids.push(_content[i][_content[i].length - 1]);
+      }
     }
-  }
 
-  var table_html = "<table><tr><th></th><th>Descrip 1</th><th>Descrip 2</th><th>Reord</th><th>Keep</th><th>Bulk</th></tr>";
-  for(var i = 0; i < _reorder_parent_ids.length; ++i)
-  {
-    var parent_id = _reorder_parent_ids[i];
-    var rownum = getParentIndexFromID(parent_id);
-    if(rownum != null)
+    var table_html = "<table><tr><th></th><th>Descrip 1</th><th>Descrip 2</th><th>Reord</th><th>Keep</th><th>Bulk</th></tr>";
+    var inc = 0;
+    for(var i = 0; i < _reorder_parent_ids.length; ++i)
     {
-      table_html += "<tr>";
-      table_html += 
-      "<td><button onclick='addRecordView(\"" + parent_id + "\");'><img title='Open Record View' src='record_view.png' width=50px height=20px></button>"
-      + "<button onclick='populateRecordBrowser(" + rownum + ",true); setTab(" + TAB_RECORD_BROWSER + ");'>Browser</button>"
-      + "<button onclick='updateReorder(" + rownum + "); updateReorderParentIDs();'>Update</button></td><td>"
-      + _content[rownum][_DESCRIP1] + "</td><td>" 
-      + _content[rownum][_DESCRIP2] + "</td><td>" 
-      + _content[rownum][_REORD_QTY] + "</td><td>" 
-      + _content[rownum][_KEEP] + "</td><td>" 
-      + _content[rownum][_GET] + "</td>";
-      table_html += "</tr>";
+      var parent_id = _reorder_parent_ids[i];
+      var rownum = getParentIndexFromID(parent_id);
+      if(rownum != null)
+      {
+        table_html += "<tr id='table_reorders_row_" + inc + "'>";
+        table_html += 
+        "<td>"
+        + "<button id='button_reorder_addrecordview_" + inc + "'     style='background-color: #70A2FF; color: black;'                  onclick='addRecordView(\"" + parent_id + "\");'>Record <span style='color: white;'>V</span>iew</button><br>"
+        + "<button id='button_reorder_jumprecordbrowser_" + inc + "' style='background-color: #70A2FF; color: black; margin-top: 2px;' onclick='populateRecordBrowser(" + rownum + ",true); setTab(" + TAB_RECORD_BROWSER + ");'>&nbsp;&nbsp;&nbsp;<span style='color: white;'>B</span>rowser&nbsp;&nbsp;&nbsp;</button><br>"
+        + "<button id='button_reorder_updaterow_" + inc + "'         style='background-color: #70A2FF; color: black; margin-top: 2px;' onclick='updateReorder(" + rownum + "); updateReorderParentIDs();'>&nbsp;&nbsp;&nbsp;<span style='color: white;'>U</span>pdate&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</button></td><td>"
+        + _content[rownum][_DESCRIP1] + "</td><td>" 
+        + _content[rownum][_DESCRIP2] + "</td><td>" 
+        + _content[rownum][_REORD_QTY] + "</td><td>" 
+        + _content[rownum][_KEEP] + "</td><td>" 
+        + _content[rownum][_GET] + "</td>";
+        table_html += "</tr>";
+        ++inc;
+      }
     }
+    table_html += "</table>";
+    document.getElementById("table_reorders_div").innerHTML = table_html;
+    if(!set_tableReorders_SelectedRow(_table_reorders_selected_row))
+      set_tableReorders_SelectedRow(0);
   }
-  table_html += "</table>";
-  document.getElementById("table_reorders_div").innerHTML = table_html;
 }
 
 var _invoice_filter_date_start = -1;
@@ -1842,6 +2003,8 @@ function populateInvoiceHistory()
   var do_filter_total = (filter_total.replace(" ", "").length > 0);
   var do_filter_invoice_no = (filter_invoice_no.replace(" ", "").length > 0);
   var do_filter_any_field = (filter_any_field.replace(" ", "").length > 0);
+  var inc = 0;
+  _content_invoice_history.sort(COMPARE_OBJECT_date);
   for(var i = _content_invoice_history.length - 1; i >= 0; --i)
   {
     var invoice_obj = _content_invoice_history[i];
@@ -1889,27 +2052,32 @@ function populateInvoiceHistory()
     
     if(!match_failed)
     {
-      table_html += "<tr class='clickable' onclick='viewInvoiceFromHistory(" + i + ");'>"
+      table_html += "<tr id='invoicehistory_table_row_" + inc + "' class='clickable' onclick='viewInvoiceFromHistory(" + i + ");'>"
       + "<td>" + invoice_obj.date + "</td>"
       + "<td>" + invoice_obj.name + "</td>"
       + "<td>" + invoice_obj.total + "</td>"
       + "<td>" + invoice_obj.invoice_no + "</td>"
       + "</tr>";
+      ++inc;
     }
   }
   table_html += "</table>";
   document.getElementById("table_invoice_history_div").innerHTML = table_html;
   // var date1 = new Date("abc");
   // console.log("DATE" + date1.getTime() + "|" +  isNaN(date1.getTime()));
+  if(!set_tableInvoiceHistory_SelectedRow(_table_invoicehistory_selected_row))
+    set_tableInvoiceHistory_SelectedRow(0);
 }
 
+var _current_viewed_invoice_id = null;
 function viewInvoiceFromHistory(index)
 {
+  _current_viewed_invoice_id = _content_invoice_history[index].key;
+  clearInvoicesContent();
   document.getElementById("non_invoice_content").style.display = "none";
   document.getElementById("invoice_history_internal_div").style.display = "none";
   document.getElementById("invoice_from_history_content").style.display = "";
   document.getElementById("exit_invoice_from_history_button").style.display = "";
-  document.getElementById("invoice_content").innerHTML = "";
   var _invoice_obj = _content_invoice_history[index];
   var htmlToAdd = INVOICE_PRE;
   for(var i = 0; i < _invoice_obj.invoice_parts.length; ++i)
@@ -1933,7 +2101,10 @@ function viewInvoiceFromHistory(index)
   }
   //Add post invoice html
   htmlToAdd += INVOICE_POST;
-  
+  htmlToAdd += "<button id='button_viewInvoice_delete'        style='               position: absolute; left: 750px;            background-color: #70A2FF; color: red;'   onclick='startDeleteInvoice();'  ><span style='color: white;'>D</span>elete</button>";
+  htmlToAdd += "<button id='button_viewInvoice_confirmdelete' style='display: none; position: absolute; left: 750px;            background-color: #70A2FF; color: red;'   onclick='confirmDeleteInvoice();'>Confirm <span style='color: white;'>D</span>elete</button>";
+  htmlToAdd += "<button id='button_viewInvoice_canceldelete'  style='display: none; position: absolute; left: 750px; top: 60px; background-color: #70A2FF; color: black;' onclick='cancelDeleteInvoice();' ><span style='color: white;'>C</span>ancel Delete</button>";
+
   document.getElementById("invoice_from_history_content").innerHTML = htmlToAdd;
 
   document.getElementById("invoice_input_invoice_no").value = _invoice_obj.invoice_no;
@@ -1959,6 +2130,14 @@ function exitInvoiceFromHistory()
   document.getElementById("exit_invoice_from_history_button").style.display = "none";
 }
 
+function exitInvoiceFromNew()
+{
+  if(last_selected_tab != TAB_ADD_INVOICE)
+    setTab(last_selected_tab);
+  else
+    setTab(TAB_MAINMENU);
+}
+
 function clearInvoiceFilters()
 {
   var date0 = new Date(0);
@@ -1972,4 +2151,29 @@ function clearInvoiceFilters()
   _invoice_filter_date_start = date0.getTime();
   _invoice_filter_date_end = date1.getTime();
   populateInvoiceHistory();
+}
+
+function exitInvoice()
+{
+  if(last_selected_tab != TAB_INVOICE)
+    setTab(last_selected_tab);
+  else
+    setTab(TAB_MAINMENU);
+}
+
+function populateAddNewInvoice()
+{
+  clearInvoicesContent();
+  document.getElementById("non_invoice_content").style.display = "none";
+  document.getElementById("add_invoice_content").style.display = "";
+  document.getElementById("exit_invoice_from_new_button").style.display = "";
+  var htmlToAdd = INVOICE_PRE;
+  htmlToAdd += INVOICE_POST;
+  htmlToAdd += "<button id='button_addInvoice_save'   style='position: absolute;             left: 750px; background-color: #70A2FF; color: black;' onclick='addInvoice_Save();'       ><span style='color: white;'>S</span>ave</button>";
+  htmlToAdd += "<button id='button_addInvoice_cancel' style='position: absolute;             left: 810px; background-color: #70A2FF; color: black;' onclick='exitInvoiceFromNew();'    ><span style='color: white;'>C</span>ancel</button>";
+  htmlToAdd += "<button id='button_addInvoice_addrow' style='position: absolute; top: 420px; left: 750px; background-color: #70A2FF; color: black;' onclick='addInvoice_AddTableRow();'><span style='color: white;'>A</span>dd Row</button>";
+  document.getElementById("add_invoice_content").innerHTML = htmlToAdd;
+  // document.getElementById("invoice_input_total").disabled = false;
+  addInvoice_AddTableRow();
+  removeElement("button_finish_sale");
 }

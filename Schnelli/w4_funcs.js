@@ -144,6 +144,7 @@ function processJSONData(objs) {
   }
   generateContent_Standard();
   populateRecordBrowser(0, false);
+  initialLoadingFinished();
 }
 
 function processJSONDataExtra(objs, _content_extra_db, keys) {
@@ -346,7 +347,8 @@ function getRegexSafeSearchTerm(str) {
 }
 
 function getHTMLSafeText(str) {
-  var str2 = String(str).replace(/\</g, "&lt;");
+  var str2 = String(str).replace("\&", "&amp;");
+  str2 = str2.replace(/\</g, "&lt;");
   str2 = str2.replace(/\>/g, "&gt;");
   str2 = str2.replace("\"", "&quot;");
   str2 = str2.replace("\'", "&apos;");
@@ -374,26 +376,26 @@ function toggle_similar_strings() {
   }
 }
 
-function toggle_search_results(state) { //0 hidden, 1 shown, 2 toggle
-  if (state == 0) {
-    document.getElementById("search_results_div").style.display = "none";
-    document.getElementById("search_results_expander_icon").innerHTML = "+";
-  }
-  else if (state == 1) {
-    document.getElementById("search_results_div").style.display = "block";
-    document.getElementById("search_results_expander_icon").innerHTML = "-";
-  }
-  else {
-    if (document.getElementById("search_results_div").style.display == "none") {
-      document.getElementById("search_results_div").style.display = "block";
-      document.getElementById("search_results_expander_icon").innerHTML = "-";
-    }
-    else {
-      document.getElementById("search_results_div").style.display = "none";
-      document.getElementById("search_results_expander_icon").innerHTML = "+";
-    }
-  }
-}
+// function toggle_search_results(state) { //0 hidden, 1 shown, 2 toggle
+//   if (state == 0) {
+//     document.getElementById("search_results_div").style.display = "none";
+//     document.getElementById("search_results_expander_icon").innerHTML = "+";
+//   }
+//   else if (state == 1) {
+//     document.getElementById("search_results_div").style.display = "block";
+//     document.getElementById("search_results_expander_icon").innerHTML = "-";
+//   }
+//   else {
+//     if (document.getElementById("search_results_div").style.display == "none") {
+//       document.getElementById("search_results_div").style.display = "block";
+//       document.getElementById("search_results_expander_icon").innerHTML = "-";
+//     }
+//     else {
+//       document.getElementById("search_results_div").style.display = "none";
+//       document.getElementById("search_results_expander_icon").innerHTML = "+";
+//     }
+//   }
+// }
 
 function toggle_similar_string_table(id) {
   var tableID = "similar_string_table_" + id;
@@ -431,11 +433,7 @@ function getContentExtraIndexFrom_DB_ID(db_id, db_index) {
 function sortContentByIndex(index) {
   showSnackbar("Sorting by index...", 6000);
   // document.getElementById("message").innerHTML = "<p>Sorting by index...</p>";
-  document.getElementById("sort_order_div").style.display = "none";
-  document.getElementById("search_div").style.display = "none";
-  document.getElementById("search_results_expander").style.display = "none";
-  document.getElementById("search_results_div").style.display = "none";
-  document.getElementById("record_browser_div").style.display = "none";
+  document.getElementById("content_div").style.display = "none";
 
   var _selectedRecord_DB_ID = null;
   if (_selectedTable == _TABLE_RECORD_BROWSER && _selectedRow >= 0 && _selectedRow < _content.length) {
@@ -458,9 +456,7 @@ function sortContentByIndex(index) {
     _contentSortedIndex = [index];
     populateRecordBrowser(0, false);
     document.getElementById("message").innerHTML = "";
-    document.getElementById("sort_order_div").style.display = "block";
-    document.getElementById("search_div").style.display = "block";
-    document.getElementById("record_browser_div").style.display = "block";
+    document.getElementById("content_div").style.display = "";
     if (_selectedTable == _TABLE_RECORD_BROWSER && _selectedRecord_DB_ID != null) {
       var index1 = getContentIndexFrom_DB_ID(_selectedRecord_DB_ID);
       if (index1 != null) {
@@ -470,17 +466,14 @@ function sortContentByIndex(index) {
           onCellClick(index1, _selectedCell, cell.id, _selectedTable);
       }
     }
+    setTab(_selected_tab);
   }
 }
 
 function sortContentBySortOrder(order_index) {
   showSnackbar("Sorting by index...", 6000);
   // document.getElementById("message").innerHTML = "<p>Sorting by index...</p>";
-  document.getElementById("sort_order_div").style.display = "none";
-  document.getElementById("search_div").style.display = "none";
-  document.getElementById("search_results_expander").style.display = "none";
-  document.getElementById("search_results_div").style.display = "none";
-  document.getElementById("record_browser_div").style.display = "none";
+  document.getElementById("content_div").style.display = "none";
 
   var _selectedRecord_DB_ID = null;
   if (_selectedTable == _TABLE_RECORD_BROWSER && _selectedRow >= 0 && _selectedRow < _content.length) {
@@ -503,9 +496,7 @@ function sortContentBySortOrder(order_index) {
     _contentSortedIndex = sorted_indexes;
     populateRecordBrowser(0, false);
     document.getElementById("message").innerHTML = "";
-    document.getElementById("sort_order_div").style.display = "block";
-    document.getElementById("search_div").style.display = "block";
-    document.getElementById("record_browser_div").style.display = "block";
+    document.getElementById("content_div").style.display = "";
     if (_selectedTable == _TABLE_RECORD_BROWSER && _selectedRecord_DB_ID != null) {
       var index1 = getContentIndexFrom_DB_ID(_selectedRecord_DB_ID);
       if (index1 != null) {
@@ -515,6 +506,7 @@ function sortContentBySortOrder(order_index) {
           onCellClick(index1, _selectedCell, cell.id, _selectedTable);
       }
     }
+    setTab(_selected_tab);
   }
 }
 
@@ -554,60 +546,68 @@ function getStandardRow(content_index) {
 }
 
 function onCellClick(row, cell, id, table_enum, skipPopulate) {
-  if (skipPopulate == null)
-    skipPopulate = false;
+var textele_edit = document.getElementById("edit_textarea_1");
+var textele_new  = document.getElementById("new_textarea_1");
 
-  _isTableSelected = true;
-  var elementRow = null;
-  var elementCell = null;
-  switch (_selectedTable) {
-    case _TABLE_SEARCH_RESULTS:
-      elementRow = document.getElementById("search_results_row_" + _selectedRow);
-      elementCell = document.getElementById("search_results_cell_" + _selectedRow + "_" + _selectedCell);
-      break;
-    case _TABLE_SIMILAR_STRINGS:
-      elementRow = document.getElementById("similar_string_row_" + _selectedRow);
-      elementCell = document.getElementById("similar_string_cell_" + _selectedRow + "_" + _selectedCell);
-      break;
-    case _TABLE_RECORD_BROWSER:
-      elementRow = document.getElementById("record_browser_row_" + _selectedRow);
-      elementCell = document.getElementById("record_browser_cell_" + _selectedRow + "_" + _selectedCell);
-      break;
-  }
-  if (elementRow != null)
-    elementRow.style.backgroundColor = "";
+if(table_enum != _TABLE_RECORD_BROWSER || (textele_edit == null && textele_new == null)) //Prevents record browser from being selected while editing
+{
+    if (skipPopulate == null)
+      skipPopulate = false;
 
-  if (elementCell != null)
-    elementCell.style.backgroundColor = "";
+    _isTableSelected = true;
+    var elementRow = null;
+    var elementCell = null;
+    switch (_selectedTable) 
+    {
+      case _TABLE_SEARCH_RESULTS:
+        elementRow = document.getElementById("search_results_row_" + _selectedRow);
+        elementCell = document.getElementById("search_results_cell_" + _selectedRow + "_" + _selectedCell);
+        break;
+      case _TABLE_SIMILAR_STRINGS:
+        elementRow = document.getElementById("similar_string_row_" + _selectedRow);
+        elementCell = document.getElementById("similar_string_cell_" + _selectedRow + "_" + _selectedCell);
+        break;
+      case _TABLE_RECORD_BROWSER:
+        elementRow = document.getElementById("record_browser_row_" + _selectedRow);
+        elementCell = document.getElementById("record_browser_cell_" + _selectedRow + "_" + _selectedCell);
+        break;
+    }
+    if (elementRow != null)
+      elementRow.style.backgroundColor = "";
 
-  _selectedTable = table_enum;
-  _selectedRow = row;
-  _selectedCell = cell;
+    if (elementCell != null)
+      elementCell.style.backgroundColor = "";
 
-  switch (_selectedTable) {
-    case _TABLE_SEARCH_RESULTS:
-      elementRow = document.getElementById("search_results_row_" + _selectedRow);
-      if (!skipPopulate)
-        populateRecordBrowser(_indexesSearchResults[row], true);
-      break;
-    case _TABLE_SIMILAR_STRINGS:
-      elementRow = document.getElementById("similar_string_row_" + _selectedRow);
-      if (!skipPopulate)
-        populateRecordBrowser(_indexesSimilarStrings[row], true);
-      break;
-    case _TABLE_RECORD_BROWSER:
-      elementRow = document.getElementById("record_browser_row_" + _selectedRow);
-      break;
-  }
-  if (elementRow != null)
-    elementRow.style.backgroundColor = _selectedRowColor;
+    _selectedTable = table_enum;
+    _selectedRow = row;
+    _selectedCell = cell;
 
-  elementCell = document.getElementById(id);
-  _selectedCellLastID = null;
-  if (elementCell != null) {
-    elementCell.style.backgroundColor = _selectedCellColor;
-    elementCell.scrollIntoView({ behavior: "auto", block: "nearest", inline: "nearest" });
-    _selectedCellLastID = id;
+    switch (_selectedTable) {
+      case _TABLE_SEARCH_RESULTS:
+        elementRow = document.getElementById("search_results_row_" + _selectedRow);
+        if (!skipPopulate)
+          populateRecordBrowser(_indexesSearchResults[row], true);
+        break;
+      case _TABLE_SIMILAR_STRINGS:
+        elementRow = document.getElementById("similar_string_row_" + _selectedRow);
+        if (!skipPopulate)
+          populateRecordBrowser(_indexesSimilarStrings[row], true);
+        break;
+      case _TABLE_RECORD_BROWSER:
+        elementRow = document.getElementById("record_browser_row_" + _selectedRow);
+        break;
+    }
+    if (elementRow != null)
+      elementRow.style.backgroundColor = _selectedRowColor;
+
+    elementCell = document.getElementById(id);
+    _selectedCellLastID = null;
+    if (elementCell != null) {
+      elementCell.style.backgroundColor = _selectedCellColor;
+      elementCell.scrollIntoView({ behavior: "auto", block: "nearest", inline: "nearest" });
+      _selectedCellLastID = id;
+      setKeyboardShortcutBar();
+    }
   }
 }
 
@@ -616,8 +616,8 @@ function deselectTable(index) {
   if (index != null)
     _selected_search_input = index;
   _isTableSelected = false;
-  var elementRow;
-  var elementCell;
+  var elementRow = null;
+  var elementCell = null;
 
   switch (_selectedTable) {
     case _TABLE_SEARCH_RESULTS:
@@ -726,6 +726,9 @@ function startEditRecord(record_id, rownum, row_id) {
     var icon = document.getElementById("edit_icon_" + i);
     if (icon != null)
       icon.style.display = "none";
+    icon = document.getElementById("copy_icon_" + i);
+    if (icon != null)
+      icon.style.display = "none";
   }
   var cells1 = document.getElementById(row_id).cells;
   for (var i = 0; i < INDEXES_CONCAT.length; ++i) {
@@ -733,11 +736,11 @@ function startEditRecord(record_id, rownum, row_id) {
     if (index == 0) {
       cells1[i].innerHTML = "<div style='display: flex; align-items: center; justify-content: center;'>" +
         "<div style='flex-direction: column;'>" +
-        "<button id='save_edit_record' onclick='saveEditRecord(" + rownum + ");' style='width: 60px;'>Save</button>" +
-        "<button id='cancel_edit_record' onclick='cancelEditRecord()' style='width: 60px; margin-top: 5px;'>Cancel</button>" +
-        "<button id='delete_edit_record' onclick='startDeleteRecord()' style='width: 60px; margin-top: 5px; color: red;'>Delete</button>" +
-        "<button id='confirm_delete_record' onclick='confirmDeleteRecord(" + rownum + ")' style='display: none; color: red;'>Confirm Delete</button>" +
-        "<button id='cancel_delete_record' onclick='cancelDeleteRecord();' style='display: none;'>Cancel Delete</button>" +
+        "<button id='save_edit_record' onclick='saveEditRecord(" + rownum + ");'          style='background-color: #70A2FF; color: black; width: 60px;'><span style='color: white;'>S</span>ave</button>" +
+        "<button id='cancel_edit_record' onclick='cancelEditRecord()'                     style='background-color: #70A2FF; color: black; width: 60px; margin-top: 5px;'><span style='color: white;'>C</span>ancel</button>" +
+        "<button id='delete_edit_record' onclick='startDeleteRecord(); event.preventDefault();'                    style='background-color: #70A2FF; color: black; width: 60px; margin-top: 5px; color: red;'><span style='color: white;'>D</span>elete</button>" +
+        "<button id='confirm_delete_record' onclick='confirmDeleteRecord(" + rownum + ")' style='background-color: #70A2FF; color: black; display: none; color: red;'>Confirm&nbsp;<span style='color: white;'>D</span>elete</button>" +
+        "<button id='cancel_delete_record' onclick='cancelDeleteRecord();'                style='background-color: #70A2FF; color: black; display: none;'><span style='color: white;'>C</span>ancel Delete</button>" +
         "</div>" +
         "<input type='text' id='edit_textarea_" + i + "' style='width: 50%;' onfocus='deselectTable();' onchange='deselectTable();'></input></div>";
       document.getElementById("edit_textarea_" + i).value = _content[rownum][index];
@@ -751,6 +754,11 @@ function startEditRecord(record_id, rownum, row_id) {
       document.getElementById("edit_textarea_" + i).innerHTML = stringifyArrayEndChar(_content[rownum][index], "\n");
     }
   }
+  var ele = document.getElementById("edit_textarea_1");
+  if(ele != null){
+    ele.focus();
+    ele.select();
+  }
 }
 
 function saveEditRecord(rownum) {
@@ -763,7 +771,7 @@ function saveEditRecord(rownum) {
   }
   generateContent_Standard_Row(rownum);
   populateRecordBrowser(_currentRecordBrowserStartIndex, false);
-  clearSearchResults();
+  clearSearchResults(true);
 
   if (!_LOCAL_MODE) {
     var row = _content[rownum];
@@ -793,10 +801,20 @@ function saveContentToDatabase(rownum, addChangeAlert)
 }
 
 function cancelEditRecord() {
-  populateRecordBrowser(_currentRecordBrowserStartIndex, false);
+  populateRecordBrowser(_selectedRow, false);
 }
 
 function startNewRecord(indexToCopy) {
+  deselectTable();
+  for (var i = 0; i < _recordBrowserMax; ++i) {
+    var icon = document.getElementById("edit_icon_" + i);
+    if (icon != null)
+      icon.style.display = "none";
+    icon = document.getElementById("copy_icon_" + i);
+    if (icon != null)
+      icon.style.display = "none";
+  }
+
   var tableHTML = "<br><br><h1>New Record</h1><table><tr>";
   var contentToCopy = new Array();
   if (indexToCopy != null) {
@@ -822,11 +840,12 @@ function startNewRecord(indexToCopy) {
 
   for (var i = 0; i < INDEX_WIDTHS_CONCAT.length; ++i) {
     var index = _INDEX_ORDER[i];
-    if (index == 0) {
+    if (index == 0) 
+    {
       tableHTML += "<td><div style='display: flex; align-items: center; justify-content: center;'>" +
         "<div style='flex-direction: column;'>" +
-        "<button style='width: 60px;' onclick='saveNewRecord();'>Save</button>" +
-        "<button style='width: 60px; margin-top: 5px;' onclick='cancelNewRecord();'>Cancel</button>" +
+        "<button id='save_new_record'   style='width: 60px; background-color: #70A2FF; color: black;'                  onclick='saveNewRecord();'  ><span style='color: white;'>S</span>ave</button>" +
+        "<button id='cancel_new_record' style='width: 60px; background-color: #70A2FF; color: black; margin-top: 5px;' onclick='cancelNewRecord();'><span style='color: white;'>C</span>ancel</button>" +
         "</div>" +
         "<input type='text' id='new_textarea_" + i + "' style='width: 50%;' onfocus='deselectTable();' onchange='deselectTable();' value=" + (_largestRecordNumber + 1) + "></input></div></td>";
     }
@@ -846,10 +865,17 @@ function startNewRecord(indexToCopy) {
     else
       document.getElementById("new_textarea_" + i).value = contentToCopy[i];
   }
+  var ele = document.getElementById("new_textarea_1");
+  if(ele != null)
+  {
+    ele.focus();
+    ele.select();
+  }
 }
 
 function cancelNewRecord() {
   document.getElementById("add_part_table_div").innerHTML = "";
+  populateRecordBrowser(_currentRecordBrowserStartIndex, false);
 }
 
 function saveNewRecord() {
@@ -874,7 +900,7 @@ function saveNewRecord() {
 
   generateContent_Standard_New();
   populateRecordBrowser(_currentRecordBrowserStartIndex, false);
-  clearSearchResults();
+  clearSearchResults(true);
 
   if (!_LOCAL_MODE) {
     var partObj = new Object();
@@ -914,14 +940,15 @@ function confirmDeleteRecord(rownum) {
 
   populateRecordBrowser(_currentRecordBrowserStartIndex, false);
   setLargestRecordNumber();
-  clearSearchResults();
+  clearSearchResults(true);
 }
 
 function startNewSortOrder(id1) {
   var newHTML = "<table><tr id='sort_order_row_" + id1 + "'><td style='width: 600px;'>" +
     "<div style='display: flex; align-items: center; justify-content: center;'>" +
     "<div style='flex-direction: column; width: 100px;'>" +
-    "<button style='width: 70px; font-size: 20px;' onclick='saveNewSortOrder();'>Save</button><button style='width: 70px; font-size: 20px; margin-top: 5px;' onclick='cancelNewSortOrder();'>Cancel</button>" +
+    "<button id='button_sortorder_new_save'   style='background-color: #70A2FF; color: black; width: 70px; font-size: 20px;' onclick='saveNewSortOrder();'><span style='color: white;'>S</span>ave</button>" + 
+    "<button id='button_sortorder_new_cancel' style='background-color: #70A2FF; color: black; width: 70px; font-size: 20px; margin-top: 5px;' onclick='cancelNewSortOrder();'><span style='color: white;'>C</span>ancel</button>" +
     "</div>" +
     "<p style='font-size: 20px;'>Name&nbsp;</p><input id='sort_order_name_0' type='text' style='width: 500px; font-size: 20px;' onfocus='deselectTable();'>" +
     "</div>" +
@@ -940,8 +967,9 @@ function getSortOrderNewCell(id1, id2) {
   var minusScript = "removeSortOrderCell(" + id1 + "," + id2 + ");";
   var minusButton = "";
   if (id2 != 0)
-    minusButton = "<button style='font-size: 20px; width: 50px; margin-top: 5px;' onclick='" + minusScript + "'>-</button>";
-  newHTML += "</select>&nbsp;&nbsp;&nbsp;<div style='flex-direction: column; width: 50px;' id='sort_order_buttons_" + id1 + "_" + id2 + "'><button style='font-size: 20px; width: 50px;' onclick='" + plusScript + "'>+</button>" + minusButton + "</div></div></td>";
+    minusButton = "<button id='button_sortorder_edit_minus_" + id1 + "_" + id2 + "' style='font-size: 20px; width: 50px; margin-top: 5px;' onclick='" + minusScript + "'>-</button>";
+  var plusButton = "<button id='button_sortorder_edit_plus_" + id1 + "_" + id2 + "' style='font-size: 20px; width: 50px;' onclick='" + plusScript + "'>+</button>";
+  newHTML += "</select>&nbsp;&nbsp;&nbsp;<div style='flex-direction: column; width: 50px;' id='sort_order_buttons_" + id1 + "_" + id2 + "'>" + plusButton + minusButton + "</div></div></td>";
   return newHTML;
 }
 
@@ -955,8 +983,9 @@ function getSortOrderCell(id1, id2, defaultIndex) {
   var minusScript = "removeSortOrderCell(" + id1 + "," + id2 + ");";
   var minusButton = "";
   if (id2 != 0)
-    minusButton = "<button style='font-size: 20px; width: 50px; margin-top: 5px;' onclick='" + minusScript + "'>-</button>";
-  newHTML += "</select>&nbsp;&nbsp;&nbsp;<div style='flex-direction: column; width: 50px; display: none;' id='sort_order_buttons_" + id1 + "_" + id2 + "'><button style='font-size: 20px; width: 50px;' onclick='" + plusScript + "'>+</button>" + minusButton + "</div></div>" +
+    minusButton = "<button id='button_sortorder_edit_minus_" + id1 + "_" + id2 + "' style='font-size: 20px; width: 50px; margin-top: 5px;' onclick='" + minusScript + "'>-</button>";
+  var plusButton = "<button id='button_sortorder_edit_plus_" + id1 + "_" + id2 + "' style='font-size: 20px; width: 50px;' onclick='" + plusScript + "'>+</button>";
+  newHTML += "</select>&nbsp;&nbsp;&nbsp;<div style='flex-direction: column; width: 50px; display: none;' id='sort_order_buttons_" + id1 + "_" + id2 + "'>" + plusButton + minusButton + "</div></div>" +
     "<p id='sort_order_static_cell_" + id1 + "_" + id2 + "' style='font-size: 15px;'>" + INDEXES_CONCAT[defaultIndex] + "</p>" +
     "</td>";
   return newHTML;
@@ -983,6 +1012,7 @@ function removeSortOrderCell(id1, id2) {
 function cancelNewSortOrder() {
   document.getElementById("button_add_sort_order").style.display = "";
   document.getElementById("sort_order_table_new_div").innerHTML = "";
+  setKeyboardShortcutBar();
 }
 
 function saveNewSortOrder() {
@@ -993,22 +1023,26 @@ function saveNewSortOrder() {
     sorted_indexes.push(select.selectedIndex);
     ++i;
   }
-
+  
   if (sorted_indexes.length > 0) {
     var sortObj = new Object();
     sortObj.name = document.getElementById("sort_order_name_0").value;
     sortObj.sorted_indexes = sorted_indexes;
-
+    
     var sortListRef = getDatabaseRef('sort_orders');
     var newSortOrderRef = sortListRef.push();
     writeToDatabase('sort_orders/' + newSortOrderRef.key, sortObj, false, false, false, null);
   }
-
+  
   cancelNewSortOrder();
 }
 
+var _current_sort_order_editing = 0;
 function startEditSortOrder(id1) {
+  _current_sort_order_editing = id1;
   document.getElementById("sort_order_static_" + id1).style.display = "none";
+  for(var i = 0; i < _sort_orders.length; ++i)
+    document.getElementById("sort_order_edit_icon_" + i).style.display = "none";
   document.getElementById("sort_order_sort_button_" + id1).style.display = "none";
   document.getElementById("sort_order_buttons_" + id1).style.display = "flex";
   document.getElementById("sort_order_name_" + id1).value = _sort_orders[id1 - 1].name;
@@ -1090,11 +1124,11 @@ function setLargestRecordNumber() {
   }
 }
 
-function clearSearchResults() {
+function clearSearchResults(suppressSetTab) {
   document.getElementById("radio_columns_any").checked = true;
   document.getElementById("search_input").value = "";
   setRadioColumn();
-  search_query(true);
+  search_query(true, suppressSetTab);
 }
 
 function recordBrowserJumpToEdge(end) {
@@ -1324,11 +1358,20 @@ function addRecordView(key) {
   showSnackbar("Added to Record Views", 3000);
   _recordViews.push(key);
   populateRecordViews();
+  setKeyboardShortcutBar();
 }
 
 function removeRecordView(pos) {
   _recordViews.splice(pos, 1);
   populateRecordViews();
+  if(_recordViews.length > 0)
+  {
+    if(pos == _recordViews.length)
+      selectRecordView(pos - 1, true);
+    else
+      selectRecordView(pos, true);
+  }
+  setKeyboardShortcutBar();
 }
 
 //type: 0 = different, 1 = similar
@@ -1532,7 +1575,7 @@ function getPdfText(url) {
   document.getElementById("wlmay_pdf_name").innerHTML = $("#import_wlmay_pdf_input").get(0).files[0].name;
   var loadingTask = pdfjsLib.getDocument(url);
   loadingTask.promise.then(function (pdf) {
-    console.log('PDF loaded ' + pdf.numPages);
+    // console.log('PDF loaded ' + pdf.numPages);
     pageOn = 1;
     pdfOn = pdf;
     textContentArrayAll = [];
@@ -1584,8 +1627,8 @@ function processPage() {
           var current_ITEMDESC_Index = 0;
           var columnRowIndexes = [0, 0, 0]; //RETAILPRICE, PRICE, AMOUNT
           for (var i = 0; i < ORDERED_Indexes.length; ++i) {
-            tableHTML += "<tr style='vertical-align: top;'>";
-            tableHTML += "<td><button style='height: 100px;' id='startAddToDatabaseButton_" + i + "' onclick='generatePDFAddToDatabaseTable(" + i + ");'>Add to Database</button></td>"
+            tableHTML += "<tr id='table_pdfimport_row_" + i + "' style='vertical-align: top;'>";
+            tableHTML += "<td><button style='background-color: #70A2FF; color: black; height: 100px;' id='startAddToDatabaseButton_" + i + "' onclick='generatePDFAddToDatabaseTable(" + i + ");'><span style='color: white;'>A</span>dd to Database</button></td>"
             tableHTML += "<td><input onfocus='deselectTable();' type='text' value='" + getHTMLSafeText(removeExtraSpaces(textContentArrayAll[ORDERED_Indexes[i]].str)) + "'     id='pdf_ordered_" + i + "'></td>";
             tableHTML += "<td><input onfocus='deselectTable();' type='text' value='" + getHTMLSafeText(removeExtraSpaces(textContentArrayAll[SHIPPED_Indexes[i]].str)) + "'     id='pdf_shipped_" + i + "'></td>";
             tableHTML += "<td><input onfocus='deselectTable();' type='text' value='" + getHTMLSafeText(removeExtraSpaces(textContentArrayAll[BACKORDERED_Indexes[i]].str)) + "' id='pdf_backordered_" + i + "'></td>";
@@ -1629,6 +1672,14 @@ function processPage() {
           }
           tableHTML += "</table>";
           document.getElementById("wlmay_pdf_parts_table_div").innerHTML = tableHTML;
+          var ele = document.getElementById("wlmay_pdf_invoice_no_input");
+          if(ele != null && ele.style.display != "none")
+          {
+            ele.focus();
+            ele.select();
+          }
+          setKeyboardShortcutBar();
+          set_tablePDFImport_SelectedRow(0);
         }
         else {
           ++pageOn;
@@ -1771,26 +1822,62 @@ function addNewChangeAlert(key, deleted, is_content, is_content_extra, content_e
   });
 }
 
+var _CHANGE_ALERTS_CACHE = [];
 function loadChangeAlerts() {
   var ref = firebase.database().ref("change_alerts");
   ref.on('value', function (snapshot) {
     snapshot.forEach(function (childSnapshot) {
       var alertOBJ = childSnapshot.val();
-
-      if (alertOBJ.is_content) {
-        reloadContentFromChangeAlert(alertOBJ);
-        showSnackbar("Loading new changes for P&A_PRI...", 3000);
+      var isCached = doesChangeAlertsCacheContainMatch(alertOBJ);
+      if(!isCached)
+      {
+        _CHANGE_ALERTS_CACHE.push(alertOBJ);
+        if (alertOBJ.is_content) {
+          reloadContentFromChangeAlert(alertOBJ);
+          showSnackbar("Loading new changes for P&A_PRI...", 3000);
+        }
+        else if (alertOBJ.is_content_extra) {
+          reloadContentExtraFromChangeAlert(alertOBJ);
+          showSnackbar("Loading new changes for Part Child Data...", 3000);
+        }
       }
-      else if (alertOBJ.is_content_extra) {
-        reloadContentExtraFromChangeAlert(alertOBJ);
-        showSnackbar("Loading new changes for Part Child Data...", 3000);
-      }
-
       var timeElapsed = new Date().getTime() - Number(alertOBJ.time);
       if (timeElapsed >= MILLIS_IN_DAY) //Delete alert if older than a day
         firebase.database().ref("change_alerts/" + childSnapshot.key).remove();
     });
   });
+}
+
+function doesChangeAlertsCacheContainMatch(changeAlert)
+{
+  var duplicateAlert_IndexesToRemove = [];
+  for(var i = 0; i < _CHANGE_ALERTS_CACHE.length; ++i)
+  {
+    var matchFound = true;
+    var cacheobj = _CHANGE_ALERTS_CACHE[i];
+    if(matchFound && changeAlert.content_extra_db != cacheobj.content_extra_db)
+      matchFound = false;
+    if(matchFound && changeAlert.deleted != cacheobj.deleted)
+      matchFound = false;
+    if(matchFound && changeAlert.is_content != cacheobj.is_content)
+      matchFound = false;
+    if(matchFound && changeAlert.is_content_extra != cacheobj.is_content_extra)
+      matchFound = false;
+    if(matchFound && changeAlert.key != cacheobj.key)
+      matchFound = false;
+    if(matchFound && changeAlert.time != cacheobj.time)
+    {
+      duplicateAlert_IndexesToRemove.push(i);
+      matchFound = false;
+    }
+    if(matchFound)
+    {
+      removeIndexesFromArray(_CHANGE_ALERTS_CACHE, duplicateAlert_IndexesToRemove);
+      return true;
+    }
+  }
+  removeIndexesFromArray(_CHANGE_ALERTS_CACHE, duplicateAlert_IndexesToRemove);
+  return false;
 }
 
 function reloadContentFromChangeAlert(alertOBJ) {
@@ -1861,9 +1948,6 @@ function reloadContentExtraFromChangeAlert(alertOBJ) {
       var arr = [snapshot.val(), partref.key];
       _content_extra[alertOBJ.content_extra_db].push(arr);
     }
-    // console.log(rowNum);
-    // console.log(snapshot.val());
-    // console.log(_content_extra[alertOBJ.content_extra_db][rowNum][0]);
     populateRecordViews();
 
     _CHILD_PART_LINKS_CACHE = [];
@@ -1874,21 +1958,14 @@ function startEditRecordPartReference(i1, j1) {
   var selldiv = document.getElementById("sell_div_" + i1 + "_" + j1);
   if(selldiv != null)
     document.getElementById("sell_div_" + i1 + "_" + j1).style.display = "none";
-  for (var i = 0; i < _recordViews.length; ++i) {
-    for (var j = 0; j < _EXTRA_DB.length; ++j) {
-      var icon = document.getElementById("record_view_partnum_edit_icon_" + i + "_" + j);
-      if (icon != null)
-        icon.style.display = "none";
-    }
+  hideRecordViewEditAndSellIcons();
+  var ele = document.getElementById("record_view_partnum_input_" + i1 + "_" + j1);
+  if(ele != null)
+  {
+    ele.style.display = "block";
+    ele.focus();
+    ele.select();
   }
-  for (var i = 0; i < _recordViews.length; ++i) {
-    for (var j = 0; j < _EXTRA_DB.length; ++j) {
-      var icon = document.getElementById("sell_button_" + i + "_" + j);
-      if (icon != null)
-        icon.style.display = "none";
-    }
-  }
-  document.getElementById("record_view_partnum_input_" + i1 + "_" + j1).style.display = "block";
   document.getElementById("record_view_partnum_cancel_button_" + i1 + "_" + j1).style.display = "block";
   document.getElementById("record_view_partnum_save_button_" + i1 + "_" + j1).style.display = "block";
   var text = document.getElementById("record_view_partnum_text_" + i1 + "_" + j1);
@@ -1910,9 +1987,9 @@ function saveEditRecordPartReference(i1, j1) {
     partObj[_INDEXES[i]] = row[i];
   for (var i = 0; i < _MEMO_INDEXES.length; ++i)
     partObj[_MEMO_INDEXES[i]] = row[i + _INDEXES.length];
-    populateRecordViews();
-    if(!_LOCAL_MODE)
-      writeToDatabase(key, partObj, true, true, false, null);
+  populateRecordViews();
+  if(!_LOCAL_MODE)
+    writeToDatabase(key, partObj, true, true, false, null);
 }
 
 function edit_content(rownum, field, value) {
@@ -1989,7 +2066,7 @@ function setNewPartChildButton()
   var db_index =  document.getElementById("part_child_dropdown_select").selectedIndex;
   if(db_index < _EXTRA_DB.length)
   {
-    document.getElementById("part_child_button_new").innerHTML = "Add New Child Record in " + _EXTRA_DB[db_index] + " +";
+    document.getElementById("part_child_button_new").innerHTML = "<span style='color: white;'>A</span>dd New Child Record in " + _EXTRA_DB[db_index] + " +";
     document.getElementById("part_child_button_new").style.display = "";
   }
   else
@@ -2017,45 +2094,89 @@ function saveNewPartChild()
   _CHILD_PART_LINKS_CACHE = [];
 }
 
-var TAB_DIVS = ["TAB_search", "TAB_record_views", "TAB_record_browser", "TAB_part_child_record_manager", "TAB_sort_order", "TAB_fileinput", "TAB_reorders", "TAB_invoice_history", "TAB_invoice_settings", "TAB_invoice"];
+var TAB_DIVS = ["TAB_search", "TAB_record_views", "TAB_record_browser", "TAB_part_child_record_manager", "TAB_sort_order", "TAB_fileinput", "TAB_reorders", "TAB_invoice_history", "TAB_invoice_settings", "TAB_invoice", "TAB_mainmenu", "TAB_search_results", "TAB_add_invoice"];
 var TAB_SEARCH = 0;
 var TAB_RECORD_VIEWS = 1;
 var TAB_RECORD_BROWSER = 2;
 var TAB_PART_CHILD_RECORD_MANAGER = 3;
+var TAB_SORT_ORDERS = 4;
+var TAB_PDF_IMPORT = 5;
 var TAB_REORDERS = 6;
 var TAB_INVOICE_HISTORY = 7;
+var TAB_INVOICE_SETTINGS = 8;
 var TAB_INVOICE = 9;
+var TAB_MAINMENU = 10;
+var TAB_SEARCH_RESULTS = 11;
+var TAB_ADD_INVOICE = 12;
 
 var _selected_tab = 0;
 var last_selected_tab = 0;
 
 function setTab(num)
 {
+  deselectTable();
+  shortcutmenu_mainmenu_available = (num == TAB_MAINMENU);
   last_selected_tab = _selected_tab;
   _selected_tab = num;
-  for(var i = 0; i < TAB_DIVS.length; ++i){
+  for(var i = 0; i < TAB_DIVS.length; ++i)
+  {
     document.getElementById(TAB_DIVS[i] + "_div").style.display = "none";
     document.getElementById(TAB_DIVS[i]         ).style.borderBottomColor = "#70A2FF";
+    document.getElementById(TAB_DIVS[i]).style.fontWeight = "";
+  }
+
+  if(num == TAB_SEARCH_RESULTS)
+  {
+    var cell = getCell(0, _selectedCell, _TABLE_SEARCH_RESULTS);
+    if(cell != null)
+    {
+      onCellClick(0, _selectedCell, cell.id, _TABLE_SEARCH_RESULTS);
+    }
   }
   if(num == TAB_RECORD_VIEWS)
     populateRecordViews();
-  if(num == TAB_RECORD_BROWSER){
+  if(num == TAB_RECORD_BROWSER)
+  {
     populateRecordBrowser(_currentRecordBrowserStartIndex, _highlightgreen_requested);
     _highlightgreen_requested = false;
+    var cell = getCell(_currentRecordBrowserStartIndex, _selectedCell, _TABLE_RECORD_BROWSER);
+    if(cell != null)
+      onCellClick(_currentRecordBrowserStartIndex, _selectedCell, cell.id, _TABLE_RECORD_BROWSER);
   }
+
   document.getElementById(TAB_DIVS[num] + "_div").style.display = "";
   document.getElementById(TAB_DIVS[num]).style.borderBottomColor = "transparent";
+  document.getElementById(TAB_DIVS[num]).style.fontWeight = "700";
+
   if(num == TAB_INVOICE)
   {
     document.getElementById("non_invoice_content").style.display = "none";
     document.getElementById("exit_invoice_button").style.display = "block";
     document.getElementById("invoice_content").style.display = "";
     populateInvoice();
+
+    var ele = document.getElementById("invoice_input_invoice_no");
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.focus();
+    }
+  }
+  else if(num == TAB_ADD_INVOICE)
+  {
+    populateAddNewInvoice();
+    var ele = document.getElementById("invoice_input_invoice_no");
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.focus();
+    }
   }
   else{
     document.getElementById("non_invoice_content").style.display = "";
     document.getElementById("exit_invoice_button").style.display = "none";
+    document.getElementById("exit_invoice_from_new_button").style.display = "none";
     document.getElementById("invoice_content").style.display = "none";
+    document.getElementById("add_invoice_content").style.display = "none";
+    clearInvoicesContent();
   }
 
   document.getElementById("invoice_from_history_content").style.display = "none";
@@ -2065,18 +2186,39 @@ function setTab(num)
     updateReorderParentIDs();
   }
 
-  if(num != TAB_SEARCH && num != TAB_RECORD_VIEWS)
-    deselectTable();
-
   if(num == TAB_INVOICE_HISTORY)
     populateInvoiceHistory();
+
+  if(num == TAB_INVOICE_SETTINGS)
+  {
+    var ele = document.getElementById("invoice_address_textarea");
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.focus();
+    }
+  }
+
+  if(num != TAB_INVOICE_SETTINGS && num != TAB_INVOICE && num != TAB_ADD_INVOICE)
+  {
+    document.activeElement.blur();
+  }
+  setKeyboardShortcutBar();
 }
 
-function selectRecordView(num)
+function selectRecordView(num, scrollIntoView)
 {
+  if(scrollIntoView == null)
+    scrollIntoView = false;
+  if(scrollIntoView)
+  {
+    var ele = document.getElementById("record_view_" + num);
+    if(ele != null)
+      ele.scrollIntoView({ behavior: "auto", block: "nearest", inline: "nearest" });
+  }
   if(_recordViews.length > num && _selected_record_view >= 0)
   {
     _selected_record_view = num;
+    _last_selected_record_view = num;
     for(var i = 0; i < _recordViews.length; ++i)
     {
       document.getElementById("record_view_" + i).style.backgroundColor = "";
@@ -2105,6 +2247,7 @@ function doesObjectArraySpecificIndexIncludeX(array, values, indexes)
 function cancelPDFAddToDatabase(index)
 {
   document.getElementById("pdf_add_to_database_table_" + index).innerHTML = "";
+  setPDFAddToDatabaseButtons(true);
 }
 
 function get_plus_minus_usd_string(num)
@@ -2144,6 +2287,8 @@ function confirmPDFAddToDatabase(index)
   //   console.log("Updating " + parent_indexes[i]);
   //   updateReorder(parent_indexes[i]);
   // }
+  setPDFAddToDatabaseButtons(true);
+  showSnackbar("Updated child part " + partObj.PN, 5000);
 }
 
 function startPDFNewChildRecord(index)
@@ -2168,13 +2313,17 @@ function jumpToChildPartFromRecordView(extradb, index)
   populateChildPartRecordManager();
   clearPartChildEditAutocomplete();
   setNewPartChildButton();
+  if(_content_extra[extradb].length > _selected_child_part_record)
+    document.getElementById("part_child_edit_input").value = _content_extra[extradb][_selected_child_part_record][0].PN;
 }
 
 function searchChildPart(extradb, searchterm)
 {
   document.getElementById("part_child_dropdown_select").selectedIndex = extradb;
   setTab(TAB_PART_CHILD_RECORD_MANAGER);
-  document.getElementById("part_child_edit_input").value = removeEndSemicolon(searchterm);
+  var ele = document.getElementById("part_child_edit_input");
+  ele.value = removeEndSemicolon(searchterm);
+  ele.focus();
   onPartChildEditFocus();
   showPartChildEditAutocomplete();
   cancelEditPartChild();
@@ -2199,21 +2348,9 @@ function onInvoiceInfoChange()
 
 function startSell(i1, j1)
 {
-  for (var i = 0; i < _recordViews.length; ++i) {
-    for (var j = 0; j < _EXTRA_DB.length; ++j) {
-      var icon = document.getElementById("record_view_partnum_edit_icon_" + i + "_" + j);
-      if (icon != null)
-        icon.style.display = "none";
-    }
-  }
-  for (var i = 0; i < _recordViews.length; ++i) {
-    for (var j = 0; j < _EXTRA_DB.length; ++j) {
-      var icon = document.getElementById("sell_button_" + i + "_" + j);
-      if (icon != null)
-        icon.style.display = "none";
-    }
-  }
+  hideRecordViewEditAndSellIcons();
   document.getElementById("sell_form_" + i1 + "_" + j1).style.display = "";
+  document.getElementById("sell_quantity_" + i1 + "_" + j1).focus();
 }
 
 function changeSellQuantity(i1, j1, amount)
@@ -2306,6 +2443,24 @@ function calculateInvoiceAmounts()
     document.getElementById("invoice_input_total").value = total.toLocaleString("en-US", {style: "currency", currency: "USD", minimumFractionDigits: 2});
 }
 
+function calculateAddInvoiceAmounts()
+{
+  var table = document.getElementById("table_invoice_parts");
+  var numTotalRows = table.rows.length - 4;
+  var total = 0;
+  for(var i = 0; i < numTotalRows; ++i)
+  {
+    var qty = Number(table.rows[i + 1].cells[0].children[0].value);
+    var price = Number(table.rows[i + 1].cells[2].children[0].value);
+    var amount = qty * price;
+    total += amount;
+    table.rows[i + 1].cells[3].children[0].value = amount.toLocaleString("en-US", {style: "currency", currency: "USD", minimumFractionDigits: 2});
+  }
+  var ele = document.getElementById("invoice_input_total");
+  if(ele != null) //If Invoice has parts in it, and in turn is generating HTML
+    document.getElementById("invoice_input_total").value = total.toLocaleString("en-US", {style: "currency", currency: "USD", minimumFractionDigits: 2});
+}
+
 function removeFromInvoice(index)
 {
   var invoice_obj = _invoice_objs[index];
@@ -2343,7 +2498,7 @@ function finishInvoiceSale()
   saveInvoiceToObject();
   _invoice_objs = [];
   populateInvoice();
-  setTab(last_selected_tab);
+  setTab(TAB_MAINMENU);
   writeToDatabase("invoice/last_invoice_no", Number(document.getElementById("invoice_last_invoice_no_input").value) + 1, false, false, false, null);
 
   var invoiceDataListRef = getDatabaseRef('invoice_data');
@@ -2351,6 +2506,7 @@ function finishInvoiceSale()
   _invoice_data.bottom = null;
   writeToDatabase('invoice_data/' + newInvoiceRef.key, _invoice_data, false, false, false, null);
   _invoice_data = new Object();
+  showSnackbar("Sale Finished!", 3000);
 }
 
 // function deleteObject(object)
@@ -2449,11 +2605,272 @@ function retrieveInvoiceDataFromDatabase(callback)
   invoiceDataRef.once('value', function(snapshot) {
     _content_invoice_history = [];
     snapshot.forEach(function(childSnapshot) {
-      _content_invoice_history.push(childSnapshot.val());
+      var invoice_obj = childSnapshot.val();
+      invoice_obj.key = childSnapshot.key;
+      _content_invoice_history.push(invoice_obj);
     });
     if(retrieveInvoiceDataCallback != null)
       retrieveInvoiceDataCallback();
     document.getElementById("button_update_invoice_history").style.display = "";
   });
 
+}
+
+function selectRecentRecordBrowserRow()
+{
+  var cell = getCell(_selectedRow, _selectedCell, _TABLE_RECORD_BROWSER);
+  if(cell != null)
+    onCellClick(_selectedRow, _selectedCell, cell.id, _TABLE_RECORD_BROWSER);
+}
+
+function hideRecordViewEditAndSellIcons()
+{
+  for (var i = 0; i < _recordViews.length; ++i)
+  {
+    document.getElementById("record_view_data_edit_icon_" + i).style.display = "none";
+    for (var j = 0; j < _EXTRA_DB.length; ++j) {
+      var icon = document.getElementById("record_view_partnum_edit_icon_" + i + "_" + j);
+      if (icon != null)
+        icon.style.display = "none";
+    }
+  }
+  for (var i = 0; i < _recordViews.length; ++i) {
+    for (var j = 0; j < _EXTRA_DB.length; ++j) {
+      var icon = document.getElementById("sell_button_" + i + "_" + j);
+      if (icon != null)
+        icon.style.display = "none";
+    }
+  }
+}
+
+function setPDFAddToDatabaseButtons(show)
+{
+  var inc = 0;
+  var ele = document.getElementById("startAddToDatabaseButton_" + inc);
+  while(ele != null)
+  {
+    if(show)
+      ele.style.display = "";
+    else
+      ele.style.display = "none";
+    ++inc;
+    ele = document.getElementById("startAddToDatabaseButton_" + inc);
+  }
+}
+
+function clearInvoicesContent()
+{
+  document.getElementById("invoice_content").innerHTML = "";
+  document.getElementById("invoice_from_history_content").innerHTML = "";
+  document.getElementById("add_invoice_content").innerHTML = "";
+}
+
+function addInvoice_AddTableRow()
+{
+  var table_ele = document.getElementById("table_invoice_parts");
+  var len = table_ele.rows.length - 3;
+  var row = table_ele.insertRow(len);
+  row.innerHTML += "<tr class='in_td'><td>" 
+  + "<input                              type='text' style='width: 53px; height: 15px; text-align: right;' onchange='calculateAddInvoiceAmounts();'></td><td>" //Quantity
+  + "<input                              type='text' style='width: 493px; height: 15px;'                  ></td><td>" //Description
+  + "<input id='input_addinvoice_price'  type='text' style='width: 48px; height: 15px; text-align: right;' onfocus='deselectTable();' onchange='calculateAddInvoiceAmounts();'></td><td>" //Price
+  + "<input id='input_addinvoice_amount' type='text' style='width: 53px; height: 15px; text-align: right;' disabled></td><td class='no-print'>" //Amount
+  + "<button id='button_addInvoice_remove_0' style='width: 20px; height: 20px; padding: 0px; color: white; background-color: red;' tabindex='-1' onclick='addInvoice_DeleteTableRow(this.parentElement.parentElement.rowIndex);'>x</button></td></tr>";
+  row.cells[0].children[0].focus();
+}
+
+function addInvoice_DeleteTableRow(index)
+{
+  var table_ele = document.getElementById("table_invoice_parts");
+  table_ele.deleteRow(index);
+}
+
+function addInvoice_Save()
+{
+  var _invoice_data = new Object();
+  var ele;
+  ele = document.getElementById("invoice_input_invoice_no");
+  if(ele != null)
+    _invoice_data.invoice_no = ele.value;
+  ele = document.getElementById("invoice_input_date");
+  if(ele != null)
+    _invoice_data.date = ele.value;
+  ele = document.getElementById("invoice_input_customer_order_no");
+  if(ele != null)
+    _invoice_data.customer_order_no = ele.value;
+  ele = document.getElementById("invoice_input_name");
+  if(ele != null)
+    _invoice_data.name = ele.value;
+  ele = document.getElementById("invoice_input_address");
+  if(ele != null)
+    _invoice_data.address = ele.value;
+  ele = document.getElementById("invoice_input_citystatezip");
+  if(ele != null)
+    _invoice_data.citystatezip = ele.value;
+  ele = document.getElementById("invoice_input_soldby");
+  if(ele != null)
+    _invoice_data.soldby = ele.value;
+  ele = document.getElementById("invoice_textarea_specs");
+  if(ele != null)
+    _invoice_data.specs = ele.value;
+  ele = document.getElementById("invoice_textarea_misc");
+  if(ele != null)
+    _invoice_data.misc = ele.value;
+  ele = document.getElementById("invoice_input_total");
+  if(ele != null)
+    _invoice_data.total = ele.value;
+  ele = document.getElementById("invoice_input_signature");
+  if(ele != null)
+    _invoice_data.signature = ele.value;
+  ele = document.getElementById("invoice_bottom_textarea_2");
+  if(ele != null)
+    _invoice_data.bottom = ele.value;
+
+
+  var table = document.getElementById("table_invoice_parts");
+  var numTotalRows = table.rows.length - 4;
+  var total = 0;
+  var invoice_parts = [];
+  for(var i = 0; i < numTotalRows; ++i)
+  {
+    var row = [];
+    row.push(table.rows[i + 1].cells[0].children[0].value);
+    row.push(table.rows[i + 1].cells[1].children[0].value);
+    row.push(table.rows[i + 1].cells[2].children[0].value);
+    row.push(table.rows[i + 1].cells[3].children[0].value);
+    invoice_parts.push(row);
+  }
+  _invoice_data.invoice_parts = invoice_parts;
+
+  var invoiceDataListRef = getDatabaseRef('invoice_data');
+  var newInvoiceRef = invoiceDataListRef.push();
+  _invoice_data.bottom = null;
+  writeToDatabase('invoice_data/' + newInvoiceRef.key, _invoice_data, false, false, false, null);
+  showSnackbar("Invoice Saved", 3000);
+  exitInvoiceFromNew();
+}
+
+function startDeleteInvoice()
+{
+  document.getElementById("button_viewInvoice_delete").style.display = "none";
+  document.getElementById("button_viewInvoice_confirmdelete").style.display = "";
+  document.getElementById("button_viewInvoice_canceldelete").style.display = "";
+}
+
+function confirmDeleteInvoice()
+{
+  // console.log(_content_invoice_history);
+  deleteFromDatabase("invoice_data/" + _current_viewed_invoice_id, false, false, false, null);
+  exitInvoiceFromHistory();
+  clickInvoiceHistory_Update();
+}
+
+function cancelDeleteInvoice()
+{
+  document.getElementById("button_viewInvoice_delete").style.display = "";
+  document.getElementById("button_viewInvoice_confirmdelete").style.display = "none";
+  document.getElementById("button_viewInvoice_canceldelete").style.display = "none";
+}
+
+function removeIndexesFromArray(array, indexesToRemove)
+{
+  for(var i = indexesToRemove.length - 1; i >= 0; --i)
+  {
+    var index = indexesToRemove[i];
+    if(array.length > index)
+    {
+      array.splice(index, 1);
+    }
+    else
+    {
+      console.log("Attempted to remove index larger than array!")
+    }
+  }
+}
+
+var _images_googlesearch_list = [];
+var _images_googlesearch_currentindex = 0;
+function googlesearch_hndlr(response) {
+  if(response.items != null && response.items.length > 0)
+  {
+    _images_googlesearch_list = response.items;
+    _images_googlesearch_currentindex = 0;
+    var item = response.items[0];
+    // in production code, item.htmlTitle should have the HTML entities escaped.
+    var div = document.getElementById("googlesearch_image_div");
+    div.style.display = "";
+    // div.innerHTML = "<img id='button_googlesearch_image_exit' class='clickable' src='x.png' style='position: fixed; top: -80px; right: -20px;' onclick='hideGoogleSearchImage();'><img id='image_googlesearch_image' src='" + item.link + "' style='height: 100%;'>";
+    document.getElementById("image_googlesearch_image").src = "";
+    document.getElementById("image_googlesearch_image").src = item.link;
+    setGoogleSearchImageCount();
+  }
+  else
+    showSnackbar("No results found", 3000);
+}
+
+function showRecordViewImage(partSearchTerm, sitesEnum)
+{
+  if(_google_cse_api_key_loaded)
+  {
+    var searchEngineID = "";
+    switch(sitesEnum)
+    {
+      case 0:
+        searchEngineID = "de8eb9876c78e78e6"; //Entire Web
+        break;
+      case 1:
+        searchEngineID = "01922cf7659e937bd"; //Parts Sites
+        break;
+    }
+    var cleanPartSearchTerm = getHTMLSafeText(partSearchTerm);
+    var script = document.createElement('script');
+    // script.onload = function () {
+
+    // };
+
+    script.src = "https://www.googleapis.com/customsearch/v1?key=" + _google_cse_api_key + "&cx=" + searchEngineID + "&q=" + cleanPartSearchTerm + "&callback=googlesearch_hndlr&searchType=image&num=10";
+
+    document.getElementById("googlesearch_api_script_div").innerHTML = "";
+    document.getElementById("googlesearch_api_script_div").appendChild(script);
+  }
+  else
+  {
+    showSnackbar("Google CSE Api Key not loaded yet!", 3000);
+  }
+}
+
+function hideGoogleSearchImage()
+{
+  var div = document.getElementById("googlesearch_image_div");
+  div.style.display = "none";
+}
+
+function changeGoogleSearchImage(direction)
+{
+  switch(direction)
+  {
+    case -1:
+      if(_images_googlesearch_currentindex > 0 && _images_googlesearch_list.length > _images_googlesearch_currentindex - 1)
+      {
+        --_images_googlesearch_currentindex;
+      }
+      break;
+    case 1:
+      if(_images_googlesearch_list.length > _images_googlesearch_currentindex + 1)
+      {
+        ++_images_googlesearch_currentindex;
+      }
+      break;
+  }
+  if(_images_googlesearch_list.length > _images_googlesearch_currentindex)
+  {
+    document.getElementById("image_googlesearch_image").src = "";
+    document.getElementById("image_googlesearch_image").src = _images_googlesearch_list[_images_googlesearch_currentindex].link;
+    setGoogleSearchImageCount();
+  }
+}
+
+function setGoogleSearchImageCount()
+{
+  document.getElementById("paragraph_googlesearch_image_count").innerHTML = (_images_googlesearch_currentindex + 1) + " / " + _images_googlesearch_list.length;
 }

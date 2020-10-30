@@ -1,3 +1,196 @@
+window.onbeforeunload = function(e) {
+  console.log("Refreshed");
+  clearData();
+};
+
+document.addEventListener('focusin', function() {
+  if((document.activeElement.tagName == "INPUT" && (document.activeElement.type == "text" || document.activeElement.type == "number" || document.activeElement.type == "password")) || document.activeElement.tagName == "TEXTAREA")
+  {
+    document.getElementById("key_shortcut_index_window").style.display = "none";
+    deselectTable();
+    _focused = true;
+    setKeyboardShortcutBar();
+  }
+  if(document.activeElement.id == "search_input_9")
+  {
+    show_more_column_checkboxes(true);
+  }
+}, true);
+
+document.addEventListener('focusout', function() {
+  _focused = false;
+  setKeyboardShortcutBar();
+}, true);
+
+var _focused = false;
+var _key_shortcut_Index_available = false;
+var _key_shortcut_mainmenu_available = false;
+var _key_shortcut_add_record_view_available = false;
+var _key_shortcuts_record_view_available = false;
+var shortcutmenu_mainmenu_available = false;
+var _key_shortcut_edit_part_available = false;
+var _key_shortcut_copy_part_available = false;
+var _key_shortcut_compare_record_views_available = false;
+var _key_shortcut_edit_record_views_pn_available = false;
+var _key_shortcut_edit_record_view_whole_available = false;
+var _key_shortcut_record_browser_sort_by_column = false;
+var _key_shortcut_sort_order_edit_available = false;
+var _key_shortcut_sort_order_new_available = false;
+var _key_shortcut_sort_order_edit_addremove_available = false;
+var _key_shortcut_sort_order_new_addremove_available = false;
+var _key_shortcut_pdfimport_browse_available = false;
+var _key_shortcut_invoice_remove_available = false;
+var _key_shortcut_record_views_image_available = false;
+var _key_shortcut_record_views_jump_pn_available = false;
+function setKeyboardShortcutBar()
+{
+  var text = "";
+  _key_shortcut_Index_available = false;
+  _key_shortcut_mainmenu_available = false;
+  _key_shortcut_add_record_view_available = false;
+  _key_shortcuts_record_view_available = false;
+  _key_shortcut_edit_part_available = false;
+  _key_shortcut_copy_part_available = false;
+  _key_shortcut_compare_record_views_available = false;
+  _key_shortcut_edit_record_views_pn_available = false;
+  _key_shortcut_edit_record_view_whole_available = false;
+  _key_shortcut_record_browser_sort_by_column = false;
+  _key_shortcut_sort_order_edit_available = false;
+  _key_shortcut_sort_order_new_available = false;
+  _key_shortcut_sort_order_edit_addremove_available = false;
+  _key_shortcut_sort_order_new_addremove_available = false;
+  _key_shortcut_pdfimport_browse_available = false;
+  _key_shortcut_invoice_remove_available = false;
+  _key_shortcut_record_views_image_available = false;
+  _key_shortcut_record_views_jump_pn_available = false;
+
+  if(_LOGGED_IN)
+  {
+    if(document.getElementById("key_shortcut_index_window").style.display != "none")
+    {
+      text += "<span style='color: white;'>Esc</span> Close&nbsp;&nbsp;<span style='color: white;'>Letter or Number</span> Sort by Index";
+    }
+    else if(_focused)
+    {
+      text += "<span style='color: white;'>Esc</span> Stop Editing";
+    }
+    else if(document.getElementById("TAB_mainmenu_div").style.display != "none")
+    {
+      
+    }
+    else
+    {
+      _key_shortcut_Index_available = true;
+      _key_shortcut_mainmenu_available = true;
+      text += "<span style='color: white;'>I</span>ndex Sort&nbsp;&nbsp;<span style='color: white;'>Esc</span> Back";
+    }
+    
+    if(!_focused && _isTableSelected)
+    {
+      _key_shortcut_add_record_view_available = true;
+      text += "&nbsp;&nbsp;<span style='color: white;'>V</span> Add Record View";
+    }
+    if(!_focused && _selected_tab == TAB_RECORD_VIEWS && _recordViews.length > 0)
+    {
+      _key_shortcuts_record_view_available = true;
+      text += "&nbsp;&nbsp;<span style='color: white;'>1-9</span>&nbsp;Select";
+      _key_shortcut_compare_record_views_available = true;
+      text += "&nbsp;&nbsp;<span style='color: white;'>Q</span>&nbsp;Dif.&nbsp;&nbsp;<span style='color: white;'>W</span>&nbsp;Sim.";
+      _key_shortcut_edit_record_views_pn_available = true;
+      text += "&nbsp;&nbsp;<span style='color: white;'>E</span>dit";
+      _key_shortcut_edit_record_view_whole_available = true;
+      text += "&nbsp;&nbsp;<span style='color: white;'>R</span>&nbsp;Edit Record";
+      _key_shortcut_record_views_jump_pn_available = true;
+      text += "&nbsp;&nbsp;<span style='color: white;'>J</span>ump Child Part";
+      _key_shortcut_record_views_image_available = true;
+    }
+    if(!_focused && _isTableSelected && _selectedTable == _TABLE_RECORD_BROWSER)
+    {
+      _key_shortcut_edit_part_available = true;
+      _key_shortcut_copy_part_available = true;
+      _key_shortcut_record_browser_sort_by_column = true;
+      text += "&nbsp;&nbsp;<span style='color: white;'>E</span>dit&nbsp;&nbsp;<span style='color: white;'>C</span>opy&nbsp;&nbsp;<span style='color: white;'>R</span> Sort by column";
+    }
+    if(!_focused && _selected_tab == TAB_SORT_ORDERS)
+    {
+      var ele = document.getElementById("sort_order_buttons_" + _current_sort_order_editing);
+      var ele2 = document.getElementById("button_sortorder_new_save");
+      if(ele2 != null && ele2.style.display != "none")
+      {
+        _key_shortcut_sort_order_new_addremove_available = true;
+        text += "&nbsp;&nbsp;<span style='color: white;'>-</span> Remove&nbsp;&nbsp;<span style='color: white;'>+</span> Add";
+      }
+      else if(document.getElementById("key_shortcut_index_window_edit").style.display == "none" && (ele == null || ele.style.display == "none"))
+      {
+        _key_shortcut_sort_order_edit_available = true;
+        _key_shortcut_sort_order_new_available = true;
+        text += "&nbsp;&nbsp;<span style='color: white;'>E</span>dit&nbsp;&nbsp;<span style='color: white;'>A</span>dd New";
+      }
+      else if(ele != null && ele.style.display != "none")
+      {
+        _key_shortcut_sort_order_edit_addremove_available = true;
+        text += "&nbsp;&nbsp;<span style='color: white;'>-</span> Remove&nbsp;&nbsp;<span style='color: white;'>+</span> Add";
+      }
+      
+    }
+    if(_selected_tab == TAB_PDF_IMPORT)
+    {
+      var ele = document.getElementById("wlmay_input_div");
+      if(!_focused)
+      {
+        if(ele != null && ele.style.display != "none")
+        {
+          _key_shortcut_pdfimport_browse_available = true;
+          text += "&nbsp;&nbsp;<span style='color: white;'>B</span>rowse";
+        }
+      }
+      ele = document.getElementById("table_pdfimport_row_0");
+      var ele2 = document.getElementById("wlmay_pdf_table_div");
+      if(ele != null && ele2.style.display != "none")
+      {
+        text += "&nbsp;&nbsp;<span style='color: white;'>&uarr; &darr;</span>Select Row";
+      }
+    }
+    if(_selected_tab == TAB_REORDERS)
+    {
+      var ele = document.getElementById("table_reorders_row_0");
+      if(ele != null && ele.style.display != "none")
+      {
+        text += "&nbsp;&nbsp;<span style='color: white;'>&uarr; &darr;</span>Select Row";
+      }
+    }
+    if(_selected_tab == TAB_INVOICE_HISTORY)
+    {
+      var ele = document.getElementById("invoicehistory_table_row_0");
+      var ele2 = document.getElementById("invoice_from_history_content");
+      if(ele != null && ele.style.display != "none" && (ele2 == null || ele2.style.display == "none"))
+      {
+        text += "&nbsp;&nbsp;<span style='color: white;'>&uarr; &darr;</span>Select Row&nbsp;&nbsp;<span style='color: white;'>Enter</span> View";
+      }
+    }
+    if(_selected_tab == TAB_INVOICE)
+    {
+      if(!_focused && _invoice_objs.length > 0)
+      {
+        _key_shortcut_invoice_remove_available = true;
+        text += "&nbsp;&nbsp;<span style='color: white;'>R</span>emove";
+      }
+    }
+    
+    document.getElementById("key_shortcut_info_bar").innerHTML = text;
+    document.getElementById("key_shortcut_info_bar").style.display = "";
+  }
+  else //Logged out
+  {
+    document.getElementById("key_shortcut_info_bar").style.display = "none";
+  }
+}
+
+// document.addEventListener("keyup", function(event) { 
+//   switch(event.code){
+//   }
+// });
+
 // Get the input field
 var input_email = document.getElementById("email_input");
 var input_password = document.getElementById("password_input");
@@ -6,7 +199,7 @@ var input_search = document.getElementById("search_input");
 // Execute a function when the user releases a key on the keyboard
 input_email.addEventListener("keyup", function(event) {
     // Number 13 is the "Enter" key on the keyboard
-    if (event.keyCode === KEY_ENTER) {
+    if (event.code === KEY_ENTER) {
       // Cancel the default action, if needed
       event.preventDefault();
       // Trigger the button element with a click
@@ -15,22 +208,22 @@ input_email.addEventListener("keyup", function(event) {
   });
   
   input_password.addEventListener("keyup", function(event) {
-    if (event.keyCode === KEY_ENTER) {
+    if (event.code === KEY_ENTER) {
       event.preventDefault();
       document.getElementById("login_button").click();
     }
   });
   
-  input_search.addEventListener("keyup", function(event) {
-    if (event.keyCode === KEY_ENTER) {
+  input_search.addEventListener("keydown", function(event) {
+    if (event.code === KEY_ENTER) {
       event.preventDefault();
       document.getElementById("search_any_button").click();
     }
-    else if (event.keyCode === KEY_UP_ARROW) {
+    else if (event.code === KEY_UP_ARROW) {
       event.preventDefault();
       viewHistory(-1, -1);
     }
-    else if (event.keyCode === KEY_DOWN_ARROW) {
+    else if (event.code === KEY_DOWN_ARROW) {
       event.preventDefault();
       viewHistory(-1, 1);
     }
@@ -38,38 +231,38 @@ input_email.addEventListener("keyup", function(event) {
 
   for(var i = 0; i < INDEXES_CONCAT.length; ++i){
     document.getElementById("search_input_" + i).addEventListener("keyup", function(event) {
-      if (event.keyCode === KEY_ENTER) {
+      if (event.code === KEY_ENTER) {
         event.preventDefault();
         if(_search_autocomplete_matches.length > 0)
           searchInputAutocomplete();
         else
           document.getElementById("search_specific_button").click();
       }
-      else if (event.keyCode === KEY_UP_ARROW) {
+      else if (event.code === KEY_UP_ARROW) {
 
       }
-      else if (event.keyCode === KEY_DOWN_ARROW) {
+      else if (event.code === KEY_DOWN_ARROW) {
 
       }
-      else if (event.keyCode === KEY_ESCAPE) {
-        clearSearchAutocomplete();
+      else if (event.code === KEY_ESCAPE) {
+        // clearSearchAutocomplete();
       }
       else{
         showSearchAutocomplete();
       }
     });
     document.getElementById("search_input_" + i).addEventListener("keydown", function(event) {
-      if (event.keyCode === KEY_ENTER) {
+      if (event.code === KEY_ENTER) {
 
       }
-      else if (event.keyCode === KEY_UP_ARROW) {
+      else if (event.code === KEY_UP_ARROW) {
         event.preventDefault();
         if(_search_autocomplete_matches.length > 0)
           selectSearchAutocompleteUp();
         else
           viewHistory(null, -1);
       }
-      else if (event.keyCode === KEY_DOWN_ARROW) {
+      else if (event.code === KEY_DOWN_ARROW) {
         event.preventDefault();
         if(_search_autocomplete_matches.length > 0)
           selectSearchAutocompleteDown();
@@ -79,193 +272,155 @@ input_email.addEventListener("keyup", function(event) {
     });
   }
 
-  var KEY_ENTER = 13;
-  var KEY_ESCAPE = 27;
-  var KEY_LEFT_ARROW = 37;
-  var KEY_UP_ARROW = 38;
-  var KEY_RIGHT_ARROW = 39;
-  var KEY_DOWN_ARROW = 40;
-  var KEY_TAB = 9;
-  var KEY_PAGE_UP = 33;
-  var KEY_PAGE_DOWN = 34;
-  var KEY_SHIFT = 16;
-  var KEY_CTRL = 17;
+  // var KEY_ENTER = 13;
+  // var KEY_ESCAPE = 27;
+  // var KEY_LEFT_ARROW = 37;
+  // var KEY_UP_ARROW = 38;
+  // var KEY_RIGHT_ARROW = 39;
+  // var KEY_DOWN_ARROW = 40;
+  // var KEY_TAB = 9;
+  // var KEY_PAGE_UP = 33;
+  // var KEY_PAGE_DOWN = 34;
+  // var KEY_SHIFT = 16;
+  // var KEY_CTRL = 17;
 
+  var KEY_ENTER = "Enter";
+  var KEY_ESCAPE = "Escape";
+  var KEY_LEFT_ARROW = "ArrowLeft";
+  var KEY_UP_ARROW = "ArrowUp";
+  var KEY_RIGHT_ARROW = "ArrowRight";
+  var KEY_DOWN_ARROW = "ArrowDown";
+  var KEY_TAB = "Tab";
+  var KEY_PAGE_UP = "PageUp";
+  var KEY_PAGE_DOWN = "PageDown";
+  var KEY_SHIFT = "ShiftLeft";
+  var KEY_CTRL = "ControlLeft";
+  var KEY_A = "KeyA";
+  var KEY_B = "KeyB";
+  var KEY_C = "KeyC";
+  var KEY_D = "KeyD";
+  var KEY_E = "KeyE";
+  var KEY_F = "KeyF";
+  var KEY_G = "KeyG";
+  var KEY_H = "KeyH";
+  var KEY_I = "KeyI";
+  var KEY_J = "KeyJ";
+  var KEY_K = "KeyK";
+  var KEY_L = "KeyL";
+  var KEY_M = "KeyM";
+  var KEY_N = "KeyN";
+  var KEY_O = "KeyO";
+  var KEY_P = "KeyP";
+  var KEY_Q = "KeyQ";
+  var KEY_R = "KeyR";
+  var KEY_S = "KeyS";
+  var KEY_T = "KeyT";
+  var KEY_U = "KeyU";
+  var KEY_V = "KeyV";
+  var KEY_W = "KeyW";
+  var KEY_X = "KeyX";
+  var KEY_Y = "KeyY";
+  var KEY_Z = "KeyZ";
+  var KEY_PLUS = "Equal";
+  var KEY_MINUS = "Minus";
+  var KEY_HOME = "Home";
+  var KEY_END = "End";
+  
   // var key_ctrl_held = false;
   // var key_shift_held = false;
 
-  document.addEventListener("keydown", function(event) { 
-    switch(event.keyCode){
-        case KEY_LEFT_ARROW: //Left Arrow
-          if(_isTableSelected){
-            event.preventDefault();
-            moveLeft();
-          }
-          break;
-        case KEY_UP_ARROW: //Up Arrow
-          if(_selected_tab == TAB_RECORD_VIEWS)
-          {
-            if(_selected_record_view >= 0)
-            {
-              event.preventDefault();
-              changeRecordViewUp();
-            }
-          }
-          else if(_isTableSelected){
-            event.preventDefault();
-            moveUp();
-          }
-          break;
-        case KEY_RIGHT_ARROW: //Right Arrow
-          if(_isTableSelected){
-            event.preventDefault();
-            moveRight();
-          }
-          break;
-        case KEY_DOWN_ARROW: //Down Arrow
-          if(_selected_tab == TAB_RECORD_VIEWS)
-          {
-            if(_selected_record_view >= 0)
-            {
-              event.preventDefault();
-              changeRecordViewDown();
-            }
-          }
-          else if(_isTableSelected){
-            event.preventDefault();
-            moveDown();
-          }
-          break;
-        case KEY_PAGE_UP:
-          if(_isTableSelected){
-            event.preventDefault();
-            pageUp();
-          }
-          break;
-        case KEY_PAGE_DOWN:
-          if(_isTableSelected){
-            event.preventDefault();
-            pageDown();
-          }
-        // case KEY_CTRL:
-        //   key_ctrl_held = true;
-        //   break;
-        // case KEY_SHIFT:
-        //   key_shift_held = true;
-        //   break;
-        // case KEY_TAB: //Doesn't work, browser overrides and switches to next tab
-        //         event.preventDefault();
-        //   if(key_ctrl_held)
-        //   {
-        //     console.log("Pressed");
-        //     if(key_shift_held)
-        //     {
-        //       if(_selected_tab > 0)
-        //       {
-        //         event.preventDefault();
-        //         setTab(_selected_tab - 1);
-        //       }
-        //     }
-        //     else
-        //     {
-        //       if(_selected_tab < TAB_DIVS.length - 1)
-        //       {
-        //         event.preventDefault();
-        //         setTab(_selected_tab + 1);
-        //       }
-        //     }
-        //   }
-        //   break;
+  function moveLeft()
+  {
+    var preventDefault = true;
+    if(_selectedCell == 0)
+      preventDefault = false;
+    if(preventDefault)
+    {
+      var column = _selectedCell - 1;
+      var cell = getCell(_selectedRow, column, _selectedTable);
+      if(cell != null)
+        onCellClick(_selectedRow, column, cell.id, _selectedTable, true);
     }
-    partnum_input_was_pressed_first = false;
-  });
-
-  document.addEventListener("keyup", function(event) { 
-    switch(event.keyCode){
-      // case KEY_CTRL:
-      //   key_ctrl_held = false;
-      //   break;
-      // case KEY_SHIFT:
-      //   key_shift_held = false;
-      //   break;
-        // case KEY_LEFT: //Left Arrow
-        //     event.preventDefault();
-        //     down_Left = false;
-        //     moveLeft();
-        //     break;
-        // case KEY_UP: //Up Arrow
-        //     event.preventDefault();
-        //     moveUp();
-        //     break;
-        // case KEY_RIGHT: //Right Arrow
-        //     event.preventDefault();
-        //     moveRight();
-        //     break;
-        // case KEY_DOWN: //Down Arrow
-        //     event.preventDefault();
-        //     moveDown();
-        //     break;
-        // case KEY_TAB: //Tab
-        //     event.preventDefault();
-        //     moveToNextTable();
-        //     break;
-    }
-  });
-
-  function moveLeft(){
-    var column = _selectedCell - 1;
-    var cell = getCell(_selectedRow, column, _selectedTable);
-    if(cell != null)
-      onCellClick(_selectedRow, column, cell.id, _selectedTable, true);
+    return preventDefault;
   }
 
   function moveUp(){
+    var preventDefault = true;
+    if(_selectedTable == _TABLE_RECORD_BROWSER && _selectedRow == 0)
+      preventDefault = false;
+    else if(_selectedTable == _TABLE_SEARCH_RESULTS && _selectedRow == 0 && _currentSearchResultsStartIndex == 0)
+      preventDefault = false;
     var row = _selectedRow - 1;
-    if(_selectedTable == _TABLE_RECORD_BROWSER && _indexesRecordBrowser[0] > 0 && _indexesRecordBrowser[0] > row) //Shift table bounds
-        populateRecordBrowser(_indexesRecordBrowser[0] - 1, false);
-    if(_selectedTable == _TABLE_SEARCH_RESULTS && _currentSearchResultsStartIndex > 0 && _selectedRow == 0) //Shift table bounds
-        populateSearchResults(_currentSearchResultsStartIndex - 1, true, false, -1);
-    
+    if(preventDefault){
+      if(_selectedTable == _TABLE_RECORD_BROWSER && _indexesRecordBrowser[0] > 0 && _indexesRecordBrowser[0] > row) //Shift table bounds
+          populateRecordBrowser(_indexesRecordBrowser[0] - 1, false);
+      if(_selectedTable == _TABLE_SEARCH_RESULTS && _currentSearchResultsStartIndex > 0 && _selectedRow == 0) //Shift table bounds
+          populateSearchResults(_currentSearchResultsStartIndex - 1, true, false, -1);
+    }
     var cell = getCell(row, _selectedCell, _selectedTable);
     if(cell != null)
       onCellClick(row, _selectedCell, cell.id, _selectedTable);
+    return preventDefault;
   }
 
   function moveRight(){
-    var column = _selectedCell + 1;
-    var cell = getCell(_selectedRow, column, _selectedTable);
-    if(cell != null)
-      onCellClick(_selectedRow, column, cell.id, _selectedTable, true);
+    var preventDefault = true;
+    if(_selectedCell == INDEXES_CONCAT.length - 1)
+      preventDefault = false;
+    if(preventDefault)
+    {
+      var column = _selectedCell + 1;
+      var cell = getCell(_selectedRow, column, _selectedTable);
+      if(cell != null)
+        onCellClick(_selectedRow, column, cell.id, _selectedTable, true);
+    }
+    return preventDefault;
   }
 
   function moveDown(){
-    var row = _selectedRow + 1;
-    if(_selectedTable == _TABLE_RECORD_BROWSER && _indexesRecordBrowser[_indexesRecordBrowser.length - 1] < _content.length - 1 && _indexesRecordBrowser[_indexesRecordBrowser.length - 1] < row) //Shift table bounds
-      populateRecordBrowser(_indexesRecordBrowser[0] + 1, false);
-    if(_selectedTable == _TABLE_SEARCH_RESULTS && _currentSearchResultsStartIndex < _searchResults.length - 1 && _selectedRow == _indexesSearchResults.length - 1) //Shift table bounds
-      populateSearchResults(_currentSearchResultsStartIndex + 1, false, true, -1);
-    var cell = getCell(row, _selectedCell, _selectedTable);
-    if(cell != null)
-      onCellClick(row, _selectedCell, cell.id, _selectedTable);
+    var preventDefault = true;
+    if(_selectedTable == _TABLE_RECORD_BROWSER && _selectedRow == _content.length - 1)
+      preventDefault = false;
+    else if(_selectedTable == _TABLE_SEARCH_RESULTS && _selectedRow == _searchResultsMax - 1 && _currentSearchResultsStartIndex == _searchResults.length - _searchResultsMax)
+      preventDefault = false;
+      var row = _selectedRow + 1;
+      if(preventDefault){
+        if(_selectedTable == _TABLE_RECORD_BROWSER && _indexesRecordBrowser[_indexesRecordBrowser.length - 1] < _content.length - 1 && _indexesRecordBrowser[_indexesRecordBrowser.length - 1] < row) //Shift table bounds
+          populateRecordBrowser(_indexesRecordBrowser[0] + 1, false);
+        if(_selectedTable == _TABLE_SEARCH_RESULTS && _currentSearchResultsStartIndex < _searchResults.length - 1 && _selectedRow == _indexesSearchResults.length - 1) //Shift table bounds
+        populateSearchResults(_currentSearchResultsStartIndex + 1, false, true, -1);
+      }
+      var cell = getCell(row, _selectedCell, _selectedTable);
+      if(cell != null)
+        onCellClick(row, _selectedCell, cell.id, _selectedTable);
+    return preventDefault;
   }
 
   function pageUp()
   {
+    var preventDefault = true;
     var row = null;
     if(_selectedTable == _TABLE_RECORD_BROWSER){
       populateRecordBrowser(_currentRecordBrowserStartIndex - _recordBrowserMax, false);
+      if(_selectedRow == 0)
+        preventDefault = false;
       row = _selectedRow - _recordBrowserMax;
       if(row < 0)
         row = 0;
       if(row >= _content.length)
         row = _content.length - 1;
     }
-    
-    if(_selectedTable == _TABLE_SEARCH_RESULTS){
-      if(_currentSearchResultsStartIndex == 0)
-        populateSearchResults(_currentSearchResultsStartIndex - _searchResultsMax, true, false, -1);
-      else
-        populateSearchResults(_currentSearchResultsStartIndex - _searchResultsMax, false, false, _selectedRow);
+    else if(_selectedTable == _TABLE_SEARCH_RESULTS)
+    {
+      if(_selectedRow == 0 && _currentSearchResultsStartIndex == 0)
+        preventDefault = false;
+      if(preventDefault)
+      {
+        if(_currentSearchResultsStartIndex == 0)
+          populateSearchResults(_currentSearchResultsStartIndex - _searchResultsMax, true, false, -1);
+        else
+          populateSearchResults(_currentSearchResultsStartIndex - _searchResultsMax, false, false, _selectedRow);
+      }
     }
 
     if(row != null){
@@ -273,32 +428,71 @@ input_email.addEventListener("keyup", function(event) {
       if(cell != null)
         onCellClick(row, _selectedCell, cell.id, _selectedTable);
     }
+    return preventDefault;
   }
 
   function pageDown()
   {
+    var preventDefault = true;
     var row = null;
     if(_selectedTable == _TABLE_RECORD_BROWSER){
       populateRecordBrowser(_currentRecordBrowserStartIndex + _recordBrowserMax, false);
+      if(_selectedRow == _content.length - 1)
+        preventDefault = false;
       row = _selectedRow + _recordBrowserMax;
       if(row < 0)
         row = 0;
       if(row >= _content.length)
         row = _content.length - 1;
     }
-    
-    if(_selectedTable == _TABLE_SEARCH_RESULTS){
-      if(_currentSearchResultsStartIndex >= _searchResults.length - _searchResultsMax)
-        populateSearchResults(_currentSearchResultsStartIndex + _searchResultsMax, false, true, -1);
-      else
-        populateSearchResults(_currentSearchResultsStartIndex + _searchResultsMax, false, false, _selectedRow);
+    else if(_selectedTable == _TABLE_SEARCH_RESULTS){
+      if(_selectedRow == _searchResultsMax - 1 && _currentSearchResultsStartIndex == _searchResults.length - _searchResultsMax)
+        preventDefault = false;
+      if(preventDefault){
+        if(_currentSearchResultsStartIndex >= _searchResults.length - _searchResultsMax)
+          populateSearchResults(_currentSearchResultsStartIndex + _searchResultsMax, false, true, -1);
+        else
+          populateSearchResults(_currentSearchResultsStartIndex + _searchResultsMax, false, false, _selectedRow);
+      }
     }
 
-    if(row != null){
+    if(row != null)
+    {
       var cell = getCell(row, _selectedCell, _selectedTable);
       if(cell != null)
         onCellClick(row, _selectedCell, cell.id, _selectedTable);
     }
+    return preventDefault;
+  }
+
+  function moveToHome()
+  {
+    var preventDefault = true;
+    if(_selectedCell == 0)
+      preventDefault = false;
+    if(preventDefault)
+    {
+      var column = 0;
+      var cell = getCell(_selectedRow, column, _selectedTable);
+      if(cell != null)
+        onCellClick(_selectedRow, column, cell.id, _selectedTable, true);
+    }
+    return preventDefault;
+  }
+
+  function moveToEnd()
+  {
+    var preventDefault = true;
+    if(_selectedCell == INDEXES_CONCAT.length - 1)
+      preventDefault = false;
+    if(preventDefault)
+    {
+      var column = INDEXES_CONCAT.length - 1;
+      var cell = getCell(_selectedRow, column, _selectedTable);
+      if(cell != null)
+        onCellClick(_selectedRow, column, cell.id, _selectedTable, true);
+    }
+    return preventDefault;
   }
 
   //index -1 = search any, dir -1 = back, 1 = forward
@@ -468,7 +662,9 @@ input_email.addEventListener("keyup", function(event) {
         document.getElementById("search_autocomplete_match_" + i).style.backgroundColor = "white";
       if(_selected_search_autocomplete > 0)
         --_selected_search_autocomplete;
-      document.getElementById("search_autocomplete_match_" + _selected_search_autocomplete).style.backgroundColor = _selectedCellColor;
+      var ele = document.getElementById("search_autocomplete_match_" + _selected_search_autocomplete);
+      ele.style.backgroundColor = _selectedCellColor;
+      ele.scrollIntoView({ behavior: "auto", block: "nearest", inline: "nearest" });
     }
   }
 
@@ -483,7 +679,9 @@ input_email.addEventListener("keyup", function(event) {
         document.getElementById("search_autocomplete_match_" + i).style.backgroundColor = "white";
       if(_selected_search_autocomplete < _search_autocomplete_matches.length - 1)
         ++_selected_search_autocomplete;
-      document.getElementById("search_autocomplete_match_" + _selected_search_autocomplete).style.backgroundColor = _selectedCellColor;
+      var ele = document.getElementById("search_autocomplete_match_" + _selected_search_autocomplete);
+      ele.style.backgroundColor = _selectedCellColor;
+      ele.scrollIntoView({ behavior: "auto", block: "nearest", inline: "nearest" });
     }
   }
   //END SEARCH SPECIFIC AUTOCOMPLETE----------------------------------------------------------
@@ -565,18 +763,19 @@ input_email.addEventListener("keyup", function(event) {
 
   function partnum_input_keyup_event(event)
   {
-    if(event.keyCode == KEY_ENTER)
+    if(event.code == KEY_ENTER)
     {
+      event.preventDefault();
       partNumInputAutocomplete();
     }
-    else if (event.keyCode === KEY_ESCAPE) {
-      clearPartNumAutocomplete();
+    else if (event.code === KEY_ESCAPE) {
+      // clearPartNumAutocomplete();
     }
-    else if(event.keyCode == KEY_UP_ARROW)
+    else if(event.code == KEY_UP_ARROW)
     {
 
     }
-    else if(event.keyCode == KEY_DOWN_ARROW)
+    else if(event.code == KEY_DOWN_ARROW)
     {
       
     }
@@ -589,12 +788,14 @@ input_email.addEventListener("keyup", function(event) {
   function partnum_input_keydown_event(event)
   {
     partnum_input_was_pressed_first = true;
-    if(event.keyCode == KEY_UP_ARROW)
+    if(event.code == KEY_UP_ARROW)
     {
+      event.preventDefault();
       selectPartNumAutocompleteUp();
     }
-    else if(event.keyCode == KEY_DOWN_ARROW)
+    else if(event.code == KEY_DOWN_ARROW)
     {
+      event.preventDefault();
       selectPartNumAutocompleteDown();
     }
   }
@@ -605,12 +806,15 @@ input_email.addEventListener("keyup", function(event) {
       _selected_partnum_autocomplete = 0;
     if(_selected_partnum_autocomplete < 0)
       _selected_partnum_autocomplete = 0;
-    if(_partnum_autocomplete_matches.length > 0){      
+    if(_partnum_autocomplete_matches.length > 0)
+    {
       for(var i = 0; i < _partnum_autocomplete_matches.length; ++i)
         document.getElementById("partnum_autocomplete_match_" + i).style.backgroundColor = "white";
       if(_selected_partnum_autocomplete > 0)
         --_selected_partnum_autocomplete;
-      document.getElementById("partnum_autocomplete_match_" + _selected_partnum_autocomplete).style.backgroundColor = _selectedCellColor;
+      var ele = document.getElementById("partnum_autocomplete_match_" + _selected_partnum_autocomplete);
+      ele.style.backgroundColor = _selectedCellColor;
+      ele.scrollIntoView({ behavior: "auto", block: "nearest", inline: "nearest" });
     }
   }
 
@@ -625,7 +829,9 @@ input_email.addEventListener("keyup", function(event) {
         document.getElementById("partnum_autocomplete_match_" + i).style.backgroundColor = "white";
       if(_selected_partnum_autocomplete < _partnum_autocomplete_matches.length - 1)
         ++_selected_partnum_autocomplete;
-      document.getElementById("partnum_autocomplete_match_" + _selected_partnum_autocomplete).style.backgroundColor = _selectedCellColor;
+      var ele = document.getElementById("partnum_autocomplete_match_" + _selected_partnum_autocomplete);
+      ele.style.backgroundColor = _selectedCellColor;
+      ele.scrollIntoView({ behavior: "auto", block: "nearest", inline: "nearest" });
     }
   }
 //END PART NUM AUTOCOMPLETE----------------------------------------------------------
@@ -644,22 +850,23 @@ function clearPartChildEditAutocomplete()
 
   function partchild_edit_input_keyup_event(event)
   {
-    if(event.keyCode == KEY_ENTER)
+    if(event.code == KEY_ENTER)
     {
+      event.preventDefault();
       // partNumInputAutocomplete();
       _selected_child_part_db = _partchild_edit_autocomplete_matches[_selected_partchild_edit_autocomplete].db;
       _selected_child_part_record = _partchild_edit_autocomplete_matches[_selected_partchild_edit_autocomplete].row;
       populateChildPartRecordManager();
       clearPartChildEditAutocomplete();
     }
-    else if (event.keyCode === KEY_ESCAPE) {
-      clearPartChildEditAutocomplete();
+    else if (event.code === KEY_ESCAPE) {
+      // clearPartChildEditAutocomplete();
     }
-    else if(event.keyCode == KEY_UP_ARROW)
+    else if(event.code == KEY_UP_ARROW)
     {
 
     }
-    else if(event.keyCode == KEY_DOWN_ARROW)
+    else if(event.code == KEY_DOWN_ARROW)
     {
       
     }
@@ -678,12 +885,14 @@ function clearPartChildEditAutocomplete()
 
   function partchild_edit_input_keydown_event(event)
   {
-    if(event.keyCode == KEY_UP_ARROW)
+    if(event.code == KEY_UP_ARROW)
     {
+      event.preventDefault();
       selectPartChildEditAutocompleteUp();
     }
-    else if(event.keyCode == KEY_DOWN_ARROW)
+    else if(event.code == KEY_DOWN_ARROW)
     {
+      event.preventDefault();
       selectPartChildEditAutocompleteDown();
     }
   }
@@ -694,12 +903,15 @@ function clearPartChildEditAutocomplete()
       _selected_partchild_edit_autocomplete = 0;
     if(_selected_partchild_edit_autocomplete < 0)
       _selected_partchild_edit_autocomplete = 0;
-    if(_partchild_edit_autocomplete_matches.length > 0){
+    if(_partchild_edit_autocomplete_matches.length > 0)
+    {
         for(var i = 0; i < _partchild_edit_autocomplete_matches.length; ++i)
           document.getElementById("partchild_edit_autocomplete_match_" + i).style.backgroundColor = "";
         if(_selected_partchild_edit_autocomplete > 0)
           --_selected_partchild_edit_autocomplete;
-        document.getElementById("partchild_edit_autocomplete_match_" + _selected_partchild_edit_autocomplete).style.backgroundColor = _selectedCellColor;
+        var ele = document.getElementById("partchild_edit_autocomplete_match_" + _selected_partchild_edit_autocomplete);
+        ele.style.backgroundColor = _selectedCellColor;
+        ele.scrollIntoView({ behavior: "auto", block: "nearest", inline: "nearest" });
     }
   }
 
@@ -714,8 +926,9 @@ function clearPartChildEditAutocomplete()
         document.getElementById("partchild_edit_autocomplete_match_" + i).style.backgroundColor = "";
       if(_selected_partchild_edit_autocomplete < _partchild_edit_autocomplete_matches.length - 1)
         ++_selected_partchild_edit_autocomplete;
-      document.getElementById("partchild_edit_autocomplete_match_" + _selected_partchild_edit_autocomplete).style.backgroundColor = _selectedCellColor;
-      
+      var ele = document.getElementById("partchild_edit_autocomplete_match_" + _selected_partchild_edit_autocomplete);
+      ele.style.backgroundColor = _selectedCellColor;
+      ele.scrollIntoView({ behavior: "auto", block: "nearest", inline: "nearest" });      
     }
   }
 
@@ -834,10 +1047,10 @@ function clearPartChildEditAutocomplete()
           if(rownum > 0)
           {
             var newID = _content[rownum - 1][_content[rownum - 1].length - 1];
-            if(_recordViews_Key_To_Details_Open.has(_recordViews[_selected_record_view]) && _recordViews_Key_To_Details_Open.get(_recordViews[_selected_record_view]))
-              _recordViews_Key_To_Details_Open.set(newID, true);
-            else
+            if(_recordViews_Key_To_Details_Open.has(_recordViews[_selected_record_view]) && !_recordViews_Key_To_Details_Open.get(_recordViews[_selected_record_view]))
               _recordViews_Key_To_Details_Open.set(newID, false);
+            else
+              _recordViews_Key_To_Details_Open.set(newID, true);
             _recordViews[_selected_record_view] = newID
             populateRecordViews();
           }
@@ -859,10 +1072,10 @@ function clearPartChildEditAutocomplete()
           if(rownum < _content.length - 1)
           {
             var newID = _content[rownum + 1][_content[rownum + 1].length - 1];
-            if(_recordViews_Key_To_Details_Open.has(_recordViews[_selected_record_view]) && _recordViews_Key_To_Details_Open.get(_recordViews[_selected_record_view]))
-              _recordViews_Key_To_Details_Open.set(newID, true);
-            else
+            if(_recordViews_Key_To_Details_Open.has(_recordViews[_selected_record_view]) && !_recordViews_Key_To_Details_Open.get(_recordViews[_selected_record_view]))
               _recordViews_Key_To_Details_Open.set(newID, false);
+            else
+              _recordViews_Key_To_Details_Open.set(newID, true);
             _recordViews[_selected_record_view] = newID
             populateRecordViews();
           }
@@ -882,4 +1095,780 @@ function clearPartChildEditAutocomplete()
     {
       document.getElementById("search_highlight_div").style.display = "none";
     }
+  }
+
+  function clickRecordViewPNSaveButton()
+  {
+    for(var i = 0; i < _recordViews.length; ++i)
+    {
+      for(var j = 0; j < _EXTRA_DB.length; ++j)
+      {
+        var ele = document.getElementById("record_view_partnum_save_button_" + i + "_" + j);
+        if(ele != null && ele.style.display != "none")
+        {
+          ele.click();
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  function clickRecordViewPNCancelButton()
+  {
+    for(var i = 0; i < _recordViews.length; ++i)
+    {
+      for(var j = 0; j < _EXTRA_DB.length; ++j)
+      {
+        var ele = document.getElementById("record_view_partnum_cancel_button_" + i + "_" + j);
+        if(ele != null && ele.style.display != "none")
+        {
+          ele.click();
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  function checkForRecordViewSellButtons()
+  {
+    if(!_overlay_window_open)
+    {
+      var foundIndexes = [];
+      for(var i = 0; i < _EXTRA_DB.length; ++i)
+      {
+        if(i != 2) //Skip DNI extradb
+        {
+          var ele = document.getElementById("sell_button_" + _selected_record_view + "_" + i);
+          if(ele != null && ele.style.display != "none")
+            foundIndexes.push(i);
+        }
+      }
+      if(foundIndexes.length > 0)
+      {
+        var html1 = "";
+        for(var i = 0; i < foundIndexes.length; ++i)
+        {
+          var i2 = foundIndexes[i];
+          html1 += "<span style='color: white;'>" + _EXTRA_DB_COMMENTS_PREFIXES[i2] + "</span>. ." + _EXTRA_DB[i2] + "<br>";
+        }
+        document.getElementById("key_shortcut_extra_db_sell_window").innerHTML = html1;
+        document.getElementById("key_shortcut_extra_db_sell_window").style.display = "";
+        _overlay_window_open = true;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function checkForRecordViewEditButtons()
+  {
+    if(!_overlay_window_open)
+    {
+      var html1 = "";
+      for(var i = 0; i < _EXTRA_DB.length; ++i)
+      {
+        var ele = document.getElementById("record_view_partnum_edit_icon_" + _selected_record_view + "_" + i);
+        if(ele != null && ele.style.display != "none")
+          html1 += "<span style='color: white;'>" + _EXTRA_DB_COMMENTS_PREFIXES[i] + "</span>. ." + _EXTRA_DB[i] + "<br>";
+      }
+      document.getElementById("key_shortcut_extra_db_edit_window").innerHTML = html1;
+      document.getElementById("key_shortcut_extra_db_edit_window").style.display = "";
+      _overlay_window_open = true;
+      return true;
+    }
+    return false;
+  }
+
+  function checkForRecordViewImageButtons()
+  {
+    if(!_overlay_window_open)
+    {
+      var html1 = "";
+      for(var i = 0; i < _EXTRA_DB.length; ++i)
+      {
+        var ele = document.getElementById("button_recordview_image_everywhere_" + _selected_record_view + "_" + i);
+        if(ele != null && ele.style.display != "none")
+          html1 += "<span style='color: white;'>" + _EXTRA_DB_COMMENTS_PREFIXES[i] + "</span>. ." + _EXTRA_DB[i] + "<br>";
+      }
+      document.getElementById("key_shortcut_extra_db_image_window").innerHTML = html1;
+      document.getElementById("key_shortcut_extra_db_image_window").style.display = "";
+      _overlay_window_open = true;
+      return true;
+    }
+    return false;
+  }
+
+  function checkForRecordViewJumpChildPartButtons()
+  {
+    if(!_overlay_window_open)
+    {
+      var html1 = "";
+      for(var i = 0; i < _EXTRA_DB.length; ++i)
+      {
+        var ele = document.getElementById("span_recordviews_jump_to_child_part_" + _selected_record_view + "_" + i);
+        if(ele != null && ele.style.display != "none")
+          html1 += "<span style='color: white;'>" + _EXTRA_DB_COMMENTS_PREFIXES[i] + "</span>. ." + _EXTRA_DB[i] + "<br>";
+      }
+      document.getElementById("key_shortcut_extra_db_jumpPN_window").innerHTML = html1;
+      document.getElementById("key_shortcut_extra_db_jumpPN_window").style.display = "";
+      _overlay_window_open = true;
+      return true;
+    }
+    return false;
+  }
+
+  function clickRecordViewSellConfirmButton()
+  {
+    for(var i = 0; i < _recordViews.length; ++i)
+    {
+      for(var j = 0; j < _EXTRA_DB.length; ++j)
+      {
+        var ele = document.getElementById("button_record_view_sell_confirm_" + i + "_" + j);
+        var ele2 = document.getElementById("sell_form_" + i + "_" + j);
+        if(ele != null && ele2.style.display != "none")
+        {
+          ele.click();
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  
+  function clickRecordViewSellCancelButton()
+  {
+    for(var i = 0; i < _recordViews.length; ++i)
+    {
+      for(var j = 0; j < _EXTRA_DB.length; ++j)
+      {
+        var ele = document.getElementById("button_record_view_sell_cancel_" + i + "_" + j);
+        var ele2 = document.getElementById("sell_form_" + i + "_" + j);
+        if(ele != null && ele2.style.display != "none")
+        {
+          ele.click();
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  function clickRecordViewEditWholeSaveButton()
+  {
+    for(var i = 0; i < _recordViews.length; ++i)
+    {
+      var ele = document.getElementById("record_view_data_save_button_" + i);
+      if(ele != null && ele.style.display != "none")
+      {
+        ele.click();
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function clickRecordViewEditWholeCancelButton()
+  {
+    for(var i = 0; i < _recordViews.length; ++i)
+    {
+      var ele = document.getElementById("record_view_data_cancel_button_" + i);
+      if(ele != null && ele.style.display != "none")
+      {
+        ele.click();
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function clickRecordBrowserEditSaveButton()
+  {
+    var ele = document.getElementById("save_edit_record");
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickRecordBrowserEditCancelButton()
+  {
+    var ele = document.getElementById("cancel_edit_record");
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickRecordBrowserEditDeleteButton()
+  {
+    var ele = document.getElementById("delete_edit_record");
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickRecordBrowserEditDeleteConfirmButton()
+  {
+    var ele = document.getElementById("confirm_delete_record");
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickRecordBrowserEditDeleteCancelButton()
+  {
+    var ele = document.getElementById("cancel_delete_record");
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickRecordBrowserNewSaveButton()
+  {
+    var ele = document.getElementById("save_new_record");
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickRecordBrowserNewCancelButton()
+  {
+    var ele = document.getElementById("cancel_new_record");
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickPCRM_NewSaveButton()
+  {
+    var ele = document.getElementById("partchild_new_button_save");
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickPCRM_NewCancelButton()
+  {
+    var ele = document.getElementById("partchild_new_button_cancel");
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickPCRM_EditSaveButton()
+  {
+    var ele = document.getElementById("partchild_edit_button_save");
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickPCRM_EditCancelButton()
+  {
+    var ele = document.getElementById("partchild_edit_button_cancel");
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickPCRM_EditDeleteButton()
+  {
+    var ele = document.getElementById("partchild_edit_button_delete");
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickPCRM_EditDeleteConfirmButton()
+  {
+    var ele = document.getElementById("partchild_edit_button_confirm_delete");
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+  
+  function clickPCRM_EditDeleteCancelButton()
+  {
+    var ele = document.getElementById("partchild_edit_button_cancel_delete");
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickSortOrder_NewSaveButton()
+  {
+    var ele = document.getElementById("button_sortorder_new_save");
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickSortOrder_NewCancelButton()
+  {
+    var ele = document.getElementById("button_sortorder_new_cancel");
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickSortOrder_EditSaveButton()
+  {
+    var ele = document.getElementById("sort_order_button_save" + _current_sort_order_editing);
+    var ele2 = document.getElementById("sort_order_buttons_" + _current_sort_order_editing);
+    if(ele != null && ele.style.display != "none" && ele2 != null && ele2.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickSortOrder_EditCancelButton()
+  {
+    var ele = document.getElementById("sort_order_button_cancel" + _current_sort_order_editing);
+    var ele2 = document.getElementById("sort_order_buttons_" + _current_sort_order_editing);
+    if(ele != null && ele.style.display != "none" && ele2 != null && ele2.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickSortOrder_EditDeleteButton()
+  {
+    var ele = document.getElementById("sort_order_button_delete" + _current_sort_order_editing);
+    var ele2 = document.getElementById("sort_order_buttons_" + _current_sort_order_editing);
+    if(ele != null && ele.style.display != "none" && ele2 != null && ele2.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickSortOrder_EditDeleteConfirmButton()
+  {
+    var ele = document.getElementById("sort_order_button_confirm_delete" + _current_sort_order_editing);
+    var ele2 = document.getElementById("sort_order_buttons_" + _current_sort_order_editing);
+    if(ele != null && ele.style.display != "none" && ele2 != null && ele2.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+  
+  function clickSortOrder_EditDeleteCancelButton()
+  {
+    var ele = document.getElementById("sort_order_button_cancel_delete" + _current_sort_order_editing);
+    var ele2 = document.getElementById("sort_order_buttons_" + _current_sort_order_editing);
+    if(ele != null && ele.style.display != "none" && ele2 != null && ele2.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickPdfImport_WLMAY_CancelButton()
+  {
+    var ele = document.getElementById("button_pdfimport_wlmay_cancel");
+    var ele2 = document.getElementById("wlmay_pdf_table_div");
+    if(ele != null && ele.style.display != "none" && ele2 != null && ele2.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickPdfImport_WLMAY_CancelAddRowButton()
+  {
+    var ele = document.getElementById("button_pdfimport_cancel_addrow");
+    var ele2 = document.getElementById("wlmay_pdf_table_div");
+    if(ele != null && ele.style.display != "none" && ele2 != null && ele2.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+  
+  function clickPdfImport_WLMAY_SaveAddRowButton()
+  {
+    var ele = document.getElementById("button_pdfimport_save_addrow");
+    var ele2 = document.getElementById("wlmay_pdf_table_div");
+    if(ele != null && ele.style.display != "none" && ele2 != null && ele2.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+  
+  var _table_pdf_import_selected_row = 0;
+  
+  function set_tablePDFImport_SelectedRow(newRow)
+  {
+    if(document.activeElement != null && (document.activeElement.tagName == "TEXTAREA" || document.activeElement.tagName == "SELECT"))
+    {
+      
+    }
+    else
+    {
+      var inc = 0;
+      var ele = document.getElementById("table_pdfimport_row_" + inc);
+      var ele2 = document.getElementById("table_pdfimport_row_" + newRow);
+      if(ele2 != null)
+      {
+        while(ele != null)
+        {
+          ele.style.backgroundColor = "";
+          ++inc;
+          ele = document.getElementById("table_pdfimport_row_" + inc);
+        }
+        ele2.style.backgroundColor = "#96BBFF";
+        _table_pdf_import_selected_row = newRow;
+        ele = document.getElementById("pdf_ordered_" + _table_pdf_import_selected_row);
+        if(ele != null)
+        {
+          ele.focus();
+          ele.select();
+        }
+        ele2.scrollIntoView({ behavior: "auto", block: "nearest", inline: "nearest" });
+        return true;
+      }
+    }
+    return false;
+  }
+    
+  function clickPdfImport_WLMAY_AddPartChild_Cancel()
+  {
+    var ele = document.getElementById("button_pdfimport_newpartchild_cancel");
+    var ele2 = document.getElementById("wlmay_pdf_table_div");
+    if(ele != null && ele.style.display != "none" && ele2 != null && ele2.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickPdfImport_WLMAY_AddPartChild_Submit()
+  {
+    var ele = document.getElementById("button_pdfimport_newpartchild_submit");
+    var ele2 = document.getElementById("wlmay_pdf_table_div");
+    if(ele != null && ele.style.display != "none" && ele2 != null && ele2.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  var _table_reorders_selected_row = 0;
+  
+  function set_tableReorders_SelectedRow(newRow)
+  {
+    var inc = 0;
+    var ele = document.getElementById( "table_reorders_row_" + inc);
+    var ele2 = document.getElementById("table_reorders_row_" + newRow);
+    if(ele2 != null)
+    {
+      while(ele != null)
+      {
+        ele.style.backgroundColor = "";
+        ++inc;
+        ele = document.getElementById("table_reorders_row_" + inc);
+      }
+      ele2.style.backgroundColor = "#96BBFF";
+      _table_reorders_selected_row = newRow;
+      ele2.scrollIntoView({ behavior: "auto", block: "nearest", inline: "nearest" });
+      return true;
+    }
+    return false;
+  }
+
+  function clickReorders_UpdateAllReorders()
+  {
+    var ele = document.getElementById("button_update_reorders");
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickReorders_AddRecordView()
+  {
+    var ele = document.getElementById("button_reorder_addrecordview_" + _table_reorders_selected_row);
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickReorders_JumpBrowser()
+  {
+    var ele = document.getElementById("button_reorder_jumprecordbrowser_" + _table_reorders_selected_row);
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickReorders_UpdateRow()
+  {
+    var ele = document.getElementById("button_reorder_updaterow_" + _table_reorders_selected_row);
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickInvoiceHistory_Update()
+  {
+    var ele = document.getElementById("button_update_invoice_history");
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickInvoiceHistory_ClearFilters()
+  {
+    var ele = document.getElementById("button_clear_invoice_filters");
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  var _table_invoicehistory_selected_row = 0;
+  function set_tableInvoiceHistory_SelectedRow(newRow)
+  {
+    var inc = 0;
+    var ele = document.getElementById( "invoicehistory_table_row_" + inc);
+    var ele2 = document.getElementById("invoicehistory_table_row_" + newRow);
+    if(ele2 != null)
+    {
+      while(ele != null)
+      {
+        ele.style.backgroundColor = "";
+        ++inc;
+        ele = document.getElementById("invoicehistory_table_row_" + inc);
+      }
+      ele2.style.backgroundColor = "#96BBFF";
+      _table_invoicehistory_selected_row = newRow;
+      ele2.scrollIntoView({ behavior: "auto", block: "nearest", inline: "nearest" });
+      return true;
+    }
+    return false;
+  }
+
+
+  function clickInvoiceHistory_ExitInvoice()
+  {
+    var ele = document.getElementById("exit_invoice_from_history_button");
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickInvoice_ExitInvoice()
+  {
+    var ele = document.getElementById("exit_invoice_button");
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+  
+  function clickInvoiceSettings_Save()
+  {
+    var ele = document.getElementById("invoice_info_button_save");
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickAddInvoice_AddRow()
+  {
+    var ele = document.getElementById("button_addInvoice_addrow");
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickAddInvoice_Save()
+  {
+    var ele = document.getElementById("button_addInvoice_save");
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickAddInvoice_Cancel()
+  {
+    var ele = document.getElementById("button_addInvoice_cancel");
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickInvoice_Print()
+  {
+    var ele = document.getElementById("button_invoice_print");
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickViewInvoice_Delete()
+  {
+    var ele = document.getElementById("button_viewInvoice_delete");
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickViewInvoice_ConfirmDelete()
+  {
+    var ele = document.getElementById("button_viewInvoice_confirmdelete");
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickViewInvoice_CancelDelete()
+  {
+    var ele = document.getElementById("button_viewInvoice_canceldelete");
+    if(ele != null && ele.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickRecordView_Image_Exit()
+  {
+    var ele = document.getElementById("button_googlesearch_image_exit");
+    var ele2 = document.getElementById("googlesearch_image_div");
+    if(ele != null && ele.style.display != "none" && ele2 != null && ele2.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickRecordView_Image_Left()
+  {
+    var ele = document.getElementById("button_googlesearch_image_left");
+    var ele2 = document.getElementById("googlesearch_image_div");
+    if(ele != null && ele.style.display != "none" && ele2 != null && ele2.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
+  }
+
+  function clickRecordView_Image_Right()
+  {
+    var ele = document.getElementById("button_googlesearch_image_right");
+    var ele2 = document.getElementById("googlesearch_image_div");
+    if(ele != null && ele.style.display != "none" && ele2 != null && ele2.style.display != "none")
+    {
+      ele.click();
+      return true;
+    }
+    return false;
   }

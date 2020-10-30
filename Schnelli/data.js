@@ -1,5 +1,5 @@
 var INVOICE_PRE = 
-"<button class='no-print' onclick=printClick(); style='width:150px; height:50px; font-size:30px; position:absolute; top:30px; left:900px;'>Print</button>"
+"<button id='button_invoice_print' class='no-print' onclick=printClick(); style='width:150px; height:50px; font-size:30px; position:absolute; top:30px; left:900px; background-color: #70A2FF; color: black;'><span style='color: white;'>P</span>rint</button>"
 + "<div class='invoice_div'    style='top: 20px; left: 20px; text-align: center; width: 200px; height: 100px; font-size: 20px; color: #433C3A;' id='invoice_address_textarea_2'></div>"
 + "<div class='invoice_border' style='top: 20px; left: 500px; width: 200px; height: 40px; font-size: 18px;'>&nbsp;&nbsp;&nbsp;No.&nbsp;<input type='text' onfocus='deselectTable();' id='invoice_input_invoice_no' style='width: 133px; height: 30px; font-size: 20px;'></div>"
 + "<div class='invoice_border' style='top: 65px; left: 450px; width: 250px; height: 40px; background-color: #DFDEDB;'>"
@@ -27,7 +27,7 @@ var INVOICE_PRE =
 + "</div>"
 + "<textarea onfocus='deselectTable();' class='invoice_div' style='top: 310px; left: 160px; width: 330px; height: 70px;' id='invoice_textarea_specs'></textarea>"
 + "<textarea onfocus='deselectTable();' class='invoice_div' style='top: 310px; left: 510px; width: 180px; height: 70px;' id='invoice_textarea_misc'></textarea>"
-+ "<table class='invoice_border' style='top: 390px; left: 0px; width: unset; height: unset; border-radius: 0px;'>"
++ "<table id='table_invoice_parts' class='invoice_border' style='top: 390px; left: 0px; width: unset; height: unset; border-radius: 0px;'>"
 + "  <tr>"
 + "    <th style='width: 55px;'>QUANTITY</th><th style='width: 500px; text-align: center;'>DESCRIPTION</th><th style='width: 55px;'>PRICE</th><th style='width: 55px;'>AMOUNT</th><th class='no-print'></th>"
 + "  </tr>";
@@ -37,4 +37,4 @@ var INVOICE_POST =
 + "<tr style='height: 60px;'><td colspan=5 style='font-size: 12px;'>SIGNATURE&nbsp;&nbsp;&nbsp;<input type='text' onfocus='deselectTable();' style='width: 600px; height: 30px;' id='invoice_input_signature'></td></tr>"
 + "<tr style='height: 120px;'><td colspan=5 ><textarea onfocus='deselectTable();' id='invoice_bottom_textarea_2' style='width: 700px; height: 100px; text-align: center;'></textarea></td></tr>"
 + "</table>"
-+ "<button id='button_finish_sale' class='no-print' style='width:150px; height:100px; font-size:30px; position:absolute; top:90px; left:900px;' onclick='finishInvoiceSale();'>Finish Sale</button>";
++ "<button id='button_finish_sale' class='no-print' style='width:150px; height:100px; font-size:30px; position:absolute; top:90px; left:900px; background-color: #70A2FF; color: black;' onclick='finishInvoiceSale();'><span style='color: white;'>F</span>inish Sale</button>";

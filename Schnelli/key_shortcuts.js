@@ -1,37 +1,48 @@
-var _CTRL_HELD = false;
-var _SHIFT_HELD = false;
+// var _CTRL_HELD = false;
+// var _SHIFT_HELD = false;
 var _invoice_history_last_active_element = null;
 var _IMAGE_EVERYWHERE = 0;
 var _IMAGE_DISTRIBUTORS = 1;
 var _selected_imagesource = _IMAGE_EVERYWHERE;
 
-document.addEventListener("keyup", function(event) {
-  if(event.code == KEY_CTRL)
-    _CTRL_HELD = false;
-  if(event.code == KEY_SHIFT)
-    _SHIFT_HELD = false;
-});
+var pressedKeys = {};
+window.onkeyup = function(e) { 
+  pressedKeys[e.code] = false;
+}
+window.onkeydown = function(e) {
+  pressedKeys[e.code] = true; 
+}
+
+// document.addEventListener("keyup", function(event) {
+//   if(event.code == KEY_CTRL)
+//     _CTRL_HELD = false;
+//   if(event.code == KEY_SHIFT)
+//     _SHIFT_HELD = false;
+// });
 
 document.addEventListener("keydown", function(event) {
-    // console.log("|" + event.code + "|");
-    if(event.code == KEY_CTRL)
-      _CTRL_HELD = true;
-    if(event.code == KEY_SHIFT)
-      _SHIFT_HELD = true;
-    if(!_CTRL_HELD && !_SHIFT_HELD)
+    // console.log("|" + event.code + "|" + _focused + "|" + pressedKeys);
+    // if(event.code == KEY_CTRL)
+    //   _CTRL_HELD = true;
+    // if(event.code == KEY_SHIFT)
+    //   _SHIFT_HELD = true;
+    if(!pressedKeys[KEY_CTRL_LEFT] &&  !pressedKeys[KEY_SHIFT_LEFT] &&  !pressedKeys[KEY_ALT_LEFT]
+    && !pressedKeys[KEY_CTRL_RIGHT] && !pressedKeys[KEY_SHIFT_RIGHT] && !pressedKeys[KEY_ALT_RIGHT])
     {    
       if(event.code == KEY_ESCAPE)
       {
         var invoice_history_exit_clicked = false;
-        var ele  = document.getElementById("key_shortcut_index_window");
+        var ele1 = document.getElementById("key_shortcut_index_window");
         var ele2 = document.getElementById("key_shortcut_index_window_edit");
         var ele3 = document.getElementById("key_shortcut_extra_db_sell_window");
         var ele4 = document.getElementById("key_shortcut_extra_db_edit_window");
         var ele5 = document.getElementById("key_shortcut_extra_db_image_window");
         var ele6 = document.getElementById("key_shortcut_invoice_remove_window");
-        if(ele.style.display != "none")
+        var ele7 = document.getElementById("key_shortcut_extra_db_jumpPN_window");
+        var ele8 = document.getElementById("key_shortcut_search_scope_window");
+        if(ele1.style.display != "none")
         {
-          ele.style.display = "none";
+          ele1.style.display = "none";
           _overlay_window_open = false;
         }
         else if(ele2.style.display != "none")
@@ -57,6 +68,16 @@ document.addEventListener("keydown", function(event) {
         else if(ele6.style.display != "none")
         {
           ele6.style.display = "none";
+          _overlay_window_open = false;
+        }
+        else if(ele7.style.display != "none")
+        {
+          ele7.style.display = "none";
+          _overlay_window_open = false;
+        }
+        else if(ele8.style.display != "none")
+        {
+          ele8.style.display = "none";
           _overlay_window_open = false;
         }
         else if(!_focused && _selected_tab == TAB_RECORD_VIEWS && clickRecordView_Image_Exit())
@@ -108,6 +129,7 @@ document.addEventListener("keydown", function(event) {
         if(!_focused)
           setTab(_selected_tab);
         document.activeElement.blur();
+        _focused = false;
         if(_selected_tab == TAB_INVOICE_HISTORY && _invoice_history_last_active_element != null && invoice_history_exit_clicked)
           _invoice_history_last_active_element.focus();
 
@@ -151,10 +173,10 @@ document.addEventListener("keydown", function(event) {
               }
               else if(_selected_tab == TAB_INVOICE_HISTORY)
               {
-                  var ele = document.getElementById("invoicehistory_table_row_" + _table_invoicehistory_selected_row);
-                  if(ele != null && ele.style.display != "none")
+                  var ele1 = document.getElementById("invoicehistory_table_row_" + _table_invoicehistory_selected_row);
+                  if(ele1 != null && ele1.style.display != "none")
                   {
-                    ele.click();
+                    ele1.click();
                     event.preventDefault();
                     _invoice_history_last_active_element = document.activeElement;
                     document.activeElement.blur();
@@ -162,20 +184,20 @@ document.addEventListener("keydown", function(event) {
               }
               else if(_focused && document.activeElement.id == "search_results_max")
               {
-                var ele = document.getElementById("save_search_results_max");
-                if(ele != null)
+                var ele1 = document.getElementById("save_search_results_max");
+                if(ele1 != null)
                 {
                   document.activeElement.blur();
-                  ele.click();
+                  ele1.click();
                 }
               }
               else if(_focused && document.activeElement.id == "record_browser_max")
               {
-                var ele = document.getElementById("save_record_browser_max");
-                if(ele != null)
+                var ele1 = document.getElementById("save_record_browser_max");
+                if(ele1 != null)
                 {
                   document.activeElement.blur();
-                  ele.click();
+                  ele1.click();
                 }
               }
             break;
@@ -265,11 +287,27 @@ document.addEventListener("keydown", function(event) {
                 if(pageUp())
                   event.preventDefault();
               }
+              else if(!_focused && _selected_tab == TAB_RECORD_VIEWS)
+              {
+                if(_record_view_page_list[_selected_record_view] > 1)
+                {
+                  setRecordViewPage(_record_view_page_list[_selected_record_view] - 1, _selected_record_view);
+                }
+                event.preventDefault();
+              }
               break;
             case KEY_PAGE_DOWN:
               if(_isTableSelected){
                 if(pageDown())
-                  event.preventDefault();
+                event.preventDefault();
+              }
+              else if(!_focused && _selected_tab == TAB_RECORD_VIEWS)
+              {
+                if(_record_view_page_list[_selected_record_view] < _RECORDVIEW_MAX_PAGES)
+                {
+                  setRecordViewPage(_record_view_page_list[_selected_record_view] + 1, _selected_record_view);
+                }
+                event.preventDefault();
               }
             break;
             case KEY_HOME:
@@ -293,47 +331,53 @@ document.addEventListener("keydown", function(event) {
                 document.getElementById("search_input").focus();
                 event.preventDefault();
               }
+              else if(!_focused && _key_shortcut_compare_record_views_available)
+              {
+                var ele1 = document.getElementById("radio_record_views_compareall");
+                if(ele1 != null)
+                  ele1.click();
+              }
               else if(!_focused && _selected_tab == TAB_RECORD_BROWSER)
               {
-                var ele = document.getElementById("button_record_browser_add_new_part");
-                if(ele != null)
+                var ele1 = document.getElementById("button_record_browser_add_new_part");
+                if(ele1 != null)
                 {
-                  ele.click();
+                  ele1.click();
                   event.preventDefault();
                 }
               }
               else if(!_focused && _selected_tab == TAB_PART_CHILD_RECORD_MANAGER)
               {
-                var ele = document.getElementById("part_child_button_new");
-                if(ele != null)
+                var ele1 = document.getElementById("part_child_button_new");
+                if(ele1 != null)
                 {
-                  ele.click();
+                  ele1.click();
                   event.preventDefault();
-                  ele = document.getElementById("partchild_new_input_PN");
-                  if(ele != null)
-                    ele.focus();
+                  ele1 = document.getElementById("partchild_new_input_PN");
+                  if(ele1 != null)
+                    ele1.focus();
                 }
               }
               else if(!_focused && _key_shortcut_sort_order_new_available)
               {
-                var ele = document.getElementById("button_add_sort_order");
-                if(ele != null && ele.style.display != "none")
+                var ele1 = document.getElementById("button_add_sort_order");
+                if(ele1 != null && ele1.style.display != "none")
                 {
-                  ele.click();
+                  ele1.click();
                   event.preventDefault();
-                  ele = document.getElementById("sort_order_name_0");
-                  if(ele != null && ele.style.display != "none")
-                    ele.focus();
+                  ele1 = document.getElementById("sort_order_name_0");
+                  if(ele1 != null && ele1.style.display != "none")
+                    ele1.focus();
                 }
               }
               else if(_selected_tab == TAB_PDF_IMPORT)
               {
                 if(!_focused || document.activeElement.id == "pdf_ordered_" + _table_pdf_import_selected_row)
                 {
-                  var ele = document.getElementById("startAddToDatabaseButton_" + _table_pdf_import_selected_row);
-                  if(ele != null)
+                  var ele1 = document.getElementById("startAddToDatabaseButton_" + _table_pdf_import_selected_row);
+                  if(ele1 != null)
                   {
-                    ele.click();
+                    ele1.click();
                     event.preventDefault();
                   }
                 }
@@ -349,28 +393,28 @@ document.addEventListener("keydown", function(event) {
                 setTab(TAB_RECORD_BROWSER);
               else if(!_focused && _selected_tab == TAB_SEARCH_RESULTS)
               {
-                var ele = document.getElementById("button_search_results_jump_bottom");
-                if(ele != null)
-                  ele.click();
+                var ele1 = document.getElementById("button_search_results_jump_bottom");
+                if(ele1 != null)
+                  ele1.click();
               }
               else if(!_focused && _key_shortcuts_record_view_available)
               {
-                var ele = document.getElementById("button_record_view_jump_to_browser_" + _selected_record_view);
-                if(ele != null)
-                  ele.click();
+                var ele1 = document.getElementById("button_record_view_jump_to_browser_" + _selected_record_view);
+                if(ele1 != null)
+                  ele1.click();
               }
               else if(!_focused && _selected_tab == TAB_RECORD_BROWSER)
               {
-                var ele = document.getElementById("button_record_browser_jump_bottom");
-                if(ele != null)
-                  ele.click();
+                var ele1 = document.getElementById("button_record_browser_jump_bottom");
+                if(ele1 != null)
+                  ele1.click();
               }
               else if(!_focused && _selected_tab == TAB_PDF_IMPORT)
               {
-                var ele = document.getElementById("import_wlmay_pdf_input");
-                if(ele != null && _key_shortcut_pdfimport_browse_available)
+                var ele1 = document.getElementById("import_wlmay_pdf_input");
+                if(ele1 != null && _key_shortcut_pdfimport_browse_available)
                 {
-                  ele.click();
+                  ele1.click();
                 }
               }
               else if(!_focused && _selected_tab == TAB_REORDERS)
@@ -383,10 +427,10 @@ document.addEventListener("keydown", function(event) {
                 document.getElementById("search_add_child_part_links").click();
               else if(!_focused && _selected_tab == TAB_RECORD_BROWSER && _key_shortcut_copy_part_available)
               {
-                var ele = document.getElementById("copy_icon_" + (_selectedRow - _currentRecordBrowserStartIndex));
-                if(ele != null)
+                var ele1 = document.getElementById("copy_icon_" + (_selectedRow - _currentRecordBrowserStartIndex));
+                if(ele1 != null)
                 {
-                  ele.click();
+                  ele1.click();
                   event.preventDefault();
                 }
                 deselectTable();
@@ -501,6 +545,7 @@ document.addEventListener("keydown", function(event) {
                 checkForRecordViewImageButtons();
               }
               break;
+              break;
             case KEY_E:
               if(shortcutmenu_mainmenu_available)
               {
@@ -525,9 +570,9 @@ document.addEventListener("keydown", function(event) {
                 }
                 else if(_key_shortcut_edit_part_available) //Edit row
                 {
-                  var ele = document.getElementById("edit_icon_" + (_selectedRow - _currentRecordBrowserStartIndex));
-                  if(ele != null){
-                    ele.click();
+                  var ele1 = document.getElementById("edit_icon_" + (_selectedRow - _currentRecordBrowserStartIndex));
+                  if(ele1 != null){
+                    ele1.click();
                     event.preventDefault();
                   }
                   deselectTable();
@@ -547,20 +592,20 @@ document.addEventListener("keydown", function(event) {
             case KEY_F:
               if(!_focused && _selected_tab == TAB_INVOICE_HISTORY)
               {
-                var ele = document.getElementById("invoice_history_filter_time");
-                if(ele != null && ele.style.display != "none")
+                var ele1 = document.getElementById("invoice_history_filter_time");
+                if(ele1 != null && ele1.style.display != "none")
                 {
-                  ele.focus();
-                  ele.select();
+                  ele1.focus();
+                  ele1.select();
                   event.preventDefault();
                 }
               }
               else if(!_focused && _selected_tab == TAB_INVOICE)
               {
-                var ele = document.getElementById("button_finish_sale");
-                if(ele != null && ele.style.display != "none")
+                var ele1 = document.getElementById("button_finish_sale");
+                if(ele1 != null && ele1.style.display != "none")
                 {
-                  ele.click();
+                  ele1.click();
                   event.preventDefault();
                 }
               }
@@ -610,10 +655,10 @@ document.addEventListener("keydown", function(event) {
                 setTab(TAB_PART_CHILD_RECORD_MANAGER);
               else if(!_focused && _selected_tab == TAB_PART_CHILD_RECORD_MANAGER)
               {
-                var ele = document.getElementById("part_child_edit_input");
-                if(ele != null)
+                var ele1 = document.getElementById("part_child_edit_input");
+                if(ele1 != null)
                 {
-                  ele.focus();
+                  ele1.focus();
                   event.preventDefault();
                 }
               }
@@ -632,13 +677,18 @@ document.addEventListener("keydown", function(event) {
                 if(clickInvoice_Print())
                   event.preventDefault();
               }
+              else if(!_focused && _selected_tab == TAB_SEARCH)
+              {
+                document.getElementById("search_ignore_special_characters").click();
+                event.preventDefault();
+              }
               break;
             case KEY_Q:
               if(!_focused && _key_shortcut_compare_record_views_available)
               {
-                var ele = document.getElementById("radio_record_views_differences");
-                if(ele != null)
-                  ele.click();
+                var ele1 = document.getElementById("radio_record_views_differences");
+                if(ele1 != null)
+                  ele1.click();
               }
               break;
             case KEY_R:
@@ -651,14 +701,18 @@ document.addEventListener("keydown", function(event) {
               }
               else if(!_focused && _key_shortcut_edit_record_view_whole_available)
               {
-                  var ele = document.getElementById("record_view_data_edit_icon_" + _selected_record_view);
-                  if(ele != null)
+                  var ele1 = document.getElementById("record_view_data_edit_icon_" + _selected_record_view);
+                  if(ele1 != null && ele1.style.display != "none")
                   {
-                      ele.click();
+                      ele1.click();
                       event.preventDefault();
                   }
               }
               else if(!_focused && _key_shortcut_record_browser_sort_by_column)
+              {
+                sortContentByIndex(_INDEX_ORDER[_selectedCell]);
+              }
+              else if(!_focused && _key_shortcut_search_results_sort_by_column)
               {
                 sortContentByIndex(_INDEX_ORDER[_selectedCell]);
               }
@@ -668,7 +722,7 @@ document.addEventListener("keydown", function(event) {
               }
               else if(!_focused && _key_shortcut_invoice_remove_available)
               {
-                var ele = document.getElementById("key_shortcut_invoice_remove_window");
+                var ele1 = document.getElementById("key_shortcut_invoice_remove_window");
                 var inc = 0;
                 var ele2 = document.getElementById("invoice_input_desc_" + inc);
                 var text = "";
@@ -680,9 +734,9 @@ document.addEventListener("keydown", function(event) {
                 }
                 if(inc > 0)
                 {
-                  ele.style.display = "";
+                  ele1.style.display = "";
                   _overlay_window_open = true;
-                  ele.innerHTML = text;
+                  ele1.innerHTML = text;
                 }
               }
               break;
@@ -697,22 +751,32 @@ document.addEventListener("keydown", function(event) {
                 }
                 else
                 {
-                  document.getElementById("search_input_0").focus();
+                  var ele1 = document.getElementById("search_input_" + _INDEX_ORDER[0]);
+                  if(ele1 != null && document.getElementById("radio_columns_div").style.display != "none")
+                  {
+                    ele1.focus();
+                    ele1.select();    
+                  }
                   event.preventDefault();
                 }
               }
               else if(!_focused && _selected_tab == TAB_SEARCH)
               {
                 document.getElementById("radio_columns_specific").click();
-                document.getElementById("search_input_0").focus();
+                var ele1 = document.getElementById("search_input_" + _INDEX_ORDER[0]);
+                if(ele1 != null && document.getElementById("radio_columns_div").style.display != "none")
+                {
+                  ele1.focus();
+                  ele1.select();    
+                }
                 event.preventDefault();
               }
               else if(!_focused && _selected_tab == TAB_SEARCH_RESULTS)
               {
-                var ele = document.getElementById("search_results_max");
-                if(ele != null)
+                var ele1 = document.getElementById("search_results_max");
+                if(ele1 != null)
                 {
-                  ele.focus();
+                  ele1.focus();
                   event.preventDefault();
                 }
               }
@@ -775,22 +839,22 @@ document.addEventListener("keydown", function(event) {
             case KEY_T:
               if(!_focused && _selected_tab == TAB_SEARCH_RESULTS)
               {
-                var ele = document.getElementById("button_search_results_jump_top");
-                if(ele != null)
-                  ele.click();
+                var ele1 = document.getElementById("button_search_results_jump_top");
+                if(ele1 != null)
+                  ele1.click();
               }
               else if(!_focused && _selected_tab == TAB_RECORD_BROWSER)
               {
-                var ele = document.getElementById("button_record_browser_jump_top");
-                if(ele != null)
-                  ele.click();
+                var ele1 = document.getElementById("button_record_browser_jump_top");
+                if(ele1 != null)
+                  ele1.click();
               }
               else if(!_focused && _selected_tab == TAB_PART_CHILD_RECORD_MANAGER)
               {
-                var ele = document.getElementById("part_child_dropdown_select");
-                if(ele != null)
+                var ele1 = document.getElementById("part_child_dropdown_select");
+                if(ele1 != null)
                 {
-                  ele.focus();
+                  ele1.focus();
                   event.preventDefault();
                 }
               }
@@ -836,26 +900,26 @@ document.addEventListener("keydown", function(event) {
               case KEY_W:
                 if(!_focused && _key_shortcut_compare_record_views_available)
                 {
-                  var ele = document.getElementById("radio_record_views_similarities");
-                  if(ele != null)
-                    ele.click();
+                  var ele1 = document.getElementById("radio_record_views_similarities");
+                  if(ele1 != null)
+                    ele1.click();
                 }
                 break;
               case KEY_X:
                 if(!_focused && _key_shortcuts_record_view_available)
                 {
-                  var ele = document.getElementById("button_record_view_exit_" + _selected_record_view);
-                  if(ele != null)
-                    ele.click();
+                  var ele1 = document.getElementById("button_record_view_exit_" + _selected_record_view);
+                  if(ele1 != null)
+                    ele1.click();
                 }
                 break;
               case KEY_Z:
                   if(!_focused && _selected_tab == TAB_RECORD_BROWSER)
                   {
-                    var ele = document.getElementById("record_browser_max");
-                    if(ele != null)
+                    var ele1 = document.getElementById("record_browser_max");
+                    if(ele1 != null)
                     {
-                      ele.focus();
+                      ele1.focus();
                       event.preventDefault();
                     }
                   }
@@ -864,98 +928,98 @@ document.addEventListener("keydown", function(event) {
                 if(!_focused && _key_shortcut_sort_order_edit_addremove_available)
                 {
                   var inc = 1;
-                  var ele = document.getElementById("button_sortorder_edit_minus_" + _current_sort_order_editing + "_" + inc);
+                  var ele1 = document.getElementById("button_sortorder_edit_minus_" + _current_sort_order_editing + "_" + inc);
                   var lastele = null;
-                  while(ele != null)
+                  while(ele1 != null)
                   {
-                    lastele = ele;
+                    lastele = ele1;
                     ++inc;
-                    ele = document.getElementById("button_sortorder_edit_minus_" + _current_sort_order_editing + "_" + inc);
+                    ele1 = document.getElementById("button_sortorder_edit_minus_" + _current_sort_order_editing + "_" + inc);
                   }
                   if(lastele != null && lastele.style.display != "none")
                   {
                     lastele.click();
                     event.preventDefault();
-                    ele = document.getElementById("sort_order_select_" + _current_sort_order_editing + "_" + (inc - 2));
-                    if(ele != null && ele.style.display != "none")
-                      ele.focus();
+                    ele1 = document.getElementById("sort_order_select_" + _current_sort_order_editing + "_" + (inc - 2));
+                    if(ele1 != null && ele1.style.display != "none")
+                      ele1.focus();
                   }
                 }
                 else if(!_focused && _key_shortcut_sort_order_new_addremove_available)
                 {
                   var inc = 1;
-                  var ele = document.getElementById("button_sortorder_edit_minus_0_" + inc);
+                  var ele1 = document.getElementById("button_sortorder_edit_minus_0_" + inc);
                   var lastele = null;
-                  while(ele != null)
+                  while(ele1 != null)
                   {
-                    lastele = ele;
+                    lastele = ele1;
                     ++inc;
-                    ele = document.getElementById("button_sortorder_edit_minus_0_" + inc);
+                    ele1 = document.getElementById("button_sortorder_edit_minus_0_" + inc);
                   }
                   if(lastele != null && lastele.style.display != "none")
                   {
                     lastele.click();
                     event.preventDefault();
-                    ele = document.getElementById("sort_order_select_0_" + (inc - 2));
-                    if(ele != null && ele.style.display != "none")
-                      ele.focus();
+                    ele1 = document.getElementById("sort_order_select_0_" + (inc - 2));
+                    if(ele1 != null && ele1.style.display != "none")
+                      ele1.focus();
                   }
                 }
                 else if(!_focused && _selected_tab == TAB_RECORD_VIEWS)
                 {
-                  var ele = document.getElementById("div_recordview_collapser_" + _selected_record_view);
+                  var ele1 = document.getElementById("div_recordview_collapser_" + _selected_record_view);
                   var ele2 = document.getElementById("record_view_details_" + _selected_record_view + "_div");
-                  if(ele != null && ele.style.display != "none" && ele2 != null && ele2.style.display != "none")
-                    ele.click();
+                  if(ele1 != null && ele1.style.display != "none" && ele2 != null && ele2.style.display != "none")
+                    ele1.click();
                 }
                 break;
                 case KEY_PLUS:
                 if(!_focused && _key_shortcut_sort_order_edit_addremove_available)
                 {
                   var inc = 0;
-                  var ele = document.getElementById("button_sortorder_edit_plus_" + _current_sort_order_editing + "_" + inc);
+                  var ele1 = document.getElementById("button_sortorder_edit_plus_" + _current_sort_order_editing + "_" + inc);
                   var lastele = null;
-                  while(ele != null)
+                  while(ele1 != null)
                   {
-                    lastele = ele;
+                    lastele = ele1;
                     ++inc;
-                    ele = document.getElementById("button_sortorder_edit_plus_" + _current_sort_order_editing + "_" + inc);
+                    ele1 = document.getElementById("button_sortorder_edit_plus_" + _current_sort_order_editing + "_" + inc);
                   }
                   if(lastele != null && lastele.style.display != "none")
                   {
                     lastele.click();
                     event.preventDefault();
-                    ele = document.getElementById("sort_order_select_" + _current_sort_order_editing + "_" + inc);
-                    if(ele != null && ele.style.display != "none")
-                      ele.focus();
+                    ele1 = document.getElementById("sort_order_select_" + _current_sort_order_editing + "_" + inc);
+                    if(ele1 != null && ele1.style.display != "none")
+                      ele1.focus();
                   }
                 }
                 else if(!_focused && _key_shortcut_sort_order_new_addremove_available)
                 {
                   var inc = 0;
-                  var ele = document.getElementById("button_sortorder_edit_plus_0_" + inc);
+                  var ele1 = document.getElementById("button_sortorder_edit_plus_0_" + inc);
                   var lastele = null;
-                  while(ele != null)
+                  while(ele1 != null)
                   {
-                    lastele = ele;
+                    lastele = ele1;
                     ++inc;
-                    ele = document.getElementById("button_sortorder_edit_plus_0_" + inc);
+                    ele1 = document.getElementById("button_sortorder_edit_plus_0_" + inc);
                   }
                   if(lastele != null && lastele.style.display != "none")
                   {
                     lastele.click();
                     event.preventDefault();
-                    ele = document.getElementById("sort_order_select_0_" + inc);
-                    if(ele != null && ele.style.display != "none")
-                      ele.focus();
+                    ele1 = document.getElementById("sort_order_select_0_" + inc);
+                    if(ele1 != null && ele1.style.display != "none")
+                      ele1.focus();
                   }
                 }
                 else if(!_focused && _selected_tab == TAB_RECORD_VIEWS)
                 {
-                  var ele = document.getElementById("div_recordview_collapser_" + _selected_record_view);
+                  var ele1 = document.getElementById("div_recordview_collapser_" + _selected_record_view);
                   var ele2 = document.getElementById("record_view_details_" + _selected_record_view + "_div");
-                  if(ele != null && ele.style.display != "none" && ele2 != null && ele2.style.display == "none")
-                    ele.click();
+                  if(ele1 != null && ele1.style.display != "none" && ele2 != null && ele2.style.display == "none")
+                    ele1.click();
                 }
                 break;
         }
@@ -986,15 +1050,15 @@ document.addEventListener("keydown", function(event) {
             {
               document.getElementById("key_shortcut_index_window_edit").style.display = "none";
               _overlay_window_open = false;
-              var ele = document.getElementById("sort_order_edit_icon_" + i);
-              if(ele != null && ele.style.display != "none")
+              var ele1 = document.getElementById("sort_order_edit_icon_" + i);
+              if(ele1 != null && ele1.style.display != "none")
               {
-                ele.click();
-                ele = document.getElementById("sort_order_name_" + (i + 1));
-                if(ele != null)
+                ele1.click();
+                ele1 = document.getElementById("sort_order_name_" + (i + 1));
+                if(ele1 != null)
                 {
-                  ele.focus();
-                  ele.select();
+                  ele1.focus();
+                  ele1.select();
                 }
               }
               setKeyboardShortcutBar();
@@ -1007,12 +1071,12 @@ document.addEventListener("keydown", function(event) {
         {
           for(var i = 0; i < _EXTRA_DB_COMMENTS_PREFIXES.length; ++i)
           {
-            var ele = document.getElementById("sell_button_" + _selected_record_view + "_" + i);
-            if(event.code == "Key" + _EXTRA_DB_COMMENTS_PREFIXES[i] && ele != null && ele.style.display != "none")
+            var ele1 = document.getElementById("sell_button_" + _selected_record_view + "_" + i);
+            if(event.code == "Key" + _EXTRA_DB_COMMENTS_PREFIXES[i] && ele1 != null && ele1.style.display != "none")
             {
               document.getElementById("key_shortcut_extra_db_sell_window").style.display = "none"
               _overlay_window_open = false;
-              ele.click();
+              ele1.click();
               setKeyboardShortcutBar();
               event.preventDefault();
               break;
@@ -1023,12 +1087,12 @@ document.addEventListener("keydown", function(event) {
         {
           for(var i = 0; i < _EXTRA_DB_COMMENTS_PREFIXES.length; ++i)
           {
-            var ele = document.getElementById("record_view_partnum_edit_icon_" + _selected_record_view + "_" + i);
-            if(event.code == "Key" + _EXTRA_DB_COMMENTS_PREFIXES[i] && ele != null && ele.style.display != "none")
+            var ele1 = document.getElementById("record_view_partnum_edit_icon_" + _selected_record_view + "_" + i);
+            if(event.code == "Key" + _EXTRA_DB_COMMENTS_PREFIXES[i] && ele1 != null && ele1.style.display != "none")
             {
               document.getElementById("key_shortcut_extra_db_edit_window").style.display = "none"
               _overlay_window_open = false;
-              ele.click();
+              ele1.click();
               setKeyboardShortcutBar();
               event.preventDefault();
               break;
@@ -1039,16 +1103,16 @@ document.addEventListener("keydown", function(event) {
         {
           for(var i = 0; i < _EXTRA_DB_COMMENTS_PREFIXES.length; ++i)
           {
-            var ele;
+            var ele1;
             if(_selected_imagesource == _IMAGE_EVERYWHERE)
-              ele = document.getElementById("button_recordview_image_everywhere_"   + _selected_record_view + "_" + i);
+              ele1 = document.getElementById("button_recordview_image_everywhere_"   + _selected_record_view + "_" + i);
             else
-              ele = document.getElementById("button_recordview_image_distributors_" + _selected_record_view + "_" + i);
-            if(event.code == "Key" + _EXTRA_DB_COMMENTS_PREFIXES[i] && ele != null && ele.style.display != "none")
+              ele1 = document.getElementById("button_recordview_image_distributors_" + _selected_record_view + "_" + i);
+            if(event.code == "Key" + _EXTRA_DB_COMMENTS_PREFIXES[i] && ele1 != null && ele1.style.display != "none")
             {
               document.getElementById("key_shortcut_extra_db_image_window").style.display = "none"
               _overlay_window_open = false;
-              ele.click();
+              ele1.click();
               setKeyboardShortcutBar();
               event.preventDefault();
               break;
@@ -1059,12 +1123,12 @@ document.addEventListener("keydown", function(event) {
         {
           for(var i = 0; i < _EXTRA_DB_COMMENTS_PREFIXES.length; ++i)
           {
-            var ele = document.getElementById("span_recordviews_jump_to_child_part_" + _selected_record_view + "_" + i);
-            if(event.code == "Key" + _EXTRA_DB_COMMENTS_PREFIXES[i] && ele != null && ele.style.display != "none")
+            var ele1 = document.getElementById("span_recordviews_jump_to_child_part_" + _selected_record_view + "_" + i);
+            if(event.code == "Key" + _EXTRA_DB_COMMENTS_PREFIXES[i] && ele1 != null && ele1.style.display != "none")
             {
               document.getElementById("key_shortcut_extra_db_jumpPN_window").style.display = "none"
               _overlay_window_open = false;
-              ele.click();
+              ele1.click();
               setKeyboardShortcutBar();
               event.preventDefault();
               break;
@@ -1075,20 +1139,45 @@ document.addEventListener("keydown", function(event) {
         {
           for(var i = 1; i < 10; ++i)
           {
-            var ele = document.getElementById("button_invoice_remove_" + (i - 1));
-            if(event.code == "Digit" + i && ele != null && ele.style.display != "none")
+            var ele1 = document.getElementById("button_invoice_remove_" + (i - 1));
+            if(event.code == "Digit" + i && ele1 != null && ele1.style.display != "none")
             {
               document.getElementById("key_shortcut_invoice_remove_window").style.display = "none"
               _overlay_window_open = false;
-              ele.click();
+              ele1.click();
               setKeyboardShortcutBar();
               event.preventDefault();
               break;
             }
           }
         }
+        else if(document.getElementById("key_shortcut_search_scope_window").style.display != "none")
+        {
+          var hide = false;
+          switch(event.code)
+          {
+            case "Digit1":
+              searchQueryScope(_SEARCHSCOPE_NEW);
+              hide = true;
+              break;
+            case "Digit2":
+              searchQueryScope(_SEARCHSCOPE_CURRENT);
+              hide = true;
+              break;
+          }
+          if(hide)
+          {
+            document.getElementById("key_shortcut_search_scope_window").style.display = "none";
+            _overlay_window_open = false;
+            event.preventDefault();
+          }
+        }
       }
       if(!_focused)
         setKeyboardShortcutBar();
     } //End !ctrl and !shift
+    if(event.code == KEY_ESCAPE)
+    {
+      pressedKeys = {};
+    }
   });

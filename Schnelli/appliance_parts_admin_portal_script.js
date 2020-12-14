@@ -5,21 +5,21 @@ if(_LOCAL_MODE)
 }
 
 var _overlay_window_open = false;
-var _INDEX_ORDER = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38,   76, 77, 78, 79,   39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75];
+var _INDEX_ORDER = [20, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38,   76, 77, 78, 79,   39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 0];
 var _INDEXES = ["RECORD_NUMBER","DESCRIP1","DESCRIP2","COMMENTS","EQUIP_TYPE","EQUIP_DSGN","APPL_BRAND","APPL_MFR","PART_TYPE","B_PN",   "CHLX_PN","F_PN",   "GEM_PN", "RS_PN",  "MM_PN",  "JS_PN",  "K_PN",   "L_PN",   "M_PN",   "N_PN",   "OEM_PN", "PART_NUMBR", "Q_PN",   "SOURCE", "UNIT",   "KEEP",   "REORD_QTY","GET",    "PICKED", "TAG",    "FROM",   "CGS",    "DATE",   "FRT_IN", "QUESTIONS","MODIFIED","NEW",    "NEWER",  "LOCATION","SPECMETHOD","SPEC01NAME","SPEC01HINT","SPEC01DATA","SPEC02NAME","SPEC02HINT","SPEC02DATA","SPEC03NAME","SPEC03HINT","SPEC03DATA","SPEC04NAME","SPEC04HINT","SPEC04DATA","SPEC05NAME","SPEC05HINT","SPEC05DATA","SPEC06NAME","SPEC06HINT","SPEC06DATA","SPEC07NAME","SPEC07HINT","SPEC07DATA","SPEC08NAME","SPEC08HINT","SPEC08DATA","SPEC09NAME","SPEC09HINT","SPEC09DATA","SPEC10NAME","SPEC10HINT","SPEC10DATA","SPEC11NAME","SPEC11HINT","SPEC11DATA","SPEC12NAME","SPEC12HINT","SPEC12DATA"];
 var _INDEX_WIDTHS = ["initial",  "200px",   "200px",   "400px",   "initial",   "initial",   "initial",   "initial", "initial",  "initial","initial","initial","initial","initial","initial","initial","initial","initial","initial","initial","initial","initial",    "initial","initial","initial","initial","initial",  "initial","initial","initial","initial","initial","initial","initial","initial",  "initial", "initial","initial","initial", "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial",   "initial"   ];
 var _MEMO_INDEXES = ["LOOK_UP_PN", "ADVICE", "ATTN", "MODEL"]; //76, 77, 78, 79 LOCATION = 38
 var _MEMO_INDEX_WIDTHS = ["400px",  "400px",  "400px","400px"];
 var _WORDS_TO_IGNORE = ["the","at","there","some","my","of","be","use","her","than","and","this","an","would","a","have","each","make","to","from","which","like","been","in","or","she","him","call","is","one","do","into","who","you","had","how","time","that","by","their","has","its","it","word","if","look","now","he","but","will","two","find","was","not","up","more","for","what","down","on","all","about","go","day","are","were","out","see","did","as","we","get","with","when","then","no","come","his","your","them","way","made","they","can","these","could","may","i","said","so"];
-var _EXTRA_DB_FIELDS = /*B_DNI*/ [["PN","AKA","PART_NUMBR","COMMON_PN","DESCRIP1","COMMENTS","PART_MFR","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT","POST_APPND"]
-                       /*CHLX*/ , ["PN","AKA","PART_NUMBR",            "DESCRIP1","COMMENTS","PART_MFR","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
-                       /*DNI*/  , ["PN","AKA","PART_NUMBR",            "DESCRIP1","COMMENTS","APPL_MFR","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","COMMON_PN","CGS","FROM","DATE","OEM_PN2","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT","POST_APPND"]
-                       /*F*/    , ["PN","AKA","PART_NUMBR",            "DESCRIP1","COMMENTS","PART_MFR","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
-                       /*GEM*/  , ["PN","AKA","PART_NUMBR",            "DESCRIP1","COMMENTS","GEM_ID","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
-                       /*H_RS*/ , ["PN","AKA","PART_NUMBR",            "DESCRIP1","COMMENTS","RS_ID","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
-                       /*I_MM*/ , ["PN","AKA","PART_NUMBR",            "DESCRIP1","COMMENTS","MM_ID","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
-                       /*JS*/   , ["PN","JS_LINE_PN","PART_NUMBR",     "DESCRIP1","COMMENTS","JS_LINE","JS_ID","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER","CGS","FROM","DATE","OEM_PN","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
-                       /*OEM*/  , ["PN","AKA","PART_NUMBR",            "DESCRIP1","COMMENTS","APPL_MFR","VEND","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","COMMON_PN","CGS","FROM","DATE","OEM_PN2","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT","POST_APPND"]];
+var _EXTRA_DB_FIELDS = /*B_DNI*/ [["PN","AKA",       "PART_NUMBR","COMMON_PN","DESCRIP1","COMMENTS","PART_MFR","VEND", "CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER",    "CGS","FROM","DATE","OEM_PN", "CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT","POST_APPND"]
+                       /*CHLX*/ , ["PN","AKA",       "PART_NUMBR",            "DESCRIP1","COMMENTS","PART_MFR","VEND", "CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER",    "CGS","FROM","DATE","OEM_PN", "CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
+                       /*DNI*/  , ["PN","AKA",       "PART_NUMBR",            "DESCRIP1","COMMENTS","APPL_MFR","VEND", "CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","COMMON_PN","CGS","FROM","DATE","OEM_PN2","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT","POST_APPND"]
+                       /*F*/    , ["PN","AKA",       "PART_NUMBR",            "DESCRIP1","COMMENTS","PART_MFR","VEND", "CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER",    "CGS","FROM","DATE","OEM_PN", "CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
+                       /*GEM*/  , ["PN","AKA",       "PART_NUMBR",            "DESCRIP1","COMMENTS","GEM_ID",  "VEND", "CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER",    "CGS","FROM","DATE","OEM_PN", "CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
+                       /*H_RS*/ , ["PN","AKA",       "PART_NUMBR",            "DESCRIP1","COMMENTS","RS_ID",   "VEND", "CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER",    "CGS","FROM","DATE","OEM_PN", "CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
+                       /*I_MM*/ , ["PN","AKA",       "PART_NUMBR",            "DESCRIP1","COMMENTS","MM_ID",   "VEND", "CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER",    "CGS","FROM","DATE","OEM_PN", "CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
+                       /*JS*/   , ["PN","JS_LINE_PN","PART_NUMBR",            "DESCRIP1","COMMENTS","JS_LINE", "JS_ID","CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","OTHER",    "CGS","FROM","DATE","OEM_PN", "CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT"]
+                       /*OEM*/  , ["PN","AKA",       "PART_NUMBR",            "DESCRIP1","COMMENTS","APPL_MFR","VEND", "CAT","PAGE","SPL","SPL_DATE","SPL_FROM","LOT_CT","LOT_PR","LOT_FROM","REG","REG_DATE","REG_FROM","SUGG","VEND_RET","SHOP_QTY","TRK1_QTY","TRK2_QTY","TRK3_QTY","USED_QTY","LOCATION","COMMON_PN","CGS","FROM","DATE","OEM_PN2","CALCULATED","FIXED","SELL","ZOOM","SOLD_YTD","SOLD_DATE","SOLD_AMT","POST_APPND"]];
 
 var _EXTRA_DB =                   ["B_DNI", "CHLX",    "DNI",  "F",    "GEM",    "H_RS",  "I_MM",  "JS",    "OEM"];
 var _EXTRA_DB_ACTUAL_INDEXES =    ["B_PN",  "CHLX_PN", "Q_PN", "F_PN", "GEM_PN", "RS_PN", "MM_PN", "JS_PN", "OEM_PN"];
@@ -27,10 +27,12 @@ var _EXTRA_DB_COMMENTS_PREFIXES = ["B",     "C",       "D",    "F",    "G",     
 var _CONTENT_EXTRA_DB_INDEXES =   [ 9,       10,        22,     11,     12,       13,      14,      15,      20];
 
 var RECORD_VIEW_DB_HEADER_WIDTH = "150px";
-var RECORD_VIEW_HEADERS =                 ["MFR",                                                         "PART#", "S",          "LOC",        "T1",         "T2",         "U",           "VEND",   "DATE",   "CGS",   "RETAIL",     "SELL",  "COMMENT"];
-var RECORD_VIEW_HEADERS_WIDTHS =          ["100px",                                                       "300px", "70px",       "100px",      "70px",       "70px",       "70px",        "100px",  "200px",  "100px", "100px",      "100px", "50px"];
+var RECORD_VIEW_HEADERS_PAGE1 =                 ["MFR",                                                         "PART#", "S",          "LOC",        "T1",         "T2",         "U",           "VEND",   "DATE",   "CGS",   "RETAIL",     "SELL",  "COMMENT"];
+var RECORD_VIEW_HEADERS_WIDTHS_PAGE1 =          ["100px",                                                       "300px", "70px",       "100px",      "70px",       "70px",       "70px",        "100px",  "200px",  "100px", "100px",      "100px", "50px"];
+var RECORD_VIEW_HEADERS_PAGE2 =                 ["MFR",                                                         "PART#", "AKA",        "MFR",        "DATE",       "CGS",        "SUGG",        "FIXED",  "SELL",   "COMMENT"];
+var RECORD_VIEW_HEADERS_WIDTHS_PAGE2 =          ["100px",                                                       "300px", "70px",       "100px",      "70px",       "70px",       "70px",        "100px",  "200px",  "100px"];
 // var RECORD_VIEW_HEADERS_ACTUAL_INDEXES = [["PART_MFR", "GEM_ID", "RS_ID", "MM_ID", "JS_ID", "APPL_MFR"], ["PN"],  ["SHOP_QTY"], ["LOCATION"], ["TRK1_QTY"], ["TRK2_QTY"], ["USED_QTY"],  ["FROM"], ["DATE"], ["CGS"], ["VEND_RET"], ["SELL"]];
-var RECORD_VIEW_HEADERS_ACTUAL_INDEXES = [
+var RECORD_VIEW_HEADERS_ACTUAL_INDEXES_PAGE1 = [
  ["PART_MFR", "PART_MFR", "APPL_MFR", "PART_MFR", "GEM_ID", "RS_ID", "MM_ID", "JS_ID", "APPL_MFR"], 
  ["PN","PN","PN","PN","PN","PN","PN","PN","PN"],  
  ["SHOP_QTY","SHOP_QTY","SHOP_QTY","SHOP_QTY","SHOP_QTY","SHOP_QTY","SHOP_QTY","SHOP_QTY","SHOP_QTY"],
@@ -46,24 +48,43 @@ var RECORD_VIEW_HEADERS_ACTUAL_INDEXES = [
  ["COMMENTS","COMMENTS","COMMENTS","COMMENTS","COMMENTS","COMMENTS","COMMENTS","COMMENTS","COMMENTS"]
 ];
 
-var _DESCRIP1 =     1;
-var _DESCRIP2 =     2;
-var _COMMENTS =     3;
-var _EQUIP_TYPE =   4;
-var _EQUIP_DESIGN = 5;
-var _APPL_BRAND =   6;
-var _PART_NUMBR =  21;
-var _SOURCE =      23;
-var _KEEP =        25;
-var _REORD_QTY =   26;
-var _GET =         27;
-var _FROM =        30;
-var _MODIFIED =    35;
-var _LOCATION =    38;
-var _LOOK_UP_PN =  76;
-var _ADVICE =      77;
-var _ATTN =        78;
-var _MODEL =       79;
+var RECORD_VIEW_HEADERS_ACTUAL_INDEXES_PAGE2 = [
+  ["PART_MFR", "PART_MFR", "APPL_MFR", "PART_MFR", "GEM_ID", "RS_ID", "MM_ID", "JS_ID", "APPL_MFR"], 
+  ["PN","PN","PN","PN","PN","PN","PN","PN","PN"],  
+  ["AKA","AKA","AKA","AKA","AKA","AKA","AKA","JS_LINE_PN","AKA"],
+  ["REG_FROM","REG_FROM","REG_FROM","REG_FROM","REG_FROM","REG_FROM","REG_FROM","REG_FROM","REG_FROM"], 
+  ["REG_DATE","REG_DATE","REG_DATE","REG_DATE","REG_DATE","REG_DATE","REG_DATE","REG_DATE","REG_DATE"], 
+  ["REG","REG","REG","REG","REG","REG","REG","REG","REG"],
+  ["SUGG","SUGG","SUGG","SUGG","SUGG","SUGG","SUGG","SUGG","SUGG"],  
+  ["FIXED","FIXED","FIXED","FIXED","FIXED","FIXED","FIXED","FIXED","FIXED"], //?
+  ["SELL","SELL","SELL","SELL","SELL","SELL","SELL","SELL","SELL"],
+  ["COMMENTS","COMMENTS","COMMENTS","COMMENTS","COMMENTS","COMMENTS","COMMENTS","COMMENTS","COMMENTS"]
+ ];
+
+var _RECORD_NUMBER = 0;
+var _DESCRIP1 =      1;
+var _DESCRIP2 =      2;
+var _COMMENTS =      3;
+var _EQUIP_TYPE =    4;
+var _EQUIP_DESIGN =  5;
+var _APPL_BRAND =    6;
+var _OEM_PN =       20;
+var _PART_NUMBR =   21;
+var _SOURCE =       23;
+var _KEEP =         25;
+var _REORD_QTY =    26;
+var _GET =          27;
+var _FROM =         30;
+var _QUESTIONS =    34;
+var _MODIFIED =     35;
+var _NEW =          36;
+var _NEWER =        37;
+var _LOCATION =     38;
+var _SPECMETHOD =   39;
+var _LOOK_UP_PN =   76;
+var _ADVICE =       77;
+var _ATTN =         78;
+var _MODEL =        79;
 
 var _ALPHABET = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
 
@@ -104,6 +125,7 @@ var _searchResultsMax = 6;
 var _recordBrowserMax = 10;
 
 var _largestRecordNumber = 0;
+var _largestOEMNumber = 0;
 
 var _minRepititions = 3;
 
@@ -134,6 +156,8 @@ var _CHILD_PART_LINKS_CACHE = [];
 
 function initialLoadingFinished() //Called after all parts are downloaded and processed
 {
+  if(!_LOCAL_MODE) //TODO Remove
+    sortContentByIndex(_DESCRIP1);
   document.getElementById("content_div").style.display = "block";
   setTab(TAB_MAINMENU);
   setKeyboardShortcutBar();
@@ -252,6 +276,9 @@ function clearData()
 
   _google_cse_api_key = "";
   _google_cse_api_key_loaded = false;
+  _DBID_to_ContentIndex_Cache.clear();
+  for(var i = 0; i < _EXTRA_DB.length; ++i)
+    _extradb_link_index_cache[i].clear();
 }
 
 var _LOGGED_IN = false;
@@ -384,7 +411,6 @@ function loadContentDiv(){
             generateContent_Standard();
             populateRecordBrowser(0, false);
             _contentSortedReverse = true;
-            sortContentByIndex(0);
             loadChangeAlerts();
             initialLoadingFinished();
           });
@@ -435,20 +461,36 @@ function loadContentDiv(){
   retrieveInvoiceDataFromDatabase(null);
 }
 
-function search_query(supressSnackbar, suppressSetTab)
+function search_query(clearResults)
 {
-  if(suppressSetTab == null)
+  if(clearResults == null)
+  {
+    document.getElementById("key_shortcut_search_scope_window").style.display = "";
+    _overlay_window_open = true;
+    document.activeElement.blur();
+  }
+  else
+  {
+    searchQueryScope(0, true);
+  } 
+}
+
+var _SEARCHSCOPE_NEW = 1;
+var _SEARCHSCOPE_CURRENT = 2;
+function searchQueryScope(scope, clearResults)
+{
+  if(clearResults == null)
     setTab(TAB_SEARCH_RESULTS);
   // document.getElementById("search_results_expander").style.display = "none";
   document.getElementById("search_results_div").style.display = "none";
   document.getElementById("similar_string_expander").style.display = "none";
-  var searchstring_any = standardizeString(document.getElementById("search_input").value);
-  if(supressSnackbar == null)
+  var searchstring_any = document.getElementById("search_input").value;
+  if(clearResults == null)
     showSnackbar("Searching...", 6000);
   // document.getElementById("message").innerHTML = "<p><br><br><br>Searching...</p>";
   var anyChecked = document.getElementById("radio_columns_any").checked;
   if(searchstring_any == "" && anyChecked){
-    if(supressSnackbar == null)
+    if(clearResults == null)
       showSnackbar("No Results Found. Try using numbers or characters in your search", 6000);
     // document.getElementById("message").innerHTML = "<p><br><br><br>No Results Found. Try using numbers or characters in your search</p>";
   }
@@ -464,14 +506,14 @@ function search_query(supressSnackbar, suppressSetTab)
     var columnsToSearch = [];
     var searchstrings_specific = [];
     for(var i = 0; i < total_indexes_length; ++i){
-      var standard = standardizeString(document.getElementById("search_input_" + i).value);
-      if(!anyChecked && standard != "" && !_searchstring_specific_history[i].includes(document.getElementById("search_input_" + i).value))
+      var specific_i = document.getElementById("search_input_" + i).value;
+      if(!anyChecked && specific_i != "" && !_searchstring_specific_history[i].includes(specific_i))
       {
         _searchstring_specific_history[i].push(document.getElementById("search_input_" + i).value);
         _searchstring_specific_history_index[i] = _searchstring_specific_history[i].length - 1;
       }
-      searchstrings_specific.push(standard);
-      if(standard == ""){
+      searchstrings_specific.push(specific_i);
+      if(specific_i == ""){
         document.getElementById("column_checkbox_" + i).checked = false;
         columnsToSearch.push(false);
       }
@@ -479,26 +521,28 @@ function search_query(supressSnackbar, suppressSetTab)
         columnsToSearch.push(anyChecked || document.getElementById("column_checkbox_" + i).checked);
     }
     
-    var exactMatch = document.getElementById("search_exact_match").checked;
-    if(exactMatch){
-      searchstring_any = document.getElementById("search_input").value.toLowerCase();
-      searchstrings_specific = [];
-      for(var i = 0; i < total_indexes_length; ++i){
-        var standard = document.getElementById("search_input_" + i).value.toLowerCase();
-        searchstrings_specific.push(standard);
+    var currentResultsRowsBool = [];
+    if(scope == _SEARCHSCOPE_CURRENT)
+    {
+      for(var r = 0; r < _content.length; ++r)
+        currentResultsRowsBool.push(false);
+      for(var r = 0; r < _searchResults.length; ++r)
+      {
+        var index = getContentIndexFrom_DB_ID(_searchResults[r].id);
+        currentResultsRowsBool[index] = true;
       }
     }
-    searchWorker.postMessage([searchstring_any, _content_standard, _content, columnsToSearch, exactMatch, anyChecked, searchstrings_specific, _INDEXES]);
+    searchWorker.postMessage([searchstring_any, _content_standard, _content, columnsToSearch, anyChecked, searchstrings_specific, _INDEXES, currentResultsRowsBool]);
     searchWorker.onmessage = function(e) {
       var results = e.data;
       if(results[0] == 0){
-        if(supressSnackbar == null)
+        if(clearResults == null)
           showSnackbar("Searched " + results[1] + " of " + _content.length + " records", 3000);
         // document.getElementById("message").innerHTML = "<br><br><br><p>Searched " + results[1] + " of " + _content.length + " records</p>";
       }
       else{
         if(results.length <= 1){
-          if(supressSnackbar == null)
+          if(clearResults == null)
             showSnackbar("No Results Found", 6000);
           // document.getElementById("message").innerHTML = "<p><br><br><br>No Results Found</p>";
         }
@@ -548,12 +592,13 @@ function populateRecordBrowser(indexStart, highlight_IndexStart_Green)
     "<div id='add_part_table_div'></div>" +
     "<table class='clickable' id='record_browser_table'><thead><tr>";
 
-    for(var i = 0; i < INDEXES_CONCAT.length; ++i){
+    for(var i = 0; i < INDEXES_CONCAT.length; ++i)
+    {
       var index = _INDEX_ORDER[i];
       var bgcolor = "inherit";
       if(_contentSortedIndex.includes(index))
           bgcolor = getSortColor(index);
-      tableHTML += "<th class='clickable' onclick='sortContentByIndex(" + index + ");' style='background-color: " + bgcolor + ";'><div style='width: " + INDEX_WIDTHS_CONCAT[index] + ";'>" + INDEXES_CONCAT[index] + "</div></th>";
+      tableHTML += "<th class='clickable' onclick='sortContentByIndex(" + index + ");' style='background-color: " + bgcolor + "; position: sticky; top: 0; z-index: 2;'><div style='width: " + INDEX_WIDTHS_CONCAT[index] + ";'>" + INDEXES_CONCAT[index] + "</div></th>";
     }
     tableHTML += "</thead></tr><tbody>";
 
@@ -579,7 +624,7 @@ function populateRecordBrowser(indexStart, highlight_IndexStart_Green)
       {
         var index = _INDEX_ORDER[j];
         var id2 = "record_browser_cell_" + i + "_" + j;
-        if(index == 0)
+        if(j == 0)
           tableHTML += "<td id='" + id2 + "' onmouseover='recordViewIconMouseOver(\"browser_" + i + "_" + j + "\");' onmouseout='recordViewIconMouseOut(\"browser_" + i + "_" + j + "\");' onclick='onCellClick(" + i + "," + j + ",\"" + id2 + "\"," + _TABLE_RECORD_BROWSER + ");'><img id='edit_icon_" + numRows + "' src='pencil.png' width=25px height=25px onclick='startEditRecord(\"" + _content[i][_content[i].length - 1] + "\", " + i + ", \"record_browser_row_" + i + "\");'>&nbsp;&nbsp;&nbsp;&nbsp;<img id='copy_icon_" + numRows + "' src='copy.png' width=30px height=30px onclick='startNewRecord(" + i + ");'>&nbsp;&nbsp;&nbsp;&nbsp;<div class='tooltip'><span class='tooltiptext'>" + INDEXES_CONCAT[index] + " for:<br><br>" + getHTMLSafeText(_content[i][1]) + "</span>" + getHTMLSafeText(_content[i][index]) + "&nbsp;&nbsp;&nbsp;<img id='record_view_icon_browser_" + i + "_" + j + "' title='Open Record View' src='record_view.png' width=50px height=20px style='display: none;' onclick='addRecordView(\"" + _content[i][_content[i].length - 1] + "\");'></div></td>";
         else if(index < _INDEXES.length)
           tableHTML += "<td id='" + id2 + "' onmouseover='recordViewIconMouseOver(\"browser_" + i + "_" + j + "\");' onmouseout='recordViewIconMouseOut(\"browser_" + i + "_" + j + "\");' onclick='onCellClick(" + i + "," + j + ",\"" + id2 + "\"," + _TABLE_RECORD_BROWSER + ");'><div class='tooltip'><span class='tooltiptext'>" + INDEXES_CONCAT[index] + " for:<br><br>" + getHTMLSafeText(_content[i][1]) + "</span>" + getHTMLSafeText(_content[i][index]) + "&nbsp;&nbsp;&nbsp;<img id='record_view_icon_browser_" + i + "_" + j + "' title='Open Record View' src='record_view.png' width=50px height=20px style='display: none;' onclick='addRecordView(\"" + _content[i][_content[i].length - 1] + "\");'></div></td>";
@@ -615,7 +660,7 @@ var _SEARCH_RESULTS_ROW_IDS = [];
 var _SIMILAR_STRINGS_ROW_IDS = [];
 function populateSearchResults(indexStart, selectTopRow, selectBottomRow, rowToSelect)
 {
-  if(!_adding_child_part_links)
+  if(!_adding_child_part_links && _searchResults.length > 0)
   {
     _select_top_row = selectTopRow;
     _select_bottom_row = selectBottomRow;
@@ -637,10 +682,14 @@ function populateSearchResults(indexStart, selectTopRow, selectBottomRow, rowToS
 
     _indexesSearchResults = [];
     array_trimmed = [];
+    // var rankings = [];
     var numRows = 0;
     for (var i = indexStart; i <= indexEnd; ++i) {
       array_trimmed.push(new Array());
-      var currentIndex = _searchResults[i][0];
+      var currentIndex = _searchResults[i].row;
+      //DEBUG
+      // rankings.push(_searchResults[i].ranking);
+      //DEBUG
       _indexesSearchResults.push(currentIndex);
       for(var j = 0; j < INDEXES_CONCAT.length; ++j){
         if(j < _INDEXES.length)
@@ -657,14 +706,14 @@ function populateSearchResults(indexStart, selectTopRow, selectBottomRow, rowToS
       for (var i = indexStart; i <= indexEnd; ++i) {
         // var len = table.rows.length;
         // var row = table.insertRow(len);
-        var matchingcells = _searchResults[i][1];
+        var matchingcells = _searchResults[i].columns;
         for(var j = 0; j < INDEXES_CONCAT.length; ++j){
             // var cell1 = row.insertCell(j);
             // cell1.innerHTML = array_trimmed[i][j];
             if(matchingcells.includes(j)){
               for(var k = 0; k < matchingcells.length; ++k){
                 if(matchingcells[k] == j){
-                  var stringToHighlight = _searchResults[i][2][k];
+                  var stringToHighlight = _searchResults[i].strings[k];
                   if(!actualSearchStrings.includes(stringToHighlight))
                     actualSearchStrings.push(stringToHighlight);
                   // var re = new RegExp(stringToHighlight,"g");
@@ -928,20 +977,25 @@ function populateSearchResults(indexStart, selectTopRow, selectBottomRow, rowToS
     "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button id='button_search_results_jump_top'    onclick='searchResultsJumpToEdge(0);' style='background-color: #70A2FF; color: black;'>Jump to <span style='color: white;'>T</span>op</button>" + 
     "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button id='button_search_results_jump_bottom' onclick='searchResultsJumpToEdge(1);' style='background-color: #70A2FF; color: black;'>Jump to <span style='color: white;'>B</span>ottom</button>" + 
     "<p style='background-color: #70A2FF;'>S<span style='color: white;'>e</span>arch Results</p>" +
-    "<table class='clickable'><tr>";
+    "<table id='search_results_table_table' class='clickable'><tr>";
+
+    // //DEBUG
+    // _table_HTML_0 += "<th>Ranking</th>";
+    // //DEBUG
+
     for(var i = 0; i < INDEXES_CONCAT.length; ++i){
       var index = _INDEX_ORDER[i];
       var bgcolor = "inherit";
-      if(_contentSortedIndex.includes(i))
-          bgcolor = getSortColor(i);
-          _table_HTML_0 += "<th class='clickable' onclick='sortContentByIndex(" + index + ");' style='background-color: " + bgcolor + ";'><div style='width: " + INDEX_WIDTHS_CONCAT[index] + ";'>" + INDEXES_CONCAT[index] + "</div></th>";
+      if(_contentSortedIndex.includes(index))
+          bgcolor = getSortColor(index);
+      _table_HTML_0 += "<th class='clickable' onclick='sortContentByIndex(" + index + ");' style='background-color: " + bgcolor + "; position: sticky; top: 0; z-index: 2;'><div style='width: " + INDEX_WIDTHS_CONCAT[index] + ";'>" + INDEXES_CONCAT[index] + "</div></th>";
     }
     _table_HTML_0 += "</tr>";
 
     var childPartButtonWorker = new Worker('workers/add_child_part_button_html.js');
     var shouldAddChildPartLinks = document.getElementById("search_add_child_part_links").checked;
     _adding_child_part_links = true;
-    childPartButtonWorker.postMessage([_EXTRA_DB, _EXTRA_DB_COMMENTS_PREFIXES, _content_extra, array_trimmed, INDEXES_CONCAT, _DESCRIP1, _INDEX_ORDER, _DESCRIP2, _COMMENTS, _TABLE_SEARCH_RESULTS, shouldAddChildPartLinks, _CHILD_PART_LINKS_CACHE]);
+    childPartButtonWorker.postMessage([_EXTRA_DB, _EXTRA_DB_COMMENTS_PREFIXES, _content_extra, array_trimmed, INDEXES_CONCAT, _DESCRIP1, _INDEX_ORDER, _DESCRIP2, _COMMENTS, _TABLE_SEARCH_RESULTS, shouldAddChildPartLinks, _CHILD_PART_LINKS_CACHE /*, /*DEBUG rankings DEBUG*/]);
 
     childPartButtonWorker.onmessage = function (e) {
       if(e.data[0] == 1){ //Finished
@@ -952,6 +1006,24 @@ function populateSearchResults(indexStart, selectTopRow, selectBottomRow, rowToS
         _table_HTML_0 += "</table>";
         document.getElementById("search_results_table_div").innerHTML = _table_HTML_0;
       
+        //Make memo fields expandable HTML
+        var table1 = document.getElementById("search_results_table_table");
+        if(table1 != null)
+        {
+          var rows = table1.rows;
+          for(var i = 1; i < rows.length; ++i) //Only rows after header (index 0)
+          {
+            var cells = rows[i].cells;
+            for(var j = 0; j < cells.length; ++j)
+            {
+              if(_INDEX_ORDER[j] >= _INDEXES.length)
+              {
+                cells[j].innerHTML = getExpandableHTML(null, (i + "_" + j), 100, INDEX_WIDTHS_CONCAT[_INDEX_ORDER[j]], cells[j].innerHTML)
+                // getExpandableHTML(_content[i][index], (i + "_" + j), 100, INDEX_WIDTHS_CONCAT[index])
+              }
+            }
+          }
+        }
         //Set state of divs-------------------------------------------------------
         // document.getElementById("search_results_expander").style.display = "block";
         // toggle_search_results(1);
@@ -968,7 +1040,8 @@ function populateSearchResults(indexStart, selectTopRow, selectBottomRow, rowToS
           if(cell != null)
             onCellClick(array_trimmed.length - 1, _selectedCell, cell.id, _TABLE_SEARCH_RESULTS);
         }
-        else if(_row_to_select >= 0){
+        else if(_row_to_select >= 0)
+        {
           var cell = getCell(_row_to_select, _selectedCell, _TABLE_SEARCH_RESULTS);
           if(cell != null)
             onCellClick(_row_to_select, _selectedCell, cell.id, _TABLE_SEARCH_RESULTS);
@@ -1084,30 +1157,177 @@ var _recordViews_Key_To_Details_Open = new Map();
 var _recordViewHightlightType = 0;
 var _selected_record_view = 0;
 var _last_selected_record_view = 0;
+var _RECORDVIEW_COMPAREALL_MINREPITITIONS = 2;
 
 function populateRecordViews()
 {
+
+  var singleWordsToOccurences = new Map(); //Standardized (word) to      [[num occurences, color],             [actual word spellings], [row nums]]
+  var doubleWordsToOccurences = new Map(); //Standardized (word word) to [[num occurences, color, word, word], [actual word spellings], [row nums]]
+  var termToHighlightList = [];
+  var preHTML_List = [];
+  var postHTML_List = [];
+  if(_recordViewHightlightType == 2) //Show Compare All
+  {
+    var array1 = [];
+    for(var i = 0; i < _recordViews.length; ++i)
+    {
+      array1.push([]);
+      var rownum = getContentIndexFrom_DB_ID(_recordViews[i]);
+      if(rownum != null)
+      {
+        var equip_type_text = _content[rownum][_EQUIP_TYPE];
+        var appl_brand_text = _content[rownum][_APPL_BRAND];
+        var descrip1_text =   _content[rownum][_DESCRIP1];
+        var descrip2_text =   _content[rownum][_DESCRIP2];
+        var comments_text =   _content[rownum][_COMMENTS];
+        array1[i] = [equip_type_text, appl_brand_text, descrip1_text, descrip2_text, comments_text];
+      }
+    }
+    //Get string repetition info---------------------------------------------
+    for(var i = 0; i < array1.length; ++i)
+    {
+      var row = array1[i];
+      for(var j = 0; j < 5; ++j)
+      {
+        var string = row[j];
+        var lastCharWasSpace = true;
+        var start0 = 0;
+        var end = 0;
+        var start1 = 0;
+        for(var k = 0; k < string.length; ++k)
+        {
+          var char = string[k];
+          var charIsSpace = (char == " ");
+          var endOfString = (k + 1 == string.length);
+          if(lastCharWasSpace && !charIsSpace){ //Beginning of word
+            start0 = start1;
+            start1 = k;
+          }
+          else if((!lastCharWasSpace && charIsSpace) || endOfString){ //Space at end of word or end of string
+            if(endOfString)
+              end = k + 1;
+            else
+              end = k;
+            var singleWord = string.substring(start1, end);
+            var singleWordStandard = standardizeString(singleWord);
+            if(!_WORDS_TO_IGNORE.includes(singleWordStandard) && singleWordStandard.length > 1){
+              if(singleWordsToOccurences.has(singleWordStandard))
+              {
+                var value = singleWordsToOccurences.get(singleWordStandard)
+                value[0][0] = value[0][0] + 1;
+                if(!value[2].includes(i))
+                  value[2].push(i);
+                if(!value[1].includes(singleWord)){
+                  value[1].push(singleWord);
+                }
+              }
+              else{
+                // var color = [Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)];
+                var color = getColorFromString(singleWordStandard);
+                var value = [[1, color], [singleWord], [i]];
+                singleWordsToOccurences.set(singleWordStandard, value);
+              }
+            }
+            if(start0 != start1){
+              var doubleWord = string.substring(start0, end);
+              var doubleWordStandard = standardizeString(doubleWord);
+              var doubleWordSplit = doubleWordStandard.split(" ");
+              if(!_WORDS_TO_IGNORE.includes(doubleWordSplit[0]) && !_WORDS_TO_IGNORE.includes(doubleWordSplit[1]) && doubleWordStandard.length > 3){
+                if(doubleWordsToOccurences.has(doubleWordStandard)){
+                  var value = doubleWordsToOccurences.get(doubleWordStandard)
+                  value[0][0] = value[0][0] + 1;
+                  if(!value[2].includes(i))
+                    value[2].push(i);
+                  if(!value[1].includes(doubleWord)){
+                    value[1].push(doubleWord);
+                  }
+                }
+                else{
+                  // var color = [Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)];
+                  var color = getColorFromString(doubleWordStandard);
+                  var value = [   [1, color, doubleWordSplit[0], doubleWordSplit[1]],  [doubleWord], [i]];
+                  doubleWordsToOccurences.set(doubleWordStandard, value);
+                }
+              }
+            }
+          }
+          lastCharWasSpace = charIsSpace;
+        }
+      }
+    }
+  }
+
+  // var typeHighlightBGSingle = new Map();
+  // for (let [key1, value1] of singleWordsToOccurences) {
+  //   if(value1[0][0] >= _RECORDVIEW_COMPAREALL_MINREPITITIONS)
+  //     for (let [key2, value2] of doubleWordsToOccurences) {
+  //       if(value2[0][0] >= _RECORDVIEW_COMPAREALL_MINREPITITIONS)
+  //         typeHighlightBGSingle.set(key1, (key1 != value2[0][2] && key1 != value2[0][3])); //Single word is not in a double word pair
+  //     }
+  // }
+
+  //Highlight double words
+  for (let [key, value] of doubleWordsToOccurences) {
+    if(value[0][0] >= _RECORDVIEW_COMPAREALL_MINREPITITIONS){
+      var color = value[0][1];
+      var bgColor = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ");";
+      for(var v = 0; v < value[1].length; ++v){
+        // if(getRegexSafeSearchTerm(value[1][v]) <= 1)
+        //   console.log("Small word to highlight detected |" + getRegexSafeSearchTerm(value[1][v]) + "|");
+        termToHighlightList.push(value[1][v]);
+        preHTML_List.push("<span style='border: 3px solid " + bgColor + " color: black;'>");
+        postHTML_List.push("</span>");
+      }
+    }
+  }
+
+  //Highlight single words
+  for (let [key, value] of singleWordsToOccurences) {
+    if(value[0][0] >= _RECORDVIEW_COMPAREALL_MINREPITITIONS){
+      var color = value[0][1];
+      var bgColor = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ");";
+      for(var v = 0; v < value[1].length; ++v){
+        // if(getRegexSafeSearchTerm(value[1][v]) <= 1)
+        //   console.log("Small word to highlight detected |" + getRegexSafeSearchTerm(value[1][v]) + "|");
+        termToHighlightList.push(value[1][v]);
+        // if(typeHighlightBGSingle.get(key)){
+          preHTML_List.push("<span style='border: 3px solid " + bgColor + " color: black;'>");
+          postHTML_List.push("</span>");
+        // }
+        // else{
+        //   preHTML_List.push("<span style='border-bottom: 3px solid " + bgColor + "'>");
+        //   postHTML_List.push("</span>");
+        // }
+      }
+    }
+  }
+  
   if(_selected_record_view == -1)
-    _selected_record_view = 0;
+  _selected_record_view = 0;
   var tab_text = "Record Views";
   if(_recordViews.length > 0)
-    tab_text += "&nbsp;&nbsp;<span style='background-color: red; color: white; font-weight: bold;'>&nbsp;" + _recordViews.length + "&nbsp;</span>";
+  tab_text += "&nbsp;&nbsp;<span style='background-color: red; color: white; font-weight: bold;'>&nbsp;" + _recordViews.length + "&nbsp;</span>";
   document.getElementById("TAB_record_views").innerHTML = tab_text;
   document.getElementById("record_views_div").innerHTML = "";
   var htmlToAdd = "";
   var differences_checked = "";
   var similarities_checked = "";
+  var compareall_checked = "";
   if(_recordViewHightlightType == 0)
     differences_checked = "checked";
-  else
+  else if(_recordViewHightlightType == 1)
     similarities_checked = "checked";
+  else if(_recordViewHightlightType == 2)
+    compareall_checked = "checked";
   if(_recordViews.length > 0)
-    htmlToAdd += 
-    // "<h1 class='clickable' onclick='toggleDiv(null, \"record_views_table\");'><span id='record_views_table_expander_icon' style='font-size: 50px; font-weight: 100;'>-</span> Record Views</h1>" + 
-    "<div id='record_views_table_div'>" +
-    "<label class='radiobutton_container' style='display: inline;'>Show Differences&nbsp;&nbsp;<input  onchange='setRecordViewHighlightType(0);' type='radio' id='radio_record_views_differences' name='radio_record_views_highlighting'" + differences_checked + "><span class='radiomark'></span></label>" +
-    "<label class='radiobutton_container' style='display: inline;'>Show Similarities&nbsp;&nbsp;<input onchange='setRecordViewHighlightType(1);' type='radio' id='radio_record_views_similarities' name='radio_record_views_highlighting'" + similarities_checked + "><span class='radiomark'></span></label>" +
-    "<br><br>";
+  htmlToAdd += 
+  // "<h1 class='clickable' onclick='toggleDiv(null, \"record_views_table\");'><span id='record_views_table_expander_icon' style='font-size: 50px; font-weight: 100;'>-</span> Record Views</h1>" + 
+  "<div id='record_views_table_div'>" +
+  "<label class='radiobutton_container' style='display: inline;'>Show Differences&nbsp;&nbsp; <input onchange='setRecordViewHighlightType(0);' type='radio' id='radio_record_views_differences'  name='radio_record_views_highlighting'" + differences_checked +  "><span class='radiomark'></span></label>" +
+  "<label class='radiobutton_container' style='display: inline;'>Show Similarities&nbsp;&nbsp;<input onchange='setRecordViewHighlightType(1);' type='radio' id='radio_record_views_similarities' name='radio_record_views_highlighting'" + similarities_checked + "><span class='radiomark'></span></label>" +
+  "<label class='radiobutton_container' style='display: inline;'>Show Compare All&nbsp;&nbsp; <input onchange='setRecordViewHighlightType(2);' type='radio' id='radio_record_views_compareall'   name='radio_record_views_highlighting'" + compareall_checked +   "><span class='radiomark'></span></label>" +
+  "<br><br>";
   
   var first_record_rownum = 0;
   for(var i = 0; i < _recordViews.length; ++i)
@@ -1120,24 +1340,36 @@ function populateRecordViews()
       var descrip1_text =   _content[rownum][_DESCRIP1];
       var descrip2_text =   _content[rownum][_DESCRIP2];
       var comments_text =   _content[rownum][_COMMENTS];
-      if(i == 0){
-        first_record_rownum = rownum;
+      
+      if(_recordViewHightlightType == 2)
+      {        
+        equip_type_text = highlightString(equip_type_text, termToHighlightList, preHTML_List, postHTML_List);
+        appl_brand_text = highlightString(appl_brand_text, termToHighlightList, preHTML_List, postHTML_List);
+        descrip1_text = highlightString(descrip1_text, termToHighlightList, preHTML_List, postHTML_List);
+        descrip2_text = highlightString(descrip2_text, termToHighlightList, preHTML_List, postHTML_List);
+        comments_text = highlightString(comments_text, termToHighlightList, preHTML_List, postHTML_List);
       }
-      else{
-        var equip_type_indexes = getWordCompareIndexes(_content[first_record_rownum][_EQUIP_TYPE], equip_type_text, _recordViewHightlightType);
-        var appl_brand_indexes = getWordCompareIndexes(_content[first_record_rownum][_APPL_BRAND], appl_brand_text, _recordViewHightlightType);
-        var descrip1_indexes = getWordCompareIndexes(  _content[first_record_rownum][_DESCRIP1], descrip1_text,     _recordViewHightlightType);
-        var descrip2_indexes = getWordCompareIndexes(  _content[first_record_rownum][_DESCRIP2], descrip2_text,     _recordViewHightlightType);
-        var comments_indexes = getWordCompareIndexes(  _content[first_record_rownum][_COMMENTS], comments_text,     _recordViewHightlightType);
-        var preHTML = "<span style='background: salmon;'>";
-        if(_recordViewHightlightType == 1)
-          preHTML = "<span style='background: lightgreen;'>";
-        var postHTML = "</span>";
-        equip_type_text = highlightStringBasic(equip_type_text, equip_type_indexes.startIndexes, equip_type_indexes.endIndexes, preHTML, postHTML);
-        appl_brand_text = highlightStringBasic(appl_brand_text, appl_brand_indexes.startIndexes, appl_brand_indexes.endIndexes, preHTML, postHTML);
-        descrip1_text =   highlightStringBasic(descrip1_text,   descrip1_indexes.startIndexes,   descrip1_indexes.endIndexes,   preHTML, postHTML);
-        descrip2_text =   highlightStringBasic(descrip2_text,   descrip2_indexes.startIndexes,   descrip2_indexes.endIndexes,   preHTML, postHTML);
-        comments_text =   highlightStringBasic(comments_text,   comments_indexes.startIndexes,   comments_indexes.endIndexes,   preHTML, postHTML);
+      else
+      {
+        if(i == 0){
+          first_record_rownum = rownum;
+        }
+        else{
+          var equip_type_indexes = getWordCompareIndexes(_content[first_record_rownum][_EQUIP_TYPE], equip_type_text, _recordViewHightlightType);
+          var appl_brand_indexes = getWordCompareIndexes(_content[first_record_rownum][_APPL_BRAND], appl_brand_text, _recordViewHightlightType);
+          var descrip1_indexes = getWordCompareIndexes(  _content[first_record_rownum][_DESCRIP1], descrip1_text,     _recordViewHightlightType);
+          var descrip2_indexes = getWordCompareIndexes(  _content[first_record_rownum][_DESCRIP2], descrip2_text,     _recordViewHightlightType);
+          var comments_indexes = getWordCompareIndexes(  _content[first_record_rownum][_COMMENTS], comments_text,     _recordViewHightlightType);
+          var preHTML = "<span style='background: salmon;'>";
+          if(_recordViewHightlightType == 1)
+            preHTML = "<span style='background: lightgreen;'>";
+          var postHTML = "</span>";
+          equip_type_text = highlightStringBasic(equip_type_text, equip_type_indexes.startIndexes, equip_type_indexes.endIndexes, preHTML, postHTML);
+          appl_brand_text = highlightStringBasic(appl_brand_text, appl_brand_indexes.startIndexes, appl_brand_indexes.endIndexes, preHTML, postHTML);
+          descrip1_text =   highlightStringBasic(descrip1_text,   descrip1_indexes.startIndexes,   descrip1_indexes.endIndexes,   preHTML, postHTML);
+          descrip2_text =   highlightStringBasic(descrip2_text,   descrip2_indexes.startIndexes,   descrip2_indexes.endIndexes,   preHTML, postHTML);
+          comments_text =   highlightStringBasic(comments_text,   comments_indexes.startIndexes,   comments_indexes.endIndexes,   preHTML, postHTML);
+        }
       }
       var bgstyle = "";
       if(i == _selected_record_view)
@@ -1164,166 +1396,26 @@ function populateRecordViews()
       if(details_expanded)
       {
         htmlToAdd += "</div><div id='div_recordview_collapser_" + i + "' class=clickable style='font-size: 20px; background-color: #96BBFF' onclick='toggleDiv(null, \"record_view_details_" + i + "\")'><span id='record_view_details_" + i + "_expander_icon' style='font-size: 24px; color: white;'>-</span> Details</div>";
-        htmlToAdd += "<div id='record_view_details_" + i + "_div' style='display: block;'><table><tr><th style='width: " + RECORD_VIEW_DB_HEADER_WIDTH + ";'></th>";
+        htmlToAdd += "<div id='record_view_details_" + i + "_div' style='display: block;'>";
       }
       else
       {
         htmlToAdd += "</div><div id='div_recordview_collapser_" + i + "' class=clickable style='font-size: 20px; background-color: #96BBFF' onclick='toggleDiv(null, \"record_view_details_" + i + "\")'><span id='record_view_details_" + i + "_expander_icon' style='font-size: 24px; color: white;'>+</span> Details</div>";
-        htmlToAdd += "<div id='record_view_details_" + i + "_div' style='display: none;'><table><tr><th  style='width: " + RECORD_VIEW_DB_HEADER_WIDTH + ";'></th>";
-      }
-      
-      for(var j = 0; j < RECORD_VIEW_HEADERS.length; ++j)
-      {
-        htmlToAdd += "<th style='width: " + RECORD_VIEW_HEADERS_WIDTHS[j] + ";'><p>" + RECORD_VIEW_HEADERS[j] + "</p></th>";
-      }
-      htmlToAdd += "<th>Reliable Parts</th><th>Encompass</th><th>Marcone</th><th>Image</th>";
-      htmlToAdd += "</tr>";
-      var parent_record_id = _content[rownum][INDEXES_CONCAT.length];
-      for(var j = 0; j < _EXTRA_DB.length; ++j)
-      {
-        if(j != 2) //Skip DNI ExtraDB
-        {
-          var _content_partnum_for_extraDB = _content[rownum][_CONTENT_EXTRA_DB_INDEXES[j]];
-          var extraDBIndex = getExtraDBLinkIndex(j, _content_partnum_for_extraDB);
-          if(j == _EXTRA_DB.length - 1) //Last row
-            htmlToAdd += "<tr style='border-top: solid; border-bottom: solid; border-width: 4px; border-color: black;'>";
-          else
-            htmlToAdd += "<tr>";
-          var partSearchTerm = "";
-          for(var k = 0; k < RECORD_VIEW_HEADERS.length; ++k)
-          { 
-            htmlToAdd += "<td>";
-            if(k == 0)
-            {
-              htmlToAdd += "<div style='width: 30px; display: inline-block;'>" + _EXTRA_DB[j] + "</div>";
-              if(extraDBIndex != null)
-                htmlToAdd += "<div style='display: inline; font-size: 20px;' id='sell_div_" + i + "_" + j + "'><br><button style='background-color: #70A2FF; color: black;' id='sell_button_" + i + "_" + j + "' onclick='startSell(" + i + "," + j + ");'><span style='color: white;'>S</span>ell</button>"
-                + "<div id='sell_form_" + i + "_" + j + "' style='display: none;'>"
-                + "<p>Quantity</p>"
-                + "<button style='width: 100px;' onclick='changeSellQuantity(" + i + "," + j + ",  1);'>+</button><br>"
-                + "<input onfocus='deselectTable();' style='width: 100px; height: 50px; font-size: 30px; text-align: center;' type='number' value='1' id='sell_quantity_" + i + "_" + j + "'><br>"
-                + "<button style='width: 100px;' onclick='changeSellQuantity(" + i + "," + j + ", -1);'>-</button><br><br>"
-                + "<button id='button_record_view_sell_confirm_" + i + "_" + j + "' style='width: 150px; height: 30px; background-color: #70A2FF; color: black;' onclick='confirmSell(" + i + "," + j + ",\"" + _content_partnum_for_extraDB + "\",\"" + parent_record_id + "\");'>Confirm <span style='color: white;'>S</span>ell</button><br><br>"
-                + "<button id='button_record_view_sell_cancel_" + i + "_" + j + "'  style='width: 150px; height: 30px; background-color: #70A2FF; color: black;' onclick='populateRecordViews();'><span style='color: white;'>C</span>ancel</button></div></div>";
-              htmlToAdd += "</td><td>";
-            }
-            else if(k == 1)
-            {
-              htmlToAdd += "<img class='clickable' id='record_view_partnum_edit_icon_" + i + "_" + j + "' src='pencil.png' width=25px height=25px onclick='startEditRecordPartReference(" + i + "," + j + ");' style='position: relative; bottom: -6px;'>&nbsp;&nbsp;";
-              partSearchTerm = _content_partnum_for_extraDB;
-              var pText = "";
-              var clean_content_partnum_for_extraDB = removeExtraSpaces(_content_partnum_for_extraDB);
-              if(extraDBIndex == null && clean_content_partnum_for_extraDB != "")
-                pText = _content_partnum_for_extraDB + "<span style='color: red;'>&nbsp;&nbsp;&nbsp;Not Found in Child Database!</span>";
-              else if(clean_content_partnum_for_extraDB == "")
-              {
-                pText = "";
-              }
-              else
-                pText = "<span id='span_recordviews_jump_to_child_part_" + i + "_" + j + "' class='clickable' style='color: blue;' onclick='jumpToChildPartFromRecordView(" + j + "," + extraDBIndex + ");'><u>" + _content_partnum_for_extraDB + "</u></span>";
-              htmlToAdd += "<p id='record_view_partnum_text_" + i + "_" + j + "' style='display: inline;'>" + pText + "</p><input type='text' style='display: none;' id='record_view_partnum_input_" + i + "_" + j +"' onfocus='onPartNumFocus(" + i + "," + j + ");' value='" + getHTMLSafeText(_content_partnum_for_extraDB) + "' onkeyup='partnum_input_keyup_event(event);' onkeydown='partnum_input_keydown_event(event);'><div style='position: absolute;' id='partnum_autocomplete_" + i + "_" + j + "'></div>"
-              + "<button id='record_view_partnum_save_button_"   + i + "_" + j + "' style='width: 70px; font-size: 20px; display: none; background-color: #70A2FF; color: black; margin-bottom: 2px;' onclick='saveEditRecordPartReference(" + i + "," + j + ");'><span style='color: white;'>S</span>ave</button>"
-              + "<button id='record_view_partnum_cancel_button_" + i + "_" + j + "' style='width: 70px; font-size: 20px; display: none; background-color: #70A2FF; color: black;' onclick='populateRecordViews();'><span style='color: white;'>C</span>ancel</button>" + "&nbsp;&nbsp;&nbsp;&nbsp;";
-            }
-            if(extraDBIndex != null){
-              var content1 = _content_extra[j][extraDBIndex][0][RECORD_VIEW_HEADERS_ACTUAL_INDEXES[k][j]];
-              if(content1 != null){
-                if(k == 1) //PART#
-                {
-                  //Filled in with link
-                }
-                else if(k == 9 || k == 10 || k == 11) //"CGS",   "RETAIL",     "SELL" in usd format
-                {
-                  htmlToAdd += "<span id='record_view_data_read_" + RECORD_VIEW_HEADERS[k] + "_" + i + "_" + j + "'>" + content1.toLocaleString("en-US", {style: "currency", currency: "USD", minimumFractionDigits: 2}) + "</span>";
-                }
-                else if(k == 12) //"COMMENTS"
-                {
-                  var htmlCheck = "<input type='checkbox' disabled>";
-                  if(content1.replace(" ", "").length > 0)
-                  {
-                    htmlCheck = "<div class='tooltip'><span class='tooltiptext'>" + content1 + "</span><input type='checkbox' checked disabled></div>";
-                  }
-                  htmlToAdd += "<span id='record_view_data_read_" + RECORD_VIEW_HEADERS[k] + "_" + i + "_" + j + "'>" + htmlCheck + "</span>";
-                }
-                else
-                {
-                  htmlToAdd += "<span id='record_view_data_read_" + RECORD_VIEW_HEADERS[k] + "_" + i + "_" + j + "'>" + content1 + "</span>";
-                }
-                if(k != 1) //Add input for editing values
-                {
-                  htmlToAdd += "<input type='text' onfocus='deselectTable();' id='record_view_data_input_" + RECORD_VIEW_HEADERS[k] + "_" + i + "_" + j + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(content1) + "'>";
-                }
-              }
-            }
-            else //No matching link found in Extra DB, usually Part# is blank
-            {
-              if(k == 1)
-              {
-                htmlToAdd += "<input type='text' style='display: none;' id='record_view_partnum_input_" + i + "_" + j +"' onfocus='onPartNumFocus(" + i + "," + j + ");' onkeyup='partnum_input_keyup_event(event);' onkeydown='partnum_input_keydown_event(event);'><div style='position: absolute;' id='partnum_autocomplete_" + i + "_" + j + "'></div>";
-              }
-            }
-            htmlToAdd += "</td>";
-          }
-          htmlToAdd += "<td>";
-          var clean_partSearchTerm = removeExtraSpaces(partSearchTerm);
-          if(clean_partSearchTerm != "")
-            htmlToAdd += "<a href='https://www.reliableparts.com/search?q=" + getStandardPNWebSearchString(partSearchTerm) + "' target='_blank'>Search</a>";
-          htmlToAdd += "</td>";
-          htmlToAdd += "<td>";
-          if(clean_partSearchTerm != "")
-            htmlToAdd += "<a href='https://encompass.com/search?searchTerm=" + getStandardPNWebSearchString(partSearchTerm) + "' target='_blank'>Search</a>";
-          htmlToAdd += "</td>";
-          htmlToAdd += "<td>";
-          if(clean_partSearchTerm != "")
-          htmlToAdd += "<a href='https://beta.marcone.com/Home/SearchPartModelList?searchString=" + getStandardPNWebSearchString(partSearchTerm) + "&Type=Part' target='_blank'>Search</a>";
-          htmlToAdd += "</td>";
-          htmlToAdd += "<td>";
-          if(clean_partSearchTerm != "")
-          {
-            htmlToAdd += "<button id='button_recordview_image_everywhere_"   + i + "_" + j + "' style='background-color: #70A2FF; color: black;'                  onclick='showRecordViewImage(\"" + partSearchTerm + "\", 0);'><div class='tooltip'><span class='tooltiptext'>Search entire<br>internet<br>for images</span>E<span style='color: white;'>v</span>erywhere</button>";
-            htmlToAdd += "<button id='button_recordview_image_distributors_" + i + "_" + j + "' style='background-color: #70A2FF; color: black; margin-top: 2px;' onclick='showRecordViewImage(\"" + partSearchTerm + "\", 1);'><div class='tooltip'><span class='tooltiptext'>Search Encompass,<br>Marcone,<br>Reliable Parts,<br>and WL MAY<br>websites for images</span><span style='color: white;'>D</span>istributors</button>";
-          }
-          htmlToAdd += "</td>";
-          htmlToAdd += "</tr>";
-        }
-      }
-      var LKUPPN_CONTENT = getExpandableHTML(_content[rownum][_LOOK_UP_PN], (i + "_LOOK_UP_PN"), 80, "");
-      var ADVICE_CONTENT = getExpandableHTML(_content[rownum][_ADVICE],     (i + "_ADVICE"),     80, "");
-      var MODEL_CONTENT =  getExpandableHTML(_content[rownum][_MODEL],      (i + "_MODEL"),      80, "");
-      var INPUT_PART_NUMBR = "<input type='text' onfocus='deselectTable();' id='record_view_data_input_PART_NUMBR_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_PART_NUMBR]) + "'>" ;
-      var INPUT_LOCATION =   "<input type='text' onfocus='deselectTable();' id='record_view_data_input_LOCATION_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_LOCATION]) + "'>" ;
-      var INPUT_MODIFIED =   "<input type='text' onfocus='deselectTable();' id='record_view_data_input_MODIFIED_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_MODIFIED]) + "'>" ;
-      var INPUT_KEEP =       "<input type='text' onfocus='deselectTable();' id='record_view_data_input_KEEP_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_KEEP]) + "'>" ;
-      var INPUT_GET =        "<input type='text' onfocus='deselectTable();' id='record_view_data_input_GET_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_GET]) + "'>" ;
-      var INPUT_LKUPPN =     "<textarea          onfocus='deselectTable();' id='record_view_data_input_LKUPPN_" + i + "' style='width: 90%; display: none;'>" + getHTMLSafeText(stringifyArrayEndChar(_content[rownum][_LOOK_UP_PN], "\n")) + "</textarea>" ;
-      var INPUT_ADVICE =     "<textarea          onfocus='deselectTable();' id='record_view_data_input_ADVICE_" + i + "' style='width: 90%; display: none;'>" + getHTMLSafeText(stringifyArrayEndChar(_content[rownum][_ADVICE], "\n")) + "</textarea>" ;
-      var INPUT_REORD_QTY =  "<input type='text' onfocus='deselectTable();' id='record_view_data_input_REORD_QTY_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_REORD_QTY]) + "'>" ;
-      var INPUT_SOURCE =     "<input type='text' onfocus='deselectTable();' id='record_view_data_input_SOURCE_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_SOURCE]) + "'>" ;
-      var INPUT_MODEL =      "<textarea          onfocus='deselectTable();' id='record_view_data_input_MODEL_" + i + "' style='width: 90%; display: none;'>" + getHTMLSafeText(stringifyArrayEndChar(_content[rownum][_MODEL], "\n")) + "</textarea>";
-      var INPUT_FROM =       "<input type='text' onfocus='deselectTable();' id='record_view_data_input_FROM_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_FROM]) + "'>" ;
-
-      htmlToAdd += "<tr><td colspan=2 style='text-align: right;'>LAST</td>" 
-      + "<td colspan=2><b><span id='record_view_data_read_PART_NUMBR_" + i + "'>" + _content[rownum][_PART_NUMBR] + "</span>" + INPUT_PART_NUMBR + "</b></td>"
-      + "<td><b><span id='record_view_data_read_LOCATION_" + i + "'>" + _content[rownum][_LOCATION] + "</span>" + INPUT_LOCATION + "</b></td>"
-      + "<td colspan=4><b><span id='record_view_data_read_MODIFIED_" + i + "'>" + _content[rownum][_MODIFIED] + "</span>" + INPUT_MODIFIED + "</b></td>"
-      + "<td>KEEP  <b><span id='record_view_data_read_KEEP_" + i + "'>" + _content[rownum][_KEEP] + "</span>" + INPUT_KEEP +      "</b></td>"
-      + "<td>BULK <b><span id='record_view_data_read_GET_" + i + "'>" + _content[rownum][_GET] + "</span>" + INPUT_GET + "</b></td><td colspan=2 style='text-align: right;'>Aside</td>                                                 </tr>"
-      + "<tr><td colspan=2 style='text-align: right;'>LKUPPN</td>"
-      + "<td colspan=2><span id='record_view_data_read_LKUPPN_" + i + "'>" + LKUPPN_CONTENT + "</span>" + INPUT_LKUPPN + "                      </td>"
-      + "<td style='text-align: right;'>         ADVICE</td><td colspan=4><span id='record_view_data_read_ADVICE_" + i + "'>" + ADVICE_CONTENT + "</span>" + INPUT_ADVICE + "                    </td>"
-      + "<td>REORD <b><span id='record_view_data_read_REORD_QTY_" + i + "'>" + _content[rownum][_REORD_QTY] + "</span>" + INPUT_REORD_QTY + "</b><button onclick='updateReordFromRecordView(\"" + parent_record_id + "\");'>Update</button></td><td colspan=2 style='text-align: right;'>                                          Srce</td>"
-      + "<td><b><span id='record_view_data_read_SOURCE_" + i + "'>" + _content[rownum][_SOURCE] + "</span>" + INPUT_SOURCE + "</b></td></tr>"
-      + "<tr><td colspan=4></td><td style='text-align: right;'>MODEL</td>"
-      + "<td colspan=4><span id='record_view_data_read_MODEL_" + i + "'>" + MODEL_CONTENT + "</span>" + INPUT_MODEL + "</td>"
-      + "<td colspan=4>PREF  <b><span id='record_view_data_read_FROM_" + i + "'>" + _content[rownum][_FROM] + "</span>" + INPUT_FROM + "</b></td>                                                                                                                                             </tr>"
-      + "</table></div><br><br>";
+        htmlToAdd += "<div id='record_view_details_" + i + "_div' style='display: none;' >";
+      } 
+      // htmlToAdd += getRecordViewPage(rownum, _record_view_page_list[i], i);
+      htmlToAdd += "</div>";
     }
     htmlToAdd += "</div>";
-    }
-    if(_recordViews.length > 0)
-      htmlToAdd += "</div>";
-    document.getElementById("record_views_div").innerHTML = htmlToAdd;
-    selectRecordView(_last_selected_record_view);
+  }
+  // if(_recordViews.length > 0)
+  //   htmlToAdd += "</div>";
+  document.getElementById("record_views_div").innerHTML = htmlToAdd;
+  for(var i = 0; i < _recordViews.length; ++i)
+  {
+    setRecordViewPage(_record_view_page_list[i], i);
+  }
+  selectRecordView(_last_selected_record_view);
 }
 
 function startEditRecordViewData(index)
@@ -1370,14 +1462,14 @@ function startEditRecordViewData(index)
   document.getElementById("record_view_data_input_MODEL_" + index).style.display =      "";
   document.getElementById("record_view_data_input_FROM_" + index).style.display =       "";
 
-  for(var i = 0; i < RECORD_VIEW_HEADERS.length; ++i){
+  for(var i = 0; i < RECORD_VIEW_HEADERS_PAGE1.length; ++i){
     for(var j = 0; j < _EXTRA_DB.length; ++j)
     {
-      var ele = document.getElementById("record_view_data_read_" + RECORD_VIEW_HEADERS[i] + "_" + index + "_" + j);
+      var ele = document.getElementById("record_view_data_read_" + RECORD_VIEW_HEADERS_PAGE1[i] + "_" + index + "_" + j);
       if(ele != null)
       {
         ele.style.display = "none";
-        document.getElementById("record_view_data_input_" + RECORD_VIEW_HEADERS[i] + "_" + index + "_" + j).style.display = "";
+        document.getElementById("record_view_data_input_" + RECORD_VIEW_HEADERS_PAGE1[i] + "_" + index + "_" + j).style.display = "";
       }
     }
   }
@@ -1417,12 +1509,12 @@ function saveEditRecordViewData(index)
       if(extraDBIndex != null)
       {
         edb_indexes.push(extraDBIndex);
-        for(var k = 0; k < RECORD_VIEW_HEADERS.length; ++k)
+        for(var k = 0; k < RECORD_VIEW_HEADERS_PAGE1.length; ++k)
         {
-          var ele = document.getElementById("record_view_data_input_" + RECORD_VIEW_HEADERS[k] + "_" + index + "_" + j);
+          var ele = document.getElementById("record_view_data_input_" + RECORD_VIEW_HEADERS_PAGE1[k] + "_" + index + "_" + j);
           if(ele != null)
           {
-            _content_extra[j][extraDBIndex][0][RECORD_VIEW_HEADERS_ACTUAL_INDEXES[k][j]] = String(ele.value);
+            _content_extra[j][extraDBIndex][0][RECORD_VIEW_HEADERS_ACTUAL_INDEXES_PAGE1[k][j]] = String(ele.value);
           }
         }
       }
@@ -1510,21 +1602,24 @@ function startNewPartChild()
   clickPCRM_EditCancelButton();
   document.getElementById("part_child_button_new").style.display = "none";
   var db_index =  document.getElementById("part_child_dropdown_select").selectedIndex;
-  var htmlToAdd = 
-  "<button id='partchild_new_button_save'           style='margin: 5px; background-color: #70A2FF; color: black;' onclick='saveNewPartChild();'  ><span style='color: white;'>S</span>ave</button>" 
-+ "<button id='partchild_new_button_cancel'         style='margin: 5px; background-color: #70A2FF; color: black;' onclick='cancelNewPartChild();'><span style='color: white;'>C</span>ancel</button>"
-+ "<table>";
-  for (var i = 0; i < _EXTRA_DB_FIELDS[db_index].length; ++i) 
+  if(db_index < _EXTRA_DB_COMMENTS_PREFIXES.length)
   {
-    htmlToAdd += "<tr><th>" + _EXTRA_DB_FIELDS[db_index][i] + "</th>";
-    htmlToAdd += "<td><input type='text' onfocus='deselectTable();' id='partchild_new_input_" + _EXTRA_DB_FIELDS[db_index][i] + "' style='width: 1000px;'></td></tr>";
-  }
-  htmlToAdd += "</table>";
-  document.getElementById("part_child_new_table_div").innerHTML = htmlToAdd;
-  var ele = document.getElementById("partchild_new_input_PN");
-  if(ele != null){
-    ele.focus();
-    ele.select();
+    var htmlToAdd = 
+    "<button id='partchild_new_button_save'           style='margin: 5px; background-color: #70A2FF; color: black;' onclick='saveNewPartChild();'  ><span style='color: white;'>S</span>ave</button>" 
+  + "<button id='partchild_new_button_cancel'         style='margin: 5px; background-color: #70A2FF; color: black;' onclick='cancelNewPartChild();'><span style='color: white;'>C</span>ancel</button>"
+  + "<table>";
+    for (var i = 0; i < _EXTRA_DB_FIELDS[db_index].length; ++i) 
+    {
+      htmlToAdd += "<tr><th>" + _EXTRA_DB_FIELDS[db_index][i] + "</th>";
+      htmlToAdd += "<td><input type='text' onfocus='deselectTable();' id='partchild_new_input_" + _EXTRA_DB_FIELDS[db_index][i] + "' style='width: 1000px;'></td></tr>";
+    }
+    htmlToAdd += "</table>";
+    document.getElementById("part_child_new_table_div").innerHTML = htmlToAdd;
+    var ele = document.getElementById("partchild_new_input_PN");
+    if(ele != null){
+      ele.focus();
+      ele.select();
+    }
   }
 }
 
@@ -1960,7 +2055,12 @@ function updateReorderParentIDs()
       }
     }
 
-    var table_html = "<table><tr><th></th><th>Descrip 1</th><th>Descrip 2</th><th>Reord</th><th>Keep</th><th>Bulk</th></tr>";
+    var table_html = "<table><tr><th></th>"
+    + "<th style='background-color: white; position: sticky; top: 0; z-index: 2;'>Descrip 1</th>"
+    + "<th style='background-color: white; position: sticky; top: 0; z-index: 2;'>Descrip 2</th>"
+    + "<th style='background-color: white; position: sticky; top: 0; z-index: 2;'>Reord</th>"
+    + "<th style='background-color: white; position: sticky; top: 0; z-index: 2;'>Keep</th>"
+    + "<th style='background-color: white; position: sticky; top: 0; z-index: 2;'>Bulk</th></tr>";
     var inc = 0;
     for(var i = 0; i < _reorder_parent_ids.length; ++i)
     {
@@ -1994,7 +2094,11 @@ var _invoice_filter_date_start = -1;
 var _invoice_filter_date_end = -1;
 function populateInvoiceHistory()
 {
-  var table_html = "<table><tr><th>Date</th><th>Name</th><th>Total</th><th>Invoice No.</th></tr>";
+  var table_html = "<table><tr>"
+  + "<th style='background-color: white; position: sticky; top: 0; z-index: 2;'>Date</th>"
+  + "<th style='background-color: white; position: sticky; top: 0; z-index: 2;'>Name</th>"
+  + "<th style='background-color: white; position: sticky; top: 0; z-index: 2;'>Total</th>"
+  + "<th style='background-color: white; position: sticky; top: 0; z-index: 2;'>Invoice No.</th></tr>";
   var filter_name = document.getElementById("invoice_history_filter_name").value;
   var filter_total = document.getElementById("invoice_history_filter_total").value;
   var filter_invoice_no = document.getElementById("invoice_history_filter_invoice_no").value;

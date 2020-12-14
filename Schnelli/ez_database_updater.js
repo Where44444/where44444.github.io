@@ -85,91 +85,116 @@ function log_in(){
       window.alert(errorMessage);
     });
   }
+        function readSingleFile_memos(evt) {
+          var f = evt.target.files[0];
+          if (f) {
+            var r = new FileReader();
+            r.onload = function(e) { 
+              var contents = e.target.result;
+              var finalContent = processLSTDataMemos(contents);
+              _content_look_up_pn = finalContent[0];
+              _content_models = finalContent[1];
+              _content_advice = finalContent[2];
+              _content_attn = finalContent[3];
+              if(_content_look_up_pn.length == _content_models.length && _content_look_up_pn.length == _content_advice.length && _content_look_up_pn.length == _content_attn.length)
+              {
+                document.getElementById("button_next_" + currentPage).style.display = "";
+              }
+              else
+              {
+                showSnackbar("Mismatch in number of memo field entries<br><span style='text-align: left;'>" + _content_look_up_pn.length + " - LOOK_UP_PN<br>" + _content_models.length + " - MODELS<br>" + _content_advice.length + " - ADVICE<br>" + _content_attn.length + " - ATTN</span>", 10000);
+              }
+            }
+            r.readAsText(f);
+          } else {
+            alert("Failed to load file");
+          }
+        }
 
-        function readSingleFile_look_up_pn(evt) {
-          var f = evt.target.files[0];
-          if (f) {
-            var r = new FileReader();
-            r.onload = function(e) { 
-              var contents = e.target.result;
-              _content_look_up_pn = processLSTData(contents);
-              console.log("look_up_pn " + _content_look_up_pn.length);
-              document.getElementById("button_next_4").style.display = "";
-            }
-            r.readAsText(f);
-          } else {
-            alert("Failed to load file");
-          }
-        }
+        // function readSingleFile_look_up_pn(evt) {
+        //   var f = evt.target.files[0];
+        //   if (f) {
+        //     var r = new FileReader();
+        //     r.onload = function(e) { 
+        //       var contents = e.target.result;
+        //       _content_look_up_pn = processLSTData(contents);
+        //       console.log("look_up_pn " + _content_look_up_pn.length);
+        //       document.getElementById("button_next_4").style.display = "";
+        //     }
+        //     r.readAsText(f);
+        //   } else {
+        //     alert("Failed to load file");
+        //   }
+        // }
               
-        function readSingleFile_advice(evt) {
-          var f = evt.target.files[0];
-          if (f) {
-            var r = new FileReader();
-            r.onload = function(e) { 
-              var contents = e.target.result;
-              _content_advice = processLSTData(contents);
-              console.log("advice " + _content_advice.length);
-              if(_content_advice.length == _content_look_up_pn.length)
-              {
-                document.getElementById("button_next_5").style.display = "";
-              }
-              else
-              {
-                showSnackbar("Mismatch in number of memo field entries<br>LOOK_UP_PN - " + _content_look_up_pn.length + "<br>ADVICE - " + _content_advice.length, 10000);
-              }
-            }
-            r.readAsText(f);
-          } else {
-            alert("Failed to load file");
-          }
-        }
+        // function readSingleFile_advice(evt) {
+        //   var f = evt.target.files[0];
+        //   if (f) {
+        //     var r = new FileReader();
+        //     r.onload = function(e) { 
+        //       var contents = e.target.result;
+        //       _content_advice = processLSTData(contents);
+        //       console.log("advice " + _content_advice.length);
+        //       if(_content_advice.length == _content_look_up_pn.length)
+        //       {
+        //         document.getElementById("button_next_5").style.display = "";
+        //       }
+        //       else
+        //       {
+        //         showSnackbar("Mismatch in number of memo field entries<br>LOOK_UP_PN - " + _content_look_up_pn.length + "<br>ADVICE - " + _content_advice.length, 10000);
+        //       }
+        //     }
+        //     r.readAsText(f);
+        //   } else {
+        //     alert("Failed to load file");
+        //   }
+        // }
               
-        function readSingleFile_attn(evt) {
-          var f = evt.target.files[0];
-          if (f) {
-            var r = new FileReader();
-            r.onload = function(e) { 
-              var contents = e.target.result;
-              _content_attn = processLSTData(contents);
-              console.log("attn " + _content_attn.length);
-              if(_content_attn.length == _content_look_up_pn.length)
-              {
-                document.getElementById("button_next_6").style.display = "";
-              }
-              else
-              {
-                showSnackbar("Mismatch in number of memo field entries<br>LOOK_UP_PN - " + _content_look_up_pn.length + "<br>ATTN - " + _content_attn.length, 10000);
-              }
-            }
-            r.readAsText(f);
-          } else {
-            alert("Failed to load file");
-          }
-        }
+        // function readSingleFile_attn(evt) {
+        //   var f = evt.target.files[0];
+        //   if (f) {
+        //     var r = new FileReader();
+        //     r.onload = function(e) { 
+        //       var contents = e.target.result;
+        //       _content_attn = processLSTData(contents);
+        //       console.log("attn " + _content_attn.length);
+        //       if(_content_attn.length == _content_look_up_pn.length)
+        //       {
+        //         document.getElementById("button_next_6").style.display = "";
+        //       }
+        //       else
+        //       {
+        //         showSnackbar("Mismatch in number of memo field entries<br>LOOK_UP_PN - " + _content_look_up_pn.length + "<br>ATTN - " + _content_attn.length, 10000);
+        //       }
+        //     }
+        //     r.readAsText(f);
+        //   } else {
+        //     alert("Failed to load file");
+        //   }
+        // }
               
-        function readSingleFile_models(evt) {
-          var f = evt.target.files[0];
-          if (f) {
-            var r = new FileReader();
-            r.onload = function(e) { 
-              var contents = e.target.result;
-              _content_models = processLSTData(contents);
-              console.log("models " + _content_models.length);
-              if(_content_models.length == _content_look_up_pn.length)
-              {
-                document.getElementById("button_next_7").style.display = "";
-              }
-              else
-              {
-                showSnackbar("Mismatch in number of memo field entries<br>LOOK_UP_PN - " + _content_look_up_pn.length + "<br>MODELS - " + _content_models.length, 10000);
-              }
-            }
-          r.readAsText(f);
-          } else {
-            alert("Failed to load file");
-          }
-        }
+        // function readSingleFile_models(evt) {
+        //   var f = evt.target.files[0];
+        //   if (f) {
+        //     var r = new FileReader();
+        //     r.onload = function(e) { 
+        //       var contents = e.target.result;
+        //       _content_models = processLSTData(contents);
+        //       console.log("models " + _content_models.length);
+        //       if(_content_models.length == _content_look_up_pn.length)
+        //       {
+        //         document.getElementById("button_next_7").style.display = "";
+        //       }
+        //       else
+        //       {
+        //         showSnackbar("Mismatch in number of memo field entries<br>LOOK_UP_PN - " + _content_look_up_pn.length + "<br>MODELS - " + _content_models.length, 10000);
+        //       }
+        //     }
+        //   r.readAsText(f);
+        //   } else {
+        //     alert("Failed to load file");
+        //   }
+        // }
 
         function readSingleFile_PA_PRI(evt) 
         {
@@ -184,12 +209,12 @@ function log_in(){
                 console.log(_content_PA_PRI[0]);
                 if(_content_PA_PRI.length == _content_look_up_pn.length)
                 {
-                  if(error1 == 1)
+                  if(error1 != 0)
                   {
-
+                    console.log(error1);
                   }
                   else
-                    document.getElementById("button_next_8").style.display = "";
+                    document.getElementById("button_next_" + currentPage).style.display = "";
 
                 }
                 else
@@ -215,7 +240,7 @@ function log_in(){
                 console.log("B_DNI " + _content_B_DNI.length);
                 console.log(_content_B_DNI[0]);
                 if(error1 == 0)
-                  document.getElementById("button_next_9").style.display = "";
+                  document.getElementById("button_next_" + currentPage).style.display = "";
               }
               r.readAsText(f);
           } 
@@ -236,7 +261,7 @@ function log_in(){
                 console.log("CHLX " + _content_CHLX.length);
                 console.log(_content_CHLX[0]);
                 if(error1 == 0)
-                  document.getElementById("button_next_10").style.display = "";
+                  document.getElementById("button_next_" + currentPage).style.display = "";
               }
               r.readAsText(f);
           } else {
@@ -257,7 +282,7 @@ function log_in(){
               console.log("DNI " + _content_DNI.length);
               console.log(_content_DNI[0]);
               if(error1 == 0)
-                document.getElementById("button_next_11").style.display = "";
+                document.getElementById("button_next_" + currentPage).style.display = "";
             }
             r.readAsText(f);
           } 
@@ -278,7 +303,7 @@ function log_in(){
                 console.log("GEM " + _content_GEM.length);
                 console.log(_content_GEM[0]);
                 if(error1 == 0)
-                  document.getElementById("button_next_12").style.display = "";
+                  document.getElementById("button_next_" + currentPage).style.display = "";
               }
               r.readAsText(f);
           } else {
@@ -298,7 +323,7 @@ function log_in(){
                 console.log("H_RS " + _content_H_RS.length);
                 console.log(_content_H_RS[0]);
                 if(error1 == 0)
-                  document.getElementById("button_next_13").style.display = "";
+                  document.getElementById("button_next_" + currentPage).style.display = "";
               }
               r.readAsText(f);
           } else {
@@ -318,7 +343,7 @@ function log_in(){
                 console.log("I_MM " + _content_I_MM.length);
                 console.log(_content_I_MM[0]);
                 if(error1 == 0)
-                  document.getElementById("button_next_14").style.display = "";
+                  document.getElementById("button_next_" + currentPage).style.display = "";
               }
               r.readAsText(f);
           } else {
@@ -338,7 +363,7 @@ function log_in(){
                 console.log("JS " + _content_JS.length);
                 console.log(_content_JS[0]);
                 if(error1 == 0)
-                  document.getElementById("button_next_15").style.display = "";
+                  document.getElementById("button_next_" + currentPage).style.display = "";
               }
               r.readAsText(f);
           } else {
@@ -358,7 +383,7 @@ function log_in(){
                 console.log("OEM " + _content_OEM.length);
                 console.log(_content_OEM[0]);
                 if(error1 == 0)
-                  document.getElementById("button_next_16").style.display = "";
+                  document.getElementById("button_next_" + currentPage).style.display = "";
               }
               r.readAsText(f);
           } else {
@@ -366,10 +391,10 @@ function log_in(){
           }
         }
 
-        var _content_look_up_pn;
-        var _content_advice;
-        var _content_attn;
-        var _content_models;
+        var _content_look_up_pn = [];
+        var _content_advice = [];
+        var _content_attn = [];
+        var _content_models = [];
         var _content_PA_PRI;
         var _content_B_DNI;
         var _content_CHLX;
@@ -380,10 +405,11 @@ function log_in(){
         var _content_JS;
         var _content_OEM;
         
-        document.getElementById('fileinput_look_up_pn').addEventListener('change', readSingleFile_look_up_pn, false);
-        document.getElementById('fileinput_advice').addEventListener('change', readSingleFile_advice, false);
-        document.getElementById('fileinput_attn').addEventListener('change', readSingleFile_attn, false);
-        document.getElementById('fileinput_models').addEventListener('change', readSingleFile_models, false);
+        document.getElementById('fileinput_memos').addEventListener('change', readSingleFile_memos, false);
+        // document.getElementById('fileinput_look_up_pn').addEventListener('change', readSingleFile_look_up_pn, false);
+        // document.getElementById('fileinput_advice').addEventListener('change', readSingleFile_advice, false);
+        // document.getElementById('fileinput_attn').addEventListener('change', readSingleFile_attn, false);
+        // document.getElementById('fileinput_models').addEventListener('change', readSingleFile_models, false);
         document.getElementById('fileinput_pa_pri').addEventListener('change', readSingleFile_PA_PRI, false);
         document.getElementById('fileinput_b_dni').addEventListener('change', readSingleFile_B_DNI, false);
         document.getElementById('fileinput_chlx').addEventListener('change', readSingleFile_CHLX, false);
@@ -394,13 +420,33 @@ function log_in(){
         document.getElementById('fileinput_js').addEventListener('change', readSingleFile_JS, false);
         document.getElementById('fileinput_oem').addEventListener('change', readSingleFile_OEM, false);
 
-        function processLSTData(allText){
+        // function processLSTData(allText){
+        //   //Remove beginning gibberish and *
+        //   while(allText.length > 0 && allText.charAt(0) != "*")
+        //     allText = allText.substring(1, allText.length);
+        //   allText = allText.substring(1, allText.length);
+        //   var contents = allText.split("\n\*");
+        //   var finalContent = [];
+        //   for(var i = 0; i < contents.length; ++i){
+        //       var contentlines = contents[i].split("\n");
+        //       for(var j = 0; j < contentlines.length; ++j){
+        //           while(contentlines[j].length > 0 && contentlines[j][0] == " ")
+        //           {
+        //               contentlines[j] = contentlines[j].substring(1, contentlines[j].length);
+        //           }
+        //       }
+        //       finalContent.push(contentlines);
+        //   }
+        //   return finalContent;
+        // }
+
+        function processLSTDataMemos(allText){
           //Remove beginning gibberish and *
           while(allText.length > 0 && allText.charAt(0) != "*")
             allText = allText.substring(1, allText.length);
           allText = allText.substring(1, allText.length);
           var contents = allText.split("\n\*");
-          var finalContent = [];
+          var finalContent = [[], [], [], []];
           for(var i = 0; i < contents.length; ++i){
               var contentlines = contents[i].split("\n");
               for(var j = 0; j < contentlines.length; ++j){
@@ -409,7 +455,7 @@ function log_in(){
                       contentlines[j] = contentlines[j].substring(1, contentlines[j].length);
                   }
               }
-              finalContent.push(contentlines);
+              finalContent[i % 4].push(contentlines);
           }
           return finalContent;
         }
@@ -603,14 +649,25 @@ function log_in(){
 
   }
 
-  function pageButton(currentPage, nextPage)
+  var currentPage = 0;
+  function pageButtonNext()
   {
     document.getElementById("instructions_page_" + currentPage).style.display = "none";
+    ++currentPage;
     setTimeout(function(){
-      document.getElementById("instructions_page_" + nextPage).style.display = "";
+      document.getElementById("instructions_page_" + currentPage).style.display = "";
     }, 10);
   }
         
+  function pageButtonPrev()
+  {
+    document.getElementById("instructions_page_" + currentPage).style.display = "none";
+    --currentPage;
+    setTimeout(function(){
+      document.getElementById("instructions_page_" + currentPage).style.display = "";
+    }, 10);
+  }
+
   var firebaseConfig = {
     apiKey: "AIzaSyBiHDF9LJepi4QyOhHeayZT_etKN5AjlGs",
     authDomain: "appliance-parts-f45cd.firebaseapp.com",

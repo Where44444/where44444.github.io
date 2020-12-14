@@ -92,30 +92,45 @@ function getParentIndexFromID(id1)
   return null;
 }
 
-function getExtraDBLinkIndex(_content_extra_db_index, pn) {
+var _extradb_link_index_cache = [new Map(), new Map(), new Map(), new Map(), new Map(), new Map(), new Map(), new Map(), new Map()];
+function getExtraDBLinkIndex(db, pn) {
   if (pn.length > 0) {
-    for (var i = 0; i < _content_extra[_content_extra_db_index].length; ++i) //Exact match PN
+
+    if(_extradb_link_index_cache[db].has(pn))
     {
-      if (String(_content_extra[_content_extra_db_index][i][0].PN) == pn) {
+      var index = _extradb_link_index_cache[db].get(pn);
+      if(_content_extra[db].length > index && String(_content_extra[db][index][0].PN) == pn) //Only include exact match PN in cache to ensure it doesn't load inferior match if indexes are changed
+      {
+        return index;
+      }
+      
+      _extradb_link_index_cache[db].delete(pn); //Cache invalid
+    }
+    
+    for (var i = 0; i < _content_extra[db].length; ++i) //Exact match PN
+    {
+      if (String(_content_extra[db][i][0].PN) == pn) 
+      {
+        _extradb_link_index_cache[db].set(pn, i);
         return i;
       }
     }
-    for (var i = 0; i < _content_extra[_content_extra_db_index].length; ++i) {
+    for (var i = 0; i < _content_extra[db].length; ++i) {
       var pn1 = getStandardPNString(pn);
-      if (getStandardPNString(String(_content_extra[_content_extra_db_index][i][0].PN)) == pn1) //General match PN
+      if (getStandardPNString(String(_content_extra[db][i][0].PN)) == pn1) //General match PN
       {
         return i;
       }
     }
-    for (var i = 0; i < _content_extra[_content_extra_db_index].length; ++i) //Exact match AKA
+    for (var i = 0; i < _content_extra[db].length; ++i) //Exact match AKA
     {
-      if (String(_content_extra[_content_extra_db_index][i][0].AKA) == pn) {
+      if (String(_content_extra[db][i][0].AKA) == pn) {
         return i;
       }
     }
-    for (var i = 0; i < _content_extra[_content_extra_db_index].length; ++i) {
+    for (var i = 0; i < _content_extra[db].length; ++i) {
       var pn1 = getStandardPNString(pn);
-      if (getStandardPNString(String(_content_extra[_content_extra_db_index][i][0].AKA)) == pn1) //General match AKA
+      if (getStandardPNString(String(_content_extra[db][i][0].AKA)) == pn1) //General match AKA
       {
         return i;
       }
@@ -405,16 +420,35 @@ function toggle_similar_string_table(id) {
     document.getElementById(tableID).style.display = "block";
     document.getElementById(expanderID).innerHTML = "-";
   }
-  else {
+  else 
+  {
     document.getElementById(tableID).style.display = "none";
     document.getElementById(expanderID).innerHTML = "+";
   }
 }
 
-function getContentIndexFrom_DB_ID(db_id) {
+var _DBID_to_ContentIndex_Cache = new Map();
+function getContentIndexFrom_DB_ID(db_id) 
+{
+  if(_DBID_to_ContentIndex_Cache.has(db_id))
+  {
+    var index = _DBID_to_ContentIndex_Cache.get(db_id);
+    if(_content.length > index && _content[index][_content[index].length - 1] == db_id)
+    {
+      return index;
+    }
+    else
+    {
+      _DBID_to_ContentIndex_Cache.delete(db_id);
+    }
+  }
+
   for (var i = 0; i < _content.length; ++i) {
     if (_content[i][_content[i].length - 1] == db_id)
+    {
+      _DBID_to_ContentIndex_Cache.set(db_id, i);
       return i;
+    }
   }
   // console.log("Failed to find content row with id " + db_id);
   return null;
@@ -466,6 +500,8 @@ function sortContentByIndex(index) {
           onCellClick(index1, _selectedCell, cell.id, _selectedTable);
       }
     }
+    showSnackbar("Sorting search results...", 3000);
+    re_sort_searchResults();
     setTab(_selected_tab);
   }
 }
@@ -474,12 +510,12 @@ function sortContentBySortOrder(order_index) {
   showSnackbar("Sorting by index...", 6000);
   // document.getElementById("message").innerHTML = "<p>Sorting by index...</p>";
   document.getElementById("content_div").style.display = "none";
-
+  
   var _selectedRecord_DB_ID = null;
   if (_selectedTable == _TABLE_RECORD_BROWSER && _selectedRow >= 0 && _selectedRow < _content.length) {
     _selectedRecord_DB_ID = _content[_selectedRow][_content[_selectedRow].length - 1];
   }
-
+  
   var sorted_indexes = _sort_orders[order_index].sorted_indexes;
   if (isArrayEqual(sorted_indexes, _contentSortedIndex)) {
     _contentSortedReverse = !_contentSortedReverse;
@@ -487,7 +523,7 @@ function sortContentBySortOrder(order_index) {
   else {
     _contentSortedReverse = false;
   }
-
+  
   var sortWorker = new Worker('workers/sort_content_by_sort_order.js');
   sortWorker.postMessage([_content, sorted_indexes, _INDEXES, _contentSortedReverse]);
   sortWorker.onmessage = function (e) {
@@ -503,28 +539,36 @@ function sortContentBySortOrder(order_index) {
         populateRecordBrowser(index1, false);
         var cell = getCell(index1, _selectedCell, _selectedTable);
         if (cell != null)
-          onCellClick(index1, _selectedCell, cell.id, _selectedTable);
+        onCellClick(index1, _selectedCell, cell.id, _selectedTable);
       }
     }
+    showSnackbar("Sorting search results...", 3000);
+    re_sort_searchResults();
     setTab(_selected_tab);
   }
+}
+
+function re_sort_searchResults()
+{
+  _searchResults.sort(COMPARE_SEARCHRESULTS_TO_SORTED_CONTENT);
+  populateSearchResults(_currentSearchResultsStartIndex, false, false, -1);
 }
 
 function generateContent_Standard() {
   _content_standard = [];
   for (var i = 0; i < _content.length; ++i)
-    _content_standard.push(getStandardRow(i));
-  setLargestRecordNumber();
+  _content_standard.push(getStandardRow(i));
+  setLargestRecordNumbers();
 }
 
 function generateContent_Standard_Row(rownum) {
   _content_standard[rownum] = getStandardRow(rownum);
-  setLargestRecordNumber();
+  setLargestRecordNumbers();
 }
 
 function generateContent_Standard_New() {
   _content_standard.push(getStandardRow(_content.length - 1));
-  setLargestRecordNumber();
+  setLargestRecordNumbers();
 }
 
 function getStandardRow(content_index) {
@@ -667,6 +711,12 @@ function setRadioColumn() {
     document.getElementById("radio_columns_div").style.display = "none";
     document.getElementById("radio_columns_all_none_buttons_div").style.display = "none";
   }
+  var ele = document.getElementById("search_input_" + _INDEX_ORDER[0]);
+  if(ele != null && document.getElementById("radio_columns_div").style.display != "none")
+  {
+    ele.focus();
+    ele.select();    
+  }
 }
 
 function setRadioColumnsChecked(bool) {
@@ -733,7 +783,7 @@ function startEditRecord(record_id, rownum, row_id) {
   var cells1 = document.getElementById(row_id).cells;
   for (var i = 0; i < INDEXES_CONCAT.length; ++i) {
     var index = _INDEX_ORDER[i];
-    if (index == 0) {
+    if (i == 0) {
       cells1[i].innerHTML = "<div style='display: flex; align-items: center; justify-content: center;'>" +
         "<div style='flex-direction: column;'>" +
         "<button id='save_edit_record' onclick='saveEditRecord(" + rownum + ");'          style='background-color: #70A2FF; color: black; width: 60px;'><span style='color: white;'>S</span>ave</button>" +
@@ -742,7 +792,7 @@ function startEditRecord(record_id, rownum, row_id) {
         "<button id='confirm_delete_record' onclick='confirmDeleteRecord(" + rownum + ")' style='background-color: #70A2FF; color: black; display: none; color: red;'>Confirm&nbsp;<span style='color: white;'>D</span>elete</button>" +
         "<button id='cancel_delete_record' onclick='cancelDeleteRecord();'                style='background-color: #70A2FF; color: black; display: none;'><span style='color: white;'>C</span>ancel Delete</button>" +
         "</div>" +
-        "<input type='text' id='edit_textarea_" + i + "' style='width: 50%;' onfocus='deselectTable();' onchange='deselectTable();'></input></div>";
+                            "<input type='text' id='edit_textarea_" + i + "' style='width: " + INDEX_WIDTHS_CONCAT[index] + "' onfocus='deselectTable();' onchange='deselectTable();'></input></div>";
       document.getElementById("edit_textarea_" + i).value = _content[rownum][index];
     }
     else if (index < _INDEXES.length) {
@@ -771,7 +821,7 @@ function saveEditRecord(rownum) {
   }
   generateContent_Standard_Row(rownum);
   populateRecordBrowser(_currentRecordBrowserStartIndex, false);
-  clearSearchResults(true);
+  clearSearchResults();
 
   if (!_LOCAL_MODE) {
     var row = _content[rownum];
@@ -840,19 +890,21 @@ function startNewRecord(indexToCopy) {
 
   for (var i = 0; i < INDEX_WIDTHS_CONCAT.length; ++i) {
     var index = _INDEX_ORDER[i];
-    if (index == 0) 
+    if (i == 0) 
     {
       tableHTML += "<td><div style='display: flex; align-items: center; justify-content: center;'>" +
         "<div style='flex-direction: column;'>" +
         "<button id='save_new_record'   style='width: 60px; background-color: #70A2FF; color: black;'                  onclick='saveNewRecord();'  ><span style='color: white;'>S</span>ave</button>" +
         "<button id='cancel_new_record' style='width: 60px; background-color: #70A2FF; color: black; margin-top: 5px;' onclick='cancelNewRecord();'><span style='color: white;'>C</span>ancel</button>" +
         "</div>" +
-        "<input type='text' id='new_textarea_" + i + "' style='width: 50%;' onfocus='deselectTable();' onchange='deselectTable();' value=" + (_largestRecordNumber + 1) + "></input></div></td>";
+        "<input type='text' id='new_textarea_" + i + "' style='width: " + INDEX_WIDTHS_CONCAT[index] + ";' onfocus='deselectTable();' onchange='deselectTable();'></input></div></td>";
     }
     else if (index < _INDEXES.length)
-      tableHTML += "<td><input type='text' id='new_textarea_" + i + "' style='width: " + INDEX_WIDTHS_CONCAT[index] + ";' onfocus='deselectTable();' onchange='deselectTable();'></input></td>";
+      tableHTML += "<td>" +
+        "<input type='text' id='new_textarea_" + i + "' style='width: " + INDEX_WIDTHS_CONCAT[index] + ";' onfocus='deselectTable();' onchange='deselectTable();'></input></td>";
     else
-      tableHTML += "<td><textarea id='new_textarea_" + i + "' style='width: " + INDEX_WIDTHS_CONCAT[index] + ";' onfocus='deselectTable();' onchange='deselectTable();'></textarea></td>";
+      tableHTML += "<td>" +
+        "<textarea id='new_textarea_" + i + "' style='width: " + INDEX_WIDTHS_CONCAT[index] + ";' onfocus='deselectTable();' onchange='deselectTable();'></textarea></td>";
   }
 
   tableHTML += "</tr></table><br>";
@@ -870,6 +922,16 @@ function startNewRecord(indexToCopy) {
   {
     ele.focus();
     ele.select();
+  }
+  ele = document.getElementById("new_textarea_" + _INDEX_ORDER.indexOf(_OEM_PN));
+  if(ele != null)
+  {
+    ele.value = "OEM" + (_largestOEMNumber + 1);
+  }
+  ele = document.getElementById("new_textarea_" + _INDEX_ORDER.indexOf(_RECORD_NUMBER));
+  if(ele != null)
+  {
+    ele.value = "" + (_largestRecordNumber + 1);
   }
 }
 
@@ -900,7 +962,7 @@ function saveNewRecord() {
 
   generateContent_Standard_New();
   populateRecordBrowser(_currentRecordBrowserStartIndex, false);
-  clearSearchResults(true);
+  clearSearchResults();
 
   if (!_LOCAL_MODE) {
     var partObj = new Object();
@@ -939,8 +1001,8 @@ function confirmDeleteRecord(rownum) {
   _content_standard.splice(rownum, 1);
 
   populateRecordBrowser(_currentRecordBrowserStartIndex, false);
-  setLargestRecordNumber();
-  clearSearchResults(true);
+  setLargestRecordNumbers();
+  clearSearchResults();
 }
 
 function startNewSortOrder(id1) {
@@ -1115,20 +1177,31 @@ function copyArray1D(array) {
   return result;
 }
 
-function setLargestRecordNumber() {
+function setLargestRecordNumbers() {
   _largestRecordNumber = 0;
+  _largestOEMNumber = 0;
   for (var i = 0; i < _content.length; ++i) {
     var recordnumber = Number(_content_standard[i][0]);
     if (recordnumber > _largestRecordNumber)
       _largestRecordNumber = recordnumber;
+    var oemString = String(_content[i][_OEM_PN]);
+    if(oemString.length > 3)
+    {
+      if(oemString.substring(0, 3).toLowerCase() == "oem")
+      {
+        var oemNumber = Number(oemString.substring(3, oemString.length));
+        if(oemNumber > _largestOEMNumber)
+          _largestOEMNumber = oemNumber;
+      }
+    }
   }
 }
 
-function clearSearchResults(suppressSetTab) {
+function clearSearchResults() {
   document.getElementById("radio_columns_any").checked = true;
   document.getElementById("search_input").value = "";
   setRadioColumn();
-  search_query(true, suppressSetTab);
+  search_query(true);
 }
 
 function recordBrowserJumpToEdge(end) {
@@ -1296,15 +1369,34 @@ function toggle_record_browser(bool) {
   }
 }
 
-function getExpandableHTML(str_array, id, char_limit, width) {
-  var str = stringifyArrayEndChar(str_array, "<br>");
+function getExpandableHTML(str_array, id, char_limit, width, /*optional*/ html_string) {
+  var str;
+  var content_str;
+  if(html_string != null)
+  {
+    str = html_string;
+    content_str = html_string.replace(/(<([^>]+)>)/ig, ''); //Strip html tags
+  }
+  else
+  {
+    str = stringifyArrayEndChar(str_array, "<br>");
+    content_str = str;
+  }
+  
   var result = str;
-  if (str.length > char_limit) {
+  if (content_str.length > char_limit) {
     var id_str = "expandable_html_str_" + id;
     var id_str_short = "expandable_html_str_short_" + id;
     var id_more = "expandable_html_more_" + id;
     var id_less = "expandable_html_less_" + id;
-    var str_short = stringifyArrayEndChar(str_array, " ").substring(0, char_limit) + "...";
+    var str_short;
+    if(html_string != null)
+    {
+      str_short = "<div style='overflow: hidden; width: " + width + "; height: 18px; text-overflow: ellipsis; white-space: nowrap; display: block;'>" + html_string.replace("<br>", " ") + "</div>";
+    }
+    else
+      str_short = stringifyArrayEndChar(str_array, " ").substring(0, char_limit) + "...";
+
     var scriptMore = "document.getElementById('" + id_str_short + "').style.display='none'; document.getElementById('" + id_str + "').style.display=''; this.style.display='none'; document.getElementById('" + id_less + "').style.display=''";
     var scriptLess = "document.getElementById('" + id_str + "').style.display='none'; document.getElementById('" + id_str_short + "').style.display=''; this.style.display='none'; document.getElementById('" + id_more + "').style.display=''";
     result = "<span id=" + id_str_short + ">" + str_short + "</span>" +
@@ -1335,10 +1427,10 @@ function getSortColor(index) {
   var pos = _contentSortedIndex.indexOf(index);
   var color1 = pos * (155 / _contentSortedIndex.length) + 100;
   if (_contentSortedReverse) {
-    return ("rgb(255, " + color1 + "," + color1 + ");");
+    return ("rgb(255, " + color1 + "," + color1 + ")");
   }
   else {
-    return ("rgb(" + color1 + "," + color1 + ", 255);");
+    return ("rgb(" + color1 + "," + color1 + ", 255)");
   }
 }
 
@@ -1354,15 +1446,18 @@ function recordViewIconMouseOut(id1) {
     document.getElementById("record_view_icon_" + id1).style.display = "none";
 }
 
+var _record_view_page_list = [];
 function addRecordView(key) {
   showSnackbar("Added to Record Views", 3000);
   _recordViews.push(key);
+  _record_view_page_list.push(1);
   populateRecordViews();
   setKeyboardShortcutBar();
 }
 
 function removeRecordView(pos) {
   _recordViews.splice(pos, 1);
+  _record_view_page_list.splice(pos, 1);
   populateRecordViews();
   if(_recordViews.length > 0)
   {
@@ -1446,8 +1541,10 @@ function setRecordViewHighlightType(type) {
   populateRecordViews();
   if (type == 0)
     document.getElementById("radio_record_views_differences").checked = true;
-  else
+  else if(type == 1)
     document.getElementById("radio_record_views_similarities").checked = true;
+  else if(type == 2)
+    document.getElementById("radio_record_views_compareall").checked = true;
 }
 
 function toggleRecordViewMemo(id1) {
@@ -1891,7 +1988,7 @@ function reloadContentFromChangeAlert(alertOBJ) {
         _content.splice(rownum, 1);
         _content_standard.splice(rownum, 1);
         populateRecordBrowser(_currentRecordBrowserStartIndex, false);
-        setLargestRecordNumber();
+        setLargestRecordNumbers();
       }
       else //Edit Record
       {
@@ -2125,6 +2222,20 @@ function setTab(num)
     document.getElementById(TAB_DIVS[i]).style.fontWeight = "";
   }
 
+  document.getElementById(TAB_DIVS[num] + "_div").style.display = "";
+  document.getElementById(TAB_DIVS[num]).style.borderBottomColor = "transparent";
+  document.getElementById(TAB_DIVS[num]).style.fontWeight = "700";
+
+  if(num == TAB_SEARCH)
+  {
+    var ele = document.getElementById("search_input_" + _INDEX_ORDER[0]);
+    if(ele != null && document.getElementById("radio_columns_div").style.display != "none")
+    {
+      ele.focus();
+      ele.select();    
+    }
+  }
+
   if(num == TAB_SEARCH_RESULTS)
   {
     var cell = getCell(0, _selectedCell, _TABLE_SEARCH_RESULTS);
@@ -2143,10 +2254,6 @@ function setTab(num)
     if(cell != null)
       onCellClick(_currentRecordBrowserStartIndex, _selectedCell, cell.id, _TABLE_RECORD_BROWSER);
   }
-
-  document.getElementById(TAB_DIVS[num] + "_div").style.display = "";
-  document.getElementById(TAB_DIVS[num]).style.borderBottomColor = "transparent";
-  document.getElementById(TAB_DIVS[num]).style.fontWeight = "700";
 
   if(num == TAB_INVOICE)
   {
@@ -2198,7 +2305,7 @@ function setTab(num)
     }
   }
 
-  if(num != TAB_INVOICE_SETTINGS && num != TAB_INVOICE && num != TAB_ADD_INVOICE)
+  if(num != TAB_INVOICE_SETTINGS && num != TAB_INVOICE && num != TAB_ADD_INVOICE && num != TAB_SEARCH)
   {
     document.activeElement.blur();
   }
@@ -2808,7 +2915,7 @@ function googlesearch_hndlr(response) {
     showSnackbar("No results found", 3000);
 }
 
-function showRecordViewImage(partSearchTerm, sitesEnum)
+function showRecordViewImage(descrip1, partSearchTerm, sitesEnum)
 {
   if(_google_cse_api_key_loaded)
   {
@@ -2828,7 +2935,12 @@ function showRecordViewImage(partSearchTerm, sitesEnum)
 
     // };
 
-    script.src = "https://www.googleapis.com/customsearch/v1?key=" + _google_cse_api_key + "&cx=" + searchEngineID + "&q=" + cleanPartSearchTerm + "&callback=googlesearch_hndlr&searchType=image&num=10";
+    var descrip1_split = removeExtraSpaces(descrip1.replace("-", " ")).split(" ");
+
+    descrip1 = "";
+    if(descrip1_split.length > 0)
+      descrip1 = descrip1_split[0];
+    script.src = "https://www.googleapis.com/customsearch/v1?key=" + _google_cse_api_key + "&cx=" + searchEngineID + "&q=" + descrip1 + " " + cleanPartSearchTerm + "&callback=googlesearch_hndlr&searchType=image&num=10";
 
     document.getElementById("googlesearch_api_script_div").innerHTML = "";
     document.getElementById("googlesearch_api_script_div").appendChild(script);
@@ -2873,4 +2985,394 @@ function changeGoogleSearchImage(direction)
 function setGoogleSearchImageCount()
 {
   document.getElementById("paragraph_googlesearch_image_count").innerHTML = (_images_googlesearch_currentindex + 1) + " / " + _images_googlesearch_list.length;
+}
+
+var _RECORDVIEW_FRACTIONS_TO_DECIMAL_TEXT = "1/16=.0625 1/8=.125 1/4=.25 3/8=.375 1/2=.5 5/8=.625 3/4=.75 7/8=.875";
+var _RECORDVIEW_SPEC_BORDER_TOP =    "border-top:    3px black solid; border-left: 3px black solid; border-right: 3px black solid;";
+var _RECORDVIEW_SPEC_BORDER_MIDDLE =                                 "border-left: 3px black solid; border-right: 3px black solid;";
+var _RECORDVIEW_SPEC_BORDER_BOTTOM = "border-bottom: 3px black solid; border-left: 3px black solid; border-right: 3px black solid;";
+var _RECORDVIEW_MAX_PAGES = 4;
+function getRecordViewPage(rownum, page_num, i)
+{
+  var htmlToAdd = "";
+  switch(page_num)
+  {
+    //-------------------------------------------------PAGE 1-------------------------------------------------------------
+    case 1:
+      htmlToAdd += "<table><tr>";
+      htmlToAdd += "<th>Page 1</th><th></th><th></th><th></th><th></th><th></th><th></th><th></th>";
+      htmlToAdd += "<th colspan='4' style='text-align: center;'>VENDOR PICK/PACK/INV SLIP</th>";
+      htmlToAdd += "<th></th><th></th><th></th><th></th><th></th><th></th>";
+      
+      htmlToAdd += "</tr><tr>";
+      for(var j = 0; j < RECORD_VIEW_HEADERS_PAGE1.length; ++j)
+      {
+        if(j == 0)
+          htmlToAdd += "<th style='width: " + RECORD_VIEW_DB_HEADER_WIDTH + ";'></th>";
+        htmlToAdd += "<th style='width: " + RECORD_VIEW_HEADERS_WIDTHS_PAGE1[j] + ";'><p>" + RECORD_VIEW_HEADERS_PAGE1[j] + "</p></th>";
+      }
+      htmlToAdd += "<th>Reliable Parts</th><th>Encompass</th><th>Marcone</th><th>Image</th>";
+      htmlToAdd += "</tr>";
+      var parent_record_id = _content[rownum][INDEXES_CONCAT.length];
+      for(var j = 0; j < _EXTRA_DB.length; ++j)
+      {
+        if(j != 2) //Skip DNI ExtraDB
+        {
+          var _content_partnum_for_extraDB = _content[rownum][_CONTENT_EXTRA_DB_INDEXES[j]];
+          var extraDBIndex = getExtraDBLinkIndex(j, _content_partnum_for_extraDB);
+          if(j == _EXTRA_DB.length - 1) //Last row
+            htmlToAdd += "<tr style='border-top: solid; border-bottom: solid; border-width: 4px; border-color: black;'>";
+          else
+            htmlToAdd += "<tr>";
+          var partSearchTerm = "";
+          for(var k = 0; k < RECORD_VIEW_HEADERS_PAGE1.length; ++k)
+          { 
+            htmlToAdd += "<td>";
+            if(k == 0)
+            {
+              htmlToAdd += "<div style='width: 30px; display: inline-block;'>" + _EXTRA_DB[j] + "</div>";
+              if(extraDBIndex != null)
+                htmlToAdd += "<div style='display: inline; font-size: 20px;' id='sell_div_" + i + "_" + j + "'><br><button style='background-color: #70A2FF; color: black;' id='sell_button_" + i + "_" + j + "' onclick='startSell(" + i + "," + j + ");'><span style='color: white;'>S</span>ell</button>"
+                + "<div id='sell_form_" + i + "_" + j + "' style='display: none;'>"
+                + "<p>Quantity</p>"
+                + "<button style='width: 100px;' onclick='changeSellQuantity(" + i + "," + j + ",  1);'>+</button><br>"
+                + "<input onfocus='deselectTable();' style='width: 100px; height: 50px; font-size: 30px; text-align: center;' type='number' value='1' id='sell_quantity_" + i + "_" + j + "'><br>"
+                + "<button style='width: 100px;' onclick='changeSellQuantity(" + i + "," + j + ", -1);'>-</button><br><br>"
+                + "<button id='button_record_view_sell_confirm_" + i + "_" + j + "' style='width: 150px; height: 30px; background-color: #70A2FF; color: black;' onclick='confirmSell(" + i + "," + j + ",\"" + _content_partnum_for_extraDB + "\",\"" + parent_record_id + "\");'>Confirm <span style='color: white;'>S</span>ell</button><br><br>"
+                + "<button id='button_record_view_sell_cancel_" + i + "_" + j + "'  style='width: 150px; height: 30px; background-color: #70A2FF; color: black;' onclick='populateRecordViews();'><span style='color: white;'>C</span>ancel</button></div></div>";
+              htmlToAdd += "</td><td>";
+            }
+            else if(k == 1)
+            {
+              htmlToAdd += "<img class='clickable' id='record_view_partnum_edit_icon_" + i + "_" + j + "' src='pencil.png' width=25px height=25px onclick='startEditRecordPartReference(" + i + "," + j + ");' style='position: relative; bottom: -6px;'>&nbsp;&nbsp;";
+              partSearchTerm = _content_partnum_for_extraDB;
+              var pText = "";
+              var clean_content_partnum_for_extraDB = removeExtraSpaces(_content_partnum_for_extraDB);
+              if(extraDBIndex == null && clean_content_partnum_for_extraDB != "")
+                pText = _content_partnum_for_extraDB + "<span style='color: red;'>&nbsp;&nbsp;&nbsp;Not Found in Child Database!</span>";
+              else if(clean_content_partnum_for_extraDB == "")
+              {
+                pText = "";
+              }
+              else
+                pText = "<span id='span_recordviews_jump_to_child_part_" + i + "_" + j + "' class='clickable' style='color: blue;' onclick='jumpToChildPartFromRecordView(" + j + "," + extraDBIndex + ");'><u>" + _content_partnum_for_extraDB + "</u></span>";
+              htmlToAdd += "<p id='record_view_partnum_text_" + i + "_" + j + "' style='display: inline;'>" + pText + "</p><input type='text' style='display: none;' id='record_view_partnum_input_" + i + "_" + j +"' onfocus='onPartNumFocus(" + i + "," + j + ");' value='" + getHTMLSafeText(_content_partnum_for_extraDB) + "' onkeyup='partnum_input_keyup_event(event);' onkeydown='partnum_input_keydown_event(event);'><div style='position: absolute;' id='partnum_autocomplete_" + i + "_" + j + "'></div>"
+              + "<button id='record_view_partnum_save_button_"   + i + "_" + j + "' style='width: 70px; font-size: 20px; display: none; background-color: #70A2FF; color: black; margin-bottom: 2px;' onclick='saveEditRecordPartReference(" + i + "," + j + ");'><span style='color: white;'>S</span>ave</button>"
+              + "<button id='record_view_partnum_cancel_button_" + i + "_" + j + "' style='width: 70px; font-size: 20px; display: none; background-color: #70A2FF; color: black;' onclick='populateRecordViews();'><span style='color: white;'>C</span>ancel</button>" + "&nbsp;&nbsp;&nbsp;&nbsp;";
+            }
+            if(extraDBIndex != null){
+              var content1 = _content_extra[j][extraDBIndex][0][RECORD_VIEW_HEADERS_ACTUAL_INDEXES_PAGE1[k][j]];
+              if(content1 != null){
+                if(k == 1) //PART#
+                {
+                  //Filled in with link
+                }
+                else if(k == 9 || k == 10 || k == 11) //"CGS",   "RETAIL",     "SELL" in usd format
+                {
+                  htmlToAdd += "<span id='record_view_data_read_" + RECORD_VIEW_HEADERS_PAGE1[k] + "_" + i + "_" + j + "'>" + content1.toLocaleString("en-US", {style: "currency", currency: "USD", minimumFractionDigits: 2}) + "</span>";
+                }
+                else if(k == 12) //"COMMENTS"
+                {
+                  var htmlCheck = "<input type='checkbox' disabled>";
+                  if(content1.replace(" ", "").length > 0)
+                  {
+                    htmlCheck = "<div class='tooltip'><span class='tooltiptext'>" + content1 + "</span><input type='checkbox' checked disabled></div>";
+                  }
+                  htmlToAdd += "<span id='record_view_data_read_" + RECORD_VIEW_HEADERS_PAGE1[k] + "_" + i + "_" + j + "'>" + htmlCheck + "</span>";
+                }
+                else
+                {
+                  htmlToAdd += "<span id='record_view_data_read_" + RECORD_VIEW_HEADERS_PAGE1[k] + "_" + i + "_" + j + "'>" + content1 + "</span>";
+                }
+                if(k != 1) //Add input for editing values
+                {
+                  htmlToAdd += "<input type='text' onfocus='deselectTable();' id='record_view_data_input_" + RECORD_VIEW_HEADERS_PAGE1[k] + "_" + i + "_" + j + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(content1) + "'>";
+                }
+              }
+            }
+            else //No matching link found in Extra DB, usually Part# is blank
+            {
+              if(k == 1)
+              {
+                htmlToAdd += "<input type='text' style='display: none;' id='record_view_partnum_input_" + i + "_" + j +"' onfocus='onPartNumFocus(" + i + "," + j + ");' onkeyup='partnum_input_keyup_event(event);' onkeydown='partnum_input_keydown_event(event);'><div style='position: absolute;' id='partnum_autocomplete_" + i + "_" + j + "'></div>";
+              }
+            }
+            htmlToAdd += "</td>";
+          }
+          htmlToAdd += "<td>";
+          var clean_partSearchTerm = removeExtraSpaces(partSearchTerm);
+          if(clean_partSearchTerm != "")
+            htmlToAdd += "<a href='https://www.reliableparts.com/search?q=" + getStandardPNWebSearchString(partSearchTerm) + "' target='_blank'>Search</a>";
+          htmlToAdd += "</td>";
+          htmlToAdd += "<td>";
+          if(clean_partSearchTerm != "")
+            htmlToAdd += "<a href='https://encompass.com/search?searchTerm=" + getStandardPNWebSearchString(partSearchTerm) + "' target='_blank'>Search</a>";
+          htmlToAdd += "</td>";
+          htmlToAdd += "<td>";
+          if(clean_partSearchTerm != "")
+          htmlToAdd += "<a href='https://beta.marcone.com/Home/SearchPartModelList?searchString=" + getStandardPNWebSearchString(partSearchTerm) + "&Type=Part' target='_blank'>Search</a>";
+          htmlToAdd += "</td>";
+          htmlToAdd += "<td>";
+          if(clean_partSearchTerm != "")
+          {
+            var descrip1 = _content[rownum][_DESCRIP1].replace("\"", "");
+            descrip1 = descrip1.replace("\'", "");
+            htmlToAdd += "<button id='button_recordview_image_everywhere_"   + i + "_" + j + "' style='background-color: #70A2FF; color: black;'                  onclick='showRecordViewImage(\"" + descrip1 + "\",\"" + partSearchTerm + "\", 0);'><div class='tooltip'><span class='tooltiptext'>Search entire<br>internet<br>for images</span>E<span style='color: white;'>v</span>erywhere</button>";
+            htmlToAdd += "<button id='button_recordview_image_distributors_" + i + "_" + j + "' style='background-color: #70A2FF; color: black; margin-top: 2px;' onclick='showRecordViewImage(\"" + descrip1 + "\",\"" + partSearchTerm + "\", 1);'><div class='tooltip'><span class='tooltiptext'>Search Encompass,<br>Marcone,<br>Reliable Parts,<br>and WL MAY<br>websites for images</span><span style='color: white;'>D</span>istributors</button>";
+          }
+          htmlToAdd += "</td>";
+          htmlToAdd += "</tr>";
+        }
+      }
+    
+      var LKUPPN_CONTENT = getExpandableHTML(_content[rownum][_LOOK_UP_PN], (i + "_LOOK_UP_PN"), 80, "");
+      var ADVICE_CONTENT = getExpandableHTML(_content[rownum][_ADVICE],     (i + "_ADVICE"),     80, "");
+      var MODEL_CONTENT =  getExpandableHTML(_content[rownum][_MODEL],      (i + "_MODEL"),      80, "");
+      var INPUT_PART_NUMBR = "<input type='text' onfocus='deselectTable();' id='record_view_data_input_PART_NUMBR_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_PART_NUMBR]) + "'>" ;
+      var INPUT_LOCATION =   "<input type='text' onfocus='deselectTable();' id='record_view_data_input_LOCATION_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_LOCATION]) + "'>" ;
+      var INPUT_MODIFIED =   "<input type='text' onfocus='deselectTable();' id='record_view_data_input_MODIFIED_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_MODIFIED]) + "'>" ;
+      var INPUT_KEEP =       "<input type='text' onfocus='deselectTable();' id='record_view_data_input_KEEP_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_KEEP]) + "'>" ;
+      var INPUT_GET =        "<input type='text' onfocus='deselectTable();' id='record_view_data_input_GET_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_GET]) + "'>" ;
+      var INPUT_LKUPPN =     "<textarea          onfocus='deselectTable();' id='record_view_data_input_LKUPPN_" + i + "' style='width: 90%; display: none;'>" + getHTMLSafeText(stringifyArrayEndChar(_content[rownum][_LOOK_UP_PN], "\n")) + "</textarea>" ;
+      var INPUT_ADVICE =     "<textarea          onfocus='deselectTable();' id='record_view_data_input_ADVICE_" + i + "' style='width: 90%; display: none;'>" + getHTMLSafeText(stringifyArrayEndChar(_content[rownum][_ADVICE], "\n")) + "</textarea>" ;
+      var INPUT_REORD_QTY =  "<input type='text' onfocus='deselectTable();' id='record_view_data_input_REORD_QTY_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_REORD_QTY]) + "'>" ;
+      var INPUT_SOURCE =     "<input type='text' onfocus='deselectTable();' id='record_view_data_input_SOURCE_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_SOURCE]) + "'>" ;
+      var INPUT_MODEL =      "<textarea          onfocus='deselectTable();' id='record_view_data_input_MODEL_" + i + "' style='width: 90%; display: none;'>" + getHTMLSafeText(stringifyArrayEndChar(_content[rownum][_MODEL], "\n")) + "</textarea>";
+      var INPUT_FROM =       "<input type='text' onfocus='deselectTable();' id='record_view_data_input_FROM_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_FROM]) + "'>" ;
+    
+      htmlToAdd += "<tr><td colspan=2 style='text-align: right;'>LAST</td>" 
+      + "<td colspan=2><b><span id='record_view_data_read_PART_NUMBR_" + i + "'>" + _content[rownum][_PART_NUMBR] + "</span>" + INPUT_PART_NUMBR + "</b></td>"
+      + "<td><b><span id='record_view_data_read_LOCATION_" + i + "'>" + _content[rownum][_LOCATION] + "</span>" + INPUT_LOCATION + "</b></td>"
+      + "<td colspan=4><b><span id='record_view_data_read_MODIFIED_" + i + "'>" + _content[rownum][_MODIFIED] + "</span>" + INPUT_MODIFIED + "</b></td>"
+      + "<td>KEEP  <b><span id='record_view_data_read_KEEP_" + i + "'>" + _content[rownum][_KEEP] + "</span>" + INPUT_KEEP +      "</b></td>"
+      + "<td>BULK <b><span id='record_view_data_read_GET_" + i + "'>" + _content[rownum][_GET] + "</span>" + INPUT_GET + "</b></td><td colspan=2 style='text-align: right;'>Aside</td>                                                 </tr>"
+      + "<tr><td colspan=2 style='text-align: right;'>LKUPPN</td>"
+      + "<td colspan=2><span id='record_view_data_read_LKUPPN_" + i + "'>" + LKUPPN_CONTENT + "</span>" + INPUT_LKUPPN + "                      </td>"
+      + "<td style='text-align: right;'>         ADVICE</td><td colspan=4><span id='record_view_data_read_ADVICE_" + i + "'>" + ADVICE_CONTENT + "</span>" + INPUT_ADVICE + "                    </td>"
+      + "<td>REORD <b><span id='record_view_data_read_REORD_QTY_" + i + "'>" + _content[rownum][_REORD_QTY] + "</span>" + INPUT_REORD_QTY + "</b><button onclick='updateReordFromRecordView(\"" + parent_record_id + "\");'>Update</button></td><td colspan=2 style='text-align: right;'>                                          Srce</td>"
+      + "<td><b><span id='record_view_data_read_SOURCE_" + i + "'>" + _content[rownum][_SOURCE] + "</span>" + INPUT_SOURCE + "</b></td></tr>"
+      + "<tr><td colspan=4></td><td style='text-align: right;'>MODEL</td>"
+      + "<td colspan=4><span id='record_view_data_read_MODEL_" + i + "'>" + MODEL_CONTENT + "</span>" + INPUT_MODEL + "</td>"
+      + "<td colspan=4>PREF  <b><span id='record_view_data_read_FROM_" + i + "'>" + _content[rownum][_FROM] + "</span>" + INPUT_FROM + "</b></td>                                                                                                                                             </tr>"
+      + "</table><br><br>";
+    break;
+    //-------------------------------------------------PAGE 2-------------------------------------------------------------
+    case 2:
+      htmlToAdd += "<table><tr>";
+      htmlToAdd += "<th>Page 2</th><th></th><th></th><th></th>";
+      htmlToAdd += "<th colspan='4' style='text-align: center;'>MFR PRICEBOOK</th>";
+      htmlToAdd += "<th></th><th></th><th></th><th></th><th></th><th></th><th></th>";
+      
+      htmlToAdd += "</tr><tr>";
+      for(var j = 0; j < RECORD_VIEW_HEADERS_PAGE2.length; ++j)
+      {
+        if(j == 0)
+          htmlToAdd += "<th style='width: " + RECORD_VIEW_DB_HEADER_WIDTH + ";'></th>";
+        htmlToAdd += "<th style='width: " + RECORD_VIEW_HEADERS_WIDTHS_PAGE2[j] + ";'><p>" + RECORD_VIEW_HEADERS_PAGE2[j] + "</p></th>";
+      }
+      htmlToAdd += "<th>Reliable Parts</th><th>Encompass</th><th>Marcone</th><th>Image</th>";
+      htmlToAdd += "</tr>";
+      var parent_record_id = _content[rownum][INDEXES_CONCAT.length];
+      for(var j = 0; j < _EXTRA_DB.length; ++j)
+      {
+        if(j != 2) //Skip DNI ExtraDB
+        {
+          var _content_partnum_for_extraDB = _content[rownum][_CONTENT_EXTRA_DB_INDEXES[j]];
+          var extraDBIndex = getExtraDBLinkIndex(j, _content_partnum_for_extraDB);
+          if(j == _EXTRA_DB.length - 1) //Last row
+            htmlToAdd += "<tr style='border-top: solid; border-bottom: solid; border-width: 4px; border-color: black;'>";
+          else
+            htmlToAdd += "<tr>";
+          var partSearchTerm = "";
+          for(var k = 0; k < RECORD_VIEW_HEADERS_PAGE2.length; ++k)
+          { 
+            htmlToAdd += "<td>";
+            if(k == 0)
+            {
+              htmlToAdd += "<div style='width: 30px; display: inline-block;'>" + _EXTRA_DB[j] + "</div>";
+              if(extraDBIndex != null)
+                htmlToAdd += "<div style='display: inline; font-size: 20px;' id='sell_div_" + i + "_" + j + "'><br><button style='background-color: #70A2FF; color: black;' id='sell_button_" + i + "_" + j + "' onclick='startSell(" + i + "," + j + ");'><span style='color: white;'>S</span>ell</button>"
+                + "<div id='sell_form_" + i + "_" + j + "' style='display: none;'>"
+                + "<p>Quantity</p>"
+                + "<button style='width: 100px;' onclick='changeSellQuantity(" + i + "," + j + ",  1);'>+</button><br>"
+                + "<input onfocus='deselectTable();' style='width: 100px; height: 50px; font-size: 30px; text-align: center;' type='number' value='1' id='sell_quantity_" + i + "_" + j + "'><br>"
+                + "<button style='width: 100px;' onclick='changeSellQuantity(" + i + "," + j + ", -1);'>-</button><br><br>"
+                + "<button id='button_record_view_sell_confirm_" + i + "_" + j + "' style='width: 150px; height: 30px; background-color: #70A2FF; color: black;' onclick='confirmSell(" + i + "," + j + ",\"" + _content_partnum_for_extraDB + "\",\"" + parent_record_id + "\");'>Confirm <span style='color: white;'>S</span>ell</button><br><br>"
+                + "<button id='button_record_view_sell_cancel_" + i + "_" + j + "'  style='width: 150px; height: 30px; background-color: #70A2FF; color: black;' onclick='populateRecordViews();'><span style='color: white;'>C</span>ancel</button></div></div>";
+              htmlToAdd += "</td><td>";
+            }
+            else if(k == 1)
+            {
+              htmlToAdd += "<img class='clickable' id='record_view_partnum_edit_icon_" + i + "_" + j + "' src='pencil.png' width=25px height=25px onclick='startEditRecordPartReference(" + i + "," + j + ");' style='position: relative; bottom: -6px;'>&nbsp;&nbsp;";
+              partSearchTerm = _content_partnum_for_extraDB;
+              var pText = "";
+              var clean_content_partnum_for_extraDB = removeExtraSpaces(_content_partnum_for_extraDB);
+              if(extraDBIndex == null && clean_content_partnum_for_extraDB != "")
+                pText = _content_partnum_for_extraDB + "<span style='color: red;'>&nbsp;&nbsp;&nbsp;Not Found in Child Database!</span>";
+              else if(clean_content_partnum_for_extraDB == "")
+              {
+                pText = "";
+              }
+              else
+                pText = "<span id='span_recordviews_jump_to_child_part_" + i + "_" + j + "' class='clickable' style='color: blue;' onclick='jumpToChildPartFromRecordView(" + j + "," + extraDBIndex + ");'><u>" + _content_partnum_for_extraDB + "</u></span>";
+              htmlToAdd += "<p id='record_view_partnum_text_" + i + "_" + j + "' style='display: inline;'>" + pText + "</p><input type='text' style='display: none;' id='record_view_partnum_input_" + i + "_" + j +"' onfocus='onPartNumFocus(" + i + "," + j + ");' value='" + getHTMLSafeText(_content_partnum_for_extraDB) + "' onkeyup='partnum_input_keyup_event(event);' onkeydown='partnum_input_keydown_event(event);'><div style='position: absolute;' id='partnum_autocomplete_" + i + "_" + j + "'></div>"
+              + "<button id='record_view_partnum_save_button_"   + i + "_" + j + "' style='width: 70px; font-size: 20px; display: none; background-color: #70A2FF; color: black; margin-bottom: 2px;' onclick='saveEditRecordPartReference(" + i + "," + j + ");'><span style='color: white;'>S</span>ave</button>"
+              + "<button id='record_view_partnum_cancel_button_" + i + "_" + j + "' style='width: 70px; font-size: 20px; display: none; background-color: #70A2FF; color: black;' onclick='populateRecordViews();'><span style='color: white;'>C</span>ancel</button>" + "&nbsp;&nbsp;&nbsp;&nbsp;";
+            }
+            if(extraDBIndex != null){
+              var content1 = _content_extra[j][extraDBIndex][0][RECORD_VIEW_HEADERS_ACTUAL_INDEXES_PAGE2[k][j]];
+              if(content1 != null){
+                if(k == 1) //PART#
+                {
+                  //Filled in with link
+                }
+                else if(k == 9 || k == 10 || k == 11) //"CGS",   "RETAIL",     "SELL" in usd format
+                {
+                  htmlToAdd += "<span id='record_view_data_read_" + RECORD_VIEW_HEADERS_PAGE2[k] + "_" + i + "_" + j + "'>" + content1.toLocaleString("en-US", {style: "currency", currency: "USD", minimumFractionDigits: 2}) + "</span>";
+                }
+                else if(k == 12) //"COMMENTS"
+                {
+                  var htmlCheck = "<input type='checkbox' disabled>";
+                  if(content1.replace(" ", "").length > 0)
+                  {
+                    htmlCheck = "<div class='tooltip'><span class='tooltiptext'>" + content1 + "</span><input type='checkbox' checked disabled></div>";
+                  }
+                  htmlToAdd += "<span id='record_view_data_read_" + RECORD_VIEW_HEADERS_PAGE2[k] + "_" + i + "_" + j + "'>" + htmlCheck + "</span>";
+                }
+                else
+                {
+                  htmlToAdd += "<span id='record_view_data_read_" + RECORD_VIEW_HEADERS_PAGE2[k] + "_" + i + "_" + j + "'>" + content1 + "</span>";
+                }
+                if(k != 1) //Add input for editing values
+                {
+                  htmlToAdd += "<input type='text' onfocus='deselectTable();' id='record_view_data_input_" + RECORD_VIEW_HEADERS_PAGE2[k] + "_" + i + "_" + j + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(content1) + "'>";
+                }
+              }
+            }
+            else //No matching link found in Extra DB, usually Part# is blank
+            {
+              if(k == 1)
+              {
+                htmlToAdd += "<input type='text' style='display: none;' id='record_view_partnum_input_" + i + "_" + j +"' onfocus='onPartNumFocus(" + i + "," + j + ");' onkeyup='partnum_input_keyup_event(event);' onkeydown='partnum_input_keydown_event(event);'><div style='position: absolute;' id='partnum_autocomplete_" + i + "_" + j + "'></div>";
+              }
+            }
+            htmlToAdd += "</td>";
+          }
+          htmlToAdd += "<td>";
+          var clean_partSearchTerm = removeExtraSpaces(partSearchTerm);
+          if(clean_partSearchTerm != "")
+            htmlToAdd += "<a href='https://www.reliableparts.com/search?q=" + getStandardPNWebSearchString(partSearchTerm) + "' target='_blank'>Search</a>";
+          htmlToAdd += "</td>";
+          htmlToAdd += "<td>";
+          if(clean_partSearchTerm != "")
+            htmlToAdd += "<a href='https://encompass.com/search?searchTerm=" + getStandardPNWebSearchString(partSearchTerm) + "' target='_blank'>Search</a>";
+          htmlToAdd += "</td>";
+          htmlToAdd += "<td>";
+          if(clean_partSearchTerm != "")
+          htmlToAdd += "<a href='https://beta.marcone.com/Home/SearchPartModelList?searchString=" + getStandardPNWebSearchString(partSearchTerm) + "&Type=Part' target='_blank'>Search</a>";
+          htmlToAdd += "</td>";
+          htmlToAdd += "<td>";
+          if(clean_partSearchTerm != "")
+          {
+            var descrip1 = _content[rownum][_DESCRIP1].replace("\"", "");
+            descrip1 = descrip1.replace("\'", "");
+            htmlToAdd += "<button id='button_recordview_image_everywhere_"   + i + "_" + j + "' style='background-color: #70A2FF; color: black;'                  onclick='showRecordViewImage(\"" + descrip1 + "\",\"" + partSearchTerm + "\", 0);'><div class='tooltip'><span class='tooltiptext'>Search entire<br>internet<br>for images</span>E<span style='color: white;'>v</span>erywhere</button>";
+            htmlToAdd += "<button id='button_recordview_image_distributors_" + i + "_" + j + "' style='background-color: #70A2FF; color: black; margin-top: 2px;' onclick='showRecordViewImage(\"" + descrip1 + "\",\"" + partSearchTerm + "\", 1);'><div class='tooltip'><span class='tooltiptext'>Search Encompass,<br>Marcone,<br>Reliable Parts,<br>and WL MAY<br>websites for images</span><span style='color: white;'>D</span>istributors</button>";
+          }
+          htmlToAdd += "</td>";
+          htmlToAdd += "</tr>";
+        }
+      }
+    
+      var LKUPPN_CONTENT = getExpandableHTML(_content[rownum][_LOOK_UP_PN], (i + "_LOOK_UP_PN"), 80, "");
+      var ADVICE_CONTENT = getExpandableHTML(_content[rownum][_ADVICE],     (i + "_ADVICE"),     80, "");
+      var MODEL_CONTENT =  getExpandableHTML(_content[rownum][_MODEL],      (i + "_MODEL"),      80, "");
+      var INPUT_PART_NUMBR = "<input type='text' onfocus='deselectTable();' id='record_view_data_input_PART_NUMBR_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_PART_NUMBR]) + "'>" ;
+      var INPUT_LOCATION =   "<input type='text' onfocus='deselectTable();' id='record_view_data_input_LOCATION_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_LOCATION]) + "'>" ;
+      var INPUT_MODIFIED =   "<input type='text' onfocus='deselectTable();' id='record_view_data_input_MODIFIED_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_MODIFIED]) + "'>" ;
+      var INPUT_KEEP =       "<input type='text' onfocus='deselectTable();' id='record_view_data_input_KEEP_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_KEEP]) + "'>" ;
+      var INPUT_GET =        "<input type='text' onfocus='deselectTable();' id='record_view_data_input_GET_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_GET]) + "'>" ;
+      var INPUT_LKUPPN =     "<textarea          onfocus='deselectTable();' id='record_view_data_input_LKUPPN_" + i + "' style='width: 90%; display: none;'>" + getHTMLSafeText(stringifyArrayEndChar(_content[rownum][_LOOK_UP_PN], "\n")) + "</textarea>" ;
+      var INPUT_ADVICE =     "<textarea          onfocus='deselectTable();' id='record_view_data_input_ADVICE_" + i + "' style='width: 90%; display: none;'>" + getHTMLSafeText(stringifyArrayEndChar(_content[rownum][_ADVICE], "\n")) + "</textarea>" ;
+      var INPUT_REORD_QTY =  "<input type='text' onfocus='deselectTable();' id='record_view_data_input_REORD_QTY_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_REORD_QTY]) + "'>" ;
+      var INPUT_SOURCE =     "<input type='text' onfocus='deselectTable();' id='record_view_data_input_SOURCE_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_SOURCE]) + "'>" ;
+      var INPUT_MODEL =      "<textarea          onfocus='deselectTable();' id='record_view_data_input_MODEL_" + i + "' style='width: 90%; display: none;'>" + getHTMLSafeText(stringifyArrayEndChar(_content[rownum][_MODEL], "\n")) + "</textarea>";
+      var INPUT_FROM =       "<input type='text' onfocus='deselectTable();' id='record_view_data_input_FROM_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_FROM]) + "'>" ;
+    
+      htmlToAdd += "<tr><td colspan=2 style='text-align: right;'>LAST</td>" 
+      + "<td colspan=2><b><span id='record_view_data_read_PART_NUMBR_" + i + "'>" + _content[rownum][_PART_NUMBR] + "</span>" + INPUT_PART_NUMBR + "</b></td>"
+      + "<td><b><span id='record_view_data_read_LOCATION_" + i + "'>" + _content[rownum][_LOCATION] + "</span>" + INPUT_LOCATION + "</b></td>"
+      + "<td colspan=4><b><span id='record_view_data_read_MODIFIED_" + i + "'>" + _content[rownum][_MODIFIED] + "</span>" + INPUT_MODIFIED + "</b></td>"
+      + "<td>KEEP  <b><span id='record_view_data_read_KEEP_" + i + "'>" + _content[rownum][_KEEP] + "</span>" + INPUT_KEEP +      "</b></td>"
+      + "<td>BULK <b><span id='record_view_data_read_GET_" + i + "'>" + _content[rownum][_GET] + "</span>" + INPUT_GET + "</b></td><td colspan=2 style='text-align: right;'>Aside</td>                                                 </tr>"
+      + "<tr><td colspan=2 style='text-align: right;'>LKUPPN</td>"
+      + "<td colspan=2><span id='record_view_data_read_LKUPPN_" + i + "'>" + LKUPPN_CONTENT + "</span>" + INPUT_LKUPPN + "                      </td>"
+      + "<td style='text-align: right;'>         ADVICE</td><td colspan=4><span id='record_view_data_read_ADVICE_" + i + "'>" + ADVICE_CONTENT + "</span>" + INPUT_ADVICE + "                    </td>"
+      + "<td>REORD <b><span id='record_view_data_read_REORD_QTY_" + i + "'>" + _content[rownum][_REORD_QTY] + "</span>" + INPUT_REORD_QTY + "</b><button onclick='updateReordFromRecordView(\"" + parent_record_id + "\");'>Update</button></td><td colspan=2 style='text-align: right;'>                                          Srce</td>"
+      + "<td><b><span id='record_view_data_read_SOURCE_" + i + "'>" + _content[rownum][_SOURCE] + "</span>" + INPUT_SOURCE + "</b></td></tr>"
+      + "<tr><td colspan=4></td><td style='text-align: right;'>MODEL</td>"
+      + "<td colspan=4><span id='record_view_data_read_MODEL_" + i + "'>" + MODEL_CONTENT + "</span>" + INPUT_MODEL + "</td>"
+      + "<td colspan=4>PREF  <b><span id='record_view_data_read_FROM_" + i + "'>" + _content[rownum][_FROM] + "</span>" + INPUT_FROM + "</b></td>                                                                                                                                             </tr>"
+      + "</table><br><br>";
+      break;
+       //-------------------------------------------------PAGE 3-------------------------------------------------------------
+    case 3:
+      htmlToAdd += "<table><tr><th colspan='3'>Page 3</th></tr>"
+                 + "<tr><td colspan='3'>" + _content[rownum][_SPECMETHOD] + "</td></tr>"
+                 + "<tr style='background-color: white;'  ><td style='" + _RECORDVIEW_SPEC_BORDER_TOP +    "'>" + _content[rownum][_SPECMETHOD +  1] + "</td><td style='" + _RECORDVIEW_SPEC_BORDER_TOP +    "'>" + _content[rownum][_SPECMETHOD +  4] + "</td><td style='" + _RECORDVIEW_SPEC_BORDER_TOP +    "'>" + _content[rownum][_SPECMETHOD +  7] + "</td></tr>"
+                 + "<tr style='background-color: #dddddd;'><td style='" + _RECORDVIEW_SPEC_BORDER_MIDDLE + "'>" + _content[rownum][_SPECMETHOD +  2] + "</td><td style='" + _RECORDVIEW_SPEC_BORDER_MIDDLE + "'>" + _content[rownum][_SPECMETHOD +  5] + "</td><td style='" + _RECORDVIEW_SPEC_BORDER_MIDDLE + "'>" + _content[rownum][_SPECMETHOD +  8] + "</td></tr>"
+                 + "<tr style='background-color: white;'  ><td style='" + _RECORDVIEW_SPEC_BORDER_BOTTOM + "'>" + _content[rownum][_SPECMETHOD +  3] + "</td><td style='" + _RECORDVIEW_SPEC_BORDER_BOTTOM + "'>" + _content[rownum][_SPECMETHOD +  6] + "</td><td style='" + _RECORDVIEW_SPEC_BORDER_BOTTOM + "'>" + _content[rownum][_SPECMETHOD +  9] + "</td></tr>"
+                 + "<tr style='background-color: white;'  ><td style='" + _RECORDVIEW_SPEC_BORDER_TOP +    "'>" + _content[rownum][_SPECMETHOD + 10] + "</td><td style='" + _RECORDVIEW_SPEC_BORDER_TOP +    "'>" + _content[rownum][_SPECMETHOD + 13] + "</td><td style='" + _RECORDVIEW_SPEC_BORDER_TOP +    "'>" + _content[rownum][_SPECMETHOD + 16] + "</td></tr>"
+                 + "<tr style='background-color: #dddddd;'><td style='" + _RECORDVIEW_SPEC_BORDER_MIDDLE + "'>" + _content[rownum][_SPECMETHOD + 11] + "</td><td style='" + _RECORDVIEW_SPEC_BORDER_MIDDLE + "'>" + _content[rownum][_SPECMETHOD + 14] + "</td><td style='" + _RECORDVIEW_SPEC_BORDER_MIDDLE + "'>" + _content[rownum][_SPECMETHOD + 17] + "</td></tr>"
+                 + "<tr style='background-color: white;'  ><td style='" + _RECORDVIEW_SPEC_BORDER_BOTTOM + "'>" + _content[rownum][_SPECMETHOD + 12] + "</td><td style='" + _RECORDVIEW_SPEC_BORDER_BOTTOM + "'>" + _content[rownum][_SPECMETHOD + 15] + "</td><td style='" + _RECORDVIEW_SPEC_BORDER_BOTTOM + "'>" + _content[rownum][_SPECMETHOD + 18] + "</td></tr>"
+                 + "<tr style='background-color: white;'  ><td style='" + _RECORDVIEW_SPEC_BORDER_TOP +    "'>" + _content[rownum][_SPECMETHOD + 19] + "</td><td style='" + _RECORDVIEW_SPEC_BORDER_TOP +    "'>" + _content[rownum][_SPECMETHOD + 22] + "</td><td style='" + _RECORDVIEW_SPEC_BORDER_TOP +    "'>" + _content[rownum][_SPECMETHOD + 25] + "</td></tr>"
+                 + "<tr style='background-color: #dddddd;'><td style='" + _RECORDVIEW_SPEC_BORDER_MIDDLE + "'>" + _content[rownum][_SPECMETHOD + 20] + "</td><td style='" + _RECORDVIEW_SPEC_BORDER_MIDDLE + "'>" + _content[rownum][_SPECMETHOD + 23] + "</td><td style='" + _RECORDVIEW_SPEC_BORDER_MIDDLE + "'>" + _content[rownum][_SPECMETHOD + 26] + "</td></tr>"
+                 + "<tr style='background-color: white;'  ><td style='" + _RECORDVIEW_SPEC_BORDER_BOTTOM + "'>" + _content[rownum][_SPECMETHOD + 21] + "</td><td style='" + _RECORDVIEW_SPEC_BORDER_BOTTOM + "'>" + _content[rownum][_SPECMETHOD + 24] + "</td><td style='" + _RECORDVIEW_SPEC_BORDER_BOTTOM + "'>" + _content[rownum][_SPECMETHOD + 27] + "</td></tr>"
+                 + "<tr style='background-color: white;'  ><td style='" + _RECORDVIEW_SPEC_BORDER_TOP +    "'>" + _content[rownum][_SPECMETHOD + 28] + "</td><td style='" + _RECORDVIEW_SPEC_BORDER_TOP +    "'>" + _content[rownum][_SPECMETHOD + 31] + "</td><td style='" + _RECORDVIEW_SPEC_BORDER_TOP +    "'>" + _content[rownum][_SPECMETHOD + 34] + "</td></tr>"
+                 + "<tr style='background-color: #dddddd;'><td style='" + _RECORDVIEW_SPEC_BORDER_MIDDLE + "'>" + _content[rownum][_SPECMETHOD + 29] + "</td><td style='" + _RECORDVIEW_SPEC_BORDER_MIDDLE + "'>" + _content[rownum][_SPECMETHOD + 32] + "</td><td style='" + _RECORDVIEW_SPEC_BORDER_MIDDLE + "'>" + _content[rownum][_SPECMETHOD + 35] + "</td></tr>"
+                 + "<tr style='background-color: white;'  ><td style='" + _RECORDVIEW_SPEC_BORDER_BOTTOM + "'>" + _content[rownum][_SPECMETHOD + 30] + "</td><td style='" + _RECORDVIEW_SPEC_BORDER_BOTTOM + "'>" + _content[rownum][_SPECMETHOD + 33] + "</td><td style='" + _RECORDVIEW_SPEC_BORDER_BOTTOM + "'>" + _content[rownum][_SPECMETHOD + 36] + "</td></tr>"
+                 + "<tr><td colspan='3'><br>" + _RECORDVIEW_FRACTIONS_TO_DECIMAL_TEXT + "</td></tr>"
+                 + "</table><br><br>";
+      break;
+      //-------------------------------------------------PAGE 4-------------------------------------------------------------
+    case 4:
+      htmlToAdd += "<table><tr><th>Page 4</th></tr>";
+      for(var j = 0; j < _EXTRA_DB.length; ++j)
+      {
+        if(j != 2) //Skip DNI ExtraDB
+        {
+          htmlToAdd += "<tr><td><b>" + _EXTRA_DB[j] + ":</b> ";
+          var _content_partnum_for_extraDB = _content[rownum][_CONTENT_EXTRA_DB_INDEXES[j]];
+          var extraDBIndex = getExtraDBLinkIndex(j, _content_partnum_for_extraDB);
+          if(extraDBIndex != null)
+          {
+            htmlToAdd += _content_extra[j][extraDBIndex][0].COMMENTS;
+          }
+          htmlToAdd += "</td></tr>";
+        }
+      }
+      htmlToAdd += "<tr><td><b>NEWER:</b> "                                    + _content[rownum][_NEWER]       + "</td></tr>"
+                 + "<tr><td><b>NEW:</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"   + _content[rownum][_NEW]         + "</td></tr>"
+                 + "<tr><td><b>QUESTIONS:</b> "                                + _content[rownum][_QUESTIONS]   + "</td></tr>"
+                 + "</table><br><br>";
+      break;
+  }
+  return htmlToAdd;
+}
+
+function setRecordViewPage(pagenum, i)
+{
+  var rownum = getContentIndexFrom_DB_ID(_recordViews[i]);
+  if(rownum != null)
+  {
+    var htmlToAdd = getRecordViewPage(rownum, pagenum, i);
+    _record_view_page_list[i] = pagenum;
+    document.getElementById("record_view_details_" + i + "_div").innerHTML = htmlToAdd;
+    var ele = document.getElementById("record_view_data_edit_icon_" + i);
+    if(ele != null && pagenum != 1)
+      ele.style.display = "none";
+    else
+      ele.style.display = "";
+    setKeyboardShortcutBar();
+  }
 }

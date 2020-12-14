@@ -91,191 +91,56 @@
     <div id="content_div" style="display: none;">
         <button onclick="log_out();" id="logout_button">Log Out</button><br><br>
         <div id="instructions_page_0">
-          <p>If you have already made Report Templates for the Memo fields (LOOK_UP_PN, ADVICE, ATTN, and MODELS), you can skip this page and click <button onclick="pageButton(0,4);">Here</button></p>
-          <h2>Creating LOOK_UP_PN Report Template</h2>
+          <!-- <p>If you have already made Report Templates for the Memo fields, you can skip this page and click <button onclick="pageButton(0,1);">Here</button></p> -->
+          <h2>Creating Memo Fields Report Template</h2>
           <p>1. Open Alpha while in the P&A_PRI database set</p>
           <p>2. Go to Layouts->Reports->Create/edit a report</p>
           <p>3. Choose a slot to save the report in</p>
           <p>4. Choose "Custom Report"</p>
-          <p>5. Set all options as shown in this image</p> <!--report_0_parameters.png-->
-          <img src="ez_database_updater/report_0_parameters.png">
+          <p>5. Set all options as shown in this image</p> <!--memos_parameters.png-->
+          <img src="ez_database_updater/memos_parameters.png">
           <p>6. Press "F10" key</p>
           <p>7. Press "F3" key, choose "Delete Section"</p>
           <p>8. Choose a section other than "Detail"</p>
           <p>9. Repeat steps 7-8 until all sections are deleted except "Detail"</p>
-          <p>10. Press "F9" key and choose "Delete Line"</p>
-          <p>11. Press * key then spacebar</p>
-          <p>12. Press "F2" key then choose "select Field"</p>
-          <p>13. Choose "P&A_PRI"</p>
-          <p>14. Choose "LOOK_UP_PN"</p>
-          <p>15. Press "Alt + o" keys</p>
-          <p>16. Set all options as shown in this image</p> <!--report_0_formatting.png-->
-          <img src="ez_database_updater/report_0_formatting.png">
+          <p>10. Press "F9" key and choose "Insert Line", then do it one more time, so you have a total of 4 lines</p>
+          <p>11. Press the up arrow key until you have the top line selected</p>
+          <p>12. Press * key then spacebar</p>
+          <p>13. Press "F2" key then choose "select Field"</p>
+          <p>14. Choose "P&A_PRI"</p>
+          <p>15. Choose "LOOK_UP_PN"</p>
+          <p>16. Select the first slot of the next line (Down arrow key, Home key)</p>
+          <p>17. Repeat steps 12-16 three times but select MODELS, ADVICE, and ATTN instead of LOOK_UP_PN. One for each row</p>
+          <p>18. Press "Alt + o" keys</p>
+          <p>19. Set all options as shown in this image</p>
+          <img src="ez_database_updater/memos_formatting.png">
           <p>17. Press "F10" key</p>
-          <p>18. If all went well, you should have a report that looks like this</p> <!--report_0_finished.png-->
-          <img src="ez_database_updater/report_0_finished.png">
+          <p>18. If all went well, you should have a report that looks like this</p> <!--memos_finished.png-->
+          <img src="ez_database_updater/memos_finished.png">
           <p>19. Press "F10" key again</p>
           <p>20. Choose "Save"</p>
-          <button onclick="pageButton(0,1);">Next -&gt;</button>
+          <button onclick="pageButtonNext();">Next -&gt;</button>
           <p>Page 0</p>
         </div>
         <div id="instructions_page_1" style="display: none;">
-          <p>If you have already made Report Templates for the Memo fields (LOOK_UP_PN, ADVICE, ATTN, and MODELS), you can skip this page and click <button onclick="pageButton(1,4);">Here</button></p>
-          <h2>Creating ADVICE Report Template</h2>
-          <p>1. Go to Layouts->Reports->Create/edit a report</p>
-          <p>2. Choose a slot to save the report in</p>
-          <p>3. Choose "Custom Report"</p>
-          <p>4. Set all options as shown in this image</p>
-          <img src="ez_database_updater/report_1_parameters.png">
-          <p>5. Press "F10" key</p>
-          <p>6. Press "F3" key, choose "Delete Section"</p>
-          <p>7. Choose a section other than "Detail"</p>
-          <p>8. Repeat steps 7-8 until all sections are deleted except "Detail"</p>
-          <p>9. Press "F9" key and choose "Delete Line"</p>
-          <p>10. Press * key then spacebar</p>
-          <p>11. Press "F2" key then choose "select Field"</p>
-          <p>12. Choose "P&A_PRI"</p>
-          <p>13. Choose "ADVICE"</p>
-          <p>14. Press "Alt + o" keys</p>
-          <p>15. Set all options as shown in this image</p>
-          <img src="ez_database_updater/report_1_formatting.png">
-          <p>16. Press "F10" key</p>
-          <p>17. If all went well, you should have a report that looks like this</p>
-          <img src="ez_database_updater/report_0_finished.png">
-          <p>18. Press "F10" key again</p>
-          <p>19. Choose "Save"</p>
-          <button onclick="pageButton(1,0);">&lt;- Prev</button><button onclick="pageButton(1,2);">Next -&gt;</button>
-          <p>Page 1</p>
-        </div>
-        <div id="instructions_page_2" style="display: none;">
-          <p>If you have already made Report Templates for the Memo fields (LOOK_UP_PN, ADVICE, ATTN, and MODELS), you can skip this page and click <button onclick="pageButton(2,4);">Here</button></p>
-          <h2>Creating ATTN Report Template</h2>
-          <p>1. Go to Layouts->Reports->Create/edit a report</p>
-          <p>2. Choose a slot to save the report in</p>
-          <p>3. Choose "Custom Report"</p>
-          <p>4. Set all options as shown in this image</p>
-          <img src="ez_database_updater/report_2_parameters.png">
-          <p>5. Press "F10" key</p>
-          <p>6. Press "F3" key, choose "Delete Section"</p>
-          <p>7. Choose a section other than "Detail"</p>
-          <p>8. Repeat steps 7-8 until all sections are deleted except "Detail"</p>
-          <p>9. Press "F9" key and choose "Delete Line"</p>
-          <p>10. Press * key then spacebar</p>
-          <p>11. Press "F2" key then choose "select Field"</p>
-          <p>12. Choose "P&A_PRI"</p>
-          <p>13. Choose "ATTN"</p>
-          <p>14. Press "Alt + o" keys</p>
-          <p>15. Set all options as shown in this image</p>
-          <img src="ez_database_updater/report_2_formatting.png">
-          <p>16. Press "F10" key</p>
-          <p>17. If all went well, you should have a report that looks like this</p>
-          <img src="ez_database_updater/report_0_finished.png">
-          <p>18. Press "F10" key again</p>
-          <p>19. Choose "Save"</p>
-          <button onclick="pageButton(2,1);">&lt;- Prev</button><button onclick="pageButton(2,3);">Next -&gt;</button>
-          <p>Page 2</p>
-        </div>
-        <div id="instructions_page_3" style="display: none;">
-          <p>If you have already made Report Templates for the Memo fields (LOOK_UP_PN, ADVICE, ATTN, and MODELS), you can skip this page and click <button onclick="pageButton(3,4);">Here</button></p>
-          <h2>Creating MODELS Report Template</h2>
-          <p>1. Go to Layouts->Reports->Create/edit a report</p>
-          <p>2. Choose a slot to save the report in</p>
-          <p>3. Choose "Custom Report"</p>
-          <p>4. Set all options as shown in this image</p>
-          <img src="ez_database_updater/report_3_parameters.png">
-          <p>5. Press "F10" key</p>
-          <p>6. Press "F3" key, choose "Delete Section"</p>
-          <p>7. Choose a section other than "Detail"</p>
-          <p>8. Repeat steps 7-8 until all sections are deleted except "Detail"</p>
-          <p>9. Press "F9" key and choose "Delete Line"</p>
-          <p>10. Press * key then spacebar</p>
-          <p>11. Press "F2" key then choose "select Field"</p>
-          <p>12. Choose "P&A_PRI"</p>
-          <p>13. Choose "MODELS"</p>
-          <p>14. Press "Alt + o" keys</p>
-          <p>15. Set all options as shown in this image</p>
-          <img src="ez_database_updater/report_3_formatting.png">
-          <p>16. Press "F10" key</p>
-          <p>17. If all went well, you should have a report that looks like this</p>
-          <img src="ez_database_updater/report_0_finished.png">
-          <p>18. Press "F10" key again</p>
-          <p>19. Choose "Save"</p>
-          <button onclick="pageButton(3,2);">&lt;- Prev</button><button onclick="pageButton(3,4);">Next -&gt;</button>
-          <p>Page 3</p>
-        </div>
-        <div id="instructions_page_4" style="display: none;">
-          <h2>Exporting LOOK_UP_PN Report</h2>
-          <p>1. Go to Print->Report->lkuppn</p>
+          <h2>Exporting Memo Fields Report</h2>
+          <p>1. Go to Print->Report->memos</p>
           <p>2. Set all options as shown in this image</p>
           <img src="ez_database_updater/export_range_settings.png">
           <p>3. Press "F10" key</p>
           <p>4. Choose "File" under Standard Mode</p>
-          <p>5. Type lkuppn in the prompt at the bottom</p> <!--export_LOOK_UP_PN.png-->
-          <img src="ez_database_updater/export_LOOK_UP_PN.png">
+          <p>5. Type memos in the prompt at the bottom</p> <!--export_memos.png-->
+          <img src="ez_database_updater/export_memos.png">
           <p>6. Press "F10" key</p>
           <p>7. Press "F7" key</p>
           <p>8. Choose "PANASONIC KX-P1124"</p>
           <p>9. Press "F10" key</p>
           <p>10. Once Alpha has finished exporting, press the browse button below and find the Lkuppn.LST file it exported</p>
-          <input type="file" id="fileinput_look_up_pn" accept=".lst">&nbsp;&nbsp;&nbsp;&nbsp;
-          <button onclick="pageButton(4,3);">&lt;- Prev</button><button id="button_next_4" style="display: none;" onclick="pageButton(4,5);">Next -&gt;</button>
-          <p>Page 4</p>
+          <input type="file" id="fileinput_memos" accept=".lst">&nbsp;&nbsp;&nbsp;&nbsp;
+          <button onclick="pageButtonPrev();">&lt;- Prev</button><button id="button_next_1" style="display: none;" onclick="pageButtonNext();">Next -&gt;</button>
+          <p>Page 1</p>
         </div>
-        <div id="instructions_page_5" style="display: none;">
-          <h2>Exporting ADVICE Report</h2>
-          <p>1. Go to Print->Report->advice</p>
-          <p>2. Set all options as shown in this image</p>
-          <img src="ez_database_updater/export_range_settings.png">
-          <p>3. Press "F10" key</p>
-          <p>4. Choose "File" under Standard Mode</p>
-          <p>5. Type advice in the prompt at the bottom</p>
-          <img src="ez_database_updater/export_ADVICE.png">
-          <p>6. Press "F10" key</p>
-          <p>7. Press "F7" key</p>
-          <p>8. Choose "PANASONIC KX-P1124"</p>
-          <p>9. Press "F10" key</p>
-          <p>10. Once Alpha has finished exporting, press the browse button below and find the Advice.LST file it exported</p>
-          <input type="file" id="fileinput_advice" accept=".lst">&nbsp;&nbsp;&nbsp;&nbsp;
-          <button onclick="pageButton(5,4);">&lt;- Prev</button><button id="button_next_5" style="display: none;" onclick="pageButton(5,6);">Next -&gt;</button>
-          <p>Page 5</p>
-        </div>
-        <div id="instructions_page_6" style="display: none;">
-          <h2>Exporting ATTN Report</h2>
-          <p>1. Go to Print->Report->attn</p>
-          <p>2. Set all options as shown in this image</p>
-          <img src="ez_database_updater/export_range_settings.png">
-          <p>3. Press "F10" key</p>
-          <p>4. Choose "File" under Standard Mode</p>
-          <p>5. Type lkuppn in the prompt at the bottom</p>
-          <img src="ez_database_updater/export_ATTN.png">
-          <p>6. Press "F10" key</p>
-          <p>7. Press "F7" key</p>
-          <p>8. Choose "PANASONIC KX-P1124"</p>
-          <p>9. Press "F10" key</p>
-          <p>10. Once Alpha has finished exporting, press the browse button below and find the Attn.LST file it exported</p>
-          <input type="file" id="fileinput_attn" accept=".lst">&nbsp;&nbsp;&nbsp;&nbsp;
-          <button onclick="pageButton(6,5);">&lt;- Prev</button><button id="button_next_6" style="display: none;" onclick="pageButton(6,7);">Next -&gt;</button>
-          <p>Page 6</p>
-        </div>
-        <div id="instructions_page_7" style="display: none;">
-          <h2>Exporting MODELS Report</h2>
-          <p>1. Go to Print->Report->models</p>
-          <p>2. Set all options as shown in this image</p>
-          <img src="ez_database_updater/export_range_settings.png">
-          <p>3. Press "F10" key</p>
-          <p>4. Choose "File" under Standard Mode</p>
-          <p>5. Type models in the prompt at the bottom</p>
-          <img src="ez_database_updater/export_MODELS.png">
-          <p>6. Press "F10" key</p>
-          <p>7. Press "F7" key</p>
-          <p>8. Choose "PANASONIC KX-P1124"</p>
-          <p>9. Press "F10" key</p>
-          <p>10. Once Alpha has finished exporting, press the browse button below and find the Models.LST file it exported</p>
-          <input type="file" id="fileinput_models" accept=".lst">&nbsp;&nbsp;&nbsp;&nbsp;
-          <button onclick="pageButton(7,6);">&lt;- Prev</button><button id="button_next_7" style="display: none;" onclick="pageButton(7,8);">Next -&gt;</button>
-          <p>Page 7</p>
-        </div>
-        <div id="instructions_page_8" style="display: none;">
+        <div id="instructions_page_2" style="display: none;">
           <h2>Exporting P&A_PRI parent records</h2>
           <p>1. Go to Utilites->Export data->Character separated ASCII file</p>
           <p>2. Note the Drive/Path location at the top, you'll need to remember that later</p>
@@ -292,10 +157,10 @@
           <p>9. Press "F10" key</p>
           <p>10. Once Alpha has finished exporting, press the browse button below and find the P&A_PRI.ASC file it exported</p>
           <input type="file" id="fileinput_pa_pri" accept=".asc">&nbsp;&nbsp;&nbsp;&nbsp;
-          <button onclick="pageButton(8,7);">&lt;- Prev</button><button id="button_next_8" style="display: none;" onclick="pageButton(8, 9);">Next -&gt;</button>
-          <p>Page 8</p>
+          <button onclick="pageButtonPrev();">&lt;- Prev</button><button id="button_next_2" style="display: none;" onclick="pageButtonNext();">Next -&gt;</button>
+          <p>Page 2</p>
         </div>
-        <div id="instructions_page_9" style="display: none;">
+        <div id="instructions_page_3" style="display: none;">
           <h2>Exporting B_DNI child records</h2>
           <p>1. Go to Utilites->Export data->Character separated ASCII file</p>
           <p>2. Note the Drive/Path location at the top, you'll need to remember that later</p>
@@ -312,10 +177,10 @@
           <p>9. Press "F10" key</p>
           <p>10. Once Alpha has finished exporting, press the browse button below and find the B_DNI.ASC file it exported</p>
           <input type="file" id="fileinput_b_dni" accept=".asc">&nbsp;&nbsp;&nbsp;&nbsp;
-          <button onclick="pageButton(9,8);">&lt;- Prev</button><button id="button_next_9" style="display: none;" onclick="pageButton(9, 10);">Next -&gt;</button>
-          <p>Page 9</p>
+          <button onclick="pageButtonPrev();">&lt;- Prev</button><button id="button_next_3" style="display: none;" onclick="pageButtonNext();">Next -&gt;</button>
+          <p>Page 3</p>
         </div>
-        <div id="instructions_page_10" style="display: none;">
+        <div id="instructions_page_4" style="display: none;">
           <h2>Exporting CHLX child records</h2>
           <p>1. Go to Utilites->Export data->Character separated ASCII file</p>
           <p>2. Note the Drive/Path location at the top, you'll need to remember that later</p>
@@ -332,10 +197,10 @@
           <p>9. Press "F10" key</p>
           <p>10. Once Alpha has finished exporting, press the browse button below and find the CHLX.ASC file it exported</p>
           <input type="file" id="fileinput_chlx" accept=".asc">&nbsp;&nbsp;&nbsp;&nbsp;
-          <button onclick="pageButton(10,9);">&lt;- Prev</button><button id="button_next_10" style="display: none;" onclick="pageButton(10, 11);">Next -&gt;</button>
-          <p>Page 10</p>
+          <button onclick="pageButtonPrev();">&lt;- Prev</button><button id="button_next_4" style="display: none;" onclick="pageButtonNext();">Next -&gt;</button>
+          <p>Page 4</p>
         </div>
-        <div id="instructions_page_11" style="display: none;">
+        <div id="instructions_page_5" style="display: none;">
           <h2>Exporting DNI child records</h2>
           <p>1. Go to Utilites->Export data->Character separated ASCII file</p>
           <p>2. Note the Drive/Path location at the top, you'll need to remember that later</p>
@@ -352,10 +217,10 @@
           <p>9. Press "F10" key</p>
           <p>10. Once Alpha has finished exporting, press the browse button below and find the DNI.ASC file it exported</p>
           <input type="file" id="fileinput_dni" accept=".asc">&nbsp;&nbsp;&nbsp;&nbsp;
-          <button onclick="pageButton(11,10);">&lt;- Prev</button><button id="button_next_11" style="display: none;" onclick="pageButton(11, 12);">Next -&gt;</button>
-          <p>Page 11</p>
+          <button onclick="pageButtonPrev();">&lt;- Prev</button><button id="button_next_5" style="display: none;" onclick="pageButtonNext();">Next -&gt;</button>
+          <p>Page 5</p>
         </div>
-        <div id="instructions_page_12" style="display: none;">
+        <div id="instructions_page_6" style="display: none;">
           <h2>Exporting GEM child records</h2>
           <p>1. Go to Utilites->Export data->Character separated ASCII file</p>
           <p>2. Note the Drive/Path location at the top, you'll need to remember that later</p>
@@ -372,10 +237,10 @@
           <p>9. Press "F10" key</p>
           <p>10. Once Alpha has finished exporting, press the browse button below and find the GEM.ASC file it exported</p>
           <input type="file" id="fileinput_gem" accept=".asc">&nbsp;&nbsp;&nbsp;&nbsp;
-          <button onclick="pageButton(12,11);">&lt;- Prev</button><button id="button_next_12" style="display: none;" onclick="pageButton(12, 13);">Next -&gt;</button>
-          <p>Page 12</p>
+          <button onclick="pageButtonPrev();">&lt;- Prev</button><button id="button_next_6" style="display: none;" onclick="pageButtonNext();">Next -&gt;</button>
+          <p>Page 6</p>
         </div>
-        <div id="instructions_page_13" style="display: none;">
+        <div id="instructions_page_7" style="display: none;">
           <h2>Exporting H_RS child records</h2>
           <p>1. Go to Utilites->Export data->Character separated ASCII file</p>
           <p>2. Note the Drive/Path location at the top, you'll need to remember that later</p>
@@ -392,10 +257,10 @@
           <p>9. Press "F10" key</p>
           <p>10. Once Alpha has finished exporting, press the browse button below and find the H_RS.ASC file it exported</p>
           <input type="file" id="fileinput_h_rs" accept=".asc">&nbsp;&nbsp;&nbsp;&nbsp;
-          <button onclick="pageButton(13,12);">&lt;- Prev</button><button id="button_next_13" style="display: none;" onclick="pageButton(13, 14);">Next -&gt;</button>
-          <p>Page 13</p>
+          <button onclick="pageButtonPrev();">&lt;- Prev</button><button id="button_next_7" style="display: none;" onclick="pageButtonNext();">Next -&gt;</button>
+          <p>Page 7</p>
         </div>
-        <div id="instructions_page_14" style="display: none;">
+        <div id="instructions_page_8" style="display: none;">
           <h2>Exporting I_MM child records</h2>
           <p>1. Go to Utilites->Export data->Character separated ASCII file</p>
           <p>2. Note the Drive/Path location at the top, you'll need to remember that later</p>
@@ -412,10 +277,10 @@
           <p>9. Press "F10" key</p>
           <p>10. Once Alpha has finished exporting, press the browse button below and find the I_MM.ASC file it exported</p>
           <input type="file" id="fileinput_i_mm" accept=".asc">&nbsp;&nbsp;&nbsp;&nbsp;
-          <button onclick="pageButton(14,13);">&lt;- Prev</button><button id="button_next_14" style="display: none;" onclick="pageButton(14, 15);">Next -&gt;</button>
-          <p>Page 14</p>
+          <button onclick="pageButtonPrev();">&lt;- Prev</button><button id="button_next_8" style="display: none;" onclick="pageButtonNext();">Next -&gt;</button>
+          <p>Page 8</p>
         </div>
-        <div id="instructions_page_15" style="display: none;">
+        <div id="instructions_page_9" style="display: none;">
           <h2>Exporting JS child records</h2>
           <p>1. Go to Utilites->Export data->Character separated ASCII file</p>
           <p>2. Note the Drive/Path location at the top, you'll need to remember that later</p>
@@ -432,10 +297,10 @@
           <p>9. Press "F10" key</p>
           <p>10. Once Alpha has finished exporting, press the browse button below and find the JS.ASC file it exported</p>
           <input type="file" id="fileinput_js" accept=".asc">&nbsp;&nbsp;&nbsp;&nbsp;
-          <button onclick="pageButton(15,14);">&lt;- Prev</button><button id="button_next_15" style="display: none;" onclick="pageButton(15, 16);">Next -&gt;</button>
-          <p>Page 15</p>
+          <button onclick="pageButtonPrev();">&lt;- Prev</button><button id="button_next_9" style="display: none;" onclick="pageButtonNext();">Next -&gt;</button>
+          <p>Page 9</p>
         </div>
-        <div id="instructions_page_16" style="display: none;">
+        <div id="instructions_page_10" style="display: none;">
           <h2>Exporting OEM child records</h2>
           <p>1. Go to Utilites->Export data->Character separated ASCII file</p>
           <p>2. Note the Drive/Path location at the top, you'll need to remember that later</p>
@@ -452,10 +317,10 @@
           <p>9. Press "F10" key</p>
           <p>10. Once Alpha has finished exporting, press the browse button below and find the OEM.ASC file it exported</p>
           <input type="file" id="fileinput_oem" accept=".asc">&nbsp;&nbsp;&nbsp;&nbsp;
-          <button onclick="pageButton(16,15);">&lt;- Prev</button><button id="button_next_16" style="display: none;" onclick="pageButton(16,17); startUpload();">Start Upload</button>
-          <p>Page 16</p>
+          <button onclick="pageButtonPrev();">&lt;- Prev</button><button id="button_next_10" style="display: none;" onclick="pageButtonNext(); startUpload();">Start Upload</button>
+          <p>Page 10</p>
         </div>
-        <div id="instructions_page_17" style="display: none;">
+        <div id="instructions_page_11" style="display: none;">
           B_DNI - <span id="upload_progress_B_DNI"></span><br>
           CHLX - <span id="upload_progress_CHLX"></span><br>
           DNI - <span id="upload_progress_DNI"></span><br>

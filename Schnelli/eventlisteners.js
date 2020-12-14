@@ -3,6 +3,16 @@ window.onbeforeunload = function(e) {
   clearData();
 };
 
+window.addEventListener("focus", function(event) 
+{ 
+    pressedKeys = {};
+}, false);
+
+window.addEventListener("blur", function(event) 
+{ 
+    pressedKeys = {};
+}, false);
+
 document.addEventListener('focusin', function() {
   if((document.activeElement.tagName == "INPUT" && (document.activeElement.type == "text" || document.activeElement.type == "number" || document.activeElement.type == "password")) || document.activeElement.tagName == "TEXTAREA")
   {
@@ -42,6 +52,7 @@ var _key_shortcut_pdfimport_browse_available = false;
 var _key_shortcut_invoice_remove_available = false;
 var _key_shortcut_record_views_image_available = false;
 var _key_shortcut_record_views_jump_pn_available = false;
+var _key_shortcut_search_results_sort_by_column = false;
 function setKeyboardShortcutBar()
 {
   var text = "";
@@ -63,6 +74,7 @@ function setKeyboardShortcutBar()
   _key_shortcut_invoice_remove_available = false;
   _key_shortcut_record_views_image_available = false;
   _key_shortcut_record_views_jump_pn_available = false;
+  _key_shortcut_search_results_sort_by_column = false;
 
   if(_LOGGED_IN)
   {
@@ -90,16 +102,27 @@ function setKeyboardShortcutBar()
       _key_shortcut_add_record_view_available = true;
       text += "&nbsp;&nbsp;<span style='color: white;'>V</span> Add Record View";
     }
+    if(!_focused && _isTableSelected && _selectedTable == _TABLE_SEARCH_RESULTS)
+    {
+      _key_shortcut_search_results_sort_by_column = true;
+      text += "&nbsp;&nbsp;<span style='color: white;'>R</span> Sort by column";
+    }
     if(!_focused && _selected_tab == TAB_RECORD_VIEWS && _recordViews.length > 0)
     {
       _key_shortcuts_record_view_available = true;
       text += "&nbsp;&nbsp;<span style='color: white;'>1-9</span>&nbsp;Select";
       _key_shortcut_compare_record_views_available = true;
-      text += "&nbsp;&nbsp;<span style='color: white;'>Q</span>&nbsp;Dif.&nbsp;&nbsp;<span style='color: white;'>W</span>&nbsp;Sim.";
-      _key_shortcut_edit_record_views_pn_available = true;
-      text += "&nbsp;&nbsp;<span style='color: white;'>E</span>dit";
-      _key_shortcut_edit_record_view_whole_available = true;
-      text += "&nbsp;&nbsp;<span style='color: white;'>R</span>&nbsp;Edit Record";
+      text += "&nbsp;&nbsp;<span style='color: white;'>Q</span>&nbsp;Dif.&nbsp;&nbsp;<span style='color: white;'>W</span>&nbsp;Sim.&nbsp;&nbsp;<span style='color: white;'>A</span>&nbsp;All";
+      if(_record_view_page_list[_selected_record_view] < 3)
+      {
+        _key_shortcut_edit_record_views_pn_available = true;
+        text += "&nbsp;&nbsp;<span style='color: white;'>E</span>dit";
+      }
+      if(_record_view_page_list[_selected_record_view] == 1)
+      {
+        _key_shortcut_edit_record_view_whole_available = true;
+        text += "&nbsp;&nbsp;<span style='color: white;'>R</span>&nbsp;Edit Record";
+      }
       _key_shortcut_record_views_jump_pn_available = true;
       text += "&nbsp;&nbsp;<span style='color: white;'>J</span>ump Child Part";
       _key_shortcut_record_views_image_available = true;
@@ -293,8 +316,12 @@ input_email.addEventListener("keyup", function(event) {
   var KEY_TAB = "Tab";
   var KEY_PAGE_UP = "PageUp";
   var KEY_PAGE_DOWN = "PageDown";
-  var KEY_SHIFT = "ShiftLeft";
-  var KEY_CTRL = "ControlLeft";
+  var KEY_SHIFT_LEFT =  "ShiftLeft";
+  var KEY_SHIFT_RIGHT = "ShiftRight";
+  var KEY_CTRL_LEFT =  "ControlLeft";
+  var KEY_CTRL_RIGHT = "ControlRight";
+  var KEY_ALT_LEFT =  "AltLeft";
+  var KEY_ALT_RIGHT = "AltRight";
   var KEY_A = "KeyA";
   var KEY_B = "KeyB";
   var KEY_C = "KeyC";
@@ -653,9 +680,9 @@ input_email.addEventListener("keyup", function(event) {
   function selectSearchAutocompleteUp()
   {
     if(_selected_search_autocomplete >= _search_autocomplete_matches.length)
-      _selected_search_autocomplete = 0;
+      _selected_search_autocomplete = -1;
     if(_selected_search_autocomplete < 0)
-      _selected_search_autocomplete = 0;
+      _selected_search_autocomplete = -1;
     if(_search_autocomplete_matches.length > 0)
     {      
       for(var i = 0; i < _search_autocomplete_matches.length; ++i)
@@ -671,9 +698,9 @@ input_email.addEventListener("keyup", function(event) {
   function selectSearchAutocompleteDown()
   {
     if(_selected_search_autocomplete >= _search_autocomplete_matches.length)
-      _selected_search_autocomplete = 0;
+      _selected_search_autocomplete = -1;
     if(_selected_search_autocomplete < 0)
-      _selected_search_autocomplete = 0;
+      _selected_search_autocomplete = -1;
     if(_search_autocomplete_matches.length > 0){      
       for(var i = 0; i < _search_autocomplete_matches.length; ++i)
         document.getElementById("search_autocomplete_match_" + i).style.backgroundColor = "white";
@@ -736,7 +763,11 @@ input_email.addEventListener("keyup", function(event) {
       for(var j = 0; j < _EXTRA_DB.length; ++j)
       {
         if(j != 2) //Skip DNI ExtraDB
-          document.getElementById("partnum_autocomplete_" + i + "_" + j).innerHTML = "";
+        {
+          var ele = document.getElementById("partnum_autocomplete_" + i + "_" + j);
+          if(ele != null)
+            ele.innerHTML = "";
+        }
       }
     }
   }
@@ -803,9 +834,9 @@ input_email.addEventListener("keyup", function(event) {
   function selectPartNumAutocompleteUp()
   {
     if(_selected_partnum_autocomplete >= _partnum_autocomplete_matches.length)
-      _selected_partnum_autocomplete = 0;
+      _selected_partnum_autocomplete = -1;
     if(_selected_partnum_autocomplete < 0)
-      _selected_partnum_autocomplete = 0;
+      _selected_partnum_autocomplete = -1;
     if(_partnum_autocomplete_matches.length > 0)
     {
       for(var i = 0; i < _partnum_autocomplete_matches.length; ++i)
@@ -821,9 +852,9 @@ input_email.addEventListener("keyup", function(event) {
   function selectPartNumAutocompleteDown()
   {
     if(_selected_partnum_autocomplete >= _partnum_autocomplete_matches.length)
-      _selected_partnum_autocomplete = 0;
+      _selected_partnum_autocomplete = -1;
     if(_selected_partnum_autocomplete < 0)
-      _selected_partnum_autocomplete = 0;
+      _selected_partnum_autocomplete = -1;
     if(_partnum_autocomplete_matches.length > 0){     
       for(var i = 0; i < _partnum_autocomplete_matches.length; ++i)
         document.getElementById("partnum_autocomplete_match_" + i).style.backgroundColor = "white";
@@ -839,6 +870,7 @@ input_email.addEventListener("keyup", function(event) {
 //PART CHILD EDIT AUTOCOMPLETE----------------------------------------------------------
 function clearPartChildEditAutocomplete()
 {
+  _selected_partchild_edit_autocomplete = -1;
   _partchild_edit_autocomplete_matches = [];
   document.getElementById("partchild_edit_autocomplete").innerHTML = "";
 }
@@ -900,9 +932,9 @@ function clearPartChildEditAutocomplete()
   function selectPartChildEditAutocompleteUp()
   {
     if(_selected_partchild_edit_autocomplete >= _partchild_edit_autocomplete_matches.length)
-      _selected_partchild_edit_autocomplete = 0;
+      _selected_partchild_edit_autocomplete = -1;
     if(_selected_partchild_edit_autocomplete < 0)
-      _selected_partchild_edit_autocomplete = 0;
+      _selected_partchild_edit_autocomplete = -1;
     if(_partchild_edit_autocomplete_matches.length > 0)
     {
         for(var i = 0; i < _partchild_edit_autocomplete_matches.length; ++i)
@@ -918,9 +950,9 @@ function clearPartChildEditAutocomplete()
   function selectPartChildEditAutocompleteDown()
   {
     if(_selected_partchild_edit_autocomplete >= _partchild_edit_autocomplete_matches.length)
-      _selected_partchild_edit_autocomplete = 0;
+      _selected_partchild_edit_autocomplete = -1;
     if(_selected_partchild_edit_autocomplete < 0)
-      _selected_partchild_edit_autocomplete = 0;
+      _selected_partchild_edit_autocomplete = -1;
     if(_partchild_edit_autocomplete_matches.length > 0){      
       for(var i = 0; i < _partchild_edit_autocomplete_matches.length; ++i)
         document.getElementById("partchild_edit_autocomplete_match_" + i).style.backgroundColor = "";
@@ -933,7 +965,7 @@ function clearPartChildEditAutocomplete()
   }
 
   var _partchild_edit_autocomplete_matches = [];
-  var _selected_partchild_edit_autocomplete = 0;
+  var _selected_partchild_edit_autocomplete = -1;
   var MAX_PARTCHILDEDIT_SUGGESTIONS = 15;
   function showPartChildEditAutocomplete()
   {
@@ -997,9 +1029,9 @@ function clearPartChildEditAutocomplete()
     {
       htmlToAdd += "<table style='position: absolute; z-index: 2;'><tr>";
       htmlToAdd += "<th><p>DB</p></th>";
-      for(var j = 0; j < RECORD_VIEW_HEADERS.length; ++j)
+      for(var j = 0; j < RECORD_VIEW_HEADERS_PAGE1.length; ++j)
       {
-        htmlToAdd += "<th><p>" + RECORD_VIEW_HEADERS[j] + "</p></th>";
+        htmlToAdd += "<th><p>" + RECORD_VIEW_HEADERS_PAGE1[j] + "</p></th>";
       }
       htmlToAdd += "</tr>";
       for(var j = 0; j < _partchild_edit_autocomplete_matches.length; ++j)
@@ -1008,12 +1040,12 @@ function clearPartChildEditAutocomplete()
         _selected_extra_db = _partchild_edit_autocomplete_matches[j].db;
         htmlToAdd += "<tr class='clickable' id='partchild_edit_autocomplete_match_" + j + "' onclick='partchild_edit_row_click(" + j + ");'>";
         htmlToAdd += "<td><p>" + _EXTRA_DB[_selected_extra_db] + "</p></td>";
-        for(var k = 0; k < RECORD_VIEW_HEADERS.length; ++k)
+        for(var k = 0; k < RECORD_VIEW_HEADERS_PAGE1.length; ++k)
         { 
           htmlToAdd += "<td>";
           if(extraDBIndex != null){
-            for(var d = 0; d < RECORD_VIEW_HEADERS_ACTUAL_INDEXES[k].length; ++d){
-              var content1 = _content_extra[_selected_extra_db][extraDBIndex][0][RECORD_VIEW_HEADERS_ACTUAL_INDEXES[k][d]];
+            for(var d = 0; d < RECORD_VIEW_HEADERS_ACTUAL_INDEXES_PAGE1[k].length; ++d){
+              var content1 = _content_extra[_selected_extra_db][extraDBIndex][0][RECORD_VIEW_HEADERS_ACTUAL_INDEXES_PAGE1[k][d]];
               if(content1 != null){
                 if(k == 9 || k == 10 || k == 11) //"CGS",   "RETAIL",     "SELL" in usd format
                 {

@@ -448,14 +448,18 @@
   <div id="invoice_from_history_content" style="display: none;"></div>
   <div id="add_invoice_content" style="display: none;"></div>
   <div id="key_shortcut_info_bar"             class="no-print" style="position: fixed; bottom: 0px; left: 0px; width: 100%; height: 40px; background-color: #70A2FF; color: black; font-size: 30px; z-index: 2; white-space: nowrap;"></div>
-  <div id="key_shortcut_invoice_remove_window" class="no-print" style="display: none; position: fixed; width: 95%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #70A2FF; color: black; font-size: 30px; z-index: 2;"></div>
+  <div id="key_shortcut_invoice_remove_window" class="no-print" style="display: none; position: fixed; width: 95%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #70A2FF; color: black; font-size: 30px; z-index: 4;"></div>
   <div id="non_invoice_content">
-    <div id="key_shortcut_index_window"           class="no-print" style="display: none; position: fixed; width: 95%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #70A2FF; color: black; font-size: 30px; z-index: 2;"></div>
-    <div id="key_shortcut_index_window_edit"      class="no-print" style="display: none; position: fixed; width: 95%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #70A2FF; color: black; font-size: 30px; z-index: 2;"></div>
-    <div id="key_shortcut_extra_db_sell_window"   class="no-print" style="display: none; position: fixed; width: 95%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #70A2FF; color: black; font-size: 30px; z-index: 2;"></div>
-    <div id="key_shortcut_extra_db_edit_window"   class="no-print" style="display: none; position: fixed; width: 95%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #70A2FF; color: black; font-size: 30px; z-index: 2;"></div>
-    <div id="key_shortcut_extra_db_image_window"  class="no-print" style="display: none; position: fixed; width: 95%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #70A2FF; color: black; font-size: 30px; z-index: 2;"></div>
-    <div id="key_shortcut_extra_db_jumpPN_window" class="no-print" style="display: none; position: fixed; width: 95%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #70A2FF; color: black; font-size: 30px; z-index: 2;"></div>
+    <div id="key_shortcut_index_window"           class="no-print" style="display: none; position: fixed; width: 95%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #70A2FF; color: black; font-size: 30px; z-index: 4;"></div>
+    <div id="key_shortcut_index_window_edit"      class="no-print" style="display: none; position: fixed; width: 95%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #70A2FF; color: black; font-size: 30px; z-index: 4;"></div>
+    <div id="key_shortcut_extra_db_sell_window"   class="no-print" style="display: none; position: fixed; width: 95%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #70A2FF; color: black; font-size: 30px; z-index: 4;"></div>
+    <div id="key_shortcut_extra_db_edit_window"   class="no-print" style="display: none; position: fixed; width: 95%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #70A2FF; color: black; font-size: 30px; z-index: 4;"></div>
+    <div id="key_shortcut_extra_db_image_window"  class="no-print" style="display: none; position: fixed; width: 95%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #70A2FF; color: black; font-size: 30px; z-index: 4;"></div>
+    <div id="key_shortcut_extra_db_jumpPN_window" class="no-print" style="display: none; position: fixed; width: 95%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #70A2FF; color: black; font-size: 30px; z-index: 4;"></div>
+    <div id="key_shortcut_search_scope_window"    class="no-print" style="display: none; position: fixed; width: 95%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #70A2FF; color: black; font-size: 30px; z-index: 4;">
+      <span style="color: white;">1</span>. .New Search<br>
+      <span style="color: white;">2</span>. .In Current Search Results
+    </div>
       <div id = "login_div" style="display: none;">
           <h1 style="text-align: center;">PartScouter</h1>
           <p style="text-align: center;">Email</p>
@@ -580,7 +584,8 @@
 
         <div id="TAB_search_div">
           <div id="search_div" style="display: none; background-color: #9BBEFF;">
-                <label class="checkBox_container" style="display: block;" ><span style="color: white;">E</span>xact Match (Ignores Capitalization)<input type="checkbox" id="search_exact_match"><span class="checkmark"></span></label>
+                <!-- <label class="checkBox_container" style="display: block;" >Ignore S<span style="color: white;">p</span>ecial Characters (E.G. \ . ,)<input type="checkbox" id="search_ignore_special_characters"><span class="checkmark"></span></label> -->
+            <!-- <br><label class="checkBox_container" style="display: block;" ><span style="color: white;">E</span>xact Match (Ignores Capitalization)<input type="checkbox" id="search_exact_match"><span class="checkmark"></span></label> -->
             <br><label class="checkBox_container" style="display: block;" ><span style="color: white;">H</span>ighlighting<input type="checkbox" id="search_highlight" onchange="onChangeShouldHighlight();" checked><span class="checkmark"></span></label>
             <div id="search_highlight_div" style="display: block; position: relative; left: 50px;">
               <br><label class="checkBox_container" style="display: block;" >Hi<span style="color: white;">g</span>hlight Similar Words<input type="checkbox" id="search_highlight_similar_words"><span class="checkmark"></span></label>
@@ -617,7 +622,7 @@
 
         <div id="TAB_record_views_div">
           <p>Press the <img title='Open Record View' src='record_view.png' width=50px height=20px> icon in 'Search' or 'Record Browser' to add a part children record view</p>
-          <div id="googlesearch_image_div" class="no-print" style="display: none; position: fixed; z-index: 2; height: 50%; top: 50%; left: 50%; transform: translateX(-50%) translateY(-50%);">
+          <div id="googlesearch_image_div" class="no-print" style="display: none; position: fixed; z-index: 4; height: 50%; top: 50%; left: 50%; transform: translateX(-50%) translateY(-50%);">
             <img id='button_googlesearch_image_exit' class='clickable' src='x.png' style='position: fixed; top: -80px; right: -20px;' onclick='hideGoogleSearchImage();'>
             <img id='image_googlesearch_image' style='height: 100%;'><br>
             <button id="button_googlesearch_image_left" style="display: inline; background-color: #70A2FF; font-size: 30px; width: 50%; float: left;  padding: 0px;" onclick="changeGoogleSearchImage(-1);">&larr;</button>
@@ -690,7 +695,7 @@
         <p>Record Views</p>
         <p>&nbsp;&nbsp;Up/Down Arrow Keys - Traverse Index</p>
         <br>
-        <p>v 1.74.3</p>
+        <p>v 1.75.3</p>
         <p><a href="https://where44444.github.io/Schnelli/ez_database_updater.html" target="_blank">EZ Database Updater</a></p>
         <br><br><br><br> <!--Line breaks so key_shortcut_info_bar doesn't hide anything at bottom-->
       </div>

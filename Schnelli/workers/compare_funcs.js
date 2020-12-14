@@ -31,3 +31,24 @@ function COMPARE_0_0( a, b ) {
     return 0;
   }
 
+  function COMPARE_SEARCHRESULTS_TO_SORTED_CONTENT(a, b)
+  {
+    var index_a = null;
+    var index_b = null;
+    index_a = getContentIndexFrom_DB_ID(a.id);
+    index_b = getContentIndexFrom_DB_ID(b.id);
+
+    if(index_a != null)
+      a.row = index_a;
+    if(index_b != null)
+      b.row = index_b;
+
+    if(index_a != null && index_b != null)
+    {
+      if (index_a < index_b)
+        return -1;
+      if (index_a > index_b)
+        return 1;
+    }
+    return 0;
+  }

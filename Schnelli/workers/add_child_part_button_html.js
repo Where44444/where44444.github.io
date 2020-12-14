@@ -16,6 +16,7 @@ onmessage = function(e) {
     var _TABLE_SEARCH_RESULTS = e.data[9];
     var shouldAddChildPartLinks = e.data[10];
     _CHILD_PART_LINKS_CACHE = e.data[11];
+    // var rankings = e.data[12];
 
     var _table_HTML_0 = "";
     var numLinkCells = array_trimmed.length * 2; //_DESCRIP2 and _COMMENTS
@@ -24,6 +25,7 @@ onmessage = function(e) {
     for(var i = 0; i < array_trimmed.length; ++i){
       _table_HTML_0 += "<tr id='search_results_row_" + i + "'>";
       _row_ids.push(array_trimmed[i][array_trimmed[i].length - 1]);
+      // _table_HTML_0 += "<td>" + rankings[i] + "</td>";
       for(var j = 0; j < INDEXES_CONCAT.length; ++j){
         var index = _INDEX_ORDER[j];
         var cellContent = array_trimmed[i][index];
@@ -49,56 +51,71 @@ onmessage = function(e) {
       }
       _table_HTML_0 += "</tr>";
   }
-    var results = [1, _table_HTML_0, _CHILD_PART_LINKS_CACHE, _row_ids];
-    postMessage(results);
-  }
+  var results = [1, _table_HTML_0, _CHILD_PART_LINKS_CACHE, _row_ids];
+  postMessage(results);
+}
 
-function getExtraDBLinkIndex(_content_extra_db_index, pn) {
-    if (pn.length > 0) {
-      for (var i = 0; i < _content_extra[_content_extra_db_index].length; ++i) //Exact match PN
+var _extradb_link_index_cache = [new Map(), new Map(), new Map(), new Map(), new Map(), new Map(), new Map(), new Map(), new Map()];
+function getExtraDBLinkIndex(db, pn) {
+  if (pn.length > 0) {
+
+    if(_extradb_link_index_cache[db].has(pn))
+    {
+      var index = _extradb_link_index_cache[db].get(pn);
+      if(_content_extra[db].length > index && String(_content_extra[db][index][0].PN) == pn) //Only include exact match PN in cache to ensure it doesn't load inferior match if indexes are changed
       {
-        if (String(_content_extra[_content_extra_db_index][i][0].PN) == pn) {
-          return i;
-        }
+        return index;
       }
-      for (var i = 0; i < _content_extra[_content_extra_db_index].length; ++i) {
-        var pn1 = getStandardPNString(pn);
-        if (getStandardPNString(String(_content_extra[_content_extra_db_index][i][0].PN)) == pn1) //General match PN
-        {
-          return i;
-        }
-      }
-      for (var i = 0; i < _content_extra[_content_extra_db_index].length; ++i) //Exact match AKA
+      
+      _extradb_link_index_cache[db].delete(pn); //Cache invalid
+    }
+    
+    for (var i = 0; i < _content_extra[db].length; ++i) //Exact match PN
+    {
+      if (String(_content_extra[db][i][0].PN) == pn) 
       {
-        if (String(_content_extra[_content_extra_db_index][i][0].AKA) == pn) {
-          return i;
-        }
-      }
-      for (var i = 0; i < _content_extra[_content_extra_db_index].length; ++i) {
-        var pn1 = getStandardPNString(pn);
-        if (getStandardPNString(String(_content_extra[_content_extra_db_index][i][0].AKA)) == pn1) //General match AKA
-        {
-          return i;
-        }
+        _extradb_link_index_cache[db].set(pn, i);
+        return i;
       }
     }
-    return null;
-  }
-
-  function getStandardPNString(str1) {
-    var str = String(str1);
-    var modified = true;
-    while (modified) {
-      var orig_length = str.length;
-      // str = removeStartingZeroes(str);
-      str = removeEndTilde(str);
-      str = removeEndArrow(str);
-      str = removeEndExclaim(str);
-      str = removeEndSemicolon(str);
-      modified = (orig_length != str.length);
+    for (var i = 0; i < _content_extra[db].length; ++i) {
+      var pn1 = getStandardPNString(pn);
+      if (getStandardPNString(String(_content_extra[db][i][0].PN)) == pn1) //General match PN
+      {
+        return i;
+      }
     }
-    return str.toLowerCase();
+    for (var i = 0; i < _content_extra[db].length; ++i) //Exact match AKA
+    {
+      if (String(_content_extra[db][i][0].AKA) == pn) {
+        return i;
+      }
+    }
+    for (var i = 0; i < _content_extra[db].length; ++i) {
+      var pn1 = getStandardPNString(pn);
+      if (getStandardPNString(String(_content_extra[db][i][0].AKA)) == pn1) //General match AKA
+      {
+        return i;
+      }
+    }
   }
+  return null;
+}
+
+function getStandardPNString(str1) {
+  var str = String(str1);
+  var modified = true;
+  while (modified) {
+    var orig_length = str.length;
+    // str = removeStartingZeroes(str);
+    str = removeEndTilde(str);
+    str = removeEndArrow(str);
+    str = removeEndExclaim(str);
+    str = removeEndSemicolon(str);
+    modified = (orig_length != str.length);
+  }
+  return str.toLowerCase();
+}
 
   function removeEndTilde(str1) {
     var str = String(str1);

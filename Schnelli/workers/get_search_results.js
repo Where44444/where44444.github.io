@@ -3,99 +3,363 @@ onmessage = function(e) {
     var content_standard = e.data[1];
     var content = e.data[2];
     var columnsToSearch = e.data[3];
-    var exactMatch = e.data[4];
-    var anyChecked = e.data[5];
-    var searchstrings_specific = e.data[6];
-    var indexes = e.data[7];
+    var anyChecked = e.data[4];
+    var searchstring_specific = e.data[5];
+    var indexes = e.data[6];
+    var currentResultsIndexesBool = e.data[7];
 
-    var results = [1];
-    for(var i = 0; i < content.length; ++i){
+    //ANY
+    var searchstring_any_standard = standardizeString(searchstring_any);
+    var searchstring_any_standard_regexsafe = standardizeString(searchstring_any_standard);
+    var searchstring_any_regexsafe = getRegexSafeSearchTerm(searchstring_any.toLowerCase());
+    var searchstrings_any = removeExtraSpaces(searchstring_any).toLowerCase().split(" ");
+    var searchstrings_any_standard = [];
+    
+    for(var i = 0; i < searchstrings_any.length; ++i)
+        searchstrings_any_standard.push(standardizeString(searchstrings_any[i]));
+        
+    var searchstrings_any_regexsafe = [];
+    for(var i = 0; i < searchstrings_any.length; ++i)
+        searchstrings_any_regexsafe.push(getRegexSafeSearchTerm(searchstrings_any[i]));
+
+    var standard_searchstrings_any_regexsafe = [];
+    for(var i = 0; i < searchstrings_any_standard.length; ++i)
+        standard_searchstrings_any_regexsafe.push(getRegexSafeSearchTerm(searchstrings_any_standard[i]));
+        
+    //SPECIFIC
+    var searchstring_specific_standard = [];
+    var searchstring_specific_regexsafe = [];
+    var searchstring_specific_standard_regexsafe = [];
+    var searchstrings_specific = [];
+    var searchstrings_specific_standard = [];
+    
+    for(var i = 0; i < searchstring_specific.length; ++i)
+    {
+        searchstrings_specific.push(removeExtraSpaces(searchstring_specific[i]).toLowerCase().split(" "));
+        searchstring_specific_standard.push(standardizeString(searchstring_specific[i]));
+        searchstring_specific_regexsafe.push(getRegexSafeSearchTerm(searchstring_specific[i].toLowerCase()));
+        searchstring_specific_standard_regexsafe.push(getRegexSafeSearchTerm(searchstring_specific_standard[i]));
+
+        searchstrings_specific_standard.push([]);
+        for(var j = 0; j < searchstrings_specific[i].length; ++j)
+            searchstrings_specific_standard[i].push(standardizeString(searchstrings_specific[i][j]));
+    }
+    
+    var searchstrings_specific_regexsafe = [];
+    var standard_searchstrings_specific_regexsafe = [];
+    for(var i = 0; i < searchstrings_specific.length; ++i)
+    {
+        searchstrings_specific_regexsafe.push([]);
+        for(var j = 0; j < searchstrings_specific[i].length; ++j)
+        searchstrings_specific_regexsafe[i].push(getRegexSafeSearchTerm(searchstrings_specific[i][j]));
+        
+        standard_searchstrings_specific_regexsafe.push([]);
+        for(var j = 0; j < searchstrings_specific_standard[i].length; ++j)
+            standard_searchstrings_specific_regexsafe[i].push(getRegexSafeSearchTerm(searchstrings_specific_standard[i][j]));
+    }
+        
+
+        
+    var RANKING_STANDARD =                          1;    
+    var RANKING_EXACT =                           100;    
+    var RANKING_ALL_IN_CELL_STANDARD =          10000;    
+    var RANKING_ALL_IN_CELL_EXACT =           1000000;    
+    var RANKING_WHOLE_STANDARD =            100000000;    
+    var RANKING_WHOLE_EXACT =             10000000000;    
+    var RANKING_SPACES_BETWEEN_PENALTY =         -100;    
+
+    var results = [];
+    for(var i = 0; i < content.length; ++i)
+    {
         if(i % 100 == 0)
         {
             postMessage([0, i]);
         }
-        var row;
-        if(exactMatch)
-            row = content[i];
-        else
-            row = content_standard[i];
-        var rowHasMatch = false;
-        var continueSearchingRow = true;
-        var match = [0, [], []];
-        for(var j = 0; j < row.length - 1 && continueSearchingRow; ++j){
-            if(anyChecked || columnsToSearch[j]){
-                var searchstring;
-                if(anyChecked)
-                    searchstring = searchstring_any;
-                else
-                    searchstring = searchstrings_specific[j];
+        if(currentResultsIndexesBool.length == 0 || currentResultsIndexesBool[i])
+        {
+            var row = content[i];
+            var row_standard = content_standard[i];
+            var rowHasMatch = false;
+            var match = new Object;
+            match.row = 0;
+            match.columns = [];
+            match.strings = [];
+            match.ranking = 0;
+            match.id = "";
+            // match.indexes = [];
+            var continueSearchingRow = true;
+            if(anyChecked)
+            {
+                rowHasMatch = false;
+                for(var j = 0; j < row.length - 1; ++j)
+                {
+                    var content_to_search;
+                    var content_to_search_standard;
+                    if(j < indexes.length)
+                    {
+                        content_to_search = String(row[j]).toLowerCase();
+                        content_to_search_standard = row_standard[j];
+                    }
+                    else
+                    {
+                        content_to_search = stringifyArray(row[j]).toLowerCase(); //Memo field array
+                        content_to_search_standard = stringifyArray(row_standard[j]);
+                    }
 
-                var searchStrings_Separated = [];
-                if(exactMatch)
-                    searchStrings_Separated.push(searchstring);
-                else
-                    searchStrings_Separated = removeExtraSpaces(searchstring).split(" ");
-                
-                var content_to_search;
-                if(j < indexes.length)
-                    content_to_search = String(row[j]).toLowerCase();
-                else
-                    content_to_search = stringifyArray(row[j]).toLowerCase();
-                for(var sss = 0; sss < searchStrings_Separated.length && continueSearchingRow; ++sss){
-                    searchstring = String(searchStrings_Separated[sss]);
-                    var result = content_to_search.match(getRegexSafeSearchTerm(searchstring));
+                    //First check if whole string is matched before splitting into spaces
+                    var cell_indexes = [];
+                    var regex = searchstring_any_regexsafe;
+                    var result = content_to_search.match(regex);
+                    var whole_match_found = false;
                     if(result != null)
                     {
-                        var content_string;
-                        if(j < indexes.length)
-                            content_string = String(content[i][j]);
-                        else
-                            content_string = stringifyArray(content[i][j]);
-                        var s = 0;
-                        var start = 0;
-                        var end = 0;
-                        var lastCharWasSpace = false;
-                        for(var n = 0; n < content_string.length; ++n)
+                        match.row = i;
+                        match.columns.push(j);
+                        match.strings.push(String(row[j]).substring(result.index, result.index + searchstring_any.length));
+                        match.ranking += RANKING_WHOLE_EXACT;
+                        match.id = row[row.length - 1]; //Row ID
+                        cell_indexes.push(result.index);
+                        rowHasMatch = true;
+                        whole_match_found = true;
+                    }
+
+                    //Whole string standard
+                    if(result == null)
+                    {
+                        regex = searchstring_any_standard_regexsafe;
+                        result = content_to_search_standard.match(regex);
+                        if(result != null)
                         {
-                            var content_char = content_string.charAt(n).toLowerCase();
-                            if((is_standardized(content_char) || exactMatch) && !(lastCharWasSpace && content_char == " "))
+                            var position = getStandardRegexPositionInComplexString(String(row[j]), searchstring_any_standard);
+                            var matchString = String(row[j]).substring(position[0], position[1]);
+                            match.row = i;
+                            match.columns.push(j);
+                            match.strings.push(matchString);
+                            match.ranking += RANKING_WHOLE_STANDARD;
+                            match.id = row[row.length - 1]; //Row ID
+                            cell_indexes.push(position[0]);
+                            rowHasMatch = true;
+                            whole_match_found = true;
+                        }
+                    }
+                    
+                    //Separate searchstring by spaces
+                    if(result == null)
+                    {
+                        var num_exact_matches_in_cell = 0;
+                        var num_standard_matches_in_cell = 0;
+                        for(var sss = 0; sss < searchstrings_any.length; ++sss)
+                        {
+                            var searchstring = searchstrings_any[sss];
+
+                            //Exact Match
+                            regex = searchstrings_any_regexsafe[sss];
+                            // getRegexSafeSearchTerm(searchstring);
+                            result = content_to_search.match(regex);
+                            if(result != null)
                             {
-                                if(content_char != searchstring.charAt(s).toLowerCase())
-                                    s = 0;
-                                if(content_char == searchstring.charAt(s).toLowerCase()){
-                                    if(s == 0)
-                                        start = n;
-                                    ++s;
-                                    if(s == searchstring.length){ //At end of search string
-                                        end = n + 1;
-                                        break;
-                                    }
-                                }
-                                else
-                                    s = 0;
+                                match.row = i;
+                                match.columns.push(j);
+                                match.strings.push(String(row[j]).substring(result.index, result.index + searchstring.length));
+                                match.ranking += RANKING_EXACT;
+                                match.id = row[row.length - 1]; //Row ID
+                                // match.indexes.push(result.index);
+                                cell_indexes.push(result.index);
+                                rowHasMatch = true;
+                                ++num_exact_matches_in_cell;
+                                
                             }
-                            lastCharWasSpace = (content_char == " ");
+                            else //Try Standardized Match
+                            {
+                                regex = standard_searchstrings_any_regexsafe[sss];
+                                // getRegexSafeSearchTerm(standard_searchstrings_any[sss]);
+                                result = content_to_search_standard.match(regex);
+                                if(result != null)
+                                {
+                                    var position = getStandardRegexPositionInComplexString(String(row[j]), searchstrings_any_standard[sss]);
+                                    var matchString = String(row[j]).substring(position[0], position[1]);
+                                    match.row = i;
+                                    match.columns.push(j);
+                                    match.strings.push(matchString);
+                                    match.ranking += RANKING_STANDARD;
+                                    match.id = row[row.length - 1]; //Row ID
+                                    // match.indexes.push(position[0]);
+                                    cell_indexes.push(position[0]);
+                                    rowHasMatch = true;
+                                    ++num_standard_matches_in_cell;
+                                }
+                            }
+
+                            if(result != null)
+                            {
+                                if(num_exact_matches_in_cell + num_standard_matches_in_cell == searchstrings_any.length)
+                                    match.ranking += (RANKING_ALL_IN_CELL_EXACT * num_exact_matches_in_cell + RANKING_ALL_IN_CELL_STANDARD * num_standard_matches_in_cell); //Ranking Bonus for every word in search having match in cell
+                            }
+                        }
+                    }
+
+                    if(!whole_match_found)
+                    {
+                        var numSpaces = 0;
+                        for(var i2 = 0; i2 < cell_indexes.length - 1; ++i2)
+                        {
+                            var str = removeExtraSpaces(content_to_search.substring(cell_indexes[i2], cell_indexes[i2 + 1]));
+                            for(var j2 = 0; j2 < str.length; ++j2)
+                            {
+                                if(str.charAt(j2) == " ")
+                                    ++numSpaces;
+                            }
+                        }
+                        match.ranking += (RANKING_SPACES_BETWEEN_PENALTY * numSpaces);
+                    }
+                } //END Searching Column (row[j])
+                if(rowHasMatch)
+                    results.push(match);
+            }
+            else //Specific columns
+            {
+                for(var j = 0; j < row.length - 1 && continueSearchingRow; ++j)
+                {
+                    if(columnsToSearch[j]){
+                        var searchStrings_Separated = searchstrings_specific[j];
+                        
+                        var content_to_search;
+                        var content_to_search_standard;
+                        if(j < indexes.length)
+                        {
+                            content_to_search = String(row[j]).toLowerCase();
+                            content_to_search_standard = row_standard[j];
+                        }
+                        else
+                        {
+                            content_to_search = stringifyArray(row[j]).toLowerCase(); //Memo field array
+                            content_to_search_standard = stringifyArray(row_standard[j]);
                         }
                         
-                        var matchStr = content_string.substring(start, end);
-                        match[0] = i;
-                        match[1].push(j);
-                        match[2].push(matchStr);
-                        rowHasMatch = true;
-                    }
-                    else{ //No match
-                        if(!anyChecked){
-                            rowHasMatch = false;
-                            continueSearchingRow = false;
+                        //First check if whole exact string is matched before splitting into spaces
+                        var cell_indexes = [];
+                        var regex = searchstring_specific_regexsafe[j];
+                        var result = content_to_search.match(regex);
+                        var whole_match_found = false;
+                        if(result != null)
+                        {
+                            match.row = i;
+                            match.columns.push(j);
+                            match.strings.push(String(row[j]).substring(result.index, result.index + searchstring_specific[j].length));
+                            match.ranking += RANKING_WHOLE_EXACT;
+                            match.id = row[row.length - 1]; //Row ID
+                            cell_indexes.push(result.index);
+                            rowHasMatch = true;
+                            whole_match_found = true;
                         }
-                    }
-                }
+
+                        //Whole string standard
+                        if(result == null)
+                        {
+                            regex = searchstring_specific_standard_regexsafe[j];
+                            result = content_to_search_standard.match(regex);
+                            if(result != null)
+                            {
+                                var position = getStandardRegexPositionInComplexString(String(row[j]), searchstring_specific_standard[j]);
+                                var matchString = String(row[j]).substring(position[0], position[1]);
+                                match.row = i;
+                                match.columns.push(j);
+                                match.strings.push(matchString);
+                                match.ranking += RANKING_WHOLE_STANDARD;
+                                match.id = row[row.length - 1]; //Row ID
+                                cell_indexes.push(position[0]);
+                                rowHasMatch = true;
+                                whole_match_found = true;
+                            }
+                        }
+                        
+                        //Separate searchstring by spaces
+                        if(result == null)
+                        {
+                            var num_exact_matches_in_cell = 0;
+                            var num_standard_matches_in_cell = 0;
+                            for(var sss = 0; sss < searchStrings_Separated.length && continueSearchingRow; ++sss)
+                            {
+                                var searchstring = searchStrings_Separated[sss];
+
+                                //Exact Match
+                                regex = searchstrings_specific_regexsafe[j][sss];
+                                // getRegexSafeSearchTerm(searchstring);
+                                var result = content_to_search.match(regex);
+                                if(result != null)
+                                {
+                                    match.row = i;
+                                    match.columns.push(j);
+                                    match.strings.push(String(row[j]).substring(result.index, result.index + searchstring.length));
+                                    match.ranking += RANKING_EXACT;
+                                    match.id = row[row.length - 1]; //Row ID
+                                    // match.indexes.push(result.index);
+                                    cell_indexes.push(result.index);
+                                    rowHasMatch = true;
+                                    ++num_exact_matches_in_cell;
+                                }
+                                else //Try Standardized Match
+                                {
+                                    var standard_searchstring = searchstrings_specific_standard[j][sss];
+                                    // standardizeString(searchstring);
+                                    regex = standard_searchstrings_specific_regexsafe[j][sss];
+                                    // getRegexSafeSearchTerm(standard_searchstring);
+                                    result = content_to_search_standard.match(regex);
+                                    if(result != null)
+                                    {
+                                        var position = getStandardRegexPositionInComplexString(String(row[j]), standard_searchstring);
+                                        var matchString = String(row[j]).substring(position[0], position[1]);
+                                        match.row = i;
+                                        match.columns.push(j);
+                                        match.strings.push(matchString);
+                                        match.ranking += RANKING_STANDARD;
+                                        match.id = row[row.length - 1]; //Row ID
+                                        // match.indexes.push(position[0]);
+                                        cell_indexes.push(position[0]);
+                                        rowHasMatch = true;
+                                        ++num_standard_matches_in_cell;
+                                    }
+                                }
+
+                                //No Match
+                                if(result == null)
+                                {
+                                    rowHasMatch = false;
+                                    continueSearchingRow = false;
+                                }
+                                else
+                                {
+                                    if(num_exact_matches_in_cell + num_standard_matches_in_cell == searchStrings_Separated.length)
+                                        match.ranking += (RANKING_ALL_IN_CELL_EXACT * num_exact_matches_in_cell + RANKING_ALL_IN_CELL_STANDARD * num_standard_matches_in_cell); //Ranking Bonus for every word in search having match in cell
+                                }
+                            }
+                        } //END Searching separated search string
+
+                        if(continueSearchingRow && !whole_match_found)
+                        {
+                            var numSpaces = 0;
+                            for(var i2 = 0; i2 < cell_indexes.length - 1; ++i2)
+                            {
+                                var str = removeExtraSpaces(content_to_search.substring(cell_indexes[i2], cell_indexes[i2 + 1]));
+                                for(var j2 = 0; j2 < str.length; ++j2)
+                                {
+                                    if(str.charAt(j2) == " ")
+                                        ++numSpaces;
+                                }
+                            }
+                            match.ranking += (RANKING_SPACES_BETWEEN_PENALTY * numSpaces);
+                        }
+                    } //END If columns_to_search[j]
+                }  //END Searching Column (row[j])
+                if(rowHasMatch)
+                    results.push(match);
             }
         }
-        if(rowHasMatch)
-            results.push(match);
     }
     // return results;
+    results.sort(COMPARE_MATCH_RANKINGS);
+    var resultID = [1];
+    results = resultID.concat(results);
     postMessage(results);
 }
 
@@ -172,4 +436,45 @@ function standardizeString(str1){
               result += " ";
       }
       return result;
+  }
+
+  function getStandardRegexPositionInComplexString(content_string, searchstring)
+  {
+    var s = 0;
+    var start = 0;
+    var end = 0;
+    var lastCharWasSpace = false;
+    searchstring = searchstring.toLowerCase();
+    for(var n = 0; n < content_string.length; ++n)
+    {
+        var content_char = content_string.charAt(n).toLowerCase();
+        if(is_standardized(content_char) && !(lastCharWasSpace && content_char == " "))
+        {
+            if(content_char != searchstring.charAt(s))
+                s = 0;
+            if(content_char == searchstring.charAt(s)){
+                if(s == 0)
+                    start = n;
+                ++s;
+                if(s == searchstring.length){ //At end of search string
+                    end = n + 1;
+                    break;
+                }
+            }
+            else
+                s = 0;
+        }
+        lastCharWasSpace = (content_char == " ");
+    }
+    return [start, end];
+  }
+
+  function COMPARE_MATCH_RANKINGS( a, b ) {
+    if ( a.ranking < b.ranking ){
+      return 1;
+    }
+    if ( a.ranking > b.ranking ){
+      return -1;
+    }
+    return 0;
   }

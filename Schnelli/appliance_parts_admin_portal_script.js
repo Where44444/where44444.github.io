@@ -378,6 +378,7 @@ function loadContentDiv(){
         snapshot.forEach(function(childSnapshot) {
           objs.push(childSnapshot.val());
           keys.push(childSnapshot.key);
+          childSnapshot = null; //Helps to prevent "Out of memory" errors
         });
         processJSONDataExtra(objs, _EXTRA_DB.indexOf(snapshot.key), keys);
         ++_extraDBLoadedIndex;
@@ -387,7 +388,7 @@ function loadContentDiv(){
           partsRef.once('value', function(snapshot) {
             showSnackbar("Processing parts...", 3000);
             // document.getElementById("message").innerHTML = "<p>Processing parts...</p>";
-        
+            
             // var numChildren = snapshot.numChildren();
             _content = [];
             
@@ -396,7 +397,7 @@ function loadContentDiv(){
               var content_line = [];
               //indexToContentID[numRecords] = childSnapshot.key;
               for(var i = 0; i < _INDEXES.length; ++i)
-                content_line.push(String(childSnapshot.child(_INDEXES[i]).val()));
+              content_line.push(String(childSnapshot.child(_INDEXES[i]).val()));
               for(var i = 0; i < _MEMO_INDEXES.length; ++i){
                 var memolines = childSnapshot.child(_MEMO_INDEXES[i]).val();
                 for(var j = 0; j < memolines.length; ++j)
@@ -407,6 +408,7 @@ function loadContentDiv(){
               // document.getElementById("loading_parts").innerHTML = "<p>Processing parts...  " + (numRecords / numChildren) + "%</p>";
               _content.push(content_line);
               ++numRecords;
+              childSnapshot = null; //Helps to prevent "Out of memory" errors
             });
             generateContent_Standard();
             populateRecordBrowser(0, false);
@@ -723,165 +725,167 @@ function populateSearchResults(indexStart, selectTopRow, selectBottomRow, rowToS
             }
         }
       }
-
-      //Get string repetition info---------------------------------------------
-      var singleWordsToOccurences = new Map(); //Standardized (word) to      [[num occurences, color],             [actual word spellings], [row nums]]
-      var doubleWordsToOccurences = new Map(); //Standardized (word word) to [[num occurences, color, word, word], [actual word spellings], [row nums]]
-      for(var i = 0; i < array_trimmed.length; ++i)
+      
+      var highlightSimilarWords = document.getElementById("search_highlight_similar_words").checked;
+      if(highlightSimilarWords)
       {
-        var row = array_trimmed[i];
-        for(var j = 0; j < INDEXES_CONCAT.length; ++j)
+        //Get string repetition info---------------------------------------------
+        var singleWordsToOccurences = new Map(); //Standardized (word) to      [[num occurences, color],             [actual word spellings], [row nums]]
+        var doubleWordsToOccurences = new Map(); //Standardized (word word) to [[num occurences, color, word, word], [actual word spellings], [row nums]]
+        for(var i = 0; i < array_trimmed.length; ++i)
         {
-          var index = _INDEX_ORDER[j];
-          var string;
-          if(index < _INDEXES.length)
-            string = row[index];
-          else
-            string = stringifyArrayEndChar(row[index], " ");
-          var lastCharWasSpace = true;
-          var start0 = 0;
-          var end = 0;
-          var start1 = 0;
-          for(var k = 0; k < string.length; ++k)
+          var row = array_trimmed[i];
+          for(var j = 0; j < INDEXES_CONCAT.length; ++j)
           {
-            var char = string[k];
-            var charIsSpace = (char == " ");
-            var endOfString = (k + 1 == string.length);
-            if(lastCharWasSpace && !charIsSpace){ //Beginning of word
-              start0 = start1;
-              start1 = k;
-            }
-            else if((!lastCharWasSpace && charIsSpace) || endOfString){ //Space at end of word or end of string
-              if(endOfString)
-                end = k + 1;
-              else
-                end = k;
-              var singleWord = string.substring(start1, end);
-              var singleWordStandard = standardizeString(singleWord);
-              if(!_WORDS_TO_IGNORE.includes(singleWordStandard) && singleWordStandard.length > 1){
-                if(singleWordsToOccurences.has(singleWordStandard)){
-                  var value = singleWordsToOccurences.get(singleWordStandard)
-                  value[0][0] = value[0][0] + 1;
-                  if(!value[2].includes(i))
-                    value[2].push(i);
-                  if(!value[1].includes(singleWord)){
-                    value[1].push(singleWord);
-                  }
-                }
-                else{
-                  // var color = [Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)];
-                  var color = getColorFromString(singleWordStandard);
-                  var value = [[1, color], [singleWord], [i]];
-                  singleWordsToOccurences.set(singleWordStandard, value);
-                }
+            var index = _INDEX_ORDER[j];
+            var string;
+            if(index < _INDEXES.length)
+              string = row[index];
+            else
+              string = stringifyArrayEndChar(row[index], " ");
+            var lastCharWasSpace = true;
+            var start0 = 0;
+            var end = 0;
+            var start1 = 0;
+            for(var k = 0; k < string.length; ++k)
+            {
+              var char = string[k];
+              var charIsSpace = (char == " ");
+              var endOfString = (k + 1 == string.length);
+              if(lastCharWasSpace && !charIsSpace){ //Beginning of word
+                start0 = start1;
+                start1 = k;
               }
-              if(start0 != start1){
-                var doubleWord = string.substring(start0, end);
-                var doubleWordStandard = standardizeString(doubleWord);
-                var doubleWordSplit = doubleWordStandard.split(" ");
-                if(!_WORDS_TO_IGNORE.includes(doubleWordSplit[0]) && !_WORDS_TO_IGNORE.includes(doubleWordSplit[1]) && doubleWordStandard.length > 3){
-                  if(doubleWordsToOccurences.has(doubleWordStandard)){
-                    var value = doubleWordsToOccurences.get(doubleWordStandard)
+              else if((!lastCharWasSpace && charIsSpace) || endOfString){ //Space at end of word or end of string
+                if(endOfString)
+                  end = k + 1;
+                else
+                  end = k;
+                var singleWord = string.substring(start1, end);
+                var singleWordStandard = standardizeString(singleWord);
+                if(!_WORDS_TO_IGNORE.includes(singleWordStandard) && singleWordStandard.length > 1){
+                  if(singleWordsToOccurences.has(singleWordStandard)){
+                    var value = singleWordsToOccurences.get(singleWordStandard)
                     value[0][0] = value[0][0] + 1;
                     if(!value[2].includes(i))
                       value[2].push(i);
-                    if(!value[1].includes(doubleWord)){
-                      value[1].push(doubleWord);
+                    if(!value[1].includes(singleWord)){
+                      value[1].push(singleWord);
                     }
                   }
                   else{
                     // var color = [Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)];
-                    var color = getColorFromString(doubleWordStandard);
-                    var value = [   [1, color, doubleWordSplit[0], doubleWordSplit[1]],  [doubleWord], [i]];
-                    doubleWordsToOccurences.set(doubleWordStandard, value);
+                    var color = getColorFromString(singleWordStandard);
+                    var value = [[1, color], [singleWord], [i]];
+                    singleWordsToOccurences.set(singleWordStandard, value);
+                  }
+                }
+                if(start0 != start1){
+                  var doubleWord = string.substring(start0, end);
+                  var doubleWordStandard = standardizeString(doubleWord);
+                  var doubleWordSplit = doubleWordStandard.split(" ");
+                  if(!_WORDS_TO_IGNORE.includes(doubleWordSplit[0]) && !_WORDS_TO_IGNORE.includes(doubleWordSplit[1]) && doubleWordStandard.length > 3){
+                    if(doubleWordsToOccurences.has(doubleWordStandard)){
+                      var value = doubleWordsToOccurences.get(doubleWordStandard)
+                      value[0][0] = value[0][0] + 1;
+                      if(!value[2].includes(i))
+                        value[2].push(i);
+                      if(!value[1].includes(doubleWord)){
+                        value[1].push(doubleWord);
+                      }
+                    }
+                    else{
+                      // var color = [Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)];
+                      var color = getColorFromString(doubleWordStandard);
+                      var value = [   [1, color, doubleWordSplit[0], doubleWordSplit[1]],  [doubleWord], [i]];
+                      doubleWordsToOccurences.set(doubleWordStandard, value);
+                    }
                   }
                 }
               }
+              lastCharWasSpace = charIsSpace;
             }
-            lastCharWasSpace = charIsSpace;
           }
         }
-      }
 
-      //Populate similar strings list--------------------------------------------------------------
-      var highlightSimilarWords = document.getElementById("search_highlight_similar_words").checked;
-      var wordsToSort = []; //[[Standardized word, color], [Actual Words], [row nums]]
-      for (let [key, value] of doubleWordsToOccurences) {
-        if(value[0][0] >= _minRepititions && highlightSimilarWords){
-          var finalValue = [[key, value[0][1]], value[1], value[2]];
-          wordsToSort.push(finalValue);
+        //Populate similar strings list--------------------------------------------------------------
+        var wordsToSort = []; //[[Standardized word, color], [Actual Words], [row nums]]
+        for (let [key, value] of doubleWordsToOccurences) {
+          if(value[0][0] >= _minRepititions && highlightSimilarWords){
+            var finalValue = [[key, value[0][1]], value[1], value[2]];
+            wordsToSort.push(finalValue);
+          }
         }
-      }
-      
-      for (let [key, value] of singleWordsToOccurences) {
-        if(value[0][0] >= _minRepititions && highlightSimilarWords)
-        {
-          var finalValue = [[key, value[0][1]], value[1], value[2]];
-          wordsToSort.push(finalValue);
-        }
-      }
-      
-      wordsToSort.sort(COMPARE_0_0);
-      var similarHTML = "";
-      var totalRows = 0;
-      _indexesSimilarStrings = [];
-      _SIMILAR_STRINGS_ROW_IDS = [];
-      for(var i = 0; i < wordsToSort.length; ++i)
-      {
-        var wordData = wordsToSort[i];
-        var resultsLabel = "results";
-        if(wordData[2].length == 1)
-          resultsLabel = "result";
-        similarHTML += "<div class='clickable' onclick='toggle_similar_string_table(" + i + ");'><p><span id='similar_string_expander_" + i + "'>+</span> " + wordData[1][0] + " (" + wordData[2].length + " " + resultsLabel + ")</p></div>";
         
-        similarHTML += "<table class='clickable' style='margin-left: 20px; display: none;' id='similar_string_table_" + i + "'><tr>";
-        for(var j = 0; j < INDEXES_CONCAT.length; ++j){
-          var index = _INDEX_ORDER[j];
-          var bgcolor = "inherit";
-          if(_contentSortedIndex.includes(index))
-              bgcolor = getSortColor(index);
-          similarHTML += "<th class='clickable' onclick='sortContentByIndex(" + index + ");' style='background-color: " + bgcolor + ";'><div style='width: " + INDEX_WIDTHS_CONCAT[index] + ";'>" + INDEXES_CONCAT[index] + "</div></th>";
-        }
-        similarHTML += "</tr>";
-        for(var j = 0; j < wordData[2].length; ++j){
-          similarHTML += "<tr id='similar_string_row_" + totalRows + "'>";
-          var rownum = wordData[2][j];
-          _SIMILAR_STRINGS_ROW_IDS.push(array_trimmed[rownum][array_trimmed[rownum].length - 1]);
-          _indexesSimilarStrings.push(_indexesSearchResults[rownum]);
-          for(var k = 0; k < INDEXES_CONCAT.length; ++k){
-            var index = _INDEX_ORDER[k];
-            var termToHighlightList = [];
-            var preHTML_List = [];
-            var postHTML_List = [];
-
-            var string;
-            if(index < _INDEXES.length) //Regular Field
-              string = array_trimmed[rownum][index];
-            else //Memo field, Array of Strings
-              string = stringifyArrayEndChar(array_trimmed[rownum][index], " ");
-            
-            var color = wordData[0][1];
-            var bgColor = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ");";
-            for(var v = 0; v < wordData[1].length; ++v){
-              // if(getRegexSafeSearchTerm(wordData[1][v]).length <= 1)
-              //   console.log("Small word to highlight detected |" + getRegexSafeSearchTerm(wordData[1][v]) + "|");
-              termToHighlightList.push(wordData[1][v]);
-              preHTML_List.push("<span style='border: 3px solid " + bgColor + " color: black;'>");
-              postHTML_List.push("</span>");
-            }
-            string = highlightString(string, termToHighlightList, preHTML_List, postHTML_List);
-            var id2 = "similar_string_cell_" + totalRows + "_" + k;
-            similarHTML += "<td id='" + id2 + "' onclick='onCellClick(" + totalRows + "," + k + ",\"" + id2 + "\"," + _TABLE_SIMILAR_STRINGS + ");'><div class='tooltip'><span class='tooltiptext'>" + INDEXES_CONCAT[index] + " for:<br><br>" + array_trimmed[rownum][1] + "</span>" + string + "</div></td>";
+        for (let [key, value] of singleWordsToOccurences) {
+          if(value[0][0] >= _minRepititions && highlightSimilarWords)
+          {
+            var finalValue = [[key, value[0][1]], value[1], value[2]];
+            wordsToSort.push(finalValue);
           }
-
-          similarHTML += "</tr>";
-          ++totalRows;
         }
-        similarHTML += "</table>";
-      }
-      document.getElementById("similar_string_expander").style.display = "block";
-      document.getElementById("similar_strings_div").innerHTML = similarHTML;
+        
+        wordsToSort.sort(COMPARE_0_0);
+        var similarHTML = "";
+        var totalRows = 0;
+        _indexesSimilarStrings = [];
+        _SIMILAR_STRINGS_ROW_IDS = [];
+        for(var i = 0; i < wordsToSort.length; ++i)
+        {
+          var wordData = wordsToSort[i];
+          var resultsLabel = "results";
+          if(wordData[2].length == 1)
+            resultsLabel = "result";
+          similarHTML += "<div class='clickable' onclick='toggle_similar_string_table(" + i + ");'><p><span id='similar_string_expander_" + i + "'>+</span> " + wordData[1][0] + " (" + wordData[2].length + " " + resultsLabel + ")</p></div>";
+          
+          similarHTML += "<table class='clickable' style='margin-left: 20px; display: none;' id='similar_string_table_" + i + "'><tr>";
+          for(var j = 0; j < INDEXES_CONCAT.length; ++j){
+            var index = _INDEX_ORDER[j];
+            var bgcolor = "inherit";
+            if(_contentSortedIndex.includes(index))
+                bgcolor = getSortColor(index);
+            similarHTML += "<th class='clickable' onclick='sortContentByIndex(" + index + ");' style='background-color: " + bgcolor + ";'><div style='width: " + INDEX_WIDTHS_CONCAT[index] + ";'>" + INDEXES_CONCAT[index] + "</div></th>";
+          }
+          similarHTML += "</tr>";
+          for(var j = 0; j < wordData[2].length; ++j){
+            similarHTML += "<tr id='similar_string_row_" + totalRows + "'>";
+            var rownum = wordData[2][j];
+            _SIMILAR_STRINGS_ROW_IDS.push(array_trimmed[rownum][array_trimmed[rownum].length - 1]);
+            _indexesSimilarStrings.push(_indexesSearchResults[rownum]);
+            for(var k = 0; k < INDEXES_CONCAT.length; ++k){
+              var index = _INDEX_ORDER[k];
+              var termToHighlightList = [];
+              var preHTML_List = [];
+              var postHTML_List = [];
 
+              var string;
+              if(index < _INDEXES.length) //Regular Field
+                string = array_trimmed[rownum][index];
+              else //Memo field, Array of Strings
+                string = stringifyArrayEndChar(array_trimmed[rownum][index], " ");
+              
+              var color = wordData[0][1];
+              var bgColor = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ");";
+              for(var v = 0; v < wordData[1].length; ++v){
+                // if(getRegexSafeSearchTerm(wordData[1][v]).length <= 1)
+                //   console.log("Small word to highlight detected |" + getRegexSafeSearchTerm(wordData[1][v]) + "|");
+                termToHighlightList.push(wordData[1][v]);
+                preHTML_List.push("<span style='border: 3px solid " + bgColor + " color: black;'>");
+                postHTML_List.push("</span>");
+              }
+              string = highlightString(string, termToHighlightList, preHTML_List, postHTML_List);
+              var id2 = "similar_string_cell_" + totalRows + "_" + k;
+              similarHTML += "<td id='" + id2 + "' onclick='onCellClick(" + totalRows + "," + k + ",\"" + id2 + "\"," + _TABLE_SIMILAR_STRINGS + ");'><div class='tooltip'><span class='tooltiptext'>" + INDEXES_CONCAT[index] + " for:<br><br>" + array_trimmed[rownum][1] + "</span>" + string + "</div></td>";
+            }
+
+            similarHTML += "</tr>";
+            ++totalRows;
+          }
+          similarHTML += "</table>";
+        }
+        document.getElementById("similar_string_expander").style.display = "block";
+        document.getElementById("similar_strings_div").innerHTML = similarHTML;
+      }
       //Highlight array strings with regex---------------------------------------------
 
       //Go through array of matched search term phrases
@@ -900,7 +904,9 @@ function populateSearchResults(indexStart, selectTopRow, selectBottomRow, rowToS
       //  If more than 2 values in the value array
       //    highlight with type from typeHighlightSingle map
       //
-      var typeHighlightBGSingle = new Map();
+      if(highlightSimilarWords)
+      {
+        var typeHighlightBGSingle = new Map();
         for (let [key1, value1] of singleWordsToOccurences) {
           if(value1[0][0] >= _minRepititions && highlightSimilarWords)
             for (let [key2, value2] of doubleWordsToOccurences) {
@@ -908,6 +914,7 @@ function populateSearchResults(indexStart, selectTopRow, selectBottomRow, rowToS
                 typeHighlightBGSingle.set(key1, (key1 != value2[0][2] && key1 != value2[0][3])); //Single word is not in a double word pair
             }
         }
+      }
 
       for(var i = 0; i < array_trimmed.length; ++i){
         for(var j = 1; j < array_trimmed[i].length; ++j){
@@ -925,6 +932,8 @@ function populateSearchResults(indexStart, selectTopRow, selectBottomRow, rowToS
           }
 
           //Highlight double words
+          if(highlightSimilarWords)
+          {
             for (let [key, value] of doubleWordsToOccurences) {
               if(value[0][0] >= _minRepititions && highlightSimilarWords){
                 var color = value[0][1];
@@ -938,8 +947,11 @@ function populateSearchResults(indexStart, selectTopRow, selectBottomRow, rowToS
                 }
               }
             }
+          }
 
             //Highlight single words
+          if(highlightSimilarWords)
+          {
             for (let [key, value] of singleWordsToOccurences) {
               if(value[0][0] >= _minRepititions && highlightSimilarWords){
                 var color = value[0][1];
@@ -959,15 +971,16 @@ function populateSearchResults(indexStart, selectTopRow, selectBottomRow, rowToS
                 }
               }
             }
+          }
 
-            if(index < _INDEXES.length)
-              array_trimmed[i][index] = highlightString(array_trimmed[i][index], termToHighlightList, preHTML_List, postHTML_List);
-            else
-              array_trimmed[i][index] = highlightString(stringifyArrayEndChar(array_trimmed[i][index], " "), termToHighlightList, preHTML_List, postHTML_List);
+          if(index < _INDEXES.length)
+            array_trimmed[i][index] = highlightString(array_trimmed[i][index], termToHighlightList, preHTML_List, postHTML_List);
+          else
+            array_trimmed[i][index] = highlightString(stringifyArrayEndChar(array_trimmed[i][index], " "), termToHighlightList, preHTML_List, postHTML_List);
 
         }
       }
-    }
+    } //END shouldHighlight
 
     //Generate search results table-----------------------------------------------------------------
     _table_HTML_0 = "<p style='display: inline;'>Showing " + (indexStart + 1) + " - " + (indexEnd + 1) + " of " + _searchResults.length + " Result(s)</p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + 
@@ -992,71 +1005,100 @@ function populateSearchResults(indexStart, selectTopRow, selectBottomRow, rowToS
     }
     _table_HTML_0 += "</tr>";
 
-    var childPartButtonWorker = new Worker('workers/add_child_part_button_html.js');
+    _SEARCH_RESULTS_ROW_IDS = [];
+    for(var i = 0; i < array_trimmed.length; ++i)
+      _SEARCH_RESULTS_ROW_IDS.push(array_trimmed[i][array_trimmed[i].length - 1]);
     var shouldAddChildPartLinks = document.getElementById("search_add_child_part_links").checked;
-    _adding_child_part_links = true;
-    childPartButtonWorker.postMessage([_EXTRA_DB, _EXTRA_DB_COMMENTS_PREFIXES, _content_extra, array_trimmed, INDEXES_CONCAT, _DESCRIP1, _INDEX_ORDER, _DESCRIP2, _COMMENTS, _TABLE_SEARCH_RESULTS, shouldAddChildPartLinks, _CHILD_PART_LINKS_CACHE /*, /*DEBUG rankings DEBUG*/]);
-
-    childPartButtonWorker.onmessage = function (e) {
-      if(e.data[0] == 1){ //Finished
-        _table_HTML_0 += e.data[1];
-        _CHILD_PART_LINKS_CACHE = e.data[2];
-        _SEARCH_RESULTS_ROW_IDS = e.data[3];
-
-        _table_HTML_0 += "</table>";
-        document.getElementById("search_results_table_div").innerHTML = _table_HTML_0;
-      
-        //Make memo fields expandable HTML
-        var table1 = document.getElementById("search_results_table_table");
-        if(table1 != null)
-        {
-          var rows = table1.rows;
-          for(var i = 1; i < rows.length; ++i) //Only rows after header (index 0)
-          {
-            var cells = rows[i].cells;
-            for(var j = 0; j < cells.length; ++j)
-            {
-              if(_INDEX_ORDER[j] >= _INDEXES.length)
-              {
-                cells[j].innerHTML = getExpandableHTML(null, (i + "_" + j), 100, INDEX_WIDTHS_CONCAT[_INDEX_ORDER[j]], cells[j].innerHTML)
-                // getExpandableHTML(_content[i][index], (i + "_" + j), 100, INDEX_WIDTHS_CONCAT[index])
-              }
-            }
-          }
+    if(!shouldAddChildPartLinks)
+    {
+      for(var i = 0; i < array_trimmed.length; ++i){
+        _table_HTML_0 += "<tr id='search_results_row_" + i + "'>";
+        // _table_HTML_0 += "<td>" + rankings[i] + "</td>";
+        for(var j = 0; j < INDEXES_CONCAT.length; ++j){
+          var index = _INDEX_ORDER[j];
+          var cellContent = array_trimmed[i][index];
+    
+          var id2 = "search_results_cell_" + i + "_" + j;
+          _table_HTML_0 += 
+          "<td onmouseover='recordViewIconMouseOver(\"search_" + i + "_" + j + "\");' onmouseout='recordViewIconMouseOut(\"search_" + i + "_" + j + "\");' id='" + id2 + "' onclick='onCellClick(" + i + "," + j + ",\"" + id2 + "\"," + _TABLE_SEARCH_RESULTS + ");'>" + 
+          "<div class='tooltip'><span class='tooltiptext' style='border: 3px solid black; background-color: white; color: black;'>" 
+          + INDEXES_CONCAT[index] + " for:<br><br>" + array_trimmed[i][_DESCRIP1] + "</span>" + cellContent + 
+          "&nbsp;&nbsp;&nbsp;<img id='record_view_icon_search_" + i + "_" + j + "' title='Open Record View' src='record_view.png' width=50px height=20px style='display: none;' onclick='addRecordView(\"" + array_trimmed[i][array_trimmed[i].length - 1] + "\");'></div></td>"
+          ;
         }
-        //Set state of divs-------------------------------------------------------
-        // document.getElementById("search_results_expander").style.display = "block";
-        // toggle_search_results(1);
-        document.getElementById("search_results_div").style.display = "";
-        document.getElementById("message").innerHTML = "";
-      
-        if(_select_top_row){
-          var cell = getCell(0, _selectedCell, _TABLE_SEARCH_RESULTS);
-          if(cell != null)
-            onCellClick(0, _selectedCell, cell.id, _TABLE_SEARCH_RESULTS);
-        }
-        else if(_select_bottom_row){
-          var cell = getCell(array_trimmed.length - 1, _selectedCell, _TABLE_SEARCH_RESULTS);
-          if(cell != null)
-            onCellClick(array_trimmed.length - 1, _selectedCell, cell.id, _TABLE_SEARCH_RESULTS);
-        }
-        else if(_row_to_select >= 0)
-        {
-          var cell = getCell(_row_to_select, _selectedCell, _TABLE_SEARCH_RESULTS);
-          if(cell != null)
-            onCellClick(_row_to_select, _selectedCell, cell.id, _TABLE_SEARCH_RESULTS);
-        }
-        _adding_child_part_links = false;
+        _table_HTML_0 += "</tr>";
       }
-      else //Percent status update message
-      {
-        showSnackbar("Adding Child Part Links... " + Math.floor(e.data[1] * 100) + "%", 3000);
-        // document.getElementById("message").innerHTML = "<br><br><br><p>Adding Child Part Links... " + Math.floor(e.data[1] * 100) + "%</p>";
-      }
-    }//END onMessage from PartChildButton worker
+      finishPopulateSearchResults(_table_HTML_0);
+    }
+    else
+    {
+      var childPartButtonWorker = new Worker('workers/add_child_part_button_html.js');
+      _adding_child_part_links = true;
+      childPartButtonWorker.postMessage([_EXTRA_DB, _EXTRA_DB_COMMENTS_PREFIXES, _content_extra, array_trimmed, INDEXES_CONCAT, _DESCRIP1, _INDEX_ORDER, _DESCRIP2, _COMMENTS, _TABLE_SEARCH_RESULTS, shouldAddChildPartLinks, _CHILD_PART_LINKS_CACHE /*, /*DEBUG rankings DEBUG*/]);
 
-  }
+      childPartButtonWorker.onmessage = function (e) {
+        if(e.data[0] == 1){ //Finished
+          _table_HTML_0 += e.data[1];
+          _CHILD_PART_LINKS_CACHE = e.data[2];
+          finishPopulateSearchResults(_table_HTML_0);
+          _adding_child_part_links = false;
+        }
+        else //Percent status update message
+        {
+          showSnackbar("Adding Child Part Links... " + Math.floor(e.data[1] * 100) + "%", 3000);
+          // document.getElementById("message").innerHTML = "<br><br><br><p>Adding Child Part Links... " + Math.floor(e.data[1] * 100) + "%</p>";
+        }
+      }//END onMessage from PartChildButton worker
+    }//END shouldAddChildPartLinks
+  } // (!_adding_child_part_links && _searchResults.length > 0)
 } //END populateSearchResults
+
+function finishPopulateSearchResults(_table_HTML_0)
+{
+  _table_HTML_0 += "</table>";
+  document.getElementById("search_results_table_div").innerHTML = _table_HTML_0;
+
+  //Make memo fields expandable HTML
+  var table1 = document.getElementById("search_results_table_table");
+  if(table1 != null)
+  {
+    var rows = table1.rows;
+    for(var i = 1; i < rows.length; ++i) //Only rows after header (index 0)
+    {
+      var cells = rows[i].cells;
+      for(var j = 0; j < cells.length; ++j)
+      {
+        if(_INDEX_ORDER[j] >= _INDEXES.length)
+        {
+          cells[j].innerHTML = getExpandableHTML(null, (i + "_" + j), 100, INDEX_WIDTHS_CONCAT[_INDEX_ORDER[j]], cells[j].innerHTML)
+          // getExpandableHTML(_content[i][index], (i + "_" + j), 100, INDEX_WIDTHS_CONCAT[index])
+        }
+      }
+    }
+  }
+  //Set state of divs-------------------------------------------------------
+  // document.getElementById("search_results_expander").style.display = "block";
+  // toggle_search_results(1);
+  document.getElementById("search_results_div").style.display = "";
+  document.getElementById("message").innerHTML = "";
+
+  if(_select_top_row){
+    var cell = getCell(0, _selectedCell, _TABLE_SEARCH_RESULTS);
+    if(cell != null)
+      onCellClick(0, _selectedCell, cell.id, _TABLE_SEARCH_RESULTS);
+  }
+  else if(_select_bottom_row){
+    var cell = getCell(array_trimmed.length - 1, _selectedCell, _TABLE_SEARCH_RESULTS);
+    if(cell != null)
+      onCellClick(array_trimmed.length - 1, _selectedCell, cell.id, _TABLE_SEARCH_RESULTS);
+  }
+  else if(_row_to_select >= 0)
+  {
+    var cell = getCell(_row_to_select, _selectedCell, _TABLE_SEARCH_RESULTS);
+    if(cell != null)
+      onCellClick(_row_to_select, _selectedCell, cell.id, _TABLE_SEARCH_RESULTS);
+  }
+}
 
 var _SortOrderKeyCodes = [];
 function populateSortOrders()

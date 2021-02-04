@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<title>PartScouter</title>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Ensures optimal rendering on mobile devices. -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" /> <!-- Optimal Internet Explorer compatibility -->
+
+    <script src="https://www.gstatic.com/firebasejs/7.8.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.8.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.8.1/firebase-auth.js"></script>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+  </head>
+  
+  <body>
+
+  <style>
+    body{
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .text1{
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    p{
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    label{
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    h1{
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    h2{
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    textarea{
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 14px;
+    }
+
+    table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    font-size: 14px;
+    }
+
+    td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 4px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 600;
+    }
+
+    tr:nth-child(even) {
+    background-color: #dddddd;
+    }
+    tr:nth-child(odd) {
+    background-color: white;
+    /* background-color: transparent; */
+    }
+
+      /* Tooltip container */
+    .tooltip {
+      position: relative;
+      display: inline-block;
+      border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+    }
+
+    /* Tooltip text */
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 300px;
+      background-color: #555;
+      color: #fff;
+      text-align: center;
+      padding: 5px 0;
+      border-radius: 6px;
+
+      /* Position the tooltip text */
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -150px;
+
+      /* Fade in tooltip */
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    /* Tooltip arrow */
+    .tooltip .tooltiptext::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: #555 transparent transparent transparent;
+    }
+
+    /* Show the tooltip text when you mouse over the tooltip container */
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+      z-index: 5;
+    }
+
+    .clickable{
+      font-family: Arial, Helvetica, sans-serif;
+      cursor: pointer;
+    }
+
+    /* RADIO BUTTON */
+    /* Customize the label (the container) */
+    .radiobutton_container {
+      display: block;
+      position: relative;
+      padding-left: 35px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      font-size: 22px;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    /* Hide the browser's default radio button */
+    .radiobutton_container input {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+      height: 0;
+      width: 0;
+    }
+
+    /* Create a custom radio button */
+    .radiomark {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 25px;
+      width: 25px;
+      background-color: #eee;
+      border-radius: 50%;
+    }
+
+    /* On mouse-over, add a grey background color */
+    .radiobutton_container:hover input ~ .radiomark {
+      background-color: #ccc;
+    }
+
+    /* When the radio button is checked, add a blue background */
+    .radiobutton_container input:checked ~ .radiomark {
+      background-color: #70A2FF;
+    }
+
+    /* Create the indicator (the dot/circle - hidden when not checked) */
+    .radiomark:after {
+      content: "";
+      position: absolute;
+      display: none;
+    }
+
+    /* Show the indicator (dot/circle) when checked */
+    .radiobutton_container input:checked ~ .radiomark:after {
+      display: block;
+    }
+
+    /* Style the indicator (dot/circle) */
+    .radiobutton_container .radiomark:after {
+      top: 9px;
+      left: 9px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: white;
+    }
+
+        /* Customize the label (the container) */
+    .checkBox_container {
+      display: block;
+      position: relative;
+      padding-left: 35px;
+      margin-bottom: 0px;
+      cursor: pointer;
+      font-size: 20px;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    /* Hide the browser's default checkbox */
+    .checkBox_container input {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+      height: 0;
+      width: 0;
+    }
+
+    /* Create a custom checkbox */
+    .checkmark {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 25px;
+      width: 25px;
+      background-color: #eee;
+    }
+
+    /* On mouse-over, add a grey background color */
+    .checkBox_container:hover input ~ .checkmark {
+      background-color: #ccc;
+    }
+
+    /* When the checkbox is checked, add a blue background */
+    .checkBox_container input:checked ~ .checkmark {
+      background-color: #70A2FF;
+    }
+
+    /* Create the checkmark/indicator (hidden when not checked) */
+    .checkmark:after {
+      content: "";
+      position: absolute;
+      display: none;
+    }
+
+    /* Show the checkmark when checked */
+    .checkBox_container input:checked ~ .checkmark:after {
+      display: block;
+    }
+
+    /* Style the checkmark/indicator */
+    .checkBox_container .checkmark:after {
+      left: 9px;
+      top: 5px;
+      width: 5px;
+      height: 10px;
+      border: solid white;
+      border-width: 0 3px 3px 0;
+      -webkit-transform: rotate(45deg);
+      -ms-transform: rotate(45deg);
+      transform: rotate(45deg);
+    }
+
+    button {
+        background-color: lightslategray;
+        border: none;
+        color: white;
+        padding: 4px 8px;
+        text-align: center;
+        font-size: 16px;
+        /* margin: 4px 2px; */
+        opacity: 0.8;
+        transition: 0.3s;
+        cursor: pointer;
+        border-radius: 8px;
+      }
+
+    button:hover {opacity: 1}
+
+    .button_disabled
+    {
+      opacity: 0.5;
+    }
+
+    .button_disabled:hover {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .border_center{
+      border-bottom: solid;
+      border-width: 2px;
+      border-color: black;
+      margin-bottom: 10px;
+    }
+
+    .tabButton{
+      font-family: Arial, Helvetica, sans-serif;
+      cursor: pointer;
+      flex-grow: 1;
+      text-align: center;
+      height: 60px;
+      padding-top: 40px;
+    }
+
+    @media print
+    {
+      .checkBox_container input {
+        position: absolute;
+        opacity: 1;
+        height: 0px;
+        width: 0px;
+      }
+
+      @page {size: portrait; margin: 1cm;}
+      body
+      {
+        margin: 0cm;
+        background-image: none;
+      }
+
+      input[type=text]
+      {
+        border: 0px;
+        background-color: transparent;
+      }
+
+      textarea
+      {
+        border: 0px;
+        background-color: transparent;
+      }
+
+      .no-print, .no-print *
+      {
+        display: none !important;
+      }
+
+      .no-print-hide, .no-print-hide *
+      {
+        visibility: hidden !important;
+      }
+
+      [class*="invoice_"] {
+        display: block;
+      }
+
+      #snackbar
+      {
+        display: none !important;
+      }
+    }
+
+    [class*="invoice_"] {
+      position: absolute;
+      width: 100px;
+      height: 20px;
+      font-size: 12px;
+    }
+
+    .invoice_border
+    {
+      border: solid 3px;
+      border-radius: 10px;
+      border-color: #5B6275;
+    }
+
+    .in_td
+    {
+      height: 30px;
+    }
+
+        /* The snackbar - position it at the bottom and in the middle of the screen */
+    #snackbar {
+      visibility: hidden; /* Hidden by default. Visible on click */
+      min-width: 500px; /* Set a default minimum width */
+      margin-left: -250px; /* Divide value of min-width by 2 */
+      background-color: #333; /* Black background color */
+      color: #fff; /* White text color */
+      text-align: center; /* Centered text */
+      border-radius: 2px; /* Rounded borders */
+      padding: 16px; /* Padding */
+      position: fixed; /* Sit on top of the screen */
+      z-index: 1; /* Add a z-index if needed */
+      left: 50%; /* Center the snackbar */
+      bottom: 30px; /* 30px from the bottom */
+      font-size: 24px;
+    }
+
+    /* Show the snackbar when clicking on a button (class added with JavaScript) */
+    #snackbar.show {
+      visibility: visible; /* Show the snackbar */
+      /* Add animation: Take 0.5 seconds to fade in and out the snackbar.
+      However, delay the fade out process for 2.5 seconds */
+      animation: fadein 0.5s;
+      animation-fill-mode: both;
+    }
+
+    #snackbar.hide {
+      visibility: visible;
+      animation: fadeout 0.5s;
+      animation-fill-mode: both;
+    }
+
+    #snackbar.refresh1{
+      visibility: visible;
+      animation: refresh1 0.5s;
+      animation-fill-mode: both;
+    }
+
+    #snackbar.refresh2{
+      visibility: visible;
+      animation: refresh2 0.5s;
+      animation-fill-mode: both;
+    }
+    /* Animations to fade the snackbar in and out */
+
+
+    @keyframes fadein {
+      from {bottom: 0; opacity: 0; background-color: blue;}
+      to {bottom: 30px; opacity: 1; background-color: #333;}
+    }
+
+    @keyframes fadeout {
+      from {bottom: 30px; opacity: 1;}
+      to {bottom: 0; opacity: 0;}
+    }
+
+    @keyframes refresh1 {
+      from {background-color: blue;}
+      to {background-color: #333;}
+    }
+
+    @keyframes refresh2 {
+      from {background-color: blue;}
+      to {background-color: #333;}
+    }
+
+    .recordview{
+      font-size: 20px;
+    }
+  </style>
+
+<!-- <script async src="https://cse.google.com/cse.js?cx=de8eb9876c78e78e6"></script>
+<div id="google_search">
+<div class="gcse-search"></div>
+</div> -->
+
+<div id="googlesearch_api_script_div"></div>
+
+  <div style="text-align: center;" id="local_mode_indicator" class="no-print"></div>
+  <div class="hide" id="snackbar" style="display: none; z-index: 4;"></div>
+  <button class="no-print" id="exit_invoice_button" style="display: none; position: absolute; top: 0px; left: 10px;" onclick="exitInvoice();">&lt; Back</button>
+  <button class="no-print" id="exit_invoice_from_history_button" style="display: none; position: absolute; top: 0px; left: 10px;" onclick="exitInvoiceFromHistory();">&lt; Back</button>
+  <button class="no-print" id="exit_invoice_from_new_button" style="display: none; position: absolute; top: 0px; left: 10px;" onclick="exitInvoiceFromNew();">&lt; Back</button>
+  <div id="invoice_content" style="display: none;"></div>
+  <div id="invoice_from_history_content" style="display: none;"></div>
+  <div id="add_invoice_content" style="display: none;"></div>
+  <div id="key_shortcut_info_bar"             class="no-print" style="position: fixed; bottom: 0px; left: 0px; width: 100%; height: 40px; background-color: #70A2FF; color: black; font-size: 30px; z-index: 4; white-space: nowrap;"></div>
+  <div id="key_shortcut_invoice_remove_window" class="no-print" style="display: none; position: fixed; width: 95%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #70A2FF; color: black; font-size: 30px; z-index: 6;"></div>
+  <div id="non_invoice_content">
+    <div id="key_shortcut_index_window"           class="no-print" style="display: none; position: fixed; width: 95%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #70A2FF; color: black; font-size: 30px; z-index: 6;"></div>
+    <div id="key_shortcut_index_window_edit"      class="no-print" style="display: none; position: fixed; width: 95%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #70A2FF; color: black; font-size: 30px; z-index: 6;"></div>
+    <div id="key_shortcut_extra_db_sell_window"   class="no-print" style="display: none; position: fixed; width: 95%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #70A2FF; color: black; font-size: 30px; z-index: 6;"></div>
+    <div id="key_shortcut_extra_db_edit_window"   class="no-print" style="display: none; position: fixed; width: 95%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #70A2FF; color: black; font-size: 30px; z-index: 6;"></div>
+    <div id="key_shortcut_extra_db_image_window"  class="no-print" style="display: none; position: fixed; width: 95%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #70A2FF; color: black; font-size: 30px; z-index: 6;"></div>
+    <div id="key_shortcut_extra_db_jumpPN_window" class="no-print" style="display: none; position: fixed; width: 95%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #70A2FF; color: black; font-size: 30px; z-index: 6;"></div>
+    <div id="key_shortcut_search_scope_window"    class="no-print" style="display: none; position: fixed; width: 95%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #70A2FF; color: black; font-size: 30px; z-index: 6;">
+      <span style="color: white;">1</span>. .New Search<br>
+      <span style="color: white;">2</span>. .In Current Search Results
+    </div>
+      <div id = "login_div" style="display: none;">
+          <h1 style="text-align: center;">PartScouter</h1>
+          <p style="text-align: center;">Email</p>
+          <input style="display: block; margin: auto;" id="email_input" type="text" onfocus='deselectTable();'>
+          <p style="text-align: center;">Password</p>
+          <input style="display: block; margin: auto;" id="password_input" type="password" onsubmit="log_in()" onfocus='deselectTable();'>
+          <p style="text-align: center;">Remember Me <input type="checkbox" id="remember_input"></p>
+          <button style="display: block; margin: auto;" id="login_button" onclick="log_in()">Login</button>
+      </div>
+
+      <div id="content_div" style="display: none;">
+        <h1 style="text-align: center;">PartScouter</h1>
+        <button style="display: block; margin: auto;" onclick="log_out();" id="logout_button">Log Out</button><br><br>
+        
+        <div id="message"><p>Loading Parts...</p></div>
+
+        <div style="display: flex; flex-direction: row;">
+          <div id="TAB_search"                    class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(0);">Search</div>
+          <div id="TAB_search_results"            class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(11);">Search Results</div>
+          <div id="TAB_record_views"              class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(1);">Record Views</div>
+          <div id="TAB_record_browser"            class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(2);">Record Browser</div>
+          <div id="TAB_part_child_record_manager" class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(3);">Part Child Record Manager</div>
+          <div id="TAB_sort_order"                class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(4);">Sort Orders</div>
+          <div id="TAB_fileinput"                 class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(5);">PDF Import</div>
+          <div id="TAB_reorders"                  class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(6);">Reorders</div>
+          <div id="TAB_invoice_history"           class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(7);">Invoice History</div>
+          <div id="TAB_invoice_settings"          class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(8);">Invoice Settings</div>
+          <div id="TAB_invoice"                   class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(9);">Invoice</div>
+          <div id="TAB_add_invoice"               class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px;" onclick="setTab(12);">Add Invoice</div>
+          <div id="TAB_mainmenu"                  class="tabButton" style="border: solid 6px; border-color: #70A2FF; font-size: 20px; display: none;"></div>
+        </div>
+
+        <div id="TAB_mainmenu_div" style="display: none;">
+          <br><br><br><br><br>
+          <table style="margin: auto; font-size: 30px; border: solid 30px #70A2FF;">
+            <tr>
+              <td style="background-color: #70A2FF; border: 0px;"><span style="color:white">S</span>earch</td>
+              <td style="background-color: #70A2FF; border: 0px;">Se<span style="color:white">a</span>rch Results</td>
+            </tr>
+            <tr>
+              <td style="background-color: #70A2FF; border: 0px;">Record <span style="color:white">V</span>iews</td>
+              <td style="background-color: #70A2FF; border: 0px;">Record <span style="color:white">B</span>rowser&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+            </tr>
+            <tr>
+              <td style="background-color: #70A2FF; border: 0px;"><span style="color:white">P</span>art Child Record Manager</td>
+              <td style="background-color: #70A2FF; border: 0px;">S<span style="color:white">o</span>rt Orders</td>
+            </tr>
+            <tr>
+              <td style="background-color: #70A2FF; border: 0px;">P<span style="color:white">D</span>F Import</td>
+              <td style="background-color: #70A2FF; border: 0px;"><span style="color:white">R</span>eorders</td>
+            </tr>
+            <tr>
+              <td style="background-color: #70A2FF; border: 0px;">Invoice <span style="color:white">H</span>istory</td>
+              <td style="background-color: #70A2FF; border: 0px;">Invoice S<span style="color:white">e</span>ttings</td>
+            </tr>
+            <tr>
+              <td style="background-color: #70A2FF; border: 0px;"><span style="color:white">I</span>nvoice</td>
+              <td style="background-color: #70A2FF; border: 0px;">Add <span style="color:white">N</span>ew Invoice</td>
+            </tr>
+          </table>
+        </div>
+
+        <div id="TAB_fileinput_div">
+          <div id="fileinput_div"></div>
+          <div id="wlmay_input_div" style="display: none; border: solid 2px; border-color: #70A2FF;">
+            <p><a href="example_pdf_wlmay.png" alt="Example PDF" target="_blank"><img src="example_pdf_wlmay.png" width=57px height=74px></a>&nbsp;&nbsp;&nbsp;Import WLMAY PDF</p>
+            <input type="file" accept=".pdf" id="import_wlmay_pdf_input">
+          </div>
+          <div id="wlmay_pdf_table_div" style="display: none;">
+            <p id="wlmay_pdf_name"></p>
+            <table>
+              <tr><th>Invoice No.</th><th>Invoice Date</th><th>Customer Purchase Order No.</th><th>Pick Ticket No.</th></tr>
+              <tr>
+                <td><input onfocus='deselectTable();' type="text" id="wlmay_pdf_invoice_no_input"></td>
+                <td><input onfocus='deselectTable();' type="text" id="wlmay_pdf_invoice_date_input"></td>
+                <td><input onfocus='deselectTable();' type="text" id="wlmay_pdf_customer_po_no_input"></td>
+                <td><input onfocus='deselectTable();' type="text" id="wlmay_pdf_pick_ticket_input"></td>
+              </tr>
+            </table>
+            <div id="wlmay_pdf_parts_table_div"></div>
+            <table>
+              <tr><th>Subtotal</th><th>Shipping & Handling</th><th>Tax</th><th>Subtotal</th><th>Deposit</th><th>Balance Due</th></tr>
+              <tr>
+                <td><input onfocus='deselectTable();' id="wlmay_pdf_subtotal0_input" type="text"></td>
+                <td><input onfocus='deselectTable();' id="wlmay_pdf_s&h_input" type="text"></td>
+                <td><input onfocus='deselectTable();' id="wlmay_pdf_tax_input" type="text"></td>
+                <td><input onfocus='deselectTable();' id="wlmay_pdf_subtotal1_input" type="text"></td>
+                <td><input onfocus='deselectTable();' id="wlmay_pdf_deposit_input" type="text"></td>
+                <td><input onfocus='deselectTable();' id="wlmay_pdf_balancedue_input" type="text"></td>
+              </tr>
+            </table>
+            <button id="button_pdfimport_wlmay_cancel" onclick="cancelWLMAYPDF();" style="background-color: #70A2FF; color: black; width: 300px;"><span style="color: white;">C</span>ancel</button>
+            <!-- <p>Please verify these results with the original PDF!</p> -->
+          </div>
+        </div>
+        <br><br>
+
+        <div id="TAB_sort_order_div">
+          <div id="sort_order_div" style="display: none;">
+            <!-- <h1 class='clickable' onclick='toggleDiv(null, "sort_order_toggle");'><span id="sort_order_toggle_expander_icon" style="font-size: 50px; font-weight: 100;">-</span> Sort Orders</h1> -->
+            <div id="sort_order_toggle_div">
+              <div id="sort_order_table_div"></div>
+              <button id="button_add_sort_order" onclick="startNewSortOrder(0);" style="background-color: #70A2FF; color: black;"><span style="color: white;">A</span>dd New Sort Order +</button>
+              <div id="sort_order_table_new_div"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="TAB_part_child_record_manager_div">
+          <div id="part_child_record_manager" style="display: none;">
+            <h1>Part Child Record Manager</h1>
+            <div id="part_child_dropdown_div"></div>
+            <span style='background-color: #70A2FF; color: black;'><span style='color: white;'>P</span>art Number&nbsp;</span>
+            <input type="text" id="part_child_edit_input" placeholder="Search For Part Number to Edit..." style="width: 300px;" onfocus="onPartChildEditFocus();" onkeyup="partchild_edit_input_keyup_event(event);" onkeydown="partchild_edit_input_keydown_event(event);">
+            <div id="partchild_edit_autocomplete" style="position: absolute;"></div>
+            <div id="part_child_edit_table_div"></div>
+            <br>
+            <button id="part_child_button_new" onclick="startNewPartChild();" style='background-color: #70A2FF; color: black;'></button>
+            <div id="part_child_new_table_div"></div>
+          </div>
+        </div>
+
+        <div id="TAB_search_div">
+          <div id="search_div" style="display: none; background-color: #9BBEFF;">
+                <!-- <label class="checkBox_container" style="display: block;" >Ignore S<span style="color: white;">p</span>ecial Characters (E.G. \ . ,)<input type="checkbox" id="search_ignore_special_characters"><span class="checkmark"></span></label> -->
+            <!-- <br><label class="checkBox_container" style="display: block;" ><span style="color: white;">E</span>xact Match (Ignores Capitalization)<input type="checkbox" id="search_exact_match"><span class="checkmark"></span></label> -->
+            <h2>Part # Instant S<span style="color: white;">e</span>arch</h2>
+            <div id="search_partnum_any_input_div">
+              <span style="position: absolute; left: 50px; font-size: 18px;">Any</span><br>
+              <div style="position: absolute; left: 50px;">
+                <input  id="search_partnum_any_input"  type="text" style="width: 230px;" onfocus='deselectTable();' onkeyup='search_partnum_input_keyup_event(event, null);' onkeydown='search_partnum_input_keydown_event(event);'>
+                <div id="search_partnum_autocomplete_any" style="position: absolute;"></div>
+              </div>
+              <br><br>
+              <div id="search_partnum_db_inputs_div"></div>
+            </div>
+            <h2>Standard Search</h2>
+            <label class="checkBox_container" style="display: block;" ><span style="color: white;">H</span>ighlighting<input type="checkbox" id="search_highlight" onchange="onChangeShouldHighlight();" checked><span class="checkmark"></span></label>
+            <div id="search_highlight_div" style="display: block; position: relative; left: 50px;">
+              <br><label class="checkBox_container" style="display: block;" >Hi<span style="color: white;">g</span>hlight Similar Words<input type="checkbox" id="search_highlight_similar_words"><span class="checkmark"></span></label>
+              <br><input id="repititions_min" type="number" min="0" onchange='setMinRepititions();' onfocus='deselectTable();' style="display: inline-block; width: 50px; font-size: 20px;"><label style="display: inline-block; font-size: 20px;"><span style="color: white;">R</span>epititions required to highlight</label></input>
+            </div>
+            <br><label class="checkBox_container" style="display: block;"><span style="color: white;">C</span>hild Part Links<input type="checkbox" id="search_add_child_part_links"><span class="checkmark"></span></label>
+            <p style="font-size: 20px;">Columns</p>
+            <label class="radiobutton_container" style="display: inline;"><span style="color: white;">A</span>ny&nbsp;&nbsp;<input onchange="setRadioColumn();" type="radio" id="radio_columns_any" name="radio_columns" checked><span class="radiomark"></span></label>
+            <label class="radiobutton_container" style="display: inline;"><span style="color: white;">S</span>pecific&nbsp;&nbsp;<input onchange="setRadioColumn();" type="radio" id="radio_columns_specific" name="radio_columns"><span class="radiomark"></span></label>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <span id="search_scope_indicator"></span>
+            <span id="radio_columns_all_none_buttons_div">
+              <button style="display: inline-block; position: absolute; left: 230px; width: 70px;" onclick="setRadioColumnsChecked(true);">All</button>
+              <button style="display: inline-block; position: absolute; left: 310px; width: 70px;" onclick="setRadioColumnsChecked(false);">None</button>
+            </span>
+           <div id="radio_columns_div">
+              <div id="radio_columns_checkboxes"      style="margin-top: 50px;"></div> <!-- Auto generated -->
+              <div id="radio_columns_checkboxes_more" style="display: none;"></div> <!-- Auto generated -->
+            </div>
+            <div id="search_any_input_div">
+              <br><span style="font-size: 22px;">Se<span style="color: white;">a</span>rch</span><br>
+              <input id="search_input" type="text" style="width: 500px; height: 50px; font-size: 50px;" onfocus='deselectTable();'>
+              <button id="search_any_button" style="position: relative; bottom: 13px; width: 50px; height: 50px;" onclick="search_query();">Go</button>
+            </div>
+            <br><br><br><br>
+          </div>
+        </div>
+
+        <div id="TAB_search_results_div">
+          <!-- <div id="search_results_expander" onclick="toggle_search_results(2);" style="display: none;" class="clickable"><h1><span id="search_results_expander_icon" style="font-size: 50px; font-weight: 100;">+</span> Search Results</h1></div> -->
+          <div id="search_results_div" style="display: none; margin-left: 20px;">
+            <div id="search_results_table_div"></div>
+            <div id="similar_string_expander" style="display: none;" class="clickable" onclick="toggle_similar_strings();"><h1><span id="similar_strings_expander_icon" style="font-size: 50px; font-weight: 100;">+</span> Similar Words</h1></div>
+            <div id="similar_strings_div" style="display: none; margin-left: 20px;"></div>
+          </div>
+        </div>
+
+        <div id="TAB_record_views_div">
+          <p>Press the <img title='Open Record View' src='record_view.png' width=50px height=20px> icon in 'Search' or 'Record Browser' to add a part children record view</p>
+          <p>Press 'Page Up' and 'Page Down' to change the record view page</p>
+          <div id="googlesearch_image_div" class="no-print" style="display: none; position: fixed; z-index: 4; height: 50%; top: 50%; left: 50%; transform: translateX(-50%) translateY(-50%);">
+            <img id='button_googlesearch_image_exit' class='clickable' src='x.png' style='position: fixed; top: -80px; right: -20px;' onclick='hideGoogleSearchImage();'>
+            <img id='image_googlesearch_image' style='height: 100%;'><br>
+            <button id="button_googlesearch_image_left" style="display: inline; background-color: #70A2FF; font-size: 30px; width: 50%; float: left;  padding: 0px;" onclick="changeGoogleSearchImage(-1);">&larr;</button>
+            <button id="button_googlesearch_image_right" style="display: inline; background-color: #70A2FF; font-size: 30px; width: 50%; float: right; padding: 0px;" onclick="changeGoogleSearchImage( 1);">&rarr;</button>
+            <p id="paragraph_googlesearch_image_count" style="background-color: #FFFFFFDD; width: 100%; text-align: center;"></p>
+          </div>
+          <div id="record_views_div">
+          </div>
+        </div>
+
+        <div id="TAB_record_browser_div">
+          <div id="record_browser_div">
+            <!-- <h1 id="record_browser_heading" onclick="toggle_record_browser();" class="clickable"><span id="record_browser_expander_icon" style="font-size: 50px; font-weight: 100;">-</span> Record Browser</h1> -->
+            <div id="record_browser_table_div"></div>
+          </div>
+        </div>
+        <br>
+
+        <div id="TAB_reorders_div">
+          <button id="button_update_reorders" style="background-color: #70A2FF; color: black;" onclick="updateReorders();">Update All <span style="color: white;">R</span>eorders</button>
+          <div id="table_reorders_div"></div>
+        </div>
+
+        <div id="TAB_invoice_history_div">
+          <div id="invoice_history_internal_div">
+            <button id="button_update_invoice_history" style="background-color: #70A2FF; color: black;" onclick="retrieveInvoiceDataFromDatabase(populateInvoiceHistory);"><span style="color: white;">U</span>pdate Invoice History</button>
+            <h3 style="background-color: #70A2FF; color: black;"><span style="color: white">F</span>ilter by</h3>
+            <table>
+              <tr><td>Date</td><td>Name</td><td>Total</td><td>Invoice No.</td><td>Any Field</td></tr>
+              <tr>
+              <td><input type="text" id="invoice_history_filter_time" name="invoice_history_filter_time" value=""></td>
+              <td><input type="text" id="invoice_history_filter_name" value="" oninput="populateInvoiceHistory();"></td>
+              <td><input type="text" id="invoice_history_filter_total" value="" oninput="populateInvoiceHistory();"></td>
+              <td><input type="text" id="invoice_history_filter_invoice_no" value="" oninput="populateInvoiceHistory();"></td>
+              <td><input type="text" id="invoice_history_filter_invoice_any_field" value="" oninput="populateInvoiceHistory();"></td>
+              </tr>
+            </table>
+            <button id="button_clear_invoice_filters" style="background-color: #70A2FF; color: black;" onclick="clearInvoiceFilters();"><span style="color: white;">C</span>lear Filters</button>
+            <br><br>
+            <div id="table_invoice_history_div"></div>
+          </div>
+        </div>
+
+        <div id="TAB_invoice_settings_div">
+          <h2>Address</h2>
+          <textarea id='invoice_address_textarea' style="width: 500px; height: 135px;" onfocus='deselectTable(); onInvoiceInfoChange();'></textarea>
+          <br>
+          <h2>Info at bottom</h2>
+          <textarea id='invoice_bottom_textarea'  style="width: 500px; height: 135px;" onfocus='deselectTable(); onInvoiceInfoChange();'></textarea>
+          <br>
+          <h2>Invoice No. (Increments Automatically)</h2>
+          <input type='text' id='invoice_last_invoice_no_input' style="width: 500px;" onfocus='deselectTable(); onInvoiceInfoChange();'>
+          <br>
+          <button id='invoice_info_button_save' style="width: 200px; background-color: #70A2FF; color: black;" onclick="saveInvoiceInfoToDatabase();"><span style="color: white;">S</span>ave</button>
+        </div>
+        
+        <div id="TAB_invoice_div">
+        </div>
+        
+        <div id="TAB_add_invoice_div">
+        </div>
+
+        <h2>Hotkeys:</h2>
+        <p>Tables</p>
+        <p>&nbsp;&nbsp;Arrow Keys - Navigate</p>
+        <p>&nbsp;&nbsp;Page Up - Table Previous Page</p>
+        <p>&nbsp;&nbsp;Page Down - Table Next Page</p>
+        <p>Search Bars</p>
+        <p>&nbsp;&nbsp;Up/Down Arrow Keys - Navigate Search History</p>
+        <p>Record Views</p>
+        <p>&nbsp;&nbsp;Up/Down Arrow Keys - Traverse Index</p>
+        <br>
+        <p>v 1.76.3</p>
+        <p><a href="https://where44444.github.io/Schnelli/ez_database_updater.html" target="_blank">EZ Database Updater</a></p>
+        <br><br><br><br> <!--Line breaks so key_shortcut_info_bar doesn't hide anything at bottom-->
+      </div>
+    </div>
+
+    <script type="text/javascript" src="data.js"></script>
+    <script type="text/javascript" src="pdfjs/pdf.js"></script>
+    <!-- <script type="text/javascript" src="pdfjs/pdf.worker.js"></script> -->
+    <script type="text/javascript" src="w4_funcs.js"></script>
+    <script type="text/javascript" src="compare_funcs.js"></script>
+    
+    <script type="text/javascript" src="search.js"></script>
+    <script type="text/javascript" src="record_views.js"></script>
+    <script type="text/javascript" src="record_browser.js"></script>
+    <script type="text/javascript" src="child_part_record_manager.js"></script>
+    <script type="text/javascript" src="sort.js"></script>
+    <script type="text/javascript" src="pdf_import.js"></script>
+    <script type="text/javascript" src="reorders.js"></script>
+    <script type="text/javascript" src="invoice.js"></script>
+    
+    <script type="text/javascript" src="partscouter.js"></script>
+    <script type="text/javascript" src="eventlisteners.js"></script>
+    <script type="text/javascript" src="key_shortcuts.js"></script>
+    <script type="text/javascript" src="autocomplete.js"></script>
+  </body>
+</html>

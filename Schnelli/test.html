@@ -1,0 +1,52 @@
+
+<!DOCTYPE html>
+<html>
+<head></head>
+<body>
+    <script src="dojo.js"></script>
+    <script type="text/javascript">
+        if(typeof dojo=='undefined') {
+            document.writeln("<scr"+"ipt src='/wps/PA_S2K-T-Oders-JSR286/jscripts/dojo/dojo.js' ></scr"+"ipt>");
+        }else{} 
+        dojo.require("dojo.parser");
+        dojo.require("dojo.number");
+        dojo.require("dijit.Tooltip");
+        dojo.require("dijit.TitlePane");
+        dojo.require("dijit.form.Form");
+        dojo.require("dijit.form.Button");
+        dojo.require("dijit.form.NumberTextBox");
+    
+        dojo.addOnLoad(function(){
+            dojo.parser.parse("ns_Z7_J0I21AS0M8VA50AJV3SUL02004_parseContainer");
+        });
+        var itemNum='8009';
+        var uom='EA';
+        
+        function mySubmit() {
+            document.fapNewPart.action='dl5/d5/L2dBISEvZ0FBIS9nQSEh/pw/Z7_J0I21AS0M8VA50AJV3SUL02004/act/id=UQDKyOtKsAL5A/p=S2KCommerceFindAPartPortletFormSubmit=newPart/451243563858/=/#Z7_J0I21AS0M8VA50AJV3SUL02004';
+            document.fapNewPart.submit();
+            return true;
+        }
+    </script>	
+
+    <DIV class="FAPContainer" id="ns_Z7_J0I21AS0M8VA50AJV3SUL02004_parseContainer">
+        <DIV class="FAPcnt fapTitle" id="FAPheader">
+            <FORM method="POST" dojoType="dijit.form.Form" action="dl5/d5/L2dBISEvZ0FBIS9nQSEh/pw/Z7_J0I21AS0M8VA50AJV3SUL02004/act/id=L_yOtKsAL5g/451243563858/=/#Z7_J0I21AS0M8VA50AJV3SUL02004" id="fapNewPart" name="fapNewPart" jsId="fapNewPart">
+                <span>
+                    <LABEL  for="S2KCommerceFindAPartPortletFormText">Enter Part Number:</LABEL>
+                    <INPUT name="S2KCommerceFindAPartPortletFormText" type="text"/>
+                    <input name="S2KCommerceFindAPartPortletFormSubmit" type="hidden" value="newPart">
+                    <BUTTON dojoType="dijit.form.Button" name="S2KCommerceFindAPartPortletFormSubmit" value="submit" onclick="return mySubmit()">
+                        <span class="bIcon"></span>
+                        <span class="bText">Submit</span>
+                    </BUTTON>
+                </span>
+            </FORM>
+        </DIV>
+        <DIV class="FAPcnt fapResults" id="FAPresults">
+
+        </DIV>
+        <div class="wpthemeClear"></div>
+</div>
+</body>
+</html>

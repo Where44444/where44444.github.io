@@ -8,7 +8,7 @@ Information you provide us directly:
 
 2. Information Usage
 -We don't view your information for any purpose unless you give permission
--Your information won't be used for any purpose
+-We won't use your information for any purpose
 
 3. Data Collection Methods
 -All info you provide to us is provided through the app

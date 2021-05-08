@@ -9,7 +9,7 @@
         }
     </style>
     <body>
-        <p>Privacy Policy:<br>
+        <p style="text-align: center;">Privacy Policy:<br>
             1. Information We Collect<br>
             -Location Data<br>
             <br>
@@ -21,26 +21,37 @@
             2. Information Usage<br>
             -We don't view your information for any purpose unless you give permission<br>
             -Your location data will be used to enable your on/off site status being visible<br>
-             &nbsp;&nbsp;to supervisors within your company, even when the app is closed or not in use.<br> 
-             &nbsp;&nbsp;Location data will only be collected while your shift is active. Supervisors<br>
-             &nbsp;&nbsp;will not see any specific location data other than that you are "On Site" or<br>
-             &nbsp;&nbsp;"Off Site"<br>
+             to supervisors within your company, even when the app is closed or not in use.<br> 
+             Location data will only be collected while your shift is active. Supervisors<br>
+             will not see any specific location data other than that you are "On Site" or<br>
+             "Off Site"<br>
             -Constant fine background location retrieval is necessary to maintain employee<br>
-            &nbsp;&nbsp;accountability at work sites without supervision and ultimately to build<br>
-            &nbsp;&nbsp;trust with clients.<br>
+            accountability at work sites without supervision and ultimately to build<br>
+            trust with clients.<br>
             -No location data is collected when you aren't supposed to be working a shift<br>
             -All your other information won't be used for any purpose<br>
             <br>
             3. Data Collection Methods<br>
-            -Location info is collected through your mobile device's GPS/Network location API<br>
-            &nbsp;&nbsp;as latitude longitude coordinates every 60 seconds only during the time you<br>
-            &nbsp;&nbsp;are assigned to be working a shift at any location. Your device then uses the<br>
-            &nbsp;&nbsp;coordinates to calculate your on/off site status. Your status (true/false value,<br>
-            &nbsp;&nbsp;no coordinates) is transmitted securely over HTTPS to a Google Firebase server,<br>
-            &nbsp;&nbsp;your coordinates never leave your device. Your status is retrieved by a device<br>
-            &nbsp;&nbsp;that belongs to a supervisor within your company, and displayed as your status<br>
-            &nbsp;&nbsp;being "On Site" or "Off Site".<br>
+            -Location info is collected through GPS/WiFi/Cellular triangulation<br>
+            as latitude longitude coordinates every 60 seconds only during the time you<br>
+            are assigned to be working a shift at any location. Your device then uses the<br>
+            coordinates to calculate your on/off site status. Your status (true/false value,<br>
+            no coordinates) is transmitted securely over HTTPS to a Google Firebase server,<br>
+            your coordinates never leave your device. Your status is retrieved by a device<br>
+            that belongs to a supervisor within your company, and displayed as your status<br>
+            being "On Site" or "Off Site". We don't view your location status unless you give<br>
+            us permission.<br>
             -All other info you provide to us is provided through the app<br>
+            <br>
+            4. Data Protection<br>
+            -Your location status and other data is protected by Google Firebase Authentication.<br>
+            Only supervisors in your company with a Google Firebase account tied to your company<br>
+            with sufficient permission have access to view Your location status and other information.<br>
+            <br>
+            5. Outside Parties<br>
+            -We don't share your information to outside parties except as required by public authorites<br>
+            e.g. court order, subpoena, or request from a law enforcement agency.<br>
             </p>
+            
     </body>
 </html>

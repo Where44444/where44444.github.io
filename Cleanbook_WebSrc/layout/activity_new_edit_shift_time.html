@@ -1,0 +1,175 @@
+<div class="standardDivWidth">
+    <br><br><br>
+    <div class="labelMarginTop labelSize">Name</div>
+
+    <input id="Edit_ShiftTime_Name" class="nameSize" placeholder="Name">
+
+    <div id="Edit_ShiftTime_Location_Label" class="labelMarginTop labelSize">Location</div>
+
+    <select id="Edit_ShiftTime_Location_Spinner" style='margin-bottom: 10px;'></select>
+
+    <div class="labelMarginTop labelSize">Time</div>
+
+    <div style='display: flex; flex-direction: row;'>
+
+        <select id="Edit_ShiftTime_Start_Hours_Spinner"
+            style='height: 38px; width: 70px; background-color: #FFFFFF;'></select>
+
+        <div style='height: 38px; padding-top: 7px;'>&nbsp;:&nbsp;</div>
+
+        <select id="Edit_ShiftTime_Start_Minutes_Spinner"
+            style='height: 38px; width: 70px; background-color: #FFFFFF'></select>
+
+        <select id="Edit_ShiftTime_Start_AM_PM_Spinner"
+            style='height: 38px; width: 70px; background-color: #FFFFFF'></select>
+
+        <div style='height: 38px; width: 10px;'> </div>
+
+        <button id="Edit_ShiftTime_Start_Date_Button" class="buttonHeight"
+            style="width: 400px; margin-top: -7px;"></button>
+
+    </div>
+
+    <div class="labelSize">To</div>
+
+    <div style='display: flex; flex-direction: row;'>
+
+        <select id="Edit_ShiftTime_End_Hours_Spinner"
+            style='height: 38px; width: 70px; background-color: #FFFFFF'></select>
+
+        <div style='height: 38px; padding-top: 7px;'>&nbsp;:&nbsp;</div>
+
+        <select id="Edit_ShiftTime_End_Minutes_Spinner"
+            style='height: 38px; width: 70px; background-color: #FFFFFF'></select>
+
+        <select id="Edit_ShiftTime_End_AM_PM_Spinner"
+            style='height: 38px; width: 70px; background-color: #FFFFFF '></select>
+
+        <div style='height: 38px; width: 10px;'> </div>
+
+        <button id="Edit_ShiftTime_End_Date_Button" class="buttonHeight"
+            style="width: 400px; margin-top: -7px;"></button>
+
+    </div>
+
+    <div style='height: 20px;'></div>
+    <input type="checkbox" id="Edit_ShiftTime_RepeatCheckBox" style='font-size: 18pt;'>Repeat
+
+    <div style='height: 20px;'></div>
+    <div id="Edit_ShiftTime_RepeatDiv">
+
+        <div class="labelMarginTop labelSize">Repeats</div>
+
+        <select id="Edit_ShiftTime_RepeatUnit" style='height: 38px; background-color: #FFFFFF'></select>
+
+        <div class="labelMarginTop labelSize">Repeat every</div>
+
+        <div style='display: flex; flex-direction: row;'>
+            <button id="Edit_Shift_Time_RepeatEvery_Minus"
+                style='height: 38px; font-size: 15pt; width: 100px;'>-</button>
+
+            <input type="number" value="1" id="Edit_Shift_Time_RepeatEvery" placeholder="#"
+                style='text-align: center; width: 50px; margin-left: 10px; margin-right: 10px;'>
+
+            <div id="Edit_ShiftTime_RepeatEvery_Unit" style="padding-top: 10px; margin-right: 10px;"></div>
+
+            <button id="Edit_Shift_Time_RepeatEvery_Plus"
+                style='height: 38px; font-size: 15pt; width: 100px;'>+</button>
+        </div>
+
+        <div id="Edit_ShiftTime_RadioGroup_MonthlyType" style='display: none;'>
+
+            <input type="radio" id="Edit_ShiftTime_Radio_DayOfMonth" name="Edit_ShiftTime_RadioGroup_MonthlyType"
+                style='height: 40px; font-size: 18pt;' checked>
+            <span style="position: relative; top: -10px;">&nbsp;Day of the Month&nbsp;&nbsp;&nbsp;</span>
+            <input type="radio" id="Edit_ShiftTime_Radio_DayOfWeek" name="Edit_ShiftTime_RadioGroup_MonthlyType"
+                style='height: 40px; font-size: 18pt;'>
+            <span style="position: relative; top: -10px;">&nbsp;Day of the Week&nbsp;&nbsp;&nbsp;</span>
+        </div>
+
+        <div id="Edit_ShiftTime_RepeatDaysDiv">
+
+            <div>Repeat on</div>
+
+            <table>
+                <tr>
+                    <td>&nbsp;&nbsp;Su</td>
+                    <td>&nbsp;&nbsp;Mo</td>
+                    <td>&nbsp;&nbsp;Tu</td>
+                    <td>&nbsp;&nbsp;We</td>
+                    <td>&nbsp;&nbsp;Th</td>
+                    <td>&nbsp;&nbsp;Fr</td>
+                    <td>&nbsp;&nbsp;Sa</td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" id="Edit_ShiftTime_Repeat_Sunday"></td>
+                    <td><input type="checkbox" id="Edit_ShiftTime_Repeat_Monday"></td>
+                    <td><input type="checkbox" id="Edit_ShiftTime_Repeat_Tuesday"></td>
+                    <td><input type="checkbox" id="Edit_ShiftTime_Repeat_Wednesday"></td>
+                    <td><input type="checkbox" id="Edit_ShiftTime_Repeat_Thursday"></td>
+                    <td><input type="checkbox" id="Edit_ShiftTime_Repeat_Friday"></td>
+                    <td><input type="checkbox" id="Edit_ShiftTime_Repeat_Saturday"></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="labelMarginTop labelSize">Ends</div>
+
+
+        <table>
+            <tr>
+                <td>
+                    <input type="radio" name="endstype" id="Edit_ShiftTime_Radio_Never"
+                        style='height: 40px; font-size: 18pt;' checked>
+                    <span style="position: relative; top: -12px;">&nbsp;Never&nbsp;</span>
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="radio" name="endstype" id="Edit_ShiftTime_Radio_AfterOccurences"
+                        style='height: 50px; font-size: 18pt;'>
+                    <span style="position: relative; top: -16px;">&nbsp;After Occurences&nbsp;</span>
+                </td>
+                <td>
+                    <button id="Edit_Shift_Time_Occurences_Minus"
+                        style='height: 38px; font-size: 15pt; width: 100px;'>-</button>
+                    <input type="number" value="1" id="Edit_ShiftTime_RepeatOccurences" placeholder="#"
+                        style='height: 50px; text-align: center; width: 50px;'>
+                    <button id="Edit_Shift_Time_Occurences_Plus"
+                        style='height: 38px; font-size: 15pt; width: 100px;'>+</button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="radio" name="endstype" id="Edit_ShiftTime_Radio_OnDate"
+                        style='height: 50px; font-size: 18pt;'>
+                    <span style="position: relative; top: -18px;">&nbsp;On a Date&nbsp;</span>
+                </td>
+                <td>
+                    <button id="Edit_Shift_Repeat_EndOnDate" class="buttonHeight" style="width: 400px;"></button>
+                </td>
+            </tr>
+        </table>
+        <div class="labelMarginTop labelSize">Summary</div>
+        <div id="Edit_ShiftTime_RepeatSummary_Text"></div>
+        <div id="Edit_ShiftTime_Calendar_RepeatSummary" style="display: flex; justify-content: center;"></div>
+    </div>
+
+    <button id="Edit_ShiftTime_Add_Person" class="buttonHeight"
+        style='display: block; margin: auto; margin-top: 10px; margin-bottom: 10px; width: 75%;'>
+        Add Person To Shift +</button>
+
+    <div id="Edit_ShiftTime_Add_Person_List" style='margin-bottom: 10px;'></div>
+
+    <div style='display: flex; flex-direction: row;'>
+
+        <button id="Cancel_Edit_ShiftTime" style='height: 50px; margin-right: 10px; flex-grow: 0.4;'>Cancel</button>
+
+        <button id="Accept_Edit_ShiftTime" style='height: 50px; flex-grow: 1;'>Accept</button>
+    </div>
+
+    <div style='height: 50px;'></div>
+
+    <button id="Delete_Edit_ShiftTime" class="buttonHeight redButtonText redButton" style="width: 100%;">Delete</button>
+</div>

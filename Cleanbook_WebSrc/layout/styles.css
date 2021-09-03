@@ -1,0 +1,623 @@
+@font-face {
+  font-family: "BalooChettan2-Regular";
+  src: url("../Assets/BalooChettan2-Regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "BalooChettan2-Bold";
+  src: url("../Assets/BalooChettan2-Bold.ttf ") format("truetype");
+}
+
+@font-face {
+  font-family: "BalooChettan2-SemiBold";
+  src: url("../Assets/BalooChettan2-SemiBold.ttf ") format("truetype");
+}
+
+@font-face {
+  font-family: "DMSans-Regular";
+  src: url("../Assets/DMSans-Regular.ttf") format("truetype");
+}
+
+body {
+  /* font-family: BalooChettan2-Regular, Arial, Helvetica, sans-serif; */
+  font-family: "DMSans-Regular";
+  background-color: #F6F7F9;
+}
+
+textarea {
+  font-family: BalooChettan2-Regular;
+  border: solid 1px lightgray;
+  border-radius: 8px;
+  padding: 0px 0px 0px 15px;
+  font-size: 12pt;
+}
+
+select {
+  border: solid 1px lightgray;
+  border-radius: 8px;
+  padding: 0px 0px 0px 15px;
+  font-size: 12pt;
+  height: 40px;
+  width: 100%;
+}
+
+input {
+  border: solid 1px lightgray;
+  border-radius: 8px;
+  padding: 0px 0px 0px 15px;
+  font-size: 12pt;
+  height: 40px;
+}
+
+input[type=text] {
+  border: solid 1px lightgray;
+  border-radius: 8px;
+  padding: 0px 0px 0px 15px;
+  font-size: 12pt;
+  height: 40px;
+}
+
+input[type=password] {
+  border: solid 1px lightgray;
+  border-radius: 8px;
+  padding: 0px 0px 0px 15px;
+}
+
+input[type=checkbox] {
+  width: 20px;
+  height: 20px;
+}
+
+input[type=radio] {
+  width: 20px;
+  height: 20px;
+}
+
+input:checked {
+  background-color: #00CC65;
+  color: white;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  background-color: #38F094;
+  border-radius: 28px;
+  color: black;
+  transition: 0.3s;
+  font-size: 12pt;
+}
+
+/* Same as button */
+
+input[type=file] {
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  background-color: #38F094;
+  border-radius: 28px;
+  color: black;
+  transition: 0.3s;
+  font-size: 12pt;
+}
+
+.calendarButton {
+  border-radius: 0px;
+  display: block;
+}
+
+button:disabled {
+  cursor: initial;
+}
+
+button:hover {
+  background-color: #e6fff2;
+}
+
+.labelSize {
+  font-size: 16pt;
+}
+
+.nameSize {
+  font-size: 30pt;
+  height: 60px;
+}
+
+.labelMarginTop {
+  margin-top: 10px;
+}
+
+.buttonHeight {
+  height: 50px;
+}
+
+.standardDivWidth {
+  width: 75%;
+  margin: auto;
+}
+
+.redButtonText {
+  color: white;
+}
+
+.redButton {
+  background-color: #E53935;
+}
+
+.redButton:hover {
+  background-color: #701C1A;
+}
+
+.search_div {
+  width: 50%;
+  margin: auto;
+}
+
+.homeButton {
+  height: 274px;
+  width: 223px;
+  cursor: pointer;
+  transition: 0.3s;
+  opacity: 1;
+}
+
+.homeButton:hover {
+  opacity: .5;
+}
+
+.AddButton {
+  position: fixed;
+  right: 40px;
+  bottom: 40px;
+  height: 100px;
+  width: 100px;
+  cursor: pointer;
+  transition: 0.3s;
+  opacity: 1;
+  z-index: 2;
+}
+
+.AddButton:hover {
+  opacity: .5;
+}
+
+.radiobutton_container {
+  display: block;
+  position: relative;
+  padding-left: 35px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  font-size: 22px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Hide the browser's default radio button */
+
+.radiobutton_container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+/* Create a custom radio button */
+
+.radiomark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: #eee;
+  border-radius: 50%;
+}
+
+/* On mouse-over, add a grey background color */
+
+.radiobutton_container:hover input~.radiomark {
+  background-color: #ccc;
+}
+
+/* When the radio button is checked, add a blue background */
+
+.radiobutton_container input:checked~.radiomark {
+  background-color: #70A2FF;
+}
+
+/* Create the indicator (the dot/circle - hidden when not checked) */
+
+.radiomark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the indicator (dot/circle) when checked */
+
+.radiobutton_container input:checked~.radiomark:after {
+  display: block;
+}
+
+/* Style the indicator (dot/circle) */
+
+.radiobutton_container .radiomark:after {
+  top: 9px;
+  left: 9px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: white;
+}
+
+/* Customize the label (the container) */
+
+.checkBox_container {
+  display: block;
+  position: relative;
+  padding-left: 35px;
+  margin-bottom: 0px;
+  cursor: pointer;
+  font-size: 20px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Hide the browser's default checkbox */
+
+.checkBox_container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+/* Create a custom checkbox */
+
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: white;
+  border: solid 1px lightgray;
+  border-radius: 8px;
+}
+
+/* On mouse-over, add a grey background color */
+
+.checkBox_container:hover input~.checkmark {
+  background-color: #ccc;
+}
+
+/* When the checkbox is checked, add a blue background */
+
+.checkBox_container input:checked~.checkmark {
+  background-color: #00CC65;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the checkmark when checked */
+
+.checkBox_container input:checked~.checkmark:after {
+  display: block;
+}
+
+/* Style the checkmark/indicator */
+
+.checkBox_container .checkmark:after {
+  left: 9px;
+  top: 5px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+
+/* The snackbar - position it at the bottom and in the middle of the screen */
+
+#snackbar {
+  visibility: hidden;
+  /* Hidden by default. Visible on click */
+  min-width: 500px;
+  /* Set a default minimum width */
+  margin-left: -250px;
+  /* Divide value of min-width by 2 */
+  background-color: #333;
+  /* Black background color */
+  color: #fff;
+  /* White text color */
+  text-align: center;
+  /* Centered text */
+  border-radius: 40px;
+  /* Rounded borders */
+  padding: 16px;
+  /* Padding */
+  position: fixed;
+  /* Sit on top of the screen */
+  z-index: 1;
+  /* Add a z-index if needed */
+  left: 50%;
+  /* Center the snackbar */
+  bottom: 30px;
+  /* 30px from the bottom */
+  font-size: 18px;
+}
+
+#dialogbox.show {
+  visibility: visible;
+  /* Show the snackbar */
+  /* Add animation: Take 0.5 seconds to fade in and out the snackbar.
+    However, delay the fade out process for 2.5 seconds */
+  animation: fadein_dialogbox 0.5s;
+  animation-fill-mode: both;
+  display: "block";
+}
+
+#dialogbox.hide {
+  visibility: visible;
+  animation: fadeout_dialogbox 0.5s;
+  animation-fill-mode: both;
+}
+
+@keyframes fadein_dialogbox {
+  from {
+    top: 75%;
+    opacity: 0;
+  }
+  to {
+    top: 50%;
+    opacity: 1;
+  }
+}
+
+@keyframes fadeout_dialogbox {
+  from {
+    top: 50%;
+    opacity: 1;
+  }
+  to {
+    top: 75%;
+    opacity: 0;
+  }
+}
+
+/* Show the snackbar when clicking on a button (class added with JavaScript) */
+
+#snackbar.show {
+  visibility: visible;
+  /* Show the snackbar */
+  /* Add animation: Take 0.5 seconds to fade in and out the snackbar.
+    However, delay the fade out process for 2.5 seconds */
+  animation: fadein_snackbar 0.5s;
+  animation-fill-mode: both;
+}
+
+#snackbar.hide {
+  visibility: visible;
+  animation: fadeout_snackbar 0.5s;
+  animation-fill-mode: both;
+}
+
+#snackbar.refresh1 {
+  visibility: visible;
+  animation: refresh1 0.5s;
+  animation-fill-mode: both;
+}
+
+#snackbar.refresh2 {
+  visibility: visible;
+  animation: refresh2 0.5s;
+  animation-fill-mode: both;
+}
+
+/* Animations to fade the snackbar in and out */
+
+.sidebar_item {
+  animation: sidebaritem_unselected 0.2s;
+  animation-fill-mode: both;
+  padding-bottom: 10px;
+}
+
+.sidebar_item:hover {
+  animation: sidebaritem_selected 0.2s;
+  animation-fill-mode: both;
+}
+
+.sidebar_item2 {
+  animation: sidebaritem2_unselected 0.2s;
+  animation-fill-mode: both;
+}
+
+.sidebar_item2:hover {
+  animation: sidebaritem2_selected 0.2s;
+  animation-fill-mode: both;
+}
+
+@keyframes fadein_snackbar {
+  from {
+    bottom: 0;
+    opacity: 0;
+    background-color: blue;
+  }
+  to {
+    bottom: 30px;
+    opacity: .9;
+    background-color: #333;
+  }
+}
+
+@keyframes fadeout_snackbar {
+  from {
+    bottom: 30px;
+    opacity: .9;
+  }
+  to {
+    bottom: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes refresh1 {
+  from {
+    background-color: blue;
+  }
+  to {
+    background-color: #333;
+  }
+}
+
+@keyframes refresh2 {
+  from {
+    background-color: blue;
+  }
+  to {
+    background-color: #333;
+  }
+}
+
+@keyframes sidebaritem_unselected {
+  from {
+    opacity: 1;
+    background-color: #38F094;
+  }
+  to {
+    opacity: 0.9;
+    background-color: none;
+  }
+}
+
+@keyframes sidebaritem_selected {
+  from {
+    opacity: 0.;
+    background-color: none;
+  }
+  to {
+    opacity: 1;
+    background-color: #38F094;
+  }
+}
+
+@keyframes sidebaritem2_unselected {
+  from {
+    opacity: 1;
+    background-color: #38F094;
+  }
+  to {
+    opacity: 0.9;
+    background-color: #272935;
+  }
+}
+
+@keyframes sidebaritem2_selected {
+  from {
+    opacity: 0.;
+    background-color: #272935;
+  }
+  to {
+    opacity: 1;
+    background-color: #38F094;
+  }
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.no_selection {
+  user-select: none;
+  /* standard syntax */
+  -webkit-user-select: none;
+  /* webkit (safari, chrome) browsers */
+  -moz-user-select: none;
+  /* mozilla browsers */
+  -khtml-user-select: none;
+  /* webkit (konqueror) browsers */
+  -ms-user-select: none;
+  /* IE10+ */
+}
+
+.icon_black_to_blue:hover {
+  filter: sepia(100%) saturate(1400%) brightness(100%) hue-rotate(180deg);
+  cursor: pointer;
+}
+
+.icon_black_to_blue2:hover {
+  filter: sepia(100%) saturate(1400%) brightness(500%) hue-rotate(180deg);
+  cursor: pointer;
+}
+
+.loader {
+  border: 16px solid white;
+  border-top: 16px solid #38F094;
+  ;
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  animation: loader_spin 2s linear infinite;
+}
+
+@keyframes loader_spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.calendarDayHover:hover {
+  background-color: white;
+}
+
+@media print {
+  @page {
+    size: portrait;
+    margin: 1cm;
+  }
+  body {
+    margin: 0cm;
+    background-image: none;
+  }
+  input[type=text] {
+    border: 0px;
+    background-color: transparent;
+  }
+  textarea {
+    border: 0px;
+    background-color: transparent;
+  }
+  .no-print, .no-print * {
+    display: none !important;
+  }
+  .no-print-hide, .no-print-hide * {
+    visibility: hidden !important;
+  }
+  #snackbar {
+    display: none !important;
+  }
+}

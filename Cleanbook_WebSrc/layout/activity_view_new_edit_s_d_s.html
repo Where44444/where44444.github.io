@@ -1,0 +1,33 @@
+<div style="width: 100%;">
+    <div id="MissingSDS" style='width: 100%; margin-top: 30px; text-align: center;'><br><br><br>No SDS Sheets exist for this Item
+    </div>
+    <div class="loader" id="Uploading_Progress" style='display: none; margin: auto;'></div>
+    <div class="loader" id="Deleting_Progress" style='display: none; margin: auto;'></div>
+    <div class="loader" id="Downloading_Progress" style='display: none; margin: auto;'></div>
+    <button id="Delete_SDS" class="redButtonText redButton"
+        style='width: 100%; display: none; height: 40px;'>Delete</button>
+    <div id="FileNav" style='display: flex; flex-direction: row; display: none;'>
+        <div style="display: flex; flex-direction: row;">
+            <button id="File_Left"
+                style='height: 40px; font-size: 30px; flex-grow: 1; margin-top: 5px; margin-right: 10px; margin-bottom: 5px; opacity: 0;'>&lt;</button>
+            <button id="File_Right"
+                style='height: 40px; font-size: 30px; flex-grow: 1; margin-top: 5px; margin-bottom: 5px; opacity: 0;'>&gt;</button>
+        </div>
+    </div>
+
+    <iframe id="WebView" style='display: none; width: 100%; height: 1000px;'></iframe>
+
+    <div id="Button_Add_PDF" style="position: fixed; right: 20px; bottom: 240px; text-align: center; display: none;">
+        <div style="background-color: #38F094; border-radius: 28px; width: 305px; height: 70px; margin-bottom: -40px;">
+            PDF</div>
+        <input type="file" id="Button_Add_PDF_Input" accept=".pdf" class="buttonHeight" style="width: 290px;" multiple>
+    </div>
+    <div id="Button_Add_Image" style='position: fixed; right: 20px; bottom: 145px; text-align: center; display: none;'>
+        <div style="background-color: #38F094; border-radius: 28px; width: 305px; height: 70px; margin-bottom: -40px;">
+            Image</div>
+        <input type="file" id="Button_Add_Image_Input" accept="image/*" class="buttonHeight" style="width: 290px;"
+            multiple>
+    </div>
+
+    <img id="AddSDSButton" class="AddButton" src="../res/plus_button.png"></button>
+</div>

@@ -1,0 +1,139 @@
+<div id="TASK_VIEW">
+    <table id="ID_TASK_LL" style="width: 100%;">
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>
+                <div style='font-size: 13pt;'> Hours</div>
+            </td>
+            <td>
+                <div style=' font-size: 13pt;'>Mins</div>
+            </td>
+        </tr>
+        <tr>
+            <td style="width: 20px;">
+                <div id="Calendar_Icon" style='display: none;'>📅</div>
+            </td>
+            <td style="width: 50px;">
+                <img id="ID_TASK_SETTINGS_BUTTON" class="buttonHeight clickable" src="../res/gear.png"'>
+            </td>
+            <td>
+            <input id="ID_TASK" placeholder="Task" style=' width: 95%; font-size: 20px;'>
+            </td>
+            <td style="width: 70px;">
+                <select id="hours_spinner" style='height: 38px; background-color: #FFFFFF '></select>
+            </td>
+            <td style="width: 70px;">
+                <select id="minutes_spinner" style='height: 38px; background-color: #FFFFFF '></select>
+            </td>
+            <td style='width: 50px;'>
+                <button id="ID_TASK_MINU_BUTTON" class="buttonHeight" style="width: 100%;">X</button>
+            </td>
+        </tr>
+    </table>
+
+    <div id="ID_UNCOMMON_LL" style='display: none;'>
+
+        <input type="checkbox" id="Edit_Task_RepeatCheckBox"><span style='font-size: 18pt;'>Uncommon Task</span>
+
+        <div id="Edit_Task_RepeatDiv" style='display: none;'>
+            <div class="labelMarginTop labelSize">Repeats</div>
+
+            <select id="Edit_Task_RepeatUnit" style='height: 38px; background-color: #FFFFFF'></select>
+
+            <div class="labelMarginTop labelSize">Repeat every</div>
+
+            <div style='display: flex; flex-direction: row;'>
+                <button id="Edit_Task_RepeatEvery_Minus" style='height: 38px; font-size: 15pt; width: 100px;'>-</button>
+
+                <input type="number" value="1" id="Edit_Task_RepeatEvery" placeholder="#"
+                    style='text-align: center; width: 50px; margin-left: 10px; margin-right: 10px;'>
+
+                <div id="Edit_Task_RepeatEvery_Unit" style="padding-top: 10px; margin-right: 10px;"></div>
+
+                <button id="Edit_Task_RepeatEvery_Plus" style='height: 38px; font-size: 15pt; width: 100px;'>+</button>
+            </div>
+
+            <div id="Edit_Task_RadioGroup_MonthlyType" style='display: none;'>
+
+                <input type="radio" id="Edit_Task_Radio_DayOfMonth" name="Edit_Task_RadioGroup_MonthlyType"
+                    style='height: 40px; font-size: 18pt;'>
+                <span style="position: relative; top: -10px;">&nbsp;Day of the Month&nbsp;&nbsp;&nbsp;</span>
+                <input type="radio" id="Edit_Task_Radio_DayOfWeek" name="Edit_Task_RadioGroup_MonthlyType"
+                    style='height: 40px; font-size: 18pt;'>
+                <span style="position: relative; top: -10px;">&nbsp;Day of the Week&nbsp;&nbsp;&nbsp;</span>
+            </div>
+
+            <div id="Edit_Task_RepeatDaysDiv">
+
+                <div>Repeat on</div>
+
+                <table>
+                    <tr>
+                        <td>&nbsp;&nbsp;Su</td>
+                        <td>&nbsp;&nbsp;Mo</td>
+                        <td>&nbsp;&nbsp;Tu</td>
+                        <td>&nbsp;&nbsp;We</td>
+                        <td>&nbsp;&nbsp;Th</td>
+                        <td>&nbsp;&nbsp;Fr</td>
+                        <td>&nbsp;&nbsp;Sa</td>
+                    </tr>
+                    <tr>
+                        <td><input type="checkbox" id="Edit_Task_Repeat_Sunday"></td>
+                        <td><input type="checkbox" id="Edit_Task_Repeat_Monday"></td>
+                        <td><input type="checkbox" id="Edit_Task_Repeat_Tuesday"></td>
+                        <td><input type="checkbox" id="Edit_Task_Repeat_Wednesday"></td>
+                        <td><input type="checkbox" id="Edit_Task_Repeat_Thursday"></td>
+                        <td><input type="checkbox" id="Edit_Task_Repeat_Friday"></td>
+                        <td><input type="checkbox" id="Edit_Task_Repeat_Saturday"></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="labelMarginTop labelSize">Ends</div>
+
+
+            <table>
+                <tr>
+                    <td>
+                        <input type="radio" name="endstype" id="Edit_Task_Radio_Never"
+                            style='height: 40px; font-size: 18pt;'>
+                        <span style="position: relative; top: -12px;">&nbsp;Never&nbsp;</span>
+                    </td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="radio" name="endstype" id="Edit_Task_Radio_AfterOccurences"
+                            style='height: 50px; font-size: 18pt;'>
+                        <span style="position: relative; top: -16px;">&nbsp;After Occurences&nbsp;</span>
+                    </td>
+                    <td>
+                        <button id="Edit_Task_Occurences_Minus"
+                            style='height: 38px; font-size: 15pt; width: 100px;'>-</button>
+                        <input type="number" value="1" id="Edit_Task_RepeatOccurences" placeholder="#"
+                            style='height: 50px; text-align: center; width: 50px;'>
+                        <button id="Edit_Task_Occurences_Plus"
+                            style='height: 38px; font-size: 15pt; width: 100px;'>+</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="radio" name="endstype" id="Edit_Task_Radio_OnDate"
+                            style='height: 50px; font-size: 18pt;'>
+                        <span style="position: relative; top: -18px;">&nbsp;On a Date&nbsp;</span>
+                    </td>
+                    <td>
+                        <button id="Edit_Task_Repeat_EndOnDate" class="buttonHeight" style="width: 400px;"></button>
+                    </td>
+                </tr>
+            </table>
+            <div class="labelMarginTop labelSize">Summary</div>
+            <div id="Edit_Task_RepeatSummary_Text"></div>
+            <div id="Edit_Task_Calendar_RepeatSummary" style="display: flex; justify-content: center;"></div>
+        </div>
+    </div>
+
+    <div id="VAR_REPEAT_END_DATE" style='display: none;'>0</div>
+</div>

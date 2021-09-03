@@ -1,0 +1,75 @@
+<div class="standardDivWidth">
+    <br><br><br>
+    <div class="labelMarginTop labelSize">Name</div>
+
+    <input class="nameSize" id="Edit_Location_Name" placeholder="Name" style="width: 100%;">
+
+    <div class="labelMarginTop labelSize">Address 1</div>
+
+    <input id="Edit_Location_Address1" placeholder="Address 1" style="width: 100%;">
+
+    <div class="labelMarginTop labelSize">Address 2</div>
+
+    <input id="Edit_Location_Address2" placeholder="Address 2" style="width: 100%;">
+    <br><br>
+    <table>
+        <tr>
+            <td class="labelMarginTop labelSize">City</td>
+            <td class="labelMarginTop labelSize">State</td>
+        </tr>
+
+        <tr>
+            <td><input id="Edit_Location_City" placeholder="City"></td>
+            <td><input id="Edit_Location_State" placeholder="State"></td>
+        </tr>
+
+        <tr>
+            <td class="labelMarginTop labelSize">Zip Code</td>
+            <td class="labelMarginTop labelSize">Phone</td>
+        </tr>
+
+        <tr>
+            <td><input id="Edit_Location_Zip" placeholder="Zip/Postal Code"></td>
+            <td><input id="Edit_Location_Phone" placeholder="Phone Number"></td>
+        </tr>
+    </table>
+
+    <div class="labelMarginTop labelSize" id="Edit_Location_Country_Label">Country</div>
+
+    <select id="Edit_Location_Country_Spinner" style='background-color: #F1F1F1'></select>
+    <div style='height: 20px;'></div>
+    <div style='display: flex; flex-direction: row;'>
+        <div style="padding-top: 10px;">GPS Clock In/Out Radius&nbsp;&nbsp;&nbsp;</div>
+        <input type="number" value="300" id="Edit_Location_GPSRadius" placeholder="#"
+            style='width: 100px; text-align: center; '>&nbsp;&nbsp;&nbsp;
+        <span style="padding-top: 10px;">Ft.</span>
+    </div>
+
+    <div class="labelMarginTop labelSize">E-mail</div>
+
+    <input type="email" id="Edit_Location_Email" placeholder="E-mail" style="width: 100%;">
+
+    <div class="labelMarginTop labelSize">Security Info</div>
+
+    <textarea id="Edit_Location_Security" placeholder="Security Info"
+        style=' font-family: BalooChettan2-Regular; width: 100%;'></textarea>
+
+    <div class="labelMarginTop labelSize">Instructions</div>
+
+    <textarea id="Edit_Location_Instructions" placeholder="Instructions"
+        style='font-family: BalooChettan2-Regular; width: 100%;'></textarea>
+
+    <div style='height: 50px;'></div>
+    <div style='display: flex; flex-direction: row;'>
+
+        <button id="Cancel_Edit_Location" style='height: 50px; flex-grow: .4; margin-right: 10px; '>Cancel</button>
+
+        <button id="Accept_Edit_Location" style='height: 50px; flex-grow: 1; '>Accept</button>
+    </div>
+
+    <div style='height: 50px;'></div>
+
+    <button id="Delete_Edit_Location" class="buttonHeight redButtonText redButton"
+        style='width: 100%;'>Delete</button>
+
+</div>

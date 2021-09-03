@@ -1,0 +1,327 @@
+<div class="standardDivWidth">
+    <br><br><br>
+    <div style='display: flex; flex-direction: row;'>
+
+        <div class="labelMarginTop labelSize" style="flex-grow: 1;">First Name</div>
+
+        <div class="labelMarginTop labelSize" style="flex-grow: 1;">Last Name</div>
+
+    </div>
+
+    <div style='display: flex; flex-direction: row;'>
+        <input id="Edit_Person_FirstName" placeholder="First Name" style='flex-grow: 1; '>
+        <input id="Edit_Person_LastName" placeholder="Last Name" style='flex-grow: 1; '>
+    </div>
+
+    <div class="labelMarginTop labelSize">Phone</div>
+
+    <input id="Edit_Person_Phone" placeholder="Phone Number">
+
+    <div class="labelMarginTop labelSize">E-mail</div>
+
+    <div id="Edit_Person_Email" style='height: 30px; display: none;'></div>
+    <input id="New_Person_Email" placeholder="E-mail" style="width: 100%; display: none;">
+
+    <div id="Edit_Person_Password_Title" class="labelMarginTop labelSize">Password (Leave Blank if Unchanged)</div>
+
+    <div style='display: flex; flex-direction: row; height: 40px;'>
+
+        <input type="password" id="Edit_Person_Password" placeholder="New Password" style='flex-grow: 8; '>
+
+        <div style="margin: 5px;">
+            <img id="Edit_Show_Password" class="icon_black_to_blue2" style='width: 60px; height: 30px;'
+                src="../res/eye2.png">
+        </div>
+
+    </div>
+
+    <div class="labelMarginTop labelSize">Confirm Password</div>
+
+    <div style='display: flex; flex-direction: row; height: 40px;'>
+
+        <input type="password" id="Edit_Person_Password2" placeholder="New Password" style='flex-grow: 8; '>
+        <div style="margin: 5px;">
+            <img id="Edit_Show_Password2" class="icon_black_to_blue2" style='width: 60px; height: 30px;'
+                src="../res/eye2.png">
+        </div>
+
+    </div>
+
+    <div class="labelMarginTop labelSize" id="Edit_Person_Type_Label">Type</div>
+
+    <select id="Edit_Person_Type_Spinner" style='background-color: #F1F1F1; '></select>
+    <br>
+    <input type="checkbox" class="labelMarginTop" id="Edit_Person_RequiresGPS_CheckBox">
+    <span style="font-size: 14px;"> Required to be within GPS boundary of shift location to clock in/out</span>
+
+    <div id="Owner_No_Permissions_Text" style=' display: none;'>⚠ Permissions can't be changed for
+        the
+        original owner</div>
+
+    <div id="Self_No_Permissions_Text" style=' display: none;'>⚠ You can't change your own
+        permissions
+    </div>
+
+    <div id="Edit_Permissions_Label" style='display: flex; flex-direction: row;'>
+
+        <button id="Edit_Person_Permissions_Button" class="buttonHeight"
+            style='width: 300px; margin-right: 10px; margin-bottom: 10px;'>Permissions</button>
+
+        <button id="View_Permissions_Help" class="buttonHeight" style='margin-bottom: 10px; width: 100px;'>?</button>
+    </div>
+
+    <div id="Edit_Person_Permissions_Text" style='display: none;'>
+
+        <div id="Edit_Person_Permissions_Text0" style='background-color: #B6D7FF; font-size: 40pt;'>Permissions Help
+        </div>
+
+        <div id="Edit_Person_Permissions_Text1" style='background-color: blueAccent; '>Person
+            Types<br>Owners, Managers, and Supervisors will receive notifications about Employee
+            activities.<br><br>READ<br>This
+            person can view the designated asset<br><br>WRITE<br>This person can change the designated
+            asset<br><br>ALL<br>This
+            person has permissions for all assets<br><br>Assigned Locations<br>If this person is assigned to a Shift
+            at
+            a
+            certain Location, they will see that Location.<br><br>Assigned Messages<br>If this person is assigned to
+            a
+            Shift
+            at a certain Location, they will see Messages for that Location.<br><br>Assigned People<br>If this
+            Person is
+            assigned to a Shift at a certain Location, they will see all People that have a Shift at the same
+            Location.<br><br>Assigned Shifts<br>This person can only see their own Shifts.<br><br>Assigned Time
+            Punches<br>This
+            person can only see their own Time Punches.<br><br>Assigned Inspections<br>If this Person is assigned to
+            a
+            Shift
+            at a certain Location, they will see Inspection Plans and Completed Inspections at that
+            Location.<br><br>Assigned Supplies<br>If this Person is assigned to a Shift at a certain Location, they
+            will
+            see
+            Supplies assigned to that Location.<br><br>Assigned SDS<br>If this Person is assigned to a Shift at a
+            certain
+            Location, they will see SDS Sheets for Supplies assigned to that Location.<br><br>Assigned Tasks<br>If
+            this
+            Person
+            is assigned to a Shift, they will see Task Templates assigned to that Shift. They will only see
+            Completed
+            and In Progress Tasks that they initiated.
+        </div>
+    </div>
+
+    <div id="Edit_Person_Permissions_Div" style='display: none;'>
+        <div style='display: flex; flex-direction: row;'>
+
+            <button id="Edit_Person_None_Permissions_Button" class="buttonHeight"
+                style='width: 110px; margin-right: 10px;  '>None</button>
+
+            <button id="Edit_Person_All_Permissions_Button" class="buttonHeight" style='width: 110px; '>All</button>
+        </div>
+
+        <table>
+            <tr id="Edit_Locations">
+
+                <td id="Edit_Person_Permissions_Label_Locations">Locations</td>
+                <td>
+                    <input type="checkbox" id="Edit_Person_Read_Locations"><span style='font-size: 14px;'>Read</span>
+                    <input type="checkbox" id="Edit_Person_Write_Locations"><span style='font-size: 14px;'>Write</span>
+
+                    <div id="Edit_Person_Radio_Group_Locations"
+                        style='display: flex; flex-direction: row; display: none;'>
+
+                        <input type="radio" name="Edit_Person_Radio_Group_Locations" id="Edit_Person_Assigned_Locations"
+                            checked><span style='font-size: 14px;'>Assigned</span>
+
+                        <input type="radio" name="Edit_Person_Radio_Group_Locations"
+                            id="Edit_Person_All_Locations"><span style='font-size: 14px;'>All</span>
+                    </div>
+                </td>
+            </tr>
+
+            <tr id="Edit_Messages">
+                <td id="Edit_Person_Permissions_Label_Messages">Messages</td>
+                <td>
+                    <input type="checkbox" id="Edit_Person_Read_Messages"><span style='font-size: 14px;'>Read</span>
+
+                    <input type="checkbox" id="Edit_Person_Write_Messages"><span style='font-size: 14px;'>Write</span>
+
+                    <div id="Edit_Person_Radio_Group_Messages"
+                        style='display: flex; flex-direction: row; display: none;'>
+                        <input type="radio" name="Edit_Person_Radio_Group_Messages" id="Edit_Person_Assigned_Messages"
+                            checked><span style='font-size: 14px;'>Assigned</span>
+                        <input type="radio" name="Edit_Person_Radio_Group_Messages" id="Edit_Person_All_Messages"><span
+                            style='font-size: 14px;'>All</span>
+                    </div>
+                </td>
+            </tr>
+
+            <tr id="Edit_People">
+
+                <td id="Edit_Person_Permissions_Label_People">People</td>
+
+
+                <td>
+                    <input type="checkbox" id="Edit_Person_Read_People"><span style='font-size: 14px;'>Read</span>
+                    <input type="checkbox" id="Edit_Person_Write_People"><span style='font-size: 14px;'>Write</span>
+
+                    <div id="Edit_Person_Radio_Group_People" style='display: flex; flex-direction: row; display: none;'>
+                        <input type="radio" name="Edit_Person_Radio_Group_People" id="Edit_Person_Assigned_People"
+                            checked><span style='font-size: 14px;'>Assigned</span>
+                        <input type="radio" name="Edit_Person_Radio_Group_People" id="Edit_Person_All_People"><span
+                            style='font-size: 14px;'>All</span>
+                    </div>
+                </td>
+
+            </tr>
+
+            <tr id="Edit_Shifts">
+
+                <td id="Edit_Person_Permissions_Label_Shifts">Shifts</td>
+
+                <td>
+
+                    <input type="checkbox" id="Edit_Person_Read_Shifts"><span style='font-size: 14px;'>Read</span>
+
+                    <input type="checkbox" id="Edit_Person_Write_Shifts"><span style='font-size: 14px;'>Write</span>
+
+                    <div id="Edit_Person_Radio_Group_Shifts" style='display: flex; flex-direction: row; display: none;'>
+
+                        <input type="radio" name="Edit_Person_Radio_Group_Shifts" id="Edit_Person_Assigned_Shifts"
+                            checked><span style='font-size: 14px;'>Assigned</span>
+
+                        <input type="radio" name="Edit_Person_Radio_Group_Shifts" id="Edit_Person_All_Shifts"><span
+                            style='font-size: 14px;'>All</span>
+                    </div>
+
+                </td>
+            </tr>
+
+            <tr id="Edit_Punches">
+
+                <td id="Edit_Person_Permissions_Label_Punches">Time Punches</td>
+
+                <td>
+
+                    <input type="checkbox" id="Edit_Person_Read_TimePunches"><span style='font-size: 14px;'>Read</span>
+
+
+                    <input type="checkbox" id="Edit_Person_Write_TimePunches"><span
+                        style='font-size: 14px;'>Write</span>
+
+
+                    <div id="Edit_Person_Radio_Group_TimePunches" style='display: flex; flex-direction:
+                row; display: none;'>
+
+                        <input type="radio" name="Edit_Person_Radio_Group_TimePunches"
+                            id="Edit_Person_Assigned_TimePunches"><span checked style='font-size: 14px;'>Assigned</span>
+
+
+                        <input type="radio" name="Edit_Person_Radio_Group_TimePunches"
+                            id="Edit_Person_All_TimePunches"><span style='font-size: 14px;'>All</span>
+                    </div>
+
+                </td>
+            </tr>
+
+            <tr id="Edit_Inspections">
+
+                <td id="Edit_Person_Permissions_Label_Inspections">Inspections</td>
+
+                <td>
+                    <input type="checkbox" id="Edit_Person_Read_Inspections"><span style='font-size: 14px;'>Read</span>
+
+                    <input type="checkbox" id="Edit_Person_Write_Inspections"><span
+                        style='font-size: 14px;'>Write</span>
+
+                    <div id="Edit_Person_Radio_Group_Inspections"
+                        style='display: flex; flex-direction: row; display: none;'>
+
+                        <input type="radio" name="Edit_Person_Radio_Group_Inspections"
+                            id="Edit_Person_Assigned_Inspections" checked><span style='font-size: 14px;'>Assigned</span>
+                        <input type="radio" name="Edit_Person_Radio_Group_Inspections"
+                            id="Edit_Person_All_Inspections"><span style='font-size: 14px;'>All</span>
+                    </div>
+                </td>
+            </tr>
+
+            <tr id="Edit_Supplies">
+
+                <td id="Edit_Person_Permissions_Label_Supplies">Supplies</td>
+
+
+                <td>
+
+                    <input type="checkbox" id="Edit_Person_Read_Supplies"><span style='font-size: 14px;'>Read</span>
+
+                    <input type="checkbox" id="Edit_Person_Write_Supplies"><span style='font-size: 14px;'>Write</span>
+
+                    <div id="Edit_Person_Radio_Group_Supplies"
+                        style='display: flex; flex-direction: row; display: none;'>
+
+                        <input type="radio" name="Edit_Person_Radio_Group_Supplies" id="Edit_Person_Assigned_Supplies"
+                            checked><span style='font-size: 14px;'>Assigned</span>
+
+
+                        <input type="radio" name="Edit_Person_Radio_Group_Supplies" id="Edit_Person_All_Supplies"><span
+                            style='font-size: 14px;'>All</span>
+                    </div>
+
+                </td>
+            </tr>
+
+            <tr id="Edit_SDS">
+
+                <td id="Edit_Person_Permissions_Label_SDS">SDS</td>
+
+                <td>
+                    <input type="checkbox" id="Edit_Person_Read_SDS"><span style='font-size: 14px;'>Read</span>
+                    <input type="checkbox" id="Edit_Person_Write_SDS"><span style='font-size: 14px;'>Write</span>
+
+                    <div id="Edit_Person_Radio_Group_SDS" style='display: flex; flex-direction: row; display: none;'>
+
+                        <input type="radio" name="Edit_Person_Radio_Group_SDS" id="Edit_Person_Assigned_SDS"
+                            checked><span style='font-size: 14px;'>Assigned</span>
+                        <input type="radio" name="Edit_Person_Radio_Group_SDS" id="Edit_Person_All_SDS"><span
+                            style='font-size: 14px;'>All</span>
+                    </div>
+
+                </td>
+            </tr>
+
+            <tr id="Edit_Tasks">
+
+                <td id="Edit_Person_Permissions_Label_Tasks">Tasks</td>
+
+                <td>
+                    <input type="checkbox" id="Edit_Person_Read_Tasks"><span style='font-size: 14px;'>Read</span>
+
+                    <input type="checkbox" id="Edit_Person_Write_Tasks"><span style='font-size: 14px;'>Write</span>
+
+                    <div id="Edit_Person_Radio_Group_Tasks" style='display: flex; flex-direction: row; display: none;'>
+
+                        <input type="radio" name="Edit_Person_Radio_Group_Tasks" id="Edit_Person_Assigned_Tasks"
+                            checked><span style='font-size: 14px;'>Assigned</span>
+
+
+                        <input type="radio" name="Edit_Person_Radio_Group_Tasks" id="Edit_Person_All_Tasks"><span
+                            style='font-size: 14px;'>All</span>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="loader" id="Edit_Person_Progress" style='display: none;'></div>
+
+    <div style='display: flex; flex-direction: row;'>
+
+        <button id="Cancel_Edit" style='height: 50px; flex-grow: .4; margin-right: 10px; '>Cancel</button>
+
+        <button id="Accept_Edit" style='height: 50px; flex-grow: 1; '>Accept</button>
+    </div>
+
+    <div style='height: 50px;'></div>
+
+    <button id="Delete_Edit_Person" class="buttonHeight redButtonText redButton" style='width: 100%;'>Delete</button>
+
+</div>

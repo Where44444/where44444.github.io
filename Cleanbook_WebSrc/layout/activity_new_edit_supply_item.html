@@ -1,0 +1,67 @@
+<div class="standardDivWidth">
+    <br><br><br>
+    <div id="SupplyItem">
+        <div id="SupplyItem_Requester"
+            style='background-color: #FF0000FF; color: #FFFFFFFF;  display: none; font-size: 20px; padding-left: 20px; border-radius: 20px;'>
+        </div>
+
+        <button id="Import_Template" class="buttonHeight" style='width: 100%; margin-bottom: 10px;'>Import
+            Template</button>
+
+        <div class="labelMarginTop labelSize">Name</div>
+
+        <input id="SupplyItem_Name" class="nameSize" placeholder="Name" style="width: 100%;">
+
+        <div class="labelMarginTop labelSize">Brand</div>
+
+        <input id="SupplyItem_Brand" placeholder="Brand" style="width: 100%;">
+
+        <div class="labelMarginTop labelSize">Sku</div>
+
+        <input id="SupplyItem_Sku" placeholder="SKU" style="width: 100%;">
+
+        <table>
+            <tr>
+                <td class="labelMarginTop labelSize">Price</td>
+                <td class="labelMarginTop labelSize">Quantity</td>
+            </tr>
+            <tr>
+                <td>
+                    <div style="display: flex; flex-direction: row;">
+                        <div id="Price_Label" style='font-size: 30px;'>$</div>
+                        <input id="SupplyItem_Price" placeholder="Price">
+                    </div>
+                </td>
+                <td>
+                    <input type="number" id="SupplyItem_Quantity" placeholder="Quantity">
+                </td>
+            </tr>
+        </table>
+
+        <div class="labelMarginTop labelSize">Supplied by</div>
+
+        <input id="SupplyItem_SuppliedBy" placeholder="Supplied By" style="width: 100%;">
+
+        <div class="labelMarginTop labelSize" id="SupplyItem_Location_Label">Location</div>
+
+        <select id="SupplyItem_Location_Spinner" style='background-color: #FFFFFF'></select>
+
+        <div class="labelMarginTop labelSize">Notes</div>
+
+        <textarea id="SupplyItem_Notes" placeholder="Notes"
+            style=' font-family: BalooChettan2-Regular; width: 100%;'></textarea>
+
+        <div style='display: flex; flex-direction: row;'>
+
+            <button id="Cancel_SupplyItem" style='height: 50px; flex-grow: .4; margin-right: 10px; '>Cancel</button>
+
+            <button id="Accept_SupplyItem" style='height: 50px; flex-grow: 1; '>Accept</button>
+
+        </div>
+
+        <div style='height: 50px;'></div>
+
+        <button id="Delete_SupplyItem" class="buttonHeight redButtonText redButton" style='width: 100%;'>Delete</button>
+
+    </div>
+</div>

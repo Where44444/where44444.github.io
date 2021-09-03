@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<title>Clean Assistant</title>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <!-- Ensures optimal rendering on mobile devices. -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" /> <!-- Optimal Internet Explorer compatibility -->
+  <script src="../lib/firebasejs/8.9.1/firebase-app.js"></script>
+  <script src="../lib/firebasejs/8.9.1/firebase-database.js"></script>
+  <script src="../lib/firebasejs/8.9.1/firebase-auth.js"></script>
+  <script src="../lib/firebasejs/8.9.1/firebase-storage.js"></script>
+  <link rel="stylesheet" type="text/css" href="../layout/styles.css" />
+
+  <script type="text/javascript" src="../lib/caleandar-master/js/caleandar.min.js"></script>
+  <link rel="stylesheet" href="../lib/caleandar-master/css/theme2.css" />
+  <!-- <link rel="stylesheet" type="text/css"
+    href="https://fonts.googleapis.com/css?family=DM Sans:400|Bitter:400|Changa One:400|Droid Sans:400|Droid Serif:400|Exo:400|Great Vibes:400|Inconsolata:400|Lato:400|Merriweather:400|Montserrat:400|Open Sans:400|Oswald:400|PT Sans:400|PT Serif:400|Ubuntu:400|Varela:400|Varela Round:400|Vollkorn:400&amp;text=DM SansBiterChgOodfExGVbIclLwpPTUuRk">
+  <link rel="stylesheet" type="text/css"
+    href="https://fonts.googleapis.com/css?family=Bitter:400,700,400italic|Changa One:400,400italic|DM Sans:400,500,700|Droid Sans:400,700|Droid Serif:400,700,400italic,700italic|Exo:100,200,300,400,500,600,700,800,900,100italic,200italic,300italic,400italic,500italic,600italic,700italic,800italic,900italic|Great Vibes:400|Inconsolata:400,700|Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic|Merriweather:300,400,700,900,300italic,400italic,700italic,900italic|Montserrat:100,200,300,400,500,600,700,800,900,100italic,200italic,300italic,400italic,500italic,600italic,700italic,800italic,900italic|Open Sans:300,400,600,700,800,300italic,400italic,600italic,700italic,800italic|Oswald:200,300,400,500,600,700|PT Sans:400,700,400italic,700italic|PT Serif:400,700,400italic,700italic|Ubuntu:300,400,500,700,300italic,400italic,500italic,700italic|Varela:400|Varela Round:400|Vollkorn:400,700,400italic,700italic&amp;subset=latin">
+     -->
+</head>
+
+<body>
+  <div id="do_Print" style="display: none;">
+    <div class="clickable no_selection no-print" id="print_back_arrow" style="position: absolute; left: 5px; top: 5px;"
+      onclick="W4_Funcs.printBackArrowPressed();"><img class="icon_black_to_blue2" src="../res/arrow_back2.png"
+        width="50" height="50"></div>
+    <div class="clickable no_selection no-print" id="print_copy_button"
+      style="position: absolute; left: 70px; top: 5px;" onclick="W4_Funcs.printCopyPressed();"><img
+        class="icon_black_to_blue2" src="../res/copy2.png" width="50" height="50"></div>
+    <div class="clickable no_selection no-print" id="print_print_button"
+      style="position: absolute; left: 135px; top: 5px;" onclick="W4_Funcs.printPrintButtonPressed();"><img
+        class="icon_black_to_blue2" src="../res/print.png" width="50" height="50"></div>
+    <br><br>
+    <div id="print_div">
+    </div>
+  </div>
+
+  <!-- Views that should be visible on print screen or not -->
+  <div class="hide" id="snackbar" style="display: none; z-index: 7;"></div>
+  <!-- End printable/non printable viewss -->
+
+  <div id="dont_Print">
+    <div class="loader" id="firstLoader" style="display: none; margin: auto;"></div>
+    <div id="dialogbox_black_overlay"
+      style="display: none; position: fixed; width: 100%; height: 100%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: black; opacity: .5; z-index: 100;">
+    </div>
+    <div id="dialogbox" class="hide"
+      style="display: none; position: fixed; width: 80%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: white; color: black; font-size: 20px; z-index: 101;">
+      <span id="dialogbox_text" style="font-size: 18px;"><span
+          style='font-size: 30px;'>Title</span><br><br>TEXTTEXTTEXTTEXTTEXTTEXTTEXTTEXT</span>
+      <br><br>
+      <button id="dialogbox_button" class="buttonHeight"
+        style="display: block; font-size: 25px; width: 50%; margin: auto;"
+        onclick="MainActivity.hideDialogBox();">OK</button>
+    </div>
+    <!--Headerbar-->
+    <div id="bars_div" style="display: none;">
+      <div class="no_selection">
+        <div id="headerbar"
+          style="display: flex; flex-direction: row-reverse; background-color: #FFFFFF; position: fixed; top: 0px; left: 0px; width: 100%; height: 40px; padding-top: 10px; padding-bottom: 10px; border-bottom: solid 1px #F2F2F2; z-index: 4;">
+
+          <div id="profile_circle_initials"
+            style="position: absolute; font-weight: 900; text-align: center; width: 40px; height: 40px; line-height: 40px; margin-right: 10px;">
+          </div>
+          <img src="../res/icon_circle.png" height=40 width=40 style="margin-right: 10px;">
+
+          <div class="clickable" id="action_notification">
+            <div id="NotificationsRedCircle_ActionBar">
+              <img src="../res/red_circle.png" style='position: absolute; width: 20px; height: 20px; z-index: 3;'>
+              <div id="NotificationsRedCircleText"
+                style="position: absolute; width: 20px; height: 20px; text-align: center; color: #FFFFFFFF; font-size: 12pt; z-index: 4;">
+                10</div>
+            </div>
+            <img class="icon_black_to_blue" src="../res/icon_notifications.png" height=40 width=40
+              style="padding-right: 15px;">
+          </div>
+          <div class="clickable" id="action_inbox">
+            <div id="InboxRedCircle">
+              <img src="../res/red_circle.png" style='position: absolute; width: 20px; height: 20px; z-index: 3;'>
+              <div id="InboxRedCircleText"
+                style="position: absolute; width: 20px; height: 20px; text-align: center; color: #FFFFFFFF; font-size: 12pt; z-index: 4;">
+                10</div>
+            </div>
+            <img class="icon_black_to_blue" src="../res/icon_inbox2.png" height=40 width=40
+              style="padding-right: 10px;">
+          </div>
+          <div class="clickable" id="activity_back_arrow" style="position: absolute; left: 270px; top: 5px;"><img
+              class="icon_black_to_blue2" src="../res/arrow_back2.png" width="50" height="50"></div>
+          <div id="support_bar" style="position: absolute; left: 350px; top: 15px; font-size: 20px;"></div>
+        </div>
+      </div>
+      <!--END Headerbar-->
+
+      <!--Sidebar-->
+      <div class="no_selection" style="color: white;">
+        <div id="sidebar"
+          style="background-color: #1B1D2A; position: fixed; top: 0px; left: 0px; width: 260px; height: 100%; z-index: 5;">
+          <h2 id="sidebar_header"
+            style="text-align: center; font-size: 30px; margin-top: 10px; padding-bottom: 20px; border-bottom: solid 1px #2AAF6D;">
+            Clean Assistant</h2>
+          <div class="clickable sidebar_item" id="sidebar_button_home" style="opacity: 0.9;"><img
+              src="../res/icon_home.png" style="position: relative; top: 10px; scale: 0.8;"><span
+              id="sidebar_item_text_0" style="font-size: 15px;">Home</span></div>
+          <!--UPDATE THESE IDS WHEN NEW BUTTONS ADDED-->
+          <!-- <div class="clickable sidebar_item" style="opacity: 0.9;"><img src="../res/icon_dashboard.png"
+            style="position: relative; top: 10px; scale: 0.8;"><span id="sidebar_item_text_1"
+            style="font-size: 15px;">Dashboard</span></div> -->
+          <div class="clickable sidebar_item" id="sidebar_button_userprofile" style="opacity: 0.9;"><img
+              src="../res/icon_userprofile.png" style="position: relative; top: 10px; scale: 0.8;"><span
+              id="sidebar_item_text_1" style="font-size: 15px;">User Profile</span></div>
+        </div>
+        <div id="sidebar_bottom"
+          style="position: fixed; bottom: 60px; left: 0px; width: 260px; height: 60px; border-top: solid 1px #2AAF6D; z-index: 6;">
+          <div id="sidebar_logout_button" class="clickable sidebar_item" style="opacity: 0.9;"><img
+              src="../res/icon_logout.png" style="position: relative; top: 10px; scale: 0.8;"><span
+              id="sidebar_item_text_3" style="font-size: 20px;">Logout</span></div>
+        </div>
+        <div id="sidebar_toggle_button" onclick="setSidebar();" class="clickable sidebar_item2"
+          style="opacity: 0.9; background-color: #272935; position: fixed; bottom: 0px; left: 0px; width: 260px; z-index: 6;">
+          <img id="sidebar_toggle_img" src="../res/icon_sidebar_close.png"
+            style="display: block; margin-left: auto; margin-right: auto;">
+        </div>
+      </div>
+    </div>
+    <!--END Sidebar-->
+
+    <div id="activities" style="margin-left: 260px; margin-top: 60px;">
+    </div>
+    <script>
+      var firebaseConfig = {
+        apiKey: "AIzaSyBVm1GrGziSazlDCGTRJLhIpeWdLTLnXSs",
+        authDomain: "cleanbook-b42d5.firebaseapp.com",
+        databaseURL: "https://cleanbook-b42d5.firebaseio.com",
+        projectId: "cleanbook-b42d5",
+        storageBucket: "cleanbook-b42d5.appspot.com",
+        messagingSenderId: "332358043151",
+        appId: "1:332358043151:web:36d348bb2ce8f496f9857a",
+        measurementId: "G-QGCNQC096N"
+      };
+      firebase.initializeApp(firebaseConfig);
+    </script>
+    <script type="text/javascript" src="JavaClasses/System.js"></script>
+    <script type="text/javascript" src="JavaClasses/ArrayAdapter.js"></script>
+    <script type="text/javascript" src="JavaClasses/TimeUnitType.js"></script>
+    <script type="text/javascript" src="JavaClasses/TimeUnit.js"></script>
+    <script type="text/javascript" src="JavaClasses/LayoutInflater.js"></script>
+    <script type="text/javascript" src="JavaClasses/OptionsItem.js"></script>
+    <script type="text/javascript" src="w4_funcs.js"></script>
+    <script type="text/javascript" src="W4Classes/W4SaveState.js"></script>
+    <script type="text/javascript" src="TheCompany.js"></script>
+    <script type="text/javascript" src="JavaClasses/AppCompatActivity.js"></script>
+    <script type="text/javascript" src="Main/MainActivity.js"></script>
+    <script type="text/javascript" src="Asset.js"></script>
+    <script type="text/javascript" src="cleanbook.html"></script>
+    <script type="text/javascript" src="cleanbook.js"></script>
+    <script type="text/javascript" src="Deletions.js"></script>
+    <script type="text/javascript" src="FireBaseListeners.js"></script>
+    <script type="text/javascript" src="W4Activity.js"></script>
+    <script type="text/javascript" src="Email/EmailOBJ.js"></script>
+    <script type="text/javascript" src="EmployeeStatus/EmployeeStatusActivity.js"></script>
+    <script type="text/javascript" src="EmployeeStatus/EmployeeStatusListActivity.js"></script>
+    <script type="text/javascript" src="EmployeeStatus/EmployeeStatusListAdapter.js"></script>
+    <script type="text/javascript" src="EmployeeStatus/EmployeeStatusStruct.js"></script>
+    <script type="text/javascript" src="InspectionPlan/InspectionPlan.js"></script>
+    <script type="text/javascript" src="InspectionPlan/NewEditInspectionPlanActivity.js"></script>
+    <script type="text/javascript" src="InspectionPlan/ViewInspectionPlanActivity.js"></script>
+    <script type="text/javascript" src="InspectionPlan/ViewInspectionPlansListActivity.js"></script>
+    <script type="text/javascript" src="InspectionPlanOccurence/DoInspectionPlanInProgressActivity.js"></script>
+    <script type="text/javascript" src="InspectionPlanOccurence/InspectionPlanOccurence.js"></script>
+    <script type="text/javascript" src="InspectionPlanOccurence/ViewInspectionPlanCompleteActivity.js"></script>
+    <script type="text/javascript" src="JavaClasses/InputType.js"></script>
+    <script type="text/javascript" src="JavaClasses/Intent.js"></script>
+    <script type="text/javascript" src="JavaClasses/R.js"></script>
+    <script type="text/javascript" src="JavaClasses/View.js"></script>
+    <script type="text/javascript" src="JavaClasses/SupportActionBar.js"></script>
+    <script type="text/javascript" src="JavaClasses/Toast.js"></script>
+    <script type="text/javascript" src="Location/Location.js"></script>
+    <script type="text/javascript" src="Location/LocationListAdapter.js"></script>
+    <script type="text/javascript" src="Location/NewEditLocationActivity.js"></script>
+    <script type="text/javascript" src="Location/ViewLocationActivity.js"></script>
+    <script type="text/javascript" src="Location/ViewLocationsListActivity.js"></script>
+    <script type="text/javascript" src="Main/AdminToolsActivity.js"></script>
+    <script type="text/javascript" src="Main/ConfirmActivity.js"></script>
+    <script type="text/javascript" src="Main/HomeActivity.js"></script>
+    <script type="text/javascript" src="Main/NewEditCompanyActivity.js"></script>
+    <script type="text/javascript" src="Main/PrivacyPolicyActivity.js"></script>
+    <script type="text/javascript" src="Main/TemplateListAdapter.js"></script>
+    <script type="text/javascript" src="Main/TextActivity.js"></script>
+    <script type="text/javascript" src="Main/ViewNotificationsListActivity.js"></script>
+    <script type="text/javascript" src="Main/ViewTemplateListActivity.js"></script>
+    <script type="text/javascript" src="Message/Message.js"></script>
+    <script type="text/javascript" src="Message/MessageBubbleListAdapter.js"></script>
+    <script type="text/javascript" src="Message/ViewMessageDialogueActivity.js"></script>
+    <script type="text/javascript" src="Message/ViewMessageLocationsActivity.js"></script>
+    <script type="text/javascript" src="Notification/NotificationsManager.js"></script>
+    <script type="text/javascript" src="Notification/NotificationW4Save.js"></script>
+    <script type="text/javascript" src="Notification/W4Notification.js"></script>
+    <script type="text/javascript" src="People/NewEditPersonActivity.js"></script>
+    <script type="text/javascript" src="People/Person.js"></script>
+    <script type="text/javascript" src="People/PersonListAdapter.js"></script>
+    <script type="text/javascript" src="People/ViewPeopleListActivity.js"></script>
+    <script type="text/javascript" src="People/ViewPersonActivity.js"></script>
+    <script type="text/javascript" src="Report/ClockExportObject.js"></script>
+    <script type="text/javascript" src="Report/Exports.js"></script>
+    <script type="text/javascript" src="Report/ReportTypesActivity.js"></script>
+    <script type="text/javascript" src="Report/StartEndDateActivity.js"></script>
+    <script type="text/javascript" src="Report/TaskExportObject.js"></script>
+    <script type="text/javascript" src="SDS/SDSListAdapter.js"></script>
+    <script type="text/javascript" src="SDS/ViewNewEditSDSActivity.js"></script>
+    <script type="text/javascript" src="SDS/ViewSDSListActivity.js"></script>
+    <script type="text/javascript" src="SDS/ViewSDSLocationsListActivity.js"></script>
+    <script type="text/javascript" src="Shift/CalendarActivity.js"></script>
+    <script type="text/javascript" src="Shift/NewEditShiftActivity.js"></script>
+    <script type="text/javascript" src="Shift/Shift.js"></script>
+    <script type="text/javascript" src="Shift/ShiftListAdapter.js"></script>
+    <script type="text/javascript" src="Shift/ViewShiftActivity.js"></script>
+    <script type="text/javascript" src="Shift/ViewShiftCalendarActivity.js"></script>
+    <script type="text/javascript" src="Shift/ViewShiftListActivity.js"></script>
+    <script type="text/javascript" src="SupplyItem/NewEditSupplyItemActivity.js"></script>
+    <script type="text/javascript" src="SupplyItem/RequestSuppliesActivity.js"></script>
+    <script type="text/javascript" src="SupplyItem/SupplyItem.js"></script>
+    <script type="text/javascript" src="SupplyItem/SupplyItemListAdapter.js"></script>
+    <script type="text/javascript" src="SupplyItem/ViewSupplyItemActivity.js"></script>
+    <script type="text/javascript" src="SupplyItem/ViewSupplyItemListActivity.js"></script>
+    <script type="text/javascript" src="SupplyItem/ViewSupplyItemLocationsListActivity.js"></script>
+    <script type="text/javascript" src="Task/DoTaskInProgressActivity.js"></script>
+    <script type="text/javascript" src="Task/NewEditTaskActivity.js"></script>
+    <script type="text/javascript" src="Task/TaskByLocationListAdapter.js"></script>
+    <script type="text/javascript" src="Task/TaskByPersonListAdapter.js"></script>
+    <script type="text/javascript" src="Task/TaskSheet.js"></script>
+    <script type="text/javascript" src="Task/TaskSheetOccurence.js"></script>
+    <script type="text/javascript" src="Task/ViewTaskActivity.js"></script>
+    <script type="text/javascript" src="Task/ViewTaskCompleteActivity.js"></script>
+    <script type="text/javascript" src="Task/ViewTaskListActivity.js"></script>
+    <script type="text/javascript" src="Task/ViewTaskListByTypeActivity.js"></script>
+    <script type="text/javascript" src="TimePunch/NewEditTimePunchActivity.js"></script>
+    <script type="text/javascript" src="TimePunch/TimePunch.js"></script>
+    <script type="text/javascript" src="TimePunch/TimePunchByLocationListAdapter.js"></script>
+    <script type="text/javascript" src="TimePunch/TimePunchByPersonListAdapter.js"></script>
+    <script type="text/javascript" src="TimePunch/TimePunchDateAndHours.js"></script>
+    <script type="text/javascript" src="TimePunch/TimePunchListAdapter.js"></script>
+    <script type="text/javascript" src="TimePunch/TotalHoursActivity.js"></script>
+    <script type="text/javascript" src="TimePunch/ViewTimePunchActivity.js"></script>
+    <script type="text/javascript" src="TimePunch/ViewTimePunchListActivity.js"></script>
+    <script type="text/javascript" src="TimePunch/ViewTimePunchListByTypeActivity.js"></script>
+    <script type="text/javascript" src="W4Classes/CompanyData.js"></script>
+    <script type="text/javascript" src="W4Classes/GPSObj.js"></script>
+    <script type="text/javascript" src="W4Classes/RepeatingDateStruct.js"></script>
+    <script type="text/javascript" src="W4Classes/SpinnerSortItem.js"></script>
+    <script type="text/javascript" src="W4Classes/W4AlarmManager.js"></script>
+    <script type="text/javascript" src="W4Classes/W4Data.js"></script>
+    <script type="text/javascript" src="W4Classes/W4DateTime.js"></script>
+    <script type="text/javascript" src="W4Classes/W4FirebaseStorageObject.js"></script>
+    <script type="text/javascript" src="W4Classes/W4_DBLog.js"></script>
+    <script>
+      var KEY_ENTER = "Enter";
+      var KEY_NUMPADENTER = "NumpadEnter"
+      var _key_enter_just_pressed = false;
+
+      document.addEventListener("keyup", function (event) {
+        if (event.code == KEY_ENTER || event.code == KEY_NUMPADENTER) {
+          if (!_key_enter_just_pressed) {
+            if (document.getElementById("dialogbox").className != "hide") {
+              document.getElementById("dialogbox_button").click();
+              event.preventDefault();
+            }
+          }
+          _key_enter_just_pressed = false;
+        }
+      });
+
+      // document.addEventListener("click", function (event) {
+      //   if (AppCompatActivity.activities.length > 0) {
+      //     var currentActivity = AppCompatActivity.activities[AppCompatActivity.activities.length - 1];
+      //     // currentActivity.setLastClickedEle(event.target);
+      //     currentActivity.setLastScroll_Y();
+      //   }
+      // });
+
+      function checkEnterPress(event) {
+        return (event.code == KEY_ENTER || event.code == KEY_NUMPADENTER) && document.getElementById("dialogbox").className == "hide";
+      }
+
+      var sidebar_open = false;
+      var _sidebar_width = "";
+      function setSidebar() {
+        var i = 0;
+        sidebar_open = !sidebar_open;
+        if (sidebar_open) {
+          document.getElementById("sidebar").style.width = "260px";
+          document.getElementById("sidebar_toggle_button").style.width = "260px";
+          document.getElementById("sidebar_bottom").style.width = "260px";
+          document.getElementById("sidebar_header").style.display = "";
+          document.getElementById("sidebar_toggle_img").src = "../res/icon_sidebar_close.png";
+          _sidebar_width = "260px";
+          if (document.getElementById("activities").style.marginLeft != "0px")
+            document.getElementById("activities").style.marginLeft = _sidebar_width;
+          var element = document.getElementById("sidebar_item_text_" + i);
+          while (element != null) {
+            element.style.display = "";
+            ++i;
+            element = document.getElementById("sidebar_item_text_" + i);
+          }
+          document.getElementById("activity_back_arrow").style.left = "270px";
+          document.getElementById("support_bar").style.left = "350px";
+        }
+        else {
+          document.getElementById("sidebar").style.width = "70px";
+          document.getElementById("sidebar_toggle_button").style.width = "70px";
+          document.getElementById("sidebar_bottom").style.width = "70px";
+          document.getElementById("sidebar_header").style.display = "none";
+          document.getElementById("sidebar_toggle_img").src = "../res/icon_sidebar_open.png";
+          _sidebar_width = "70px";
+          if (document.getElementById("activities").style.marginLeft != "0px")
+            document.getElementById("activities").style.marginLeft = _sidebar_width;
+          var element = document.getElementById("sidebar_item_text_" + i);
+          while (element != null) {
+            element.style.display = "none";
+            ++i;
+            element = document.getElementById("sidebar_item_text_" + i);
+          }
+          document.getElementById("activity_back_arrow").style.left = "75px";
+          document.getElementById("support_bar").style.left = "155px";
+        }
+        for (let a of AppCompatActivity.activities) {
+          var view = a.findViewById("sidebar_sensitive");
+          if (view != null)
+            view.ele.style.left = _sidebar_width;
+        }
+      }
+
+      setSidebar();
+
+
+      var activities0 = [
+        "activity_admin_tools",
+        "activity_calendar",
+        "activity_confirm",
+        "activity_do_inspection_plan_in_progress",
+        "activity_do_task_in_progress",
+        "activity_employee_status",
+        "activity_employee_status_list",
+        "activity_home",
+        "activity_main",
+        "activity_new_edit_company",
+        "activity_new_edit_inspection_plan",
+        "activity_new_edit_location",
+        "activity_new_edit_person",
+        "activity_new_edit_shift_time",
+        "activity_new_edit_supply_item",
+        "activity_new_edit_task",
+        "activity_new_edit_time_punch",
+        "activity_privacy_policy",
+        "activity_report_types",
+        "activity_request_supplies",
+        "activity_start_end_date",
+        "activity_text",
+        "activity_total_hours",
+        "activity_view_inspection_plan",
+        "activity_view_inspection_plan_complete",
+        "activity_view_inspection_plans_list",
+        "activity_view_location",
+        "activity_view_locations_list",
+        "activity_view_message_dialogue",
+        "activity_view_message_locations_list",
+        "activity_view_new_edit_s_d_s",
+        "activity_view_notifications_list",
+        "activity_view_people_list",
+        "activity_view_person",
+        "activity_view_s_d_s_list",
+        "activity_view_s_d_s_locations_list",
+        "activity_view_shift_calendar",
+        "activity_view_shift_time",
+        "activity_view_shifts_list",
+        "activity_view_supply_item",
+        "activity_view_supply_item_list",
+        "activity_view_supply_item_locations_list",
+        "activity_view_task",
+        "activity_view_task_complete",
+        "activity_view_task_list",
+        "activity_view_task_list_by_type",
+        "activity_view_template_list",
+        "activity_view_time_punch",
+        "activity_view_time_punch_by_type",
+        "activity_view_time_punch_list",
+        "admin_tools_admin_view",
+        "chat_bubble_left",
+        "chat_bubble_right",
+        "custom_actionbar_notification_item",
+        "generic_list_item",
+        "inspection_plan_do_area_view",
+        "inspection_plan_do_point_view",
+        "inspection_plan_edit_area_view",
+        "inspection_plan_edit_point_view",
+        "inspection_plan_list_item",
+        "inspection_plan_view_area_view",
+        "inspection_plan_view_point_view",
+        "location_notification_list_item",
+        "notification_view",
+        "shift_added_person",
+        "supply_item_list_item",
+        "task_complete_subtask_view",
+        "task_complete_task_view",
+        "task_completed_list_item",
+        "task_do_subtask_view",
+        "task_do_task_view",
+        "task_list_item",
+        "task_subtask_view",
+        "task_task_view",
+        "task_view_subtask_view",
+        "task_view_task_view"
+      ];
+
+      var _appCompatActivity = new AppCompatActivity();
+      function startMainActivity() {
+        document.getElementById("firstLoader").style.display = "none";
+        var intent = new Intent(null, new MainActivity());
+        intent.isMain = true;
+        _appCompatActivity.startActivity(intent);
+      }
+
+      var numActivitiesLoaded = 0;
+      function loadNextActivity() {
+        var url = "../layout/" + activities0[numActivitiesLoaded] + ".html";
+        fetch(url)
+          .then(function (response) {
+            response.text().then(function (text) {
+              R.layout[activities0[numActivitiesLoaded]] = text;
+              ++numActivitiesLoaded;
+              if (numActivitiesLoaded >= activities0.length)
+                startMainActivity();
+              else
+                loadNextActivity();
+            });
+          });
+      }
+      document.getElementById("firstLoader").style.display = "";
+      loadNextActivity();
+
+
+    </script>
+
+
+    <!-- <div id="HomeActivity_div" style="color: rgb(27, 29, 42);">
+        <div style="background-color: #FFFFFF; padding-left: 20px; padding-top: 20px;">
+          <span style="font-size: 34px; font-weight: 500; ">Welcome to Clean Assistant App!</span><br><br>
+          <span style="font-size: 16px; font-weight: 400; color: rgb(128, 130, 146);">The app that helps you gather real
+            time data, organize, systemize, and scale your janitorial - cleaning business.</span>
+        </div>
+        <div style="margin: 40px; background-color: #FFFFFF;">
+          <span style="font-size: 22px; font-weight: 500;">Overview</span><br>
+          Clean Assistant App- is a powerful janitorial & cleaning software application both on iOS and Android<br>
+          <br><br>
+          It contains multiple features like:<br>
+          <br><br>
+          - Easy Scheduling<br>
+          - Real time data time tracking checklist / tasks<br>
+          - Supply Managing<br>
+          - Location Messaging<br>
+          - Inspection Managing<br>
+          - SDS Sheets Managing<br>
+          - GPS Login / GPS Log out<br>
+          Take your business to the next level!<br>
+        </div>
+      </div> -->
+  </div>
+</body>

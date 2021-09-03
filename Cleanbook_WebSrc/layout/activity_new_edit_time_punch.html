@@ -1,0 +1,53 @@
+<div class="standardDivWidth">
+    <br><br><br>
+    <div class="labelMarginTop labelSize">Person</div>
+
+    <select id="Edit_TimePunch_Person_Spinner" style='background-color: #FFFFFF;'></select>
+
+    <div style='height: 25px;'></div>
+    <div class="labelMarginTop labelSize">Shift</div>
+
+    <select id="Edit_TimePunch_Shift_Spinner" style='margin-bottom: 10px; background-color: #FFFFFF;'></select>
+
+    <div class="labelMarginTop labelSize">Time</div>
+
+    <div style='display: flex; flex-direction: row;'>
+
+        <select id="Edit_TimePunch_HoursSpinner" style='height: 38px; background-color: #FFFFFF; width: 70px;'></select>
+
+        <div style='height: 38px; padding-top: 7px;'>&nbsp;:&nbsp;</div>
+
+        <select id="Edit_TimePunch_MinutesSpinner"
+            style='height: 38px; background-color: #FFFFFF; width: 70px;'></select>
+
+        <div style='height: 38px; '> </div>
+
+        <select id="Edit_TimePunch_AMPMSpinner" style='height: 38px; background-color: #FFFFFF; width: 70px;'></select>
+
+        <div style='height: 38px; width: 10px;'></div>
+
+        <button id="Edit_TimePunch_DateButton" class="buttonHeight" style="width: 400px; margin-top: -7px;"></button>
+    </div>
+
+    <div style='display: flex; flex-direction: row;'>
+        <input type="radio" id="Edit_TimePunch_ClockIn_Radio" name="Edit_TimePunch_Clock_Radio" style='font-size: 18pt;'
+            checked><span style="padding-top: 7px;"> Clock In</span>
+        <div style="width: 10px;"></div>
+        <input type="radio" id="Edit_TimePunch_ClockOut_Radio" name="Edit_TimePunch_Clock_Radio"
+            style='font-size: 18pt;'><span style="padding-top: 7px;"> Clock Out</span>
+    </div>
+    <br>
+
+    <div style='display: flex; flex-direction: row;'>
+
+        <button id="Cancel_Edit_TimePunch"
+            style='height: 50px; flex-grow: .4; margin-right: 10px; font-size: 15pt;'>Cancel</button>
+
+        <button id="Accept_Edit_TimePunch" style='height: 50px; flex-grow: 1; font-size: 15pt;'>Accept</button>
+    </div>
+
+    <div style='height: 50px;'></div>
+
+    <button id="Delete_Edit_TimePunch" class="buttonHeight redButtonText redButton" style='width: 100%;'>Delete</button>
+
+</div>

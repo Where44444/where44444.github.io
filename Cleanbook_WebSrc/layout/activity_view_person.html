@@ -1,0 +1,281 @@
+<div class="standardDivWidth">
+    <br><br><br>
+    <div style='display: flex; flex-direction: row;'>
+        <div class="labelMarginTop labelSize" style="flex-grow: 1; flex-basis: 0;">First Name</div>
+        <div class="labelMarginTop labelSize" style="flex-grow: 1; flex-basis: 0;">Last Name</div>
+    </div>
+
+    <div style='display: flex; flex-direction: row;'>
+        <div id="View_Person_FirstName" style='flex-grow: 1; flex-basis: 0;'></div>
+        <div id="View_Person_LastName" style='flex-grow: 1; flex-basis: 0;'></div>
+    </div>
+
+    <div class="labelMarginTop labelSize">Phone</div>
+
+    <div id="View_Person_Phone"></div>
+
+    <div class="labelMarginTop labelSize">E-mail</div>
+
+    <div id="View_Person_Email" style='height: 30px;'></div>
+
+    <div class="labelMarginTop labelSize" id="View_Person_Type_Label">Type</div>
+    <div id="View_Person_Type_Text"></div>
+    <br>
+    <input disabled type="checkbox" class="labelMarginTop" id="View_Person_RequiresGPS_CheckBox" disabled>
+    <span style="font-size: 14px;"> Required to be within GPS boundary of shift location to clock in/out</span>
+
+    <div id="Edit_Permissions_Label" style='display: flex; flex-direction: row;'>
+
+        <button id="View_Person_Permissions_Button" class="buttonHeight"
+            style='width: 300px; margin-right: 10px; margin-bottom: 10px;'>Permissions</button>
+
+        <button id="View_Permissions_Help" class="buttonHeight" style='margin-bottom: 10px; width: 100px;'>?</button>
+    </div>
+
+    <div id="View_Person_Permissions_Text" style='display: none;'>
+
+        <div id="View_Person_Permissions_Text0" style='background-color: #B6D7FF; font-size: 40pt;'>Permissions Help
+        </div>
+
+        <div id="View_Person_Permissions_Text1" style='background-color: blueAccent; '>Person
+            Types<br>Owners, Managers, and Supervisors will receive notifications about Employee
+            activities.<br><br>READ<br>This
+            person can view the designated asset<br><br>WRITE<br>This person can change the designated
+            asset<br><br>ALL<br>This
+            person has permissions for all assets<br><br>Assigned Locations<br>If this person is assigned to a Shift
+            at
+            a
+            certain Location, they will see that Location.<br><br>Assigned Messages<br>If this person is assigned to
+            a
+            Shift
+            at a certain Location, they will see Messages for that Location.<br><br>Assigned People<br>If this
+            Person is
+            assigned to a Shift at a certain Location, they will see all People that have a Shift at the same
+            Location.<br><br>Assigned Shifts<br>This person can only see their own Shifts.<br><br>Assigned Time
+            Punches<br>This
+            person can only see their own Time Punches.<br><br>Assigned Inspections<br>If this Person is assigned to
+            a
+            Shift
+            at a certain Location, they will see Inspection Plans and Completed Inspections at that
+            Location.<br><br>Assigned Supplies<br>If this Person is assigned to a Shift at a certain Location, they
+            will
+            see
+            Supplies assigned to that Location.<br><br>Assigned SDS<br>If this Person is assigned to a Shift at a
+            certain
+            Location, they will see SDS Sheets for Supplies assigned to that Location.<br><br>Assigned Tasks<br>If
+            this
+            Person
+            is assigned to a Shift, they will see Task Templates assigned to that Shift. They will only see
+            Completed
+            and In Progress Tasks that they initiated.
+        </div>
+    </div>
+
+    <div id="View_Person_Permissions_Div" style='display: none;'>
+        <table>
+            <tr id="Edit_Locations">
+                <td id="View_Person_Permissions_Label_Locations">Locations</td>
+                <td>
+                    <input disabled type="checkbox" id="View_Person_Read_Locations"><span
+                        style='font-size: 14px;'>Read</span>
+                    <input disabled type="checkbox" id="View_Person_Write_Locations"><span
+                        style='font-size: 14px;'>Write</span>
+
+                    <div id="View_Person_Radio_Group_Locations"
+                        style='display: flex; flex-direction: row; display: none;'>
+
+                        <input disabled type="radio" name="View_Person_Radio_Group_Locations"
+                            id="View_Person_Assigned_Locations" checked><span style='font-size: 14px;'>Assigned</span>
+
+                        <input disabled type="radio" name="View_Person_Radio_Group_Locations"
+                            id="View_Person_All_Locations"><span style='font-size: 14px;'>All</span>
+                    </div>
+                </td>
+            </tr>
+
+            <tr id="Edit_Messages">
+                <td id="View_Person_Permissions_Label_Messages">Messages</td>
+                <td>
+                    <input disabled type="checkbox" id="View_Person_Read_Messages"><span
+                        style='font-size: 14px;'>Read</span>
+
+                    <input disabled type="checkbox" id="View_Person_Write_Messages"><span
+                        style='font-size: 14px;'>Write</span>
+
+                    <div id="View_Person_Radio_Group_Messages"
+                        style='display: flex; flex-direction: row; display: none;'>
+                        <input disabled type="radio" name="View_Person_Radio_Group_Messages"
+                            id="View_Person_Assigned_Messages" checked><span style='font-size: 14px;'>Assigned</span>
+                        <input disabled type="radio" name="View_Person_Radio_Group_Messages"
+                            id="View_Person_All_Messages"><span style='font-size: 14px;'>All</span>
+                    </div>
+                </td>
+            </tr>
+
+            <tr id="Edit_People">
+
+                <td id="View_Person_Permissions_Label_People">People</td>
+
+
+                <td>
+                    <input disabled type="checkbox" id="View_Person_Read_People"><span
+                        style='font-size: 14px;'>Read</span>
+                    <input disabled type="checkbox" id="View_Person_Write_People"><span
+                        style='font-size: 14px;'>Write</span>
+
+                    <div id="View_Person_Radio_Group_People" style='display: flex; flex-direction: row; display: none;'>
+                        <input disabled type="radio" name="View_Person_Radio_Group_People"
+                            id="View_Person_Assigned_People" checked><span style='font-size: 14px;'>Assigned</span>
+                        <input disabled type="radio" name="View_Person_Radio_Group_People"
+                            id="View_Person_All_People"><span style='font-size: 14px;'>All</span>
+                    </div>
+                </td>
+
+            </tr>
+
+            <tr id="Edit_Shifts">
+
+                <td id="View_Person_Permissions_Label_Shifts">Shifts</td>
+
+                <td>
+
+                    <input disabled type="checkbox" id="View_Person_Read_Shifts"><span
+                        style='font-size: 14px;'>Read</span>
+
+                    <input disabled type="checkbox" id="View_Person_Write_Shifts"><span
+                        style='font-size: 14px;'>Write</span>
+
+                    <div id="View_Person_Radio_Group_Shifts" style='display: flex; flex-direction: row; display: none;'>
+
+                        <input disabled type="radio" name="View_Person_Radio_Group_Shifts"
+                            id="View_Person_Assigned_Shifts" checked><span style='font-size: 14px;'>Assigned</span>
+
+                        <input disabled type="radio" name="View_Person_Radio_Group_Shifts"
+                            id="View_Person_All_Shifts"><span style='font-size: 14px;'>All</span>
+                    </div>
+
+                </td>
+            </tr>
+
+            <tr id="Edit_Punches">
+
+                <td id="View_Person_Permissions_Label_Punches">Time Punches</td>
+
+                <td>
+
+                    <input disabled type="checkbox" id="View_Person_Read_TimePunches"><span
+                        style='font-size: 14px;'>Read</span>
+
+
+                    <input disabled type="checkbox" id="View_Person_Write_TimePunches"><span
+                        style='font-size: 14px;'>Write</span>
+
+
+                    <div id="View_Person_Radio_Group_TimePunches" style='display: flex; flex-direction:
+                row; display: none;'>
+
+                        <input disabled type="radio" name="View_Person_Radio_Group_TimePunches"
+                            id="View_Person_Assigned_TimePunches"><span checked style='font-size: 14px;'>Assigned</span>
+
+
+                        <input disabled type="radio" name="View_Person_Radio_Group_TimePunches"
+                            id="View_Person_All_TimePunches"><span style='font-size: 14px;'>All</span>
+                    </div>
+
+                </td>
+            </tr>
+
+            <tr id="Edit_Inspections">
+
+                <td id="View_Person_Permissions_Label_Inspections">Inspections</td>
+
+                <td>
+                    <input disabled type="checkbox" id="View_Person_Read_Inspections"><span
+                        style='font-size: 14px;'>Read</span>
+
+                    <input disabled type="checkbox" id="View_Person_Write_Inspections"><span
+                        style='font-size: 14px;'>Write</span>
+
+                    <div id="View_Person_Radio_Group_Inspections"
+                        style='display: flex; flex-direction: row; display: none;'>
+
+                        <input disabled type="radio" name="View_Person_Radio_Group_Inspections"
+                            id="View_Person_Assigned_Inspections" checked><span style='font-size: 14px;'>Assigned</span>
+                        <input disabled type="radio" name="View_Person_Radio_Group_Inspections"
+                            id="View_Person_All_Inspections"><span style='font-size: 14px;'>All</span>
+                    </div>
+                </td>
+            </tr>
+
+            <tr id="Edit_Supplies">
+
+                <td id="View_Person_Permissions_Label_Supplies">Supplies</td>
+
+
+                <td>
+
+                    <input disabled type="checkbox" id="View_Person_Read_Supplies"><span
+                        style='font-size: 14px;'>Read</span>
+
+                    <input disabled type="checkbox" id="View_Person_Write_Supplies"><span
+                        style='font-size: 14px;'>Write</span>
+
+                    <div id="View_Person_Radio_Group_Supplies"
+                        style='display: flex; flex-direction: row; display: none;'>
+
+                        <input disabled type="radio" name="View_Person_Radio_Group_Supplies"
+                            id="View_Person_Assigned_Supplies" checked><span style='font-size: 14px;'>Assigned</span>
+
+
+                        <input disabled type="radio" name="View_Person_Radio_Group_Supplies"
+                            id="View_Person_All_Supplies"><span style='font-size: 14px;'>All</span>
+                    </div>
+
+                </td>
+            </tr>
+
+            <tr id="Edit_SDS">
+
+                <td id="View_Person_Permissions_Label_SDS">SDS</td>
+
+                <td>
+                    <input disabled type="checkbox" id="View_Person_Read_SDS"><span style='font-size: 14px;'>Read</span>
+                    <input disabled type="checkbox" id="View_Person_Write_SDS"><span
+                        style='font-size: 14px;'>Write</span>
+
+                    <div id="View_Person_Radio_Group_SDS" style='display: flex; flex-direction: row; display: none;'>
+
+                        <input disabled type="radio" name="View_Person_Radio_Group_SDS" id="View_Person_Assigned_SDS"
+                            checked><span style='font-size: 14px;'>Assigned</span>
+                        <input disabled type="radio" name="View_Person_Radio_Group_SDS" id="View_Person_All_SDS"><span
+                            style='font-size: 14px;'>All</span>
+                    </div>
+
+                </td>
+            </tr>
+
+            <tr id="Edit_Tasks">
+
+                <td id="View_Person_Permissions_Label_Tasks">Tasks</td>
+
+                <td>
+                    <input disabled type="checkbox" id="View_Person_Read_Tasks"><span
+                        style='font-size: 14px;'>Read</span>
+
+                    <input disabled type="checkbox" id="View_Person_Write_Tasks"><span
+                        style='font-size: 14px;'>Write</span>
+
+                    <div id="View_Person_Radio_Group_Tasks" style='display: flex; flex-direction: row; display: none;'>
+
+                        <input disabled type="radio" name="View_Person_Radio_Group_Tasks"
+                            id="View_Person_Assigned_Tasks" checked><span style='font-size: 14px;'>Assigned</span>
+
+
+                        <input disabled type="radio" name="View_Person_Radio_Group_Tasks"
+                            id="View_Person_All_Tasks"><span style='font-size: 14px;'>All</span>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>

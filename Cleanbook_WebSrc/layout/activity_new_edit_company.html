@@ -1,0 +1,52 @@
+<div class="standardDivWidth">
+    <br><br><br>
+    <div class="labelMarginTop labelSize">Company Name</div>
+
+    <input id="Name" placeholder="Company Name" style="width: 100%;">
+
+    <div class="labelMarginTop labelSize">Owner E-mail</div>
+    <div id="ViewEmail" style='height: 30pt;  display: none;'>
+    </div>
+
+    <input type="email" id="EditEmail" placeholder="Owner E-mail" style='width: 100%; display: none;'>
+
+    <div id="PasswordLL">
+
+        <div class="labelMarginTop labelSize">Password</div>
+
+        <div style='display: flex; flex-direction: row; height: 40px;'>
+            <input type="password" id="password" placeholder="Password" style='flex-grow: 8; '>
+            <div style="margin: 5px;">
+                <img id="Edit_Show_Password" class="icon_black_to_blue2" style='width: 60px; height: 30px;'
+                    src="../res/eye2.png">
+            </div>
+        </div>
+
+        <div class="labelMarginTop labelSize">Confirm Password</div>
+
+        <div style='display: flex; flex-direction: row; height: 40px;'>
+            <input type="password" id="password2" placeholder="Password" style='flex-grow: 8; '>
+            <div style="margin: 5px;">
+                <img id="Edit_Show_Password2" class="icon_black_to_blue2" style='width: 60px; height: 30px;'
+                    src="../res/eye2.png">
+            </div>
+        </div>
+
+    </div>
+
+    <input type="checkbox" class="labelMarginTop" id="trialPeriodCheckbox">
+    <span style='font-size: 14pt;'>Trial Period</span>
+    <button id="trialPeriodDateButton" class="buttonHeight" style='margin: 10px; '></button>
+    <br>
+    <input type="checkbox" class="labelMarginTop" id="blackListedCheckbox">
+    <span style='font-size: 14pt;'>Blacklisted</span>
+    <br>
+    <input type="checkbox" id="tasksCheckbox">
+    <span style='font-size: 14pt;'>Tasks Feature Enabled</span>
+    <br>
+    <div class="loader" id="Progress" style='display: none;'></div>
+    <div style='margin-top: 30px; display: flex; flex-direction: row;'>
+        <button id="Cancel" style='height: 50px; flex-grow: .4; margin-right: 10px; '>Cancel</button>
+        <button id="Accept" style='height: 50px; flex-grow: 1; '>Accept</button>
+    </div>
+</div>

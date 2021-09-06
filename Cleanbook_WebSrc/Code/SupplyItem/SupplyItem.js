@@ -42,7 +42,7 @@ class SupplyItem extends Asset {
     }
 
     constructor1(supplyItem) {
-        this.constructor1(supplyItem.w4id, supplyItem.name, supplyItem.brand, supplyItem.sku, supplyItem.price, supplyItem.quantity, supplyItem.suppliedBy, supplyItem.notes, supplyItem.locationID, supplyItem.amountRequested, supplyItem.requester, supplyItem.template, supplyItem.templateID);
+        this.constructor2(supplyItem.w4id, supplyItem.name, supplyItem.brand, supplyItem.sku, supplyItem.price, supplyItem.quantity, supplyItem.suppliedBy, supplyItem.notes, supplyItem.locationID, supplyItem.amountRequested, supplyItem.requester, supplyItem.template, supplyItem.templateID);
     }
 
     constructor2(id, name, brand, sku, price, quantity, suppliedBy, notes, locationID, amountRequested, requester, template, templateID) {

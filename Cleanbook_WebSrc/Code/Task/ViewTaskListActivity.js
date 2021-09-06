@@ -57,6 +57,20 @@ class ViewTaskListActivity extends W4Activity {
             a.populateTasksCompletedList(a);
         });
 
+        a.findViewById("Button_Export_Task_Summary2").addEventListener("click", function () {
+            var name0 = "";
+            var location_id = "";
+            var person_id = "";
+            if (a.byPerson) {
+                name0 = a.selectedPerson.getFirst_name() + " " + a.selectedPerson.getLast_name();
+                person_id = a.selectedPerson.getW4id();
+            } else {
+                name0 = a.selectedLocation.getName();
+                location_id = a.selectedLocation.getW4id();
+            }
+            ReportTypesActivity.buttonExportTaskSummary_Skip(a, a.byPerson, name0, location_id, person_id);
+        });
+
         a.populateTasksList(a);
         a.populateTasksInProgressList(a);
         a.populateTasksCompletedList(a);
@@ -108,19 +122,6 @@ class ViewTaskListActivity extends W4Activity {
                 context.startActivity(intent);
             });
 
-            context.findViewById("Button_Export_Task_Summary2").addEventListener("click", function () {
-                var name0 = "";
-                var location_id = "";
-                var person_id = "";
-                if (context.byPerson) {
-                    name0 = context.selectedPerson.getFirst_name() + " " + context.selectedPerson.getLast_name();
-                    person_id = context.selectedPerson.getW4id();
-                } else {
-                    name0 = context.selectedLocation.getName();
-                    location_id = context.selectedLocation.getW4id();
-                }
-                ReportTypesActivity.buttonExportTaskSummary_Skip(context, context.byPerson, name0, location_id, person_id);
-            });
             context.findViewById("TasksList").addView(view);
         }
     }

@@ -123,16 +123,17 @@ class MainActivity extends AppCompatActivity {
     }
 
     onCreate() {
+        var a = this;
         super.onCreate();
-        this.getSupportActionBar().hide(); //Hide bar at top with App Name on it
-        this.setContentView(R.layout.activity_main);
-        this.findViewById("maindiv").setVisibility(View.GONE);
+        a.getSupportActionBar().hide(); //Hide bar at top with App Name on it
+        a.setContentView(R.layout.activity_main);
+        a.findViewById("maindiv").setVisibility(View.GONE);
         document.getElementById("firstLoader").style.display = "";
         MainActivity.mainActivity = this;
-        this.setLoginLoading(false);
-        this.findViewById("version_main").setText("v. " + MainActivity.version);
+        a.setLoginLoading(false);
+        a.findViewById("version_main").setText("v. " + MainActivity.version);
 
-        this.findViewById("Login_Email").addEventListener("keyup", function (event) {
+        a.findViewById("Login_Email").addEventListener("keyup", function (event) {
             if (checkEnterPress(event)) {
                 _key_enter_just_pressed = true;
                 event.preventDefault();
@@ -140,7 +141,7 @@ class MainActivity extends AppCompatActivity {
             }
         });
 
-        this.findViewById("Login_Password").addEventListener("keyup", function (event) {
+        a.findViewById("Login_Password").addEventListener("keyup", function (event) {
             if (checkEnterPress(event)) {
                 _key_enter_just_pressed = true;
                 event.preventDefault();
@@ -148,22 +149,22 @@ class MainActivity extends AppCompatActivity {
             }
         });
 
-        var button = this.findViewById("SignInButton");
+        var button = a.findViewById("SignInButton");
         button.addEventListener("click", function () {
             MainActivity.mainActivity.signIn(button, false);
         });
-        var button = this.findViewById("CancelButton");
+        var button = a.findViewById("CancelButton");
         button.addEventListener("click", function () {
             MainActivity.signInState = MainActivity.SIGNINSTATE_CANCELLED;
-            this.setLoginLoading(false);
+            a.setLoginLoading(false);
         });
 
-        this.loadState();
+        a.loadState();
         // createNotificationChannel();
 
         FireBaseListeners.fireBaseListener_getData();
-        this.findViewById("Login_Email").ele.focus();
-        this.hideBackButton();
+        a.findViewById("Login_Email").ele.focus();
+        a.hideBackButton();
     }
 
     autoSignIn() {

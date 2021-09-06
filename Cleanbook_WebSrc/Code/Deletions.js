@@ -8,7 +8,7 @@ class Deletions {
                 var index = shift.getPersonIDList().indexOf(personID);
                 shift.getPersonIDList().splice(index, 1);
                 var reffShift = firebase.database().ref().child(MainActivity.DB_PATH_COMPANIES).child(MainActivity.theCompany.getId()).child(MainActivity.DB_PATH_ASSET_SHIFTS).child(shift.getW4id());
-                W4_Funcs.writeToDB(reffShift, shift, "Person removed from shift |Person:" + getPersonStringForLog(personID) + "|Shift:" + shift.getName() + "|Location" + getLocationStringForLog(shift.getLocationID()) + "|");
+                W4_Funcs.writeToDB(reffShift, shift, "Person removed from shift |Person:" + W4_DBLog.getPersonStringForLog(personID) + "|Shift:" + shift.getName() + "|Location" + W4_DBLog.getLocationStringForLog(shift.getLocationID()) + "|");
             }
         }
     }
@@ -158,6 +158,7 @@ class Deletions {
         var reffSupplyItem = firebase.database().ref().child(MainActivity.DB_PATH_COMPANIES).child(MainActivity.theCompany.getId()).child(MainActivity.DB_PATH_ASSET_SUPPLY_ITEMS).child(supplyItem.getW4id());
         W4_Funcs.deleteFromDB(reffSupplyItem, "Deleted supply item " + supplyItem.getName() + "|Location:" + W4_DBLog.getLocationStringForLog(supplyItem.getLocationID()) + "|");
         var listRef = MainActivity.firebaseStorage.ref().child(MainActivity.DB_PATH_COMPANIES).child(MainActivity.theCompany.getId()).child(MainActivity.DB_PATH_ASSET_SDS).child(supplyItem.getW4id());
+        console.log(supplyItem.getW4id());
         listRef.listAll()
             .then((res) => {
                 res.items.forEach((itemRef) => {

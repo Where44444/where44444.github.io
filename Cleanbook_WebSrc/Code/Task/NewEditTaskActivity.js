@@ -327,7 +327,7 @@ class NewEditTaskActivity extends W4Activity {
         ++this.radioNameSuffix;
 
         var calendar_view = view1.findViewById("Edit_Task_Calendar_RepeatSummary");
-        caleandar(calendar_view.ele, [], { });
+        caleandar(calendar_view.ele, [], {});
 
         calendar_view.addEventListener("click", function () {
             a.redecorateRepeatSummaryCalendar(view1);
@@ -421,6 +421,7 @@ class NewEditTaskActivity extends W4Activity {
                 view1.findViewById("Edit_Task_RepeatDiv").setVisibility(View.GONE);
                 view1.findViewById("Edit_Task_RepeatEvery").setText("0");
             }
+            a.updateEdit_RepeatSummaryText(view1, a.dateTimeStart, a.dateTimeEnd);
         });
         var spinner = view1.findViewById("Edit_Task_RepeatUnit");
         spinnerArrayAdapter = new ArrayAdapter(

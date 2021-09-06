@@ -95,6 +95,7 @@ class NewEditPersonActivity extends W4Activity {
             a.findViewById("Edit_Person_Password_Title").setText("Password");
             a.findViewById("Edit_Person_Password").ele.placeholder = "Password";
             a.findViewById("Edit_Person_Password2").ele.placeholder = "Password";
+            a.setUIPermissions(Asset.rPermissionsEmployee, Asset.wPermissionsEmployee);
         } else {
             a.getSupportActionBar().setTitle("Edit Person");
             a.findViewById("Edit_Person_Email").setVisibility(View.VISIBLE);
@@ -376,7 +377,6 @@ class NewEditPersonActivity extends W4Activity {
 
 
     onActivityResult(requestCode, resultCode, data) {
-        console.log("Recieved result|" + requestCode + "|" + resultCode + "|" + data);
         var a = this;
         super.onActivityResult(requestCode, resultCode, data);
         if (!a.newPerson) {

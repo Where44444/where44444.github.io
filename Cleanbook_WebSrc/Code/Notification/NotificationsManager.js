@@ -258,7 +258,7 @@ class NotificationsManager {
                             if (location != null) {
                                 if (person != null)
                                     title += " at ";
-                                title += location.getName() + "<br><br>";
+                                title += location.getName();
                             }
                             text += below_expectations_points + " areas are below expectations";
                             var intent = new Intent(HomeActivity.homeActivity, new ViewInspectionPlanCompleteActivity());

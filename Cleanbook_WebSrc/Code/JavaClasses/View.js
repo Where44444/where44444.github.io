@@ -95,7 +95,7 @@ class View {
     }
 
     setHint(hint) {
-        this.ele.placeHolder = hint;
+        this.ele.placeholder = hint;
     }
 
     setText(text) {

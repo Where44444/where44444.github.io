@@ -71,7 +71,19 @@ class W4_Funcs {
     }
 
     static getDaysDiff(dateTime1, dateTime2) {
-        return dateTime1.daysBetween(dateTime2);
+        if (W4_Funcs.isSameDay(dateTime1, dateTime2))
+            return 0;
+        var dt1;
+        var dt2;
+        if (dateTime2.getMillis() < dateTime1.getMillis()) {
+            dt1 = this.getDSTSafeDateTime(dateTime2, 12, 0, 0);
+            dt2 = this.getDSTSafeDateTime(dateTime1, 1, 0, 0);
+        }
+        else {
+            dt1 = this.getDSTSafeDateTime(dateTime1, 12, 0, 0);
+            dt2 = this.getDSTSafeDateTime(dateTime2, 1, 0, 0);
+        }
+        return dt1.daysBetween(dt2);
     }
 
     /**
@@ -1660,7 +1672,7 @@ class W4_Funcs {
 
     static setTimePunchInFireBase(reff0, timePunch, personID, checkForLastClockInFix) {
         var punchTime = new W4DateTime(timePunch.getTime());
-        var result = { };
+        var result = {};
         if (checkForLastClockInFix && !timePunch.getClockIn()) {
             var lastTimePunch = W4_Funcs.getPersonLatestTimePunch(personID, "");
             if (lastTimePunch != null && lastTimePunch.getClockIn()) {
@@ -1853,18 +1865,23 @@ class W4_Funcs {
             repeatEndTime = overrideEndDate;
         }
         if (shift.getRepeatAmount() == 0) {
+            console.log("Return 1");
             return startTime;
         }
         if (shift.getEndUnit() == Asset.ENDUNIT_OCCURENCES && shift.getRepeatEndOccurences() == 1) {
+            console.log("Return 2");
             return startTime;
         }
         if (shift.getEndUnit() == Asset.ENDUNIT_OCCURENCES && shift.getRepeatEndOccurences() == 0) {
+            console.log("Return 3");
             return startTime;
         }
         if (shift.getEndUnit() == Asset.ENDUNIT_NEVER && overrideEndDate == null) {
+            console.log("Return 4");
             return null;
         }
         if (shift.getEndUnit() == Asset.ENDUNIT_ONDATE && repeatEndTime.getMillis() <= startTime.getMillis()) {
+            console.log("Return 5");
             return startTime;
         }
         if (shift.getRepeatUnit() == Asset.REPEATUNIT_WEEKLY) {
@@ -1876,6 +1893,7 @@ class W4_Funcs {
                 }
             }
             if (!hasRepeatDay) {
+                console.log("Return 6");
                 return startTime;
             }
         }
@@ -1883,12 +1901,14 @@ class W4_Funcs {
         switch (shift.getRepeatUnit()) {
             case Asset.REPEATUNIT_DAILY:
                 if (shift.getEndUnit() == Asset.ENDUNIT_OCCURENCES && overrideEndDate == null) {
+                    console.log("Return 7");
                     return W4_Funcs.getAdjustedDaySameTime(startTime, (shift.getRepeatEndOccurences() - 1) * shift.getRepeatAmount());
                 }
                 else { //Asset.ENDUNIT_ONDATE:
                     var daysDiff = Math.abs(W4_Funcs.getDaysDiff(startTime, repeatEndTime));
                     var occurencesToDt = Math.floor(daysDiff / shift.getRepeatAmount());
                     var lastDay = W4_Funcs.getAdjustedDaySameTime(startTime, occurencesToDt * shift.getRepeatAmount());
+                    console.log("Return 8");
                     return lastDay;
                 }
             case Asset.REPEATUNIT_WEEKLY:
@@ -1900,6 +1920,7 @@ class W4_Funcs {
                         }
                     }
                     if (numWeeklyRepeatDays == 0) {
+                        console.log("Return 9");
                         return startTime;
                     }
                     var numOccurences = 0; //Includes start day
@@ -1920,6 +1941,7 @@ class W4_Funcs {
                             if (startTime.getDayOfWeek() % 7 == i || shift.getWeeklyRepeatDays()[i]) {
                                 numOccurencesThatWeekFound += 1;
                                 if (numOccurencesThatWeekFound == shift.getRepeatEndOccurences()) {
+                                    console.log("Return 10");
                                     return W4_Funcs.getAdjustedDaySameTime(startTime, daysDiff);
                                 }
                             }
@@ -1940,6 +1962,7 @@ class W4_Funcs {
                         }
                         var daysDiff = lastDayInt - 3; //Thursday of last week (from W4_Funcs.getMiddleOfWeek)
                         var lastDay = W4_Funcs.getAdjustedDaySameTime(pre_lastWeek, daysDiff);
+                        console.log("Return 11");
                         return W4_Funcs.getDSTSafeDateTime(lastDay, startTime.getHourOfDay(), startTime.getMinuteOfHour(), startTime.getSecondOfMinute());
                     }
                     else {
@@ -1957,6 +1980,7 @@ class W4_Funcs {
                         }
                         var daysDiff = lastDayInt - 3; //Thursday of last week (from W4_Funcs.getMiddleOfWeek)
                         var lastDay = W4_Funcs.getAdjustedDaySameTime(lastWeek, daysDiff);
+                        console.log("Return 12");
                         return W4_Funcs.getDSTSafeDateTime(lastDay, startTime.getHourOfDay(), startTime.getMinuteOfHour(), startTime.getSecondOfMinute());
                     }
                 } else {//Asset.ENDUNIT_ONDATE:
@@ -1969,12 +1993,14 @@ class W4_Funcs {
                         for (var i = lastDay.getDayOfWeek() % 7; i < 7; ++i) {
                             lastDay = W4_Funcs.getDSTSafeDateTime(W4_Funcs.getNextDay(lastDay), 0, 0, 0);
                             if (lastDay.getMillis() > repeatEndTime0.getMillis()) {
+                                console.log("Return 13");
                                 return W4_Funcs.getDSTSafeDateTime(lastDayPrev, startTime.getHourOfDay(), startTime.getMinuteOfHour(), startTime.getSecondOfMinute());
                             }
                             if (i < 6 && shift.getWeeklyRepeatDays()[i + 1]) {
                                 lastDayPrev = W4_Funcs.getDSTSafeDateTime(lastDay, 0, 0, 0);
                             }
                         }
+                        console.log("Return 14");
                         return W4_Funcs.getDSTSafeDateTime(lastDayPrev, startTime.getHourOfDay(), startTime.getMinuteOfHour(), startTime.getSecondOfMinute());
                     }
                     else {
@@ -1999,6 +2025,7 @@ class W4_Funcs {
                                 }
                             }
                             lastDayDT = W4_Funcs.getAdjustedDaySameTime(lastDayDT, -7 * shift.getRepeatAmount() + (lastDay - (lastDayDT.getDayOfWeek() % 7)));
+                            console.log("Return 15");
                             return W4_Funcs.getDSTSafeDateTime(lastDayDT, startTime.getHourOfDay(), startTime.getMinuteOfHour(), startTime.getSecondOfMinute());
                         }
 
@@ -2009,12 +2036,14 @@ class W4_Funcs {
                         for (var i = lastDayDT.getDayOfWeek() % 7; i < 7; ++i) {
                             lastDayDT = W4_Funcs.getDSTSafeDateTime(W4_Funcs.getNextDay(lastDayDT), 0, 0, 0);
                             if (lastDayDT.getMillis() > repeatEndTime0.getMillis()) {
+                                console.log("Return 16");
                                 return W4_Funcs.getDSTSafeDateTime(lastDayPrev, startTime.getHourOfDay(), startTime.getMinuteOfHour(), startTime.getSecondOfMinute());
                             }
                             if (i < 6 && shift.getWeeklyRepeatDays()[i + 1]) {
                                 lastDayPrev = W4_Funcs.getDSTSafeDateTime(lastDayDT, 0, 0, 0);
                             }
                         }
+                        console.log("Return 17");
                         return W4_Funcs.getDSTSafeDateTime(lastDayPrev, startTime.getHourOfDay(), startTime.getMinuteOfHour(), startTime.getSecondOfMinute());
                     }
                 }
@@ -2025,6 +2054,7 @@ class W4_Funcs {
                             var monthsDiff0 = (shift.getRepeatEndOccurences() - 1) * shift.getRepeatAmount();
                             var lastMonth0 = W4_Funcs.getDSTSafeDateTime(startTime, 0, 0, 0);
                             lastMonth0 = W4_Funcs.addMonths(lastMonth0, monthsDiff0);
+                            console.log("Return 18");
                             return W4_Funcs.getDSTSafeDateTime(lastMonth0, startTime.getHourOfDay(), startTime.getMinuteOfHour(), startTime.getSecondOfMinute());
                         default: //Asset.MONTHLYREPEATTYPE_DAYOFWEEK:
                             var monthsDiff1 = (shift.getRepeatEndOccurences() - 1) * shift.getRepeatAmount();
@@ -2040,8 +2070,10 @@ class W4_Funcs {
                             }
                             var lastDay = W4_Funcs.getAdjustedDaySameTime(finalMonthStartDay, startDayDiff + (shiftXthWeek * 7));
                             if (lastDay.getMonthOfYear() != lastMonth1.getMonthOfYear() || lastDay.getYear() != lastMonth1.getYear()) {
+                                console.log("Return 19");
                                 return W4_Funcs.getDSTSafeDateTime(lastMonth1.getYear(), lastMonth1.getMonthOfYear(), W4_Funcs.getNumDaysInMonth(lastMonth1), startTime.getHourOfDay(), startTime.getMinuteOfHour(), startTime.getSecondOfMinute());
                             }
+                            console.log("Return 20");
                             return W4_Funcs.getDSTSafeDateTime(lastDay, startTime.getHourOfDay(), startTime.getMinuteOfHour(), startTime.getSecondOfMinute());
                     }
                 } else { //Asset.ENDUNIT_ONDATE:
@@ -2057,6 +2089,7 @@ class W4_Funcs {
                                 lastMonth = W4_Funcs.getDSTSafeDateTime(startTime, 0, 0, 0);
                                 lastMonth = W4_Funcs.addMonths(lastMonth, latestMonth * shift.getRepeatAmount());
                             }
+                            console.log("Return 21");
                             return W4_Funcs.getDSTSafeDateTime(lastMonth, startTime.getHourOfDay(), startTime.getMinuteOfHour(), startTime.getSecondOfMinute());
                         default: //Asset.MONTHLYREPEATTYPE_DAYOFWEEK:
                             var monthsDiff2 = (repeatEndTime.getMonthOfYear() + (repeatEndTime.getYear() * 12)) - (startTime.getMonthOfYear() + (startTime.getYear() * 12));
@@ -2090,9 +2123,11 @@ class W4_Funcs {
                                 }
                                 lastDay = W4_Funcs.getAdjustedDaySameTime(finalMonthStartDay, startDayDiff + (shiftXthWeek * 7));
                                 if (lastDay.getMonthOfYear() != lastMonth.getMonthOfYear() || lastDay.getYear() != lastMonth.getYear()) {
+                                    console.log("Return 22");
                                     return W4_Funcs.getDSTSafeDateTime(lastMonth.getYear(), lastMonth.getMonthOfYear(), W4_Funcs.getNumDaysInMonth(lastMonth), startTime.getHourOfDay(), startTime.getMinuteOfHour(), startTime.getSecondOfMinute());
                                 }
                             }
+                            console.log("Return 23");
                             return W4_Funcs.getDSTSafeDateTime(lastDay, startTime.getHourOfDay(), startTime.getMinuteOfHour(), startTime.getSecondOfMinute());
                     }
                 }
@@ -2101,6 +2136,7 @@ class W4_Funcs {
                     var yearsDiff = (shift.getRepeatEndOccurences() - 1) * shift.getRepeatAmount();
                     var lastYear = W4_Funcs.getDSTSafeDateTime(startTime, 0, 0, 0);
                     lastYear = W4_Funcs.addYears(lastYear, yearsDiff);
+                    console.log("Return 24");
                     return W4_Funcs.getDSTSafeDateTime(lastYear, startTime.getHourOfDay(), startTime.getMinuteOfHour(), startTime.getSecondOfMinute());
                 } else { //Asset.ENDUNIT_ONDATE:
                     var yearsDiff = repeatEndTime.getYear() - startTime.getYear();
@@ -2117,6 +2153,7 @@ class W4_Funcs {
                     }
                     lastYear = W4_Funcs.getDSTSafeDateTime(startTime, 0, 0, 0);
                     lastYear = W4_Funcs.addYears(lastYear, latestYear * shift.getRepeatAmount());
+                    console.log("Return 25");
                     return W4_Funcs.getDSTSafeDateTime(lastYear, startTime.getHourOfDay(), startTime.getMinuteOfHour(), startTime.getSecondOfMinute());
                 }
         }

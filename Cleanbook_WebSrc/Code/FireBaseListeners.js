@@ -436,7 +436,6 @@ class FireBaseListeners {
     static processPeopleSnapshotData(dataSnapshot) {
         if (MainActivity.loggedIn) {
             var value = dataSnapshot.child(MainActivity.currentPersonID).val(); //Ensures that MainActivity.currentPerson is set to the value of the credentials on the login page
-            var lastPassword = MainActivity.current_password;
             if (value == null) { //If first time logging in
                 if (dataSnapshot.numChildren() != 0) { //If there's other people in the company already, this means the person was deleted and they're trying to log back in instantly
                     HomeActivity.logOut();
@@ -483,27 +482,29 @@ class FireBaseListeners {
                     false,
                     true,
                     false];
-                var person = new Person(MainActivity.currentPersonID, "Company", "Owner", "", MainActivity.firebase.auth().currentUser.email, MainActivity.current_password, Person.OWNER, readPermissions, writePermissions, false, false);
+                var person = new Person(MainActivity.currentPersonID, "Company", "Owner", "", firebase.auth().currentUser.email, MainActivity.current_password, Person.OWNER, readPermissions, writePermissions, false, false);
                 W4_Funcs.writeToDB(FireBaseListeners.reffPeople.child(MainActivity.currentPersonID), person, "Owner created first time " + MainActivity.currentPersonID);
                 MainActivity.currentPerson = person;
                 MainActivity.current_password = MainActivity.currentPerson.getPassword();
-                console.log("Couldn't find " + MainActivity.firebase.auth().currentUser.email + " in company->people and set as Owner, Uid: " + MainActivity.currentPersonID);
+                console.log("Couldn't find " + firebase.auth().currentUser.email + " in company->people and set as Owner, Uid: " + MainActivity.currentPersonID);
             } else {
                 MainActivity.currentPerson = Person.fromDS(value);
                 MainActivity.current_password = MainActivity.currentPerson.getPassword();
                 console.log("Set MainActivity.currentPerson to " + MainActivity.currentPerson.getFirst_name() + " " + MainActivity.currentPerson.getLast_name());
             }
 
-            MainActivity.theCompany.setPersonList([]);
+            MainActivity.theCompany.setPersonList([MainActivity.currentPerson]);
             var ds_val = dataSnapshot.val();
             for (const ds_key in ds_val) {
                 let ds = ds_val[ds_key];
                 var person = Person.fromDS(ds);
-                if (person.getReadPermissions() == null)
-                    person.setReadPermissions(W4_Funcs.getAllFalsePermissions());
-                if (person.getWritePermissions() == null)
-                    person.setWritePermissions(W4_Funcs.getAllFalsePermissions());
-                MainActivity.theCompany.getPersonList().push(person);
+                if (person.getW4id() != MainActivity.currentPerson.getW4id()) {
+                    if (person.getReadPermissions() == null)
+                        person.setReadPermissions(W4_Funcs.getAllFalsePermissions());
+                    if (person.getWritePermissions() == null)
+                        person.setWritePermissions(W4_Funcs.getAllFalsePermissions());
+                    MainActivity.theCompany.getPersonList().push(person);
+                }
             }
 
             MainActivity.theCompany.getPersonList().sort(Person.compareTo);

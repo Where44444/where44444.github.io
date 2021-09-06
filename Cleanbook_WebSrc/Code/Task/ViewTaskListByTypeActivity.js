@@ -1,21 +1,10 @@
 class ViewTaskListByTypeActivity extends W4Activity {
-    // var this.byPerson = 0;
-    //     var this.byLocation = 1;
-    //     var this.listType = this.byLocation;
-    //     var this.taskByLocationListAdapter = null;
-    //     var this.taskByPersonListAdapter = null;
-    //     var this.search_edittext = null;
-
-    //  void onDestroy() {
-    //     super.onDestroy();
-    // }
-
+    static byPerson = 0;
+    static byLocation = 1;
+    static listType = ViewTaskListByTypeActivity.byLocation;
 
     onCreate() {
         var a = this;
-        this.byPerson = 0;
-        this.byLocation = 1;
-        this.listType = this.byLocation;
         super.onCreate();
         if (!MainActivity.loggedIn)
             return;
@@ -46,25 +35,25 @@ class ViewTaskListByTypeActivity extends W4Activity {
             a.findViewById("AddTaskButton_ByType").setVisibility(View.GONE);
         var imageButton = a.findViewById("SetTaskTypePersonButton");
         imageButton.addEventListener("click", function () {
-            a.setTaskList(a.byPerson);
+            a.setTaskList(ViewTaskListByTypeActivity.byPerson);
 
         });
         var imageButton = a.findViewById("SetTaskTypeLocationButton");
         imageButton.addEventListener("click", function () {
-            a.setTaskList(a.byLocation);
+            a.setTaskList(ViewTaskListByTypeActivity.byLocation);
 
         });
         a.search_edittext = a.findViewById("Search_Bar");
         a.search_edittext.addEventListener('keyup', function () {
-            a.setTaskList(a.listType);
+            a.setTaskList(ViewTaskListByTypeActivity.listType);
         });
-        a.setTaskList(a.listType);
+        a.setTaskList(ViewTaskListByTypeActivity.listType);
     }
 
     setTaskList(type) {
-        this.listType = type;
+        ViewTaskListByTypeActivity.listType = type;
         var searchText = W4_Funcs.standardizeString(this.search_edittext.getText());
-        if (type == this.byPerson) {
+        if (type == ViewTaskListByTypeActivity.byPerson) {
             var list;
             if (searchText != ("")) {
                 list = Asset.getSearchedAssets(W4_Funcs.getPermittedPersonList_ForX(Asset.PERMISSION_ALL_TASKS), searchText);

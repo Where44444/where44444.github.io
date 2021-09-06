@@ -1,12 +1,7 @@
 class ViewTimePunchListByTypeActivity extends W4Activity {
     static byPerson = 0;
     static byLocation = 1;
-    //     var this.exportType = -1;
-    //     var this.listType = ViewTimePunchListByTypeActivity.byPerson;
-    //     var this.timePunchByLocationListAdapter = null;
-    //     var this.timePunchByPersonListAdapter = null;
-    //     var this.search_edittext = null;
-
+    static listType = ViewTimePunchListByTypeActivity.byPerson;
 
     onCreate() {
         var a = this;
@@ -15,7 +10,6 @@ class ViewTimePunchListByTypeActivity extends W4Activity {
             return;
         a.getSupportActionBar().setTitle("View Time Punches By Type");
         a.setContentView(R.layout.activity_view_time_punch_by_type);
-        a.listType = ViewTimePunchListByTypeActivity.byPerson;
         a.exportType = a.getIntent().getIntExtra("export_type", -1);
         if (a.exportType != -1) {
             a.getSupportActionBar().setTitle("Choose Report Person/Location");
@@ -47,14 +41,14 @@ class ViewTimePunchListByTypeActivity extends W4Activity {
         });
         a.search_edittext = a.findViewById("Search_Bar");
         a.search_edittext.addEventListener('keyup', function () {
-            a.setTimePunchList(a.listType);
+            a.setTimePunchList(ViewTimePunchListByTypeActivity.listType);
         });
 
-        a.setTimePunchList(a.listType);
+        a.setTimePunchList(ViewTimePunchListByTypeActivity.listType);
     }
 
     setTimePunchList(type) {
-        this.listType = type;
+        ViewTimePunchListByTypeActivity.listType = type;
         var searchText = W4_Funcs.standardizeString(this.search_edittext.getText());
         if (type == ViewTimePunchListByTypeActivity.byPerson) {
             var list;

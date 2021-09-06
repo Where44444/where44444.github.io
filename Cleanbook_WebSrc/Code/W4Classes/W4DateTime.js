@@ -83,24 +83,68 @@ class W4DateTime {
     }
 
     daysBetween(time2) {
-        return Math.abs(W4DateTime.treatAsUTC(this.date) - W4DateTime.treatAsUTC(time2.date)) / TimeUnit.DAYS.toMillis(1);
+        return Math.ceil(Math.abs(W4DateTime.treatAsUTC(this.date) - W4DateTime.treatAsUTC(time2.date)) / TimeUnit.DAYS.toMillis(1));
     }
 
     plusDays(days) {
-        var date = new Date(this.date.getTime());
-        date.setDate(date.getDate() + days);
+        this.date = new Date(this.date.getTime());
+        this.date.setDate(this.date.getDate() + days);
         return this;
     }
 
     plusMonths(months) {
-        var date = new Date(this.date.getTime());
-        date.setMonth(date.getMonth() + months);
+        var origDate = new W4DateTime(this.getMillis());
+        this.date = new Date(this.date.getTime());
+        this.date.setMonth(this.date.getMonth() + months);
+        var dt1;
+        var dt2;
+        if (months >= 0) {
+            dt2 = this;
+            dt1 = origDate;
+        } else {
+            dt1 = this;
+            dt2 = origDate;
+        }
+
+        if ((dt2.getMonthOfYear() + dt2.getYear() * 12) - (dt1.getMonthOfYear() + dt1.getYear() * 12) != months) {
+            var prevMonth = this.getMonthOfYear() - 1;
+            var year = this.getYear();
+            if (prevMonth == 0) {
+                year -= 1;
+                prevMonth = 12;
+            }
+            var dt0 = new W4DateTime(year, prevMonth, 1, 0, 0, 0);
+            this.constructor3(year, prevMonth, dt0.getDaysInMonth(), this.getHourOfDay(), this.getMinuteOfHour(), this.getSecondOfMinute());
+        }
         return this;
     }
 
     plusYears(years) {
-        var date = new Date(this.date.getTime());
-        date.setFullYear(date.getFullYear() + years);
+        var origDate = new W4DateTime(this.getMillis());
+        this.date = new Date(this.date.getTime());
+        this.date.setFullYear(this.date.getFullYear() + years);
+
+        var dt1;
+        var dt2;
+        if (years >= 0) {
+            dt2 = this;
+            dt1 = origDate;
+        } else {
+            dt1 = this;
+            dt2 = origDate;
+        }
+
+        if (Math.abs((dt2.getMonthOfYear() + dt2.getYear() * 12) - (dt1.getMonthOfYear() + dt1.getYear() * 12)) % 12 != 0) {
+            var prevMonth = this.getMonthOfYear() - 1;
+            var year = this.getYear();
+            if (prevMonth == 0) {
+                year -= 1;
+                prevMonth = 12;
+            }
+            var dt0 = new W4DateTime(year, prevMonth, 1, 0, 0, 0);
+            this.constructor3(year, prevMonth, dt0.getDaysInMonth(), this.getHourOfDay(), this.getMinuteOfHour(), this.getSecondOfMinute());
+        }
+
         return this;
     }
 

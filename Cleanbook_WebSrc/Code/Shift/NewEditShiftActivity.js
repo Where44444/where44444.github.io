@@ -18,7 +18,7 @@ class NewEditShiftActivity extends W4Activity {
         a.setContentView(R.layout.activity_new_edit_shift_time);
 
         var events = [];
-        var settings = { };
+        var settings = {};
         var calendar_view = this.findViewById("Edit_ShiftTime_Calendar_RepeatSummary");
         caleandar(calendar_view.ele, events, settings);
 
@@ -153,6 +153,8 @@ class NewEditShiftActivity extends W4Activity {
                 a.findViewById("Edit_ShiftTime_RepeatDiv").setVisibility(View.GONE);
                 a.findViewById("Edit_Shift_Time_RepeatEvery").setValue("0");
             }
+            a.updateEdit_RepeatSummaryText();
+            a.updateEditStartEndTime();
         });
         var spinner = a.findViewById("Edit_ShiftTime_RepeatUnit");
         spinnerArrayAdapter = new ArrayAdapter(
@@ -452,6 +454,17 @@ class NewEditShiftActivity extends W4Activity {
             locationID = W4_Funcs.getPermittedLocationList_ForX(Asset.PERMISSION_ALL_SHIFTS)[locationPos].getW4id();
         }
         var color = this.selectedShift.getColor();
+
+
+        // var testShift = new Shift(id, name0, this.dateTimeStart.getMillis(), this.dateTimeEnd.getMillis(), repeatAmount, repeatUnit, endUnit, repeatEndOccurences, repeatEndDate, weeklyRepeatDays, monthlyRepeatType, FireBaseListeners.tempShiftAddedPeopleIDs, locationID, color);
+        // var lastDay = W4_Funcs.getLastDayOfShift(testShift, null);
+        // if (lastDay != null) {
+        //     console.log(lastDay.getMonthOfYear() + "|" + lastDay.getDayOfMonth() + "|" + lastDay.getYear());
+        // }
+        // else {
+        //     console.log("No last day");
+        // }
+
         return new Shift(id, name0, this.dateTimeStart.getMillis(), this.dateTimeEnd.getMillis(), repeatAmount, repeatUnit, endUnit, repeatEndOccurences, repeatEndDate, weeklyRepeatDays, monthlyRepeatType, FireBaseListeners.tempShiftAddedPeopleIDs, locationID, color);
     }
 

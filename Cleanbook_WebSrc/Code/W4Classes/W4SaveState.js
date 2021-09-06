@@ -51,6 +51,9 @@ class W4SaveState {
             this.spanishMode = false;
         if (this.initialBGLocationConsentAcquired == null)
             this.initialBGLocationConsentAcquired = false;
+
+        // console.log("Loaded");
+        // console.log(this.systemNotificationsMap.get(NotificationsManager.key_Message));
     }
 
     saveToCookies() {
@@ -62,6 +65,9 @@ class W4SaveState {
         MainActivity.setCookie("initialNotificationSent", this.initialNotificationSent);
         MainActivity.setCookie("spanishMode", this.spanishMode);
         MainActivity.setCookie("initialBGLocationConsentAcquired", this.initialBGLocationConsentAcquired);
+
+        // console.log("Saved");
+        // console.log(this.systemNotificationsMap.get(NotificationsManager.key_Message));
     }
 
     // isStaySignedIn() {

@@ -1152,7 +1152,7 @@ class W4_Funcs {
     // }
 
     static isShiftActiveAtTime(shift, dt) {
-        var occursType = W4_Funcs.doesRepeatingDateOccupyTimeSlot(shift, dt, false, 0);
+        var occursType = W4_Funcs.doesRepeatingDateOccupyTimeSlot(shift, dt, true, 0);
         if (occursType != Shift.OCCURS_NONE) {
             var shiftStart = new W4DateTime(shift.getStartTime());
             var shiftEnd = new W4DateTime(shift.getEndTime());

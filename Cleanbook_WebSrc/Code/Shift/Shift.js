@@ -186,10 +186,10 @@ class Shift extends Asset {
 
     static compareTo(a, o) {
         if (a.getStartTime() < o.getStartTime()) {
-            return -1;
+            return 1;
         }
         if (a.getStartTime() > o.getStartTime()) {
-            return 1;
+            return -1;
         }
         return 0;
     }

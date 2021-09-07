@@ -110,7 +110,7 @@ class ViewShiftCalendarActivity extends W4Activity {
         var linearLayoutHShifts = new View(W4_Funcs.createElementFromHTML("<div id='f' style='display: flex; flex-direction: row; flex-grow: 3; flex-basis: 0;'></div>"), activity);
         for (var i = 0; i < shifts.length; ++i) {
             var shift = shifts[i];
-            var shiftOccurType = shiftOccurTypes[shift.getW4id()];
+            var shiftOccurType = shiftOccurTypes.get(shift.getW4id());
             var id = shift.getW4id();
             if (shiftOccurType != Shift.OCCURS_NONE) {
                 shiftAdded = true;

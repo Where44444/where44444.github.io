@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<title>Clean Assistant</title>
+
+
+<body>
+
+  <script type="text/javascript" src="W4Classes/W4DateTime.js"></script>
+
+  <script>
+    var dt = new W4DateTime(2021, 9, 1, 0, 0, 0);
+    var dt1 = dt.plusMonths(-200);
+    console.log(dt1.getMonthOfYear() + "|" + dt1.getDayOfMonth() + "|" + dt1.getYear());
+  </script>
+</body>

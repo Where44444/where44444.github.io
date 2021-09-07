@@ -235,7 +235,7 @@ class MainActivity extends AppCompatActivity {
                 this.setLoginLoading(false);
             });
         } else {
-            MainActivity.w4Toast(this, "Date is still being loaded, please wait...", Toast.LENGTH_LONG);
+            MainActivity.w4Toast(this, "Data is still being loaded, please wait...", Toast.LENGTH_LONG);
         }
     }
 

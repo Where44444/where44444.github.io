@@ -353,6 +353,7 @@ class NewEditShiftActivity extends W4Activity {
 
         a.updateEdit_RepeatSummaryText();
         a.updateEditStartEndTime();
+        a.setRepeatEveryUnitLabel();
     }
 
     redecorateRepeatSummaryCalendar() {

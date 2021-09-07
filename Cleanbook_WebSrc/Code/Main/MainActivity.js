@@ -1,6 +1,6 @@
 class MainActivity extends AppCompatActivity {
-    static version = "1.49137";
-    static version_long = 149137;
+    static version = "1.49139";
+    static version_long = 149139;
     static w4_DB_Data = null;
     static companyData = null;
     static w4Notifications = [];

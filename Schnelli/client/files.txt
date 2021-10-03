@@ -37,6 +37,7 @@ search_e.png
 search_m.png
 search_r.png
 sort.js
+suggestions_box.js
 test.html
 w4_funcs.js
 x.png

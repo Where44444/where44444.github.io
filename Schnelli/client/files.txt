@@ -12,7 +12,7 @@ csv_add_field.html
 csv_to_json.html
 data.js
 down_arrow.png
-employee_ids.js
+people.js
 eventlisteners.js
 example_pdf_wlmay.png
 ez_database_updater.html

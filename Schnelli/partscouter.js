@@ -8,7 +8,7 @@ const _DATABASE_PREFIX = "";
 // const _DEBUG_LOCAL_MODE = _DEBUG_LOCAL_MODE__;
 const _DEBUG_LOCAL_MODE = false;
 // const _DEBUG_SKIP_PART_LOADING = _DEBUG_SKIP_PART_LOADING__;
-const _DEBUG_SKIP_PART_LOADING_ = false;
+const _DEBUG_SKIP_PART_LOADING = false;
 
 if (_DEBUG_LOCAL_MODE) {
   document.getElementById("local_mode_indicator").innerHTML = "Local Mode ON";

@@ -455,6 +455,8 @@ function standardizeString(str1){
 
   function stringifyArray(array){
       var result = "";
+      if(array == null)
+        return "";
       for(var i = 0; i < array.length; ++i){
           result += String(array[i]);
           if(i != array.length - 1)

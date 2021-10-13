@@ -31,6 +31,28 @@ function COMPARE_0_0( a, b ) {
     return 0;
   }
 
+  function COMPARE_CONTENT_EXTRA_date(a, b)
+  {
+    
+    var date_a = Number(a.content_extra[0].data[0].date);
+    var date_b = Number(b.content_extra[0].data[0].date);
+    for(var i = 1; i < a.content_extra[0].data.length; ++i) {
+      if(Number(a.content_extra[0].data[i].date) > date_a)
+        date_a = Number(a.content_extra[0].data[i].date);
+    }
+    for(var i = 1; i < b.content_extra[0].data.length; ++i) {
+      if(Number(b.content_extra[0].data[i].date) > date_b)
+        date_b = Number(b.content_extra[0].data[i].date);
+    }
+    if (date_a < date_b){
+      return -1;
+    }
+    if (date_a > date_b){
+      return 1;
+    }
+    return 0;
+  }
+
   // function COMPARE_SEARCHRESULTS_TO_SORTED_CONTENT(a, b)
   // {
   //   var index_a = null;
@@ -59,6 +81,16 @@ function COMPARE_0_0( a, b ) {
     }
     if ( a.ranking > b.ranking ){
       return -1;
+    }
+    return 0;
+  }
+
+  function COMPARE_OBJ_TEXT( a, b ) {
+    if ( a.text < b.text ){
+      return -1;
+    }
+    if ( a.text > b.text ){
+      return 1;
     }
     return 0;
   }

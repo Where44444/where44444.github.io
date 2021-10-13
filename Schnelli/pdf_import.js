@@ -508,7 +508,7 @@ function confirmPDFAddToDatabase(index)
   document.getElementById("startAddToDatabaseButton_" + index).innerHTML = "Added";
   document.getElementById("startAddToDatabaseButton_" + index).disabled = true;
   document.getElementById("startAddToDatabaseButton_" + index).className = "button_disabled";
-  if(!_LOCAL_MODE)
+  if(!_DEBUG_LOCAL_MODE)
     writeToDatabase("parts_db/" + _EXTRA_DB[extradb] + "/" + _content_extra[extradb][link][1], partObj, true, false, true, extradb);
 
   // var parent_indexes = getParentRecordIndexesWithChildPart(extradb, link);

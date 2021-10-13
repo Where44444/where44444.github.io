@@ -30,6 +30,7 @@ firebase.auth().onAuthStateChanged(function (user) {
     document.getElementById("button_server_select_firebase").click();
   }
   if (user) {
+    document.getElementById("logout_button_main").style.display = "";
     // User is signed in. Has saved login info
     console.log("DETECTED AUTH STATE CHANGE|LOGGED IN");
     _FIREBASE_LOGGED_IN = true;
@@ -54,9 +55,11 @@ firebase.auth().onAuthStateChanged(function (user) {
         setSuggestionsRef();
         updateSuggestionsBox();
       }
+      setBlacklistedRef();
     }, _OVERRIDE_FIREBASE);
   }
   else {
+    document.getElementById("logout_button_main").style.display = "none";
     console.log("DETECTED AUTH STATE CHANGE|LOGGED OUT");
     _FIREBASE_LOGGED_IN = false;
   }

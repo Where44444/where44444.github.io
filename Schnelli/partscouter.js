@@ -3,12 +3,13 @@
 // var time2 = (new Date()).getTime();
 // console.log(time2 - time1);
 
-// const _DATABASE_PREFIX = _DATABASE_PREFIX__; //TODO Set this back to "" when uploading to github
 const _DATABASE_PREFIX = "";
-// const _DEBUG_LOCAL_MODE = _DEBUG_LOCAL_MODE__;
 const _DEBUG_LOCAL_MODE = false;
-// const _DEBUG_SKIP_PART_LOADING = _DEBUG_SKIP_PART_LOADING__;
 const _DEBUG_SKIP_PART_LOADING = false;
+
+// const _DATABASE_PREFIX = _DATABASE_PREFIX__; //TODO Set this back to "" when uploading to github
+// const _DEBUG_LOCAL_MODE = _DEBUG_LOCAL_MODE__;
+// const _DEBUG_SKIP_PART_LOADING = _DEBUG_SKIP_PART_LOADING__;
 
 if (_DEBUG_LOCAL_MODE) {
   document.getElementById("local_mode_indicator").innerHTML = "Local Mode ON";
@@ -419,6 +420,21 @@ function setDataRef() {
   });
 }
 
+const _blacklistMessage = "Your account has been blacklisted, contact ays-glenwood@comcast.net for more info";
+var _blacklisted_ref = null;
+function setBlacklistedRef() {
+  _blacklisted_ref = firebase.database().ref('data/blacklisted_clients');
+  _blacklisted_ref.on('value', (snapshot) => {
+    if (_FIREBASE_LOGGED_IN) {
+      let blacklist = snapshot.val();
+      if (doesOBJContainKey(blacklist, firebase.auth().currentUser.uid)) {
+        log_out();
+        showSnackbar(_blacklistMessage, 7000);
+      }
+    }
+  });
+}
+
 function openFirebaseServerScreen() {
   _LOCAL_SERVER_MODE = false;
   if (_FIREBASE_LOGGED_IN) {
@@ -589,7 +605,7 @@ function loadContentDiv1() {
           loadContentDiv2();
         else {
           log_out();
-          showSnackbar("Your account has been blacklisted, contact ays-glenwood@comcast.net for more info", 7000);
+          showSnackbar(_blacklistMessage, 7000);
         }
       }, _OVERRIDE_FIREBASE);
     }
@@ -681,7 +697,7 @@ function loadContentDiv2() {
       document.getElementById("part_child_button_new").style.opacity = "1";
       document.getElementById("part_child_button_new").disabled = false;
       document.getElementById("part_child_button_new").style.cursor = "";
-      
+
       document.getElementById("button_add_sort_order").style.opacity = "1";
       document.getElementById("button_add_sort_order").disabled = false;
       document.getElementById("button_add_sort_order").style.cursor = "";

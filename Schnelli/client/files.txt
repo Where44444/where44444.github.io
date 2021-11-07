@@ -1,7 +1,6 @@
 appliance-parts_admin_portal.html
 arrow_back2.png
 autocomplete.js
-change_history.js
 child_part_record_manager.js
 compare_funcs.js
 copy.png

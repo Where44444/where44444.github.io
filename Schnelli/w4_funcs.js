@@ -757,7 +757,7 @@ function loadChangeAlerts() {
         }
       }
       var timeElapsed = new Date().getTime() - Number(alertOBJ.time);
-      if (timeElapsed >= MILLIS_IN_DAY) //Delete alert if older than a day
+      if (timeElapsed >= MILLIS_IN_DAY  && !_subscribed_mode) //Delete alert if older than a day
         deleteFromDB("change_alerts/" + key, null);
     }
   });

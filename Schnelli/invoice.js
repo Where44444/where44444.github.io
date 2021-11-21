@@ -40,8 +40,15 @@ function populateInvoice() {
         }
         htmlToAdd += "<tr class='in_td'><td>"
           + "<input type='text' style='width: 53px; height: 15px; text-align: right;' id='invoice_input_qty_" + i + "' value='" + Number(obj.amountToSell) + "' disabled>" + specialOrderField + "</td><td>"
-          + "<input type='text' style='width: 493px; height: 15px;' value='" + getHTMLSafeText(obj.PN) + " | " + getHTMLSafeText(obj.DESCRIP1) + specialOrderDesc + "' id='invoice_input_desc_" + i + "' disabled></td><td>"
-          + "<input type='text' style='width: 48px; height: 15px; text-align: right;' id='invoice_input_sell_" + i + "' value='" + getHTMLSafeText(obj.SELL) + "' onfocus='deselectTable();' onkeyup='calculateInvoiceAmounts();'></td><td>"
+          + "<input type='text' style='width: 493px; height: 15px;' value='" + getHTMLSafeText(obj.PN) + " | " + getHTMLSafeText(obj.DESCRIP1) + specialOrderDesc + "' id='invoice_input_desc_" + i + "' disabled>"
+        if (newAmount < 0) {
+          var orderinfo = "";
+          if (obj.orderinfo != null && obj.orderinfo != "NULL")
+            orderinfo = obj.orderinfo;
+          htmlToAdd += "<br><input type='text' style='width: 493px; height: 15px;' value='" + orderinfo + "' id='invoice_input_orderinfo_" + i + "' placeholder='Order Info (Order Number, Tracking Number, Website Link, etc.)'>";
+        }
+        htmlToAdd += "</td><td>"
+          + "<input type='text' style='width: 48px; height: 15px; text-align: right;' id='invoice_input_sell_" + i + "' value='" + getHTMLSafeText(obj.SELL) + "' onfocus='deselectTable();' onkeyup='calculateInvoiceAmounts();' oninput='calculateInvoiceAmounts();'></td><td>" //oninput added to ensure that right click paste triggers event too, onkeyup needs to stay despite it being a subset so that enter press event is triggered
           + "<input type='text' style='width: 53px; height: 15px; text-align: right;' id='invoice_input_amount_" + i + "' disabled></td><td class='no-print'>"
           + "<button id='button_invoice_remove_" + i + "' style='width: 20px; height: 20px; padding: 0px; color: white; background-color: red;' tabindex='-1' onclick='removeFromInvoice(" + i + ");'>x</button></td></tr>";
       }
@@ -104,10 +111,10 @@ var _invoice_filter_date_start = -1;
 var _invoice_filter_date_end = -1;
 function populateInvoiceHistory() {
   var table_html = "<table><tr>"
-    + "<th style='background-color: white; position: sticky; top: 0; z-index: 2;'>Date</th>"
-    + "<th style='background-color: white; position: sticky; top: 0; z-index: 2;'>Name</th>"
-    + "<th style='background-color: white; position: sticky; top: 0; z-index: 2;'>Total</th>"
-    + "<th style='background-color: white; position: sticky; top: 0; z-index: 2;'>Invoice No.</th></tr>";
+    + "<th style='background-color: white; position: sticky; top: " + _top_bar_height + "; z-index: 2;'>Date</th>"
+    + "<th style='background-color: white; position: sticky; top: " + _top_bar_height + "; z-index: 2;'>Name</th>"
+    + "<th style='background-color: white; position: sticky; top: " + _top_bar_height + "; z-index: 2;'>Total</th>"
+    + "<th style='background-color: white; position: sticky; top: " + _top_bar_height + "; z-index: 2;'>Invoice No.</th></tr>";
   var filter_name = document.getElementById("invoice_history_filter_name").value;
   var filter_total = document.getElementById("invoice_history_filter_total").value;
   var filter_invoice_no = document.getElementById("invoice_history_filter_invoice_no").value;
@@ -118,6 +125,10 @@ function populateInvoiceHistory() {
   var do_filter_any_field = (filter_any_field.replace(/ /g, "").length > 0);
   var inc = 0;
   _content_invoice_history.sort(COMPARE_OBJECT_date);
+  var regex_filter_name = getRegexSafeSearchTerm(filter_name).toLowerCase();
+  var regex_filter_total = getRegexSafeSearchTerm(filter_total).toLowerCase();
+  var regex_filter_invoice_no = getRegexSafeSearchTerm(filter_invoice_no).toLowerCase();
+  var regex_filter_any_field = getRegexSafeSearchTerm(filter_any_field).toLowerCase();
   for (var i = _content_invoice_history.length - 1; i >= 0; --i) {
     var invoice_obj = _content_invoice_history[i];
     var match_failed = false;
@@ -128,17 +139,17 @@ function populateInvoiceHistory() {
         match_failed = true;
     }
     if (!match_failed && do_filter_name) {
-      var result = String(invoice_obj.name).toLowerCase().match(getRegexSafeSearchTerm(filter_name).toLowerCase());
+      var result = String(invoice_obj.name).toLowerCase().match(regex_filter_name);
       if (result == null)
         match_failed = true;
     }
     if (!match_failed && do_filter_total) {
-      var result = String(invoice_obj.total).toLowerCase().match(getRegexSafeSearchTerm(filter_total).toLowerCase());
+      var result = String(invoice_obj.total).toLowerCase().match(regex_filter_total);
       if (result == null)
         match_failed = true;
     }
     if (!match_failed && do_filter_invoice_no) {
-      var result = String(invoice_obj.invoice_no).toLowerCase().match(getRegexSafeSearchTerm(filter_invoice_no).toLowerCase());
+      var result = String(invoice_obj.invoice_no).toLowerCase().match(regex_filter_invoice_no);
       if (result == null)
         match_failed = true;
     }
@@ -146,7 +157,7 @@ function populateInvoiceHistory() {
       var any_field_match_found = false;
       for (let [key, value] of Object.entries(invoice_obj)) {
         if (!any_field_match_found) {
-          var result = String(value).toLowerCase().match(getRegexSafeSearchTerm(filter_any_field).toLowerCase());
+          var result = String(value).toLowerCase().match(regex_filter_any_field);
           if (result != null)
             any_field_match_found = true;
         }
@@ -158,7 +169,7 @@ function populateInvoiceHistory() {
 
     if (!match_failed) {
       table_html += "<tr id='invoicehistory_table_row_" + inc + "' class='clickable' onclick='viewInvoiceFromHistory(" + i + ");'>"
-        + "<td>" + invoice_obj.date + "</td>"
+        + "<td>" + getMMDDYYYY_HHMMText(new Date(invoice_obj.time)) + "</td>"
         + "<td>" + invoice_obj.name + "</td>"
         + "<td>" + invoice_obj.total + "</td>"
         + "<td>" + invoice_obj.invoice_no + "</td>"
@@ -174,6 +185,7 @@ function populateInvoiceHistory() {
     set_tableInvoiceHistory_SelectedRow(0);
 }
 
+var _current_viewed_invoice_data = null;
 var _current_viewed_invoice_id = null;
 function viewInvoiceFromHistory(index) {
   _current_viewed_invoice_id = _content_invoice_history[index].key;
@@ -183,6 +195,7 @@ function viewInvoiceFromHistory(index) {
   document.getElementById("invoice_from_history_content").style.display = "";
   document.getElementById("exit_invoice_from_history_button").style.display = "";
   var _invoice_obj = _content_invoice_history[index];
+  _current_viewed_invoice_data = _invoice_obj;
   var htmlToAdd = INVOICE_PRE;
   for (var i = 0; i < _invoice_obj.invoice_parts.length; ++i) {
     var invoice_parts = _invoice_obj.invoice_parts[i];
@@ -199,8 +212,19 @@ function viewInvoiceFromHistory(index) {
     }
     htmlToAdd += "<tr class='in_td'><td>"
       + "<input type='text' style='width: 53px; height: 15px; text-align: right;' id='invoice_input_qty_" + i + "' value='" + getHTMLSafeText(invoice_parts[0]) + "'>" + specialOrderField + "</td><td>"
-      + "<input type='text' style='width: 493px; height: 15px;' value='" + getHTMLSafeText(invoice_parts[1]) + "' id='invoice_input_desc_" + i + "' ></td><td>"
-      + "<input type='text' style='width: 48px; height: 15px; text-align: right;' id='invoice_input_sell_" + i + "' value='" + getHTMLSafeText(invoice_parts[2]) + "' onfocus='deselectTable();' onkeyup='calculateInvoiceAmounts();'></td><td>"
+      + "<input type='text' style='width: 493px; height: 15px;' value='" + getHTMLSafeText(invoice_parts[1]) + "' id='invoice_input_desc_" + i + "' >";
+    var orderinfo = ""; //Helps ensure that past orders before update have the chance to have order info added
+    if (invoice_parts.length > 5) {
+      if (invoice_parts[5] == "NULL")
+        orderinfo = null;
+      else
+        orderinfo = invoice_parts[5];
+    }
+    if (orderinfo != null)
+      htmlToAdd += "<br><input type='text' style='width: 493px; height: 15px;' value='" + getHTMLSafeText(orderinfo) + "' id='invoice_input_orderinfo_" + i + "' placeholder='Order Info (Order Number, Tracking Number, Website Link, etc.)'>";
+
+    htmlToAdd += "</td><td>"
+      + "<input type='text' style='width: 48px; height: 15px; text-align: right;' id='invoice_input_sell_" + i + "' value='" + getHTMLSafeText(invoice_parts[2]) + "' onfocus='deselectTable();' onkeyup='calculateInvoiceAmounts();' oninput='calculateInvoiceAmounts();'></td><td>"
       + "<input type='text' style='width: 53px; height: 15px; text-align: right;' id='invoice_input_amount_" + i + "' value='" + getHTMLSafeText(invoice_parts[3]) + "' ></td><td class='no-print'></tr>";
     // }
     // else
@@ -214,6 +238,7 @@ function viewInvoiceFromHistory(index) {
   htmlToAdd += "<button id='button_viewInvoice_delete'        style='               position: absolute; left: 750px;            background-color: #70A2FF; color: red;'   onclick='startDeleteInvoice();'  ><span style='color: white;'>D</span>elete</button>";
   htmlToAdd += "<button id='button_viewInvoice_confirmdelete' style='display: none; position: absolute; left: 750px;            background-color: #70A2FF; color: red;'   onclick='confirmDeleteInvoice();'>Confirm <span style='color: white;'>D</span>elete</button>";
   htmlToAdd += "<button id='button_viewInvoice_canceldelete'  style='display: none; position: absolute; left: 750px; top: 60px; background-color: #70A2FF; color: black;' onclick='cancelDeleteInvoice();' ><span style='color: white;'>C</span>ancel Delete</button>";
+  htmlToAdd += "<button id='button_invoice_save' class='no-print' onclick=saveInvoiceFromHistory(); style='width:150px; height:50px; font-size:30px; position:absolute; top:90px; left:900px; background-color: #70A2FF; color: black;'><span style='color: white;'>S</span>ave</button>";
 
   document.getElementById("invoice_from_history_content").innerHTML = htmlToAdd;
 
@@ -231,6 +256,81 @@ function viewInvoiceFromHistory(index) {
   document.getElementById("invoice_input_signature").value = _invoice_obj.signature;
   document.getElementById("invoice_bottom_textarea_2").style.display = "none";
   document.getElementById("button_finish_sale").style.display = "none";
+}
+
+function saveInvoiceFromHistory() {
+  var ele;
+  ele = document.getElementById("invoice_input_customer_order_no");
+  if (ele != null)
+    _current_viewed_invoice_data.customer_order_no = ele.value;
+  ele = document.getElementById("invoice_input_name");
+  if (ele != null)
+    _current_viewed_invoice_data.name = ele.value;
+  ele = document.getElementById("invoice_input_address");
+  if (ele != null)
+    _current_viewed_invoice_data.address = ele.value;
+  ele = document.getElementById("invoice_input_citystatezip");
+  if (ele != null)
+    _current_viewed_invoice_data.citystatezip = ele.value;
+  ele = document.getElementById("invoice_input_phone");
+  if (ele != null)
+    _current_viewed_invoice_data.phone = ele.value;
+  ele = document.getElementById("invoice_input_soldby");
+  if (ele != null)
+    _current_viewed_invoice_data.soldby = ele.value;
+  ele = document.getElementById("invoice_textarea_specs");
+  if (ele != null)
+    _current_viewed_invoice_data.specs = ele.value;
+  ele = document.getElementById("invoice_textarea_misc");
+  if (ele != null)
+    _current_viewed_invoice_data.misc = ele.value;
+  ele = document.getElementById("invoice_input_signature");
+  if (ele != null)
+    _current_viewed_invoice_data.signature = ele.value;
+  ele = document.getElementById("invoice_bottom_textarea_2");
+  if (ele != null)
+    _current_viewed_invoice_data.bottom = ele.value;
+  ele = document.getElementById("invoice_input_total");
+  if (ele != null)
+    _current_viewed_invoice_data.total = ele.value;
+  ele = document.getElementById("invoice_input_invoice_no");
+  if (ele != null)
+    _current_viewed_invoice_data.invoice_no = ele.value;
+  ele = document.getElementById("invoice_input_date");
+  if (ele != null)
+    _current_viewed_invoice_data.date = ele.value;
+
+  var i = 0;
+  ele = document.getElementById("invoice_input_qty_" + i);
+  var invoice_parts = [];
+  while (ele != null) {
+    invoice_parts.push([]);
+    invoice_parts[i].push(ele.value);
+    ele = document.getElementById("invoice_input_desc_" + i);
+    invoice_parts[i].push(ele.value);
+    ele = document.getElementById("invoice_input_sell_" + i);
+    invoice_parts[i].push(ele.value);
+    ele = document.getElementById("invoice_input_amount_" + i);
+    invoice_parts[i].push(ele.value);
+    ele = document.getElementById("invoice_input_specialorder_" + i);
+    if (ele != null)
+      invoice_parts[i].push(ele.value);
+    else
+      invoice_parts[i].push("0");
+
+    ele = document.getElementById("invoice_input_orderinfo_" + i);
+    if (ele != null)
+      invoice_parts[i].push(ele.value);
+    else
+      invoice_parts[i].push("NULL");
+    ++i;
+    ele = document.getElementById("invoice_input_qty_" + i);
+  }
+  _current_viewed_invoice_data.invoice_parts = invoice_parts;
+  writeToDatabase('invoice_data/' + _current_viewed_invoice_data.key, _current_viewed_invoice_data, false, false, false, null);
+  document.getElementById("exit_invoice_from_history_button").click();
+  document.getElementById("button_update_invoice_history").click();
+  showSnackbar("Invoice successfully saved", 3000);
 }
 
 function exitInvoiceFromHistory() {
@@ -292,8 +392,9 @@ function saveInvoiceInfoToDatabase() {
   var obj = new Object();
   obj.address = address;
   obj.bottom = bottom;
-  obj.lastorderno = lastorderno;
+  obj.last_invoice_no = lastorderno;
   writeToDatabase("invoice", obj, false, false, false, null);
+  writeToChangeHistory("Edit | Invoice Settings", "Edited Invoice Settings | Address: \"" + obj.address + "\" | Info at bottom: \"" + obj.bottom + "\" | Invoice No: \"" + obj.lastorderno + "\"");
 
   // writeToDatabase("invoice/address", address, false, false, false, null);
   // writeToDatabase("invoice/bottom", bottom, false, false, false, null);
@@ -366,7 +467,7 @@ function finishInvoiceSale() {
     var obj2 = _invoice_data.invoice_parts[i];
     var quantity = obj2[0];
     var price = obj2[2];
-    var date = new Date(String(_invoice_data.date));
+    // var date = new Date(String(_invoice_data.date));
     var datenow = new Date();
     savePartToHistory(obj.partkey, obj.extradb, datenow.getTime(), quantity, price);
   }
@@ -378,6 +479,7 @@ function finishInvoiceSale() {
   var invoiceDataListRef = getDatabaseRef('invoice_data');
   var newInvoiceRef = invoiceDataListRef.push();
   _invoice_data.bottom = null;
+  _invoice_data.time = datenow.getTime();
   writeToDatabase('invoice_data/' + newInvoiceRef.key, _invoice_data, false, false, false, null);
   _invoice_data = new Object();
   showSnackbar("Sale Finished!", 3000);
@@ -440,6 +542,16 @@ function saveInvoiceToObject() {
     invoice_parts[i].push(ele.value);
     ele = document.getElementById("invoice_input_specialorder_" + i);
     invoice_parts[i].push(ele.value);
+    ele = document.getElementById("invoice_input_orderinfo_" + i);
+    if (ele != null) {
+      _invoice_objs[i].orderinfo = ele.value;
+      invoice_parts[i].push(ele.value);
+    }
+    else {
+      _invoice_objs[i].orderinfo = "NULL";
+      invoice_parts[i].push("NULL");
+    }
+
     ++i;
     ele = document.getElementById("invoice_input_qty_" + i);
   }
@@ -476,9 +588,9 @@ function addInvoice_AddTableRow() {
   var len = table_ele.rows.length - 3;
   var row = table_ele.insertRow(len);
   row.innerHTML += "<tr class='in_td'><td>"
-    + "<input                              type='text' style='width: 53px; height: 15px; text-align: right;' onkeyup='calculateAddInvoiceAmounts();'></td><td>" //Quantity
+    + "<input                              type='text' style='width: 53px; height: 15px; text-align: right;' onkeyup='calculateAddInvoiceAmounts();' oninput='calculateAddInvoiceAmounts();'></td><td>" //Quantity
     + "<input                              type='text' style='width: 493px; height: 15px;'                  ></td><td>" //Description
-    + "<input id='input_addinvoice_price'  type='text' style='width: 48px; height: 15px; text-align: right;' onfocus='deselectTable();' onkeyup='calculateAddInvoiceAmounts();'></td><td>" //Price
+    + "<input id='input_addinvoice_price'  type='text' style='width: 48px; height: 15px; text-align: right;' onfocus='deselectTable();' onkeyup='calculateAddInvoiceAmounts();' oninput='calculateAddInvoiceAmounts();'></td><td>" //Price
     + "<input id='input_addinvoice_amount' type='text' style='width: 53px; height: 15px; text-align: right;' disabled></td><td class='no-print'>" //Amount
     + "<button id='button_addInvoice_remove_0' style='width: 20px; height: 20px; padding: 0px; color: white; background-color: red;' tabindex='-1' onclick='addInvoice_DeleteTableRow(this.parentElement.parentElement.rowIndex);'>x</button></td></tr>";
   row.cells[0].children[0].focus();
@@ -532,7 +644,6 @@ function addInvoice_Save() {
   if (ele != null)
     _invoice_data.bottom = ele.value;
 
-
   var table = document.getElementById("table_invoice_parts");
   var numTotalRows = table.rows.length - 4;
   var total = 0;
@@ -543,6 +654,10 @@ function addInvoice_Save() {
     row.push(table.rows[i + 1].cells[1].children[0].value);
     row.push(table.rows[i + 1].cells[2].children[0].value);
     row.push(table.rows[i + 1].cells[3].children[0].value);
+    if (table.rows[i + 1].cells[1].children.length > 1)
+      row.push(table.rows[i + 1].cells[1].children[1].value);
+    else
+      row.push("NULL");
     invoice_parts.push(row);
   }
   _invoice_data.invoice_parts = invoice_parts;
@@ -551,6 +666,7 @@ function addInvoice_Save() {
   var newInvoiceRef = invoiceDataListRef.push();
   _invoice_data.bottom = null;
   writeToDatabase('invoice_data/' + newInvoiceRef.key, _invoice_data, false, false, false, null);
+  writeToChangeHistory("Add | Invoice", "New Invoice no. \"" + _invoice_data.invoice_no + "\"");
   showSnackbar("Invoice Saved", 3000);
   exitInvoiceFromNew();
 }

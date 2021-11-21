@@ -31,6 +31,12 @@ function saveEmployeeIDs() {
         else
             obj0.admin = true;
     }
+    if (_downloaded_employee_ids != null)
+        for (let [key, val] of Object.entries(_downloaded_employee_ids)) {
+            var compare_str = getObjectCompareString(val, obj[key]);
+            if (compare_str != null)
+                writeToChangeHistory("Add/Edit | Employee", "Added/Edited Employee \"" + val.first_name + " " + val.middle_name + " " + val.last_name + " " + val.id + "\" | " + compare_str);
+        }
     writeToDB("data/employeeids", obj, null);
 }
 
@@ -48,10 +54,10 @@ function insertEmployeeIDTableRow(first_name, middle_name, last_name, id, admin)
     var table = document.getElementById("employee_ids_table_ele");
     var len = table.rows.length;
     var row = table.insertRow(len);
-    var tableHTML = "<td><input class='largeText' onkeyup='employeeIDTableChanged();' value='" + first_name
-        + "'></td><td><input class='largeText' onkeyup='employeeIDTableChanged();' value='" + middle_name
-        + "'></td><td><input class='largeText' onkeyup='employeeIDTableChanged();' value='" + last_name
-        + "'></td><td><input class='largeText' onkeyup='employeeIDTableChanged();' value='" + id
+    var tableHTML = "<td><input class='largeText' onkeyup='employeeIDTableChanged();' oninput='employeeIDTableChanged();' value='" + first_name
+        + "'></td><td><input class='largeText'    onkeyup='employeeIDTableChanged();' oninput='employeeIDTableChanged();' value='" + middle_name
+        + "'></td><td><input class='largeText'    onkeyup='employeeIDTableChanged();' oninput='employeeIDTableChanged();' value='" + last_name
+        + "'></td><td><input class='largeText'    onkeyup='employeeIDTableChanged();' oninput='employeeIDTableChanged();' value='" + id
         + "'></td><td><input style='width: 30px; height: 30px;' onchange='employeeIDTableChanged();' type='checkbox'";
 
     if (admin)
@@ -62,8 +68,14 @@ function insertEmployeeIDTableRow(first_name, middle_name, last_name, id, admin)
 
 function deleteEmployee(row) {
     var key = _employee_table_ids[row];
-    if (key != _local_admin)
+    if (key != _local_admin) {
+        var emp = _downloaded_employee_ids[key];
+        var admin_text = "Yes";
+        if (!emp.admin)
+            admin_text = "No";
+        writeToChangeHistory("Delete | Employee", "Deleted Employee \"" + emp.first_name + " " + emp.middle_name + " " + emp.last_name + " " + emp.id + "\" | Admin: \"" + admin_text + "\"");
         deleteFromDB("data/employeeids/" + key, null);
+    }
     else
         showSnackbar("Cannot delete main Admin!", 5000);
 }
@@ -136,6 +148,13 @@ function saveClients() {
         if (blacklisted)
             blacklistedObj[obj0.uid] = id;
     }
+
+    if (_downloaded_clients != null)
+        for (let [key, val] of Object.entries(_downloaded_clients)) {
+            var compare_str = getObjectCompareString(val, obj[key]);
+            if (compare_str != null)
+                writeToChangeHistory("Edit | Client", "Edited Client \"" + val.first_name + " " + val.last_name + "\" Email: \"" + val.email + "\" | Company: \"" + val.company + "\" | " + compare_str);
+        }
     writeToDB("data/clients", obj, null, _OVERRIDE_FIREBASE);
     writeToDB("data/blacklisted_clients", blacklistedObj, null, _OVERRIDE_FIREBASE);
 
@@ -157,6 +176,10 @@ function saveClients() {
                 for (var i = 0; i < lengthNeeded; ++i)
                     password += "0";
             }
+            var blacklisted_text = "Yes";
+            if (!blacklisted)
+                blacklisted_text = "No";
+            writeToChangeHistory("Add | Client", "New Client | Email: \"" + obj1.email + "\" | First Name: \"" + obj1.first_name + "\" | Last Name: \"" + obj1.last_name + "\" | Company: \"" + obj1.company + "\" | Blacklisted: \"" + blacklisted_text + "\"");
             firebase.auth().createUserWithEmailAndPassword(obj1.email, password) //Creating a new person also signs into that account, make sure to sign back into original account
                 .then((userCredential) => {
                     // Sign in success, update UI with the signed-in user's information
@@ -206,9 +229,9 @@ function insertClientTableRow(email, first_name, last_name, company, blacklisted
     var len = table.rows.length;
     var row = table.insertRow(len);
     var tableHTML = "<td><p>" + email + "</p></td>" +
-        "<td><input class='largeText' onkeyup='clientTableChanged();' value='" + first_name
-        + "'></td><td><input class='largeText' onkeyup='clientTableChanged();' value='" + last_name
-        + "'></td><td><input class='largeText' onkeyup='clientTableChanged();' value='" + company
+        "<td><input class='largeText'          onkeyup='clientTableChanged();' oninput='clientTableChanged();' value='" + first_name
+        + "'></td><td><input class='largeText' onkeyup='clientTableChanged();' oninput='clientTableChanged();' value='" + last_name
+        + "'></td><td><input class='largeText' onkeyup='clientTableChanged();' oninput='clientTableChanged();' value='" + company
         + "'></td><td><input style='width: 30px; height: 30px;' onchange='clientTableChanged();' type='checkbox'";
     if (blacklisted)
         tableHTML += "checked";

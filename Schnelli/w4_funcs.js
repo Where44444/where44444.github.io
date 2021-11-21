@@ -670,8 +670,8 @@ function getExpandableHTML(str_array, id, char_limit, width, /*optional*/ html_s
     var scriptLess = "document.getElementById('" + id_str + "').style.display='none'; document.getElementById('" + id_str_short + "').style.display=''; this.style.display='none'; document.getElementById('" + id_more + "').style.display=''";
     result = "<span id=" + id_str_short + ">" + str_short + "</span>" +
       "<span id=" + id_str + " style='display: none;'>" + str + "</span><br>" +
-      "<button id=" + id_more + " onclick=\"" + scriptMore + "\" style='width: " + width + ";'>More</button>" +
-      "<button id=" + id_less + " onclick=\"" + scriptLess + "\" style='width: " + width + "; display: none;'>Less</button>";
+      "<button id=" + id_more + " onclick=\"" + scriptMore + "\" style='font-size: 14px; width: " + width + ";'>More</button>" +
+      "<button id=" + id_less + " onclick=\"" + scriptLess + "\" style='font-size: 14px; width: " + width + "; display: none;'>Less</button>";
   }
   else if (highlight_term != null) {
     result = highlightStringEZ(result, highlight_term, startHighlight, endHighlight);
@@ -702,7 +702,7 @@ function deleteFromDatabase(key, addChangeAlert, is_content, is_content_extra, c
   }
 }
 
-function writeToDatabase(key_path, value, addChangeAlert, is_content, is_content_extra, content_extra_db, is_list) {
+function writeToDatabase(key_path, value, addChangeAlert, is_content, is_content_extra, content_extra_db) {
   writeToDB(key_path, value, null);
   if (addChangeAlert) {
     addNewChangeAlert(key_path, false, is_content, is_content_extra, content_extra_db);
@@ -728,8 +728,9 @@ function addNewChangeAlert(key, deleted, is_content, is_content_extra, content_e
     else {
       for (let [key1, val] of Object.entries(val0)) {
         ++i;
-        if (val.key == key)
+        if (val.key == key) {
           deleteFromDB("change_alerts/" + key1, null);
+        }
 
         if (i == numChildren) {
           writeToDB(ref2_keyPath, obj, null);
@@ -757,8 +758,10 @@ function loadChangeAlerts() {
         }
       }
       var timeElapsed = new Date().getTime() - Number(alertOBJ.time);
-      if (timeElapsed >= MILLIS_IN_DAY  && !_subscribed_mode) //Delete alert if older than a day
+      if (timeElapsed >= MILLIS_IN_DAY && !_subscribed_mode) //Delete alert if older than a day
+      {
         deleteFromDB("change_alerts/" + key, null);
+      }
     }
   });
 }
@@ -878,8 +881,25 @@ function saveContentExtraToDatabase(i, j) {
   _CHILD_PART_LINKS_CACHE.clear();
 }
 
-var TAB_DIVS = ["TAB_search", "TAB_record_views", "TAB_record_browser", "TAB_part_child_record_manager", "TAB_sort_order", "TAB_part_history", "TAB_fileinput", "TAB_reorders", "TAB_invoice_history", "TAB_invoice_settings", "TAB_invoice", "TAB_mainmenu", "TAB_search_results", "TAB_add_invoice", "TAB_people", "TAB_suggestions"];
-var TAB_MAINMENU_DIVS = [
+const TAB_DIVS = [
+  "TAB_search",
+  "TAB_record_views",
+  "TAB_record_browser",
+  "TAB_part_child_record_manager",
+  "TAB_sort_order",
+  "TAB_part_history",
+  "TAB_fileinput",
+  "TAB_reorders",
+  "TAB_invoice_history",
+  "TAB_invoice_settings",
+  "TAB_invoice",
+  "TAB_mainmenu",
+  "TAB_search_results",
+  "TAB_add_invoice",
+  "TAB_people",
+  "TAB_suggestions",
+  "TAB_change_history"];
+const TAB_MAINMENU_DIVS = [
   '<span style="color:white">S</span>earch',
   'Record <span style="color:white">V</span>iews',
   'Record <span style="color:white">B</span>rowser',
@@ -894,8 +914,29 @@ var TAB_MAINMENU_DIVS = [
   '',
   'Se<span style="color:white">a</span>rch Results',
   'Add <span style="color:white">N</span>ew Invoice',
-  '',
-  ''
+  'Peop<span style="color:white">l</span>e',
+  'S<span style="color:white">u</span>ggestions',
+  '<span style="color:white">C</span>hange History'
+];
+
+const SUBSCRIBED_DIVS = [
+  true,
+  true,
+  true,
+  true,
+  true,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  true,
+  false,
+  false,
+  true,
+  false
 ];
 
 var TAB_SEARCH = 0;
@@ -914,6 +955,7 @@ var TAB_SEARCH_RESULTS = 12;
 var TAB_ADD_INVOICE = 13;
 var TAB_PEOPLE = 14;
 var TAB_SUGGESTIONS = 15;
+var TAB_CHANGE_HISTORY = 16;
 var TAB_SYNC_DB = -1;
 
 var _selected_tab = 0;
@@ -976,6 +1018,9 @@ function setTab(num) {
     var ele = document.getElementById("search_div");
     ele.scrollIntoView({ behavior: "auto", block: "nearest", inline: "nearest" });
   }
+  if (num == TAB_MAINMENU) {
+    window.scrollTo(0, false);
+  }
 
   if (num == TAB_SEARCH_RESULTS) {
     var cell = getCell(0, _selectedCell, _TABLE_SEARCH_RESULTS);
@@ -984,8 +1029,11 @@ function setTab(num) {
     if (_search_results_resorted)
       populateSearchResults(_currentSearchResultsStartIndex, false, false, -1);
   }
-  if (num == TAB_RECORD_VIEWS)
+  if (num == TAB_RECORD_VIEWS) {
     populateRecordViews();
+    if (_recordViews.length > 0)
+      selectRecordView(_recordViews.length - 1, true);
+  }
   if (num == TAB_RECORD_BROWSER) {
     _record_browser_filter_string_Standardized = null;
     populateRecordBrowser(_currentRecordBrowserStartIndex, _highlightgreen_requested);
@@ -1030,8 +1078,9 @@ function setTab(num) {
     updateReorderParentIDs();
   }
 
-  if (num == TAB_INVOICE_HISTORY)
-    populateInvoiceHistory();
+  if (num == TAB_INVOICE_HISTORY) {
+    document.getElementById("button_update_invoice_history").click();
+  }
 
   if (num == TAB_INVOICE_SETTINGS) {
     var ele = document.getElementById("invoice_address_textarea");
@@ -1044,9 +1093,12 @@ function setTab(num) {
     document.activeElement.blur();
   }
 
-  if (num == TAB_SUGGESTIONS) {
+  if (num == TAB_SUGGESTIONS)
     updateSuggestionsBox();
-  }
+
+
+  if (num == TAB_CHANGE_HISTORY)
+    document.getElementById("button_update_change_history").click();
 
   setKeyboardShortcutBar();
 }
@@ -1518,7 +1570,73 @@ function printPrintButtonPressed() {
   window.print();
 }
 
-function printBackArrowPressed(){
+function printBackArrowPressed() {
   document.getElementById("content_div").style.display = "";
   document.getElementById("do_Print").style.display = "none";
+}
+
+function copyObj(obj) {
+  var obj2 = new Object();
+  for (let [key, value] of Object.entries(obj)) {
+    obj2[key] = value;
+  }
+  return obj2;
+}
+
+function getObjectCompareString(obj1, obj2) {
+  var str = null;
+  for (let [key1, value1] of Object.entries(obj1)) {
+    for (let [key2, value2] of Object.entries(obj2)) {
+      if (key1 != "w4_dm" && key1 == key2 && value1 != value2) {
+        if (str == null)
+          str = "";
+        str += key1 + " changed from \"" + value1 + "\" to \"" + value2 + "\" | ";
+      }
+    }
+  }
+  return str;
+}
+
+function objFromContentRow(row) {
+  var obj = new Object();
+  for (var i = 0; i < _INDEXES.length; ++i) {
+    obj[_INDEXES[i]] = _content[row][i];
+  }
+  for (var i = 0; i < _MEMO_INDEXES.length; ++i) {
+    obj[_MEMO_INDEXES[i]] = stringifyArrayEndChar(_content[row][i + _INDEXES.length], " ");
+  }
+  return obj;
+}
+
+function getSortOrderString(sortObj) {
+  var str = "";
+  for (var i = 0; i < sortObj.sorted_indexes.length; ++i) {
+    if (i != 0)
+      str += ", ";
+    str += INDEXES_CONCAT[_INDEX_ORDER[sortObj.sorted_indexes[i]]];
+  }
+  return str;
+}
+
+function ellipsizeText(text, max_length) {
+  var result = "";
+  if (text != null) {
+    if (text.length > max_length)
+      result = text.substring(0, max_length) + "...";
+    else
+      result = text;
+  }
+  return result;
+}
+
+function eleSmartScroll(ele, pageTop, pageBottom0) { //Scrolls to put ele in view with as little scrolling as possible, and doesn't scroll if it's already fully in view
+  let pageBottom = window.innerHeight - pageBottom0;
+  if (ele.getBoundingClientRect().top < pageTop) {
+    let y = ele.getBoundingClientRect().top + window.pageYOffset - pageTop;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+  }
+  else if (ele.getBoundingClientRect().bottom > pageBottom) {
+    let y = ele.getBoundingClientRect().bottom + window.pageYOffset - pageBottom;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+  }
 }

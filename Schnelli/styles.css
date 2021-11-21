@@ -296,17 +296,18 @@ button:hover {
 
 .tabButton {
   font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
   cursor: pointer;
   flex-grow: 1;
   text-align: center;
-  height: 40px;
-  padding-top: 20px;
+  height: 25px;
+  padding-top: 2px;
   /* border: solid 6px;
     border-color: #70A2FF; */
   background-color: #70A2FF;
   color: white;
   border: solid 6px;
-  border-color: white;
+  border-color: lightblue;
   border-radius: 20px;
 }
 
@@ -464,9 +465,9 @@ button:hover {
   }
 }
 
-.recordview {
+/* .recordview {
   font-size: 20px;
-}
+} */
 
 .loader {
   border: 16px solid white;

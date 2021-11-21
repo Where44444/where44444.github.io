@@ -20,10 +20,10 @@ function populatePartHistory() {
   }
 
   var table_html = "<table><tr>"
-    + "<th style='background-color: white; position: sticky; top: 0; z-index: 2;'>Date Last Sold</th>"
-    + "<th style='background-color: white; position: sticky; top: 0; z-index: 2;'>Part Number</th>"
-    + "<th style='background-color: white; position: sticky; top: 0; z-index: 2;'>Description</th>"
-    + "<th style='background-color: white; position: sticky; top: 0; z-index: 2;'>Quantity</th></tr>";
+    + "<th style='background-color: white; position: sticky; top: " + _top_bar_height + "; z-index: 2;'>Date Last Sold</th>"
+    + "<th style='background-color: white; position: sticky; top: " + _top_bar_height + "; z-index: 2;'>Part Number</th>"
+    + "<th style='background-color: white; position: sticky; top: " + _top_bar_height + "; z-index: 2;'>Description</th>"
+    + "<th style='background-color: white; position: sticky; top: " + _top_bar_height + "; z-index: 2;'>Quantity</th></tr>";
   var filter_pn = document.getElementById("part_history_filter_pn").value;
   var filter_desc = document.getElementById("part_history_filter_desc").value;
   var filter_price = document.getElementById("part_history_filter_price").value;

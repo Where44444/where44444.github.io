@@ -58,6 +58,7 @@ function updateSuggestionsBox() {
 function review_suggestion(approved, key) {
   writeToDB("part_suggestions/" + key + "/approved", approved, function () {
     writeToDB("part_suggestions/" + key + "/w4_employeeid", _current_employee.id, function () {
+      writeToChangeHistory("Review | Part Suggestion", "Part Suggestion \"" + ellipsizeText(_part_suggestions[key].text, 100) + "\" | Approved: \"" + approved + "\"");
       updateSuggestionsBox();
     }, _OVERRIDE_FIREBASE);
   }, _OVERRIDE_FIREBASE);

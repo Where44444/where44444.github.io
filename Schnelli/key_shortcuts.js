@@ -27,6 +27,19 @@ document.addEventListener("keydown", function (event) {
   // if(event.code == KEY_SHIFT)
   //   _SHIFT_HELD = true;
   var content_div_visible = document.getElementById("content_div").style.display != "none";
+  if (!pressedKeys[KEY_CTRL_LEFT] && !pressedKeys[KEY_SHIFT_LEFT] && !pressedKeys[KEY_ALT_LEFT]
+    && !pressedKeys[KEY_CTRL_RIGHT] && !pressedKeys[KEY_SHIFT_RIGHT] && !pressedKeys[KEY_ALT_RIGHT]) {
+    if (event.code == KEY_ESCAPE) {
+      if (document.getElementById("firebase_temp_login_div").style.display != "none") {
+        if (!_focused) {
+          document.getElementById("button_exit_temp_login").click();
+        }
+        document.activeElement.blur();
+        _focused = false;
+      }
+    }
+  }
+
   if (content_div_visible) {
     if (!pressedKeys[KEY_CTRL_LEFT] && !pressedKeys[KEY_SHIFT_LEFT] && !pressedKeys[KEY_ALT_LEFT]
       && !pressedKeys[KEY_CTRL_RIGHT] && !pressedKeys[KEY_SHIFT_RIGHT] && !pressedKeys[KEY_ALT_RIGHT]) {
@@ -162,6 +175,14 @@ document.addEventListener("keydown", function (event) {
                 document.activeElement.blur();
               }
             }
+            else if (_selected_tab == TAB_CHANGE_HISTORY) {
+              var ele1 = document.getElementById("changehistory_table_row_" + _table_changehistory_selected_row);
+              if (ele1 != null && ele1.style.display != "none") {
+                ele1.click();
+                event.preventDefault();
+                document.activeElement.blur();
+              }
+            }
             else if (_focused && document.activeElement.id == "search_results_max") {
               var ele1 = document.getElementById("save_search_results_max");
               if (ele1 != null) {
@@ -194,6 +215,10 @@ document.addEventListener("keydown", function (event) {
             }
             if (_selected_tab == TAB_PART_HISTORY) {
               if (set_tablePartHistory_SelectedRow(_table_parthistory_selected_row - 1))
+                event.preventDefault();
+            }
+            if (_selected_tab == TAB_CHANGE_HISTORY) {
+              if (set_tableChangeHistory_SelectedRow(_table_changehistory_selected_row - 1))
                 event.preventDefault();
             }
             if (_selected_tab == TAB_PDF_IMPORT) {
@@ -232,6 +257,10 @@ document.addEventListener("keydown", function (event) {
             }
             if (_selected_tab == TAB_PART_HISTORY) {
               if (set_tablePartHistory_SelectedRow(_table_parthistory_selected_row + 1))
+                event.preventDefault();
+            }
+            if (_selected_tab == TAB_CHANGE_HISTORY) {
+              if (set_tableChangeHistory_SelectedRow(_table_changehistory_selected_row + 1))
                 event.preventDefault();
             }
             else if (_selected_tab == TAB_PDF_IMPORT) {
@@ -374,7 +403,9 @@ document.addEventListener("keydown", function (event) {
             }
             break;
           case KEY_C:
-            if (!_focused && _selected_tab == TAB_SEARCH)
+            if (shortcutmenu_mainmenu_available)
+              setTab(TAB_CHANGE_HISTORY);
+            else if (!_focused && _selected_tab == TAB_SEARCH)
               document.getElementById("search_add_child_part_links").click();
             else if (!_focused && _selected_tab == TAB_RECORD_BROWSER && _key_shortcut_copy_part_available) {
               var ele1 = document.getElementById("copy_icon_" + (_selectedRow));
@@ -428,6 +459,9 @@ document.addEventListener("keydown", function (event) {
             else if (!_focused && _selected_tab == TAB_PART_HISTORY) {
               clickPartHistory_ClearFilters();
             }
+            else if (!_focused && _selected_tab == TAB_CHANGE_HISTORY) {
+              clickChangeHistory_ClearFilters();
+            }
             else if (!_focused && _selected_tab == TAB_ADD_INVOICE) {
               if (clickAddInvoice_Cancel())
                 event.preventDefault();
@@ -454,10 +488,13 @@ document.addEventListener("keydown", function (event) {
                 event.preventDefault();
               }
             }
-            else if (!_focused && _key_shortcut_record_views_image_available) {
-              _selected_imagesource = _IMAGE_DISTRIBUTORS;
-              checkForRecordViewImageButtons();
+            else if (!_focused && _selected_tab == TAB_RECORD_VIEWS && document.getElementById("googlesearch_image_div").style.display != "none") {
+              document.getElementById("radio_image_distributors").click();
             }
+            // else if (!_focused && _key_shortcut_record_views_image_available) {
+            //   _selected_imagesource = _IMAGE_DISTRIBUTORS;
+            //   checkForRecordViewImageButtons();
+            // }
             break;
           case KEY_E:
             if (shortcutmenu_mainmenu_available) {
@@ -519,6 +556,14 @@ document.addEventListener("keydown", function (event) {
                 event.preventDefault();
               }
             }
+            if (!_focused && _selected_tab == TAB_CHANGE_HISTORY) {
+              var ele1 = document.getElementById("change_history_filter_time");
+              if (ele1 != null && ele1.style.display != "none") {
+                ele1.focus();
+                ele1.select();
+                event.preventDefault();
+              }
+            }
             else if (!_focused && _selected_tab == TAB_INVOICE) {
               var ele1 = document.getElementById("button_finish_sale");
               if (ele1 != null && ele1.style.display != "none") {
@@ -551,6 +596,17 @@ document.addEventListener("keydown", function (event) {
           case KEY_J:
             if (!_focused && _key_shortcut_record_views_jump_pn_available) {
               checkForRecordViewJumpChildPartButtons();
+            }
+            break;
+          case KEY_L:
+            if (shortcutmenu_mainmenu_available) {
+              setTab(TAB_PEOPLE);
+            }
+            break;
+          case KEY_M:
+            if (!_focused && _key_shortcut_record_views_image_available) {
+              _selected_imagesource = _IMAGE_EVERYWHERE;
+              checkForRecordViewImageButtons();
             }
             break;
           case KEY_N:
@@ -693,10 +749,16 @@ document.addEventListener("keydown", function (event) {
               if (clickAddInvoice_Save())
                 event.preventDefault();
             }
+            else if (!_focused && _selected_tab == TAB_INVOICE_HISTORY) {
+              if (clickInvoice_Save())
+                event.preventDefault();
+            }
             break;
           case KEY_T:
-            if (shortcutmenu_mainmenu_available)
+            if (shortcutmenu_mainmenu_available) {
               setTab(TAB_PART_HISTORY);
+              event.preventDefault();
+            }
             else if (!_focused && _selected_tab == TAB_SEARCH_RESULTS) {
               var ele1 = document.getElementById("button_search_results_jump_top");
               if (ele1 != null)
@@ -716,11 +778,18 @@ document.addEventListener("keydown", function (event) {
             }
             break;
           case KEY_U:
-            if (!_focused && _selected_tab == TAB_REORDERS) {
+            if (shortcutmenu_mainmenu_available) {
+              setTab(TAB_SUGGESTIONS);
+              event.preventDefault();
+            }
+            else if (!_focused && _selected_tab == TAB_REORDERS) {
               clickReorders_UpdateRow();
             }
             else if (!_focused && _selected_tab == TAB_INVOICE_HISTORY) {
               clickInvoiceHistory_Update();
+            }
+            else if (!_focused && _selected_tab == TAB_CHANGE_HISTORY) {
+              clickChangeHistory_Update();
             }
             break;
           case KEY_V:
@@ -742,9 +811,8 @@ document.addEventListener("keydown", function (event) {
             else if (!_focused && _selected_tab == TAB_REORDERS) {
               clickReorders_AddRecordView();
             }
-            else if (!_focused && _key_shortcut_record_views_image_available) {
-              _selected_imagesource = _IMAGE_EVERYWHERE;
-              checkForRecordViewImageButtons();
+            else if (!_focused && _selected_tab == TAB_RECORD_VIEWS && document.getElementById("googlesearch_image_div").style.display != "none") {
+              document.getElementById("radio_image_everywhere").click();
             }
             break;
           case KEY_W:
@@ -813,10 +881,12 @@ document.addEventListener("keydown", function (event) {
               }
             }
             else if (!_focused && _selected_tab == TAB_RECORD_VIEWS) {
-              var ele1 = document.getElementById("div_recordview_collapser_" + _selected_record_view);
-              var ele2 = document.getElementById("record_view_details_" + _selected_record_view + "_div");
-              if (ele1 != null && ele1.style.display != "none" && ele2 != null && ele2.style.display != "none")
-                ele1.click();
+              for (var i = 0; i < _recordViews.length; ++i) {
+                var ele1 = document.getElementById("div_recordview_collapser_" + i);
+                var ele2 = document.getElementById("record_view_details_" + i + "_div");
+                if (ele1 != null && ele1.style.display != "none" && ele2 != null && ele2.style.display != "none")
+                  ele1.click();
+              }
             }
             break;
           case KEY_PLUS:
@@ -855,10 +925,12 @@ document.addEventListener("keydown", function (event) {
               }
             }
             else if (!_focused && _selected_tab == TAB_RECORD_VIEWS) {
-              var ele1 = document.getElementById("div_recordview_collapser_" + _selected_record_view);
-              var ele2 = document.getElementById("record_view_details_" + _selected_record_view + "_div");
-              if (ele1 != null && ele1.style.display != "none" && ele2 != null && ele2.style.display == "none")
-                ele1.click();
+              for (var i = 0; i < _recordViews.length; ++i) {
+                var ele1 = document.getElementById("div_recordview_collapser_" + i);
+                var ele2 = document.getElementById("record_view_details_" + i + "_div");
+                if (ele1 != null && ele1.style.display != "none" && ele2 != null && ele2.style.display == "none")
+                  ele1.click();
+              }
             }
             break;
         }

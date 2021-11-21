@@ -56,14 +56,20 @@ function startNewPartChild() {
 
 function saveEditPartChild() {
   // var extraobj = _content_extra[_selected_child_part_db][_selected_child_part_record][0];
+
   var newObj = new Object();
   for (var i = 0; i < _EXTRA_DB_FIELDS[_selected_child_part_db].length; ++i) {
     var key = _EXTRA_DB_FIELDS[_selected_child_part_db][i];
     newObj[key] = document.getElementById("partchild_edit_input_" + key).value;
   }
+  var originalObj = copyObj(_content_extra[_selected_child_part_db][_selected_child_part_record][0]);
   _content_extra[_selected_child_part_db][_selected_child_part_record][0] = newObj;
-  if (!_DEBUG_LOCAL_MODE)
+  if (!_DEBUG_LOCAL_MODE) {
     writeToDatabase("parts_db/" + _EXTRA_DB[_selected_child_part_db] + "/" + _content_extra[_selected_child_part_db][_selected_child_part_record][1], newObj, true, false, true, _selected_child_part_db);
+    var compare_str = getObjectCompareString(originalObj, newObj);
+    if (compare_str != null)
+      writeToChangeHistory("Edit | Child Record", "Edited Child Record in \"" + _EXTRA_DB[_selected_child_part_db] + "\" with PN \"" + originalObj.PN + "\" " + compare_str);
+  }
   _selected_child_part_db = null;
   _selected_child_part_record = null;
   populateChildPartRecordManager();
@@ -87,8 +93,11 @@ function startDeleteEditPartChild() {
 }
 
 function confirmDeleteEditPartChild() {
-  if (!_DEBUG_LOCAL_MODE)
+  var pn = _content_extra[_selected_child_part_db][_selected_child_part_record][0].PN;
+  if (!_DEBUG_LOCAL_MODE) {
     deleteFromDatabase("parts_db/" + _EXTRA_DB[_selected_child_part_db] + "/" + _content_extra[_selected_child_part_db][_selected_child_part_record][1], true, false, true, _selected_child_part_db);
+    writeToChangeHistory("Delete | Child Record", "Deleted Child Record in \"" + _EXTRA_DB[_selected_child_part_db] + "\" with PN \"" + pn + "\"");
+  }
   _content_extra[_selected_child_part_db].splice(_selected_child_part_record, 1);
   _selected_child_part_db = null;
   _selected_child_part_record = null;
@@ -122,12 +131,15 @@ function saveNewPartChild() {
   }
   var newRef = getDatabaseRef("parts_db/" + _EXTRA_DB[db_index]).push();
   _content_extra[db_index].push([newObj, newRef.key])
-  if (!_DEBUG_LOCAL_MODE)
+  if (!_DEBUG_LOCAL_MODE) {
     writeToDatabase("parts_db/" + _EXTRA_DB[db_index] + "/" + newRef.key, newObj, true, false, true, db_index);
+    writeToChangeHistory("Add | Child Record", "New Child Record in \"" + _EXTRA_DB[db_index] + "\" with PN \"" + newObj.PN + "\"");
+  }
 
   document.getElementById("part_child_button_new").style.display = "";
   document.getElementById("part_child_new_table_div").innerHTML = "";
   populateRecordViews();
 
   _CHILD_PART_LINKS_CACHE.clear();
+
 }

@@ -12,7 +12,8 @@ const db_lists_to_sync = [
   "parts_db/OEM",
   "parts_db/P&A_PRI",
   "sort_orders",
-  "data/employeeids"
+  "data/employeeids",
+  "change_history"
 ];
 
 const db_other_to_sync = [

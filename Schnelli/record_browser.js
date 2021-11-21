@@ -64,7 +64,6 @@ function populateRecordBrowser(indexStart, highlight_IndexStart_Green, populateF
     document.getElementById("part_child_record_manager").style.display = "block";
     document.getElementById("sort_order_div").style.display = "block";
     document.getElementById("search_div").style.display = "block";
-    document.getElementById("message").innerHTML = "";
     document.getElementById("record_browser_div").style.display = "block";
     // var tableHTML = "<p style='display: inline;'>Showing " + (indexStart + 1) + " - " + (indexEnd + 1) + " of " + _content.length + " Record(s)</p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + 
     var tableHTML = "<p style='display: inline;'>Showing " + _recordBrowserMax + " of " + _content.length + " Record(s)</p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
@@ -78,14 +77,14 @@ function populateRecordBrowser(indexStart, highlight_IndexStart_Green, populateF
       "<p style='background-color: #70A2FF;'>R<span style='color: white;'>e</span>cord Browser</p>" +
 
       "<div id='add_part_table_div'></div>" +
-      "<table class='clickable' id='record_browser_table'><thead><tr>";
+      "<table class='clickable' id='record_browser_table' style='font-size: 12px;'><thead><tr>";
 
     for (var i = 0; i < INDEXES_CONCAT.length; ++i) {
       var index = _INDEX_ORDER[i];
       var bgcolor = "inherit";
       if (_contentSortedIndexes.includes(index))
         bgcolor = getSortColor(index);
-      tableHTML += "<th class='clickable' onclick='sortContentByIndex(" + index + ");' style='background-color: " + bgcolor + "; position: sticky; top: 0; z-index: 4;'><div style='width: " + INDEX_WIDTHS_CONCAT[index] + ";'>" + INDEXES_CONCAT[index] + "</div></th>";
+      tableHTML += "<th class='clickable' onclick='sortContentByIndex(" + index + ");' style='background-color: " + bgcolor + "; position: sticky; top: " + _top_bar_height + "; z-index: 4;'><div style='width: " + INDEX_WIDTHS_CONCAT[index] + ";'>" + INDEXES_CONCAT[index] + "</div></th>";
     }
     tableHTML += "</thead></tr><tbody>";
 
@@ -183,7 +182,7 @@ function startEditRecord(record_id, rownum, row_id) {
           "<button id='save_edit_record' onclick='saveEditRecord(" + rownum + ");'          style='background-color: #70A2FF; color: black; width: 60px;'><span style='color: white;'>S</span>ave</button>" +
           "<button id='cancel_edit_record' onclick='cancelEditRecord()'                     style='background-color: #70A2FF; color: black; width: 60px; margin-top: 5px;'><span style='color: white;'>C</span>ancel</button>" +
           "<button id='delete_edit_record' onclick='startDeleteRecord(); event.preventDefault();'                    style='background-color: #70A2FF; color: black; width: 60px; margin-top: 5px; color: red;'><span style='color: white;'>D</span>elete</button>" +
-          "<button id='confirm_delete_record' onclick='confirmDeleteRecord(" + rownum + ")' style='background-color: #70A2FF; color: black; display: none; color: red;'>Confirm&nbsp;<span style='color: white;'>D</span>elete</button>" +
+          "<button id='confirm_delete_record' onclick='confirmDeleteRecord(" + rownum + ")' style='background-color: #70A2FF; color: black; display: none; color: red; margin-bottom: 5px;'>Confirm&nbsp;<span style='color: white;'>D</span>elete</button>" +
           "<button id='cancel_delete_record' onclick='cancelDeleteRecord();'                style='background-color: #70A2FF; color: black; display: none;'><span style='color: white;'>C</span>ancel Delete</button>" +
           "</div>" +
           "<input type='text' id='edit_textarea_" + i + "' style='width: " + INDEX_WIDTHS_CONCAT[index] + "' onfocus='deselectTable();' onchange='deselectTable();'></input></div>";
@@ -207,6 +206,7 @@ function startEditRecord(record_id, rownum, row_id) {
 }
 
 function saveEditRecord(rownum) {
+  var originalObj = objFromContentRow(rownum);
   for (var i = 0; i < INDEXES_CONCAT.length; ++i) {
     var index = _INDEX_ORDER[i];
     if (index < _INDEXES.length)
@@ -214,6 +214,7 @@ function saveEditRecord(rownum) {
     else //Memo Fields
       _content[rownum][index] = document.getElementById("edit_textarea_" + i).value.split("\n");
   }
+  var newObj = objFromContentRow(rownum);
   generateContent_Standard_Row(rownum);
   populateRecordBrowser(_currentRecordBrowserStartIndex, false);
   clearSearchResults();
@@ -226,6 +227,9 @@ function saveEditRecord(rownum) {
     for (var i = 0; i < _MEMO_INDEXES.length; ++i)
       partObj[_MEMO_INDEXES[i]] = row[i + _INDEXES.length];
     writeToDatabase('parts_db/P&A_PRI/' + row[row.length - 1], partObj, true, true, false, null);
+    var compare_str = getObjectCompareString(originalObj, newObj);
+    if (compare_str != null)
+      writeToChangeHistory("Edit | Parent Record", "Edited Parent Record with OEM_PN \"" + originalObj.OEM_PN + "\" " + compare_str);
   }
 }
 
@@ -346,6 +350,7 @@ function saveNewRecord() {
     for (var i = 0; i < _MEMO_INDEXES.length; ++i)
       partObj[_MEMO_INDEXES[i]] = row[i + _INDEXES.length];
     writeToDatabase('parts_db/P&A_PRI/' + newPartRef.key, partObj, true, true, false, null);
+    writeToChangeHistory("Add | Parent Record", "New Parent Record with OEM_PN \"" + partObj.OEM_PN + "\"");
   }
 }
 
@@ -368,8 +373,10 @@ function cancelDeleteRecord() {
 }
 
 function confirmDeleteRecord(rownum) {
+  var oem_pn = _content[rownum][_OEM_PN];
   if (!_DEBUG_LOCAL_MODE) {
     deleteFromDatabase('parts_db/P&A_PRI/' + _content[rownum][_content[rownum].length - 1], true, true, false, null);
+    writeToChangeHistory("Delete | Parent Record", "Deleted Parent Record with OEM_PN \"" + oem_pn + "\"");
   }
 
   _content.splice(rownum, 1);

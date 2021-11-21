@@ -84,6 +84,7 @@ function socketOpened(event) {
         document.getElementById("local_server_connect_div_non_loading").style.display = "block";
         loadContentDiv1();
         setKeyboardShortcutBar();
+        // deleteFromDB("change_history");
     }
 }
 

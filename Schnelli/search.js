@@ -557,7 +557,7 @@ function populateSearchResults(indexStart, selectTopRow, selectBottomRow, rowToS
       var bgcolor = "inherit";
       if (_contentSortedIndexes.includes(index) && _search_results_resorted)
         bgcolor = getSortColor(index);
-      _table_HTML_0 += "<th class='clickable' onclick='sortContentByIndex(" + index + ");' style='background-color: " + bgcolor + "; position: sticky; top: 0; z-index: 4;'><div style='width: " + INDEX_WIDTHS_CONCAT[index] + ";'>" + INDEXES_CONCAT[index] + "</div></th>";
+      _table_HTML_0 += "<th class='clickable' onclick='sortContentByIndex(" + index + ");' style='background-color: " + bgcolor + "; position: sticky; top: " + _top_bar_height + "; z-index: 4;'><div style='width: " + INDEX_WIDTHS_CONCAT[index] + ";'>" + INDEXES_CONCAT[index] + "</div></th>";
     }
     _table_HTML_0 += "</tr>";
 
@@ -669,7 +669,6 @@ function finishPopulateSearchResults(_table_HTML_0) {
   // document.getElementById("search_results_expander").style.display = "block";
   // toggle_search_results(1);
   document.getElementById("search_results_div").style.display = "";
-  document.getElementById("message").innerHTML = "";
 
   if (_select_top_row) {
     var cell = getCell(0, _selectedCell, _TABLE_SEARCH_RESULTS);

@@ -4,6 +4,7 @@ var _recordViewHightlightType = 0;
 var _selected_record_view = 0;
 var _last_selected_record_view = 0;
 var _RECORDVIEW_COMPAREALL_MINREPITITIONS = 2;
+const rv_fontsize = "12px";
 
 function populateRecordViews() {
   var singleWordsToOccurences = new Map(); //Standardized (word) to      [[num occurences, color],             [actual word spellings], [row nums]]
@@ -161,11 +162,13 @@ function populateRecordViews() {
   if (_recordViews.length > 0)
     htmlToAdd +=
       // "<h1 class='clickable' onclick='toggleDiv(null, \"record_views_table\");'><span id='record_views_table_expander_icon' style='font-size: 50px; font-weight: 100;'>-</span> Record Views</h1>" + 
-      "<div id='record_views_table_div'>" +
+      "<div id='record_views_table_div' style='font-size: 16px;'>" +
+      "<div style='position: fixed; top: " + _top_bar_height + "; left: 0px; background-color: lightblue; width: 100%; z-index: 2;'>" +
       "<label class='radiobutton_container' style='display: inline;'>Show Differences&nbsp;&nbsp; <input onchange='setRecordViewHighlightType(0);' type='radio' id='radio_record_views_differences'  name='radio_record_views_highlighting'" + differences_checked + "><span class='radiomark'></span></label>" +
       "<label class='radiobutton_container' style='display: inline;'>Show Similarities&nbsp;&nbsp;<input onchange='setRecordViewHighlightType(1);' type='radio' id='radio_record_views_similarities' name='radio_record_views_highlighting'" + similarities_checked + "><span class='radiomark'></span></label>" +
       "<label class='radiobutton_container' style='display: inline;'>Show Compare All&nbsp;&nbsp; <input onchange='setRecordViewHighlightType(2);' type='radio' id='radio_record_views_compareall'   name='radio_record_views_highlighting'" + compareall_checked + "><span class='radiomark'></span></label>" +
-      "<br><br>";
+      "</div>" +
+      "<br>";
 
   var first_record_rownum = 0;
   for (var i = 0; i < _recordViews.length; ++i) {
@@ -210,32 +213,32 @@ function populateRecordViews() {
         bgstyle = "style='background-color: lightblue;'";
       htmlToAdd += "<div class='recordview' id='record_view_" + i + "' " + bgstyle + " onclick='selectRecordView(" + i + ");'>";
       htmlToAdd += "<span style='color: white; background-color: #70A2FF; font-size: 30px;'>&nbsp;" + (i + 1) + "&nbsp;</span>&nbsp;";
-      htmlToAdd += "<button style='width: 50px; background-color: #70A2FF;' onclick='removeRecordView(" + i + ");' id='button_record_view_exit_" + i + "'>X</button> "
-        + "<button style='background-color: #70A2FF; color: black;' onclick='populateRecordBrowser(" + rownum + ",true); setTab(" + TAB_RECORD_BROWSER + ");' id='button_record_view_jump_to_browser_" + i + "'><span style='color: white;'>B</span>rowser</button> ";
+      htmlToAdd += "<button style='width: 50px; background-color: #70A2FF; font-size: " + rv_fontsize + ";' onclick='removeRecordView(" + i + ");' id='button_record_view_exit_" + i + "'>X</button> "
+        + "<button style='background-color: #70A2FF; color: black; font-size: " + rv_fontsize + ";' onclick='populateRecordBrowser(" + rownum + ",true); setTab(" + TAB_RECORD_BROWSER + ");' id='button_record_view_jump_to_browser_" + i + "'><span style='color: white;'>B</span>rowser</button> ";
       if (_subscribed_mode)
         htmlToAdd += "<img id='record_view_data_edit_icon_" + i + "' style='width: 0px; height: 0px;'>"
       else
         htmlToAdd += "<img class='clickable' id='record_view_data_edit_icon_" + i + "' src='pencil.png' onclick='startEditRecordViewData(" + i + ")'; width=25px height=25px style='position: relative; top: 6px;'>"
-      htmlToAdd += "<button id='record_view_data_save_button_" + i + "' style='width: 70px; font-size: 20px; display: none; background-color: #70A2FF; color: black;' onclick='saveEditRecordViewData(" + i + ");'><span style='color: white;'>S</span>ave</button>&nbsp;"
-        + "<button id='record_view_data_cancel_button_" + i + "'  style='width: 70px; font-size: 20px; display: none; background-color: #70A2FF; color: black;' onclick='populateRecordViews();'><span style='color: white;'>C</span>ancel</button>"
+      htmlToAdd += "<button id='record_view_data_save_button_" + i + "' style='width: 70px; display: none; background-color: #70A2FF; color: black; font-size: " + rv_fontsize + ";' onclick='saveEditRecordViewData(" + i + ");'><span style='color: white;'>S</span>ave</button>&nbsp;"
+        + "<button id='record_view_data_cancel_button_" + i + "'  style='width: 70px; display: none; background-color: #70A2FF; color: black; font-size: " + rv_fontsize + ";' onclick='populateRecordViews();'><span style='color: white;'>C</span>ancel</button>"
         + "<div style='display: flex;'><div class='border_center' style='flex-grow: 1;'></div>"
         + "<div class='text1'>"
         + "<span id='record_view_data_read_equip_type_" + i + "'>" + equip_type_text + "</span><input type='text' onfocus='deselectTable();' id='record_view_data_input_equip_type_" + i + "' style='width: 50px; display: none;' value='" + getHTMLSafeText(_content[rownum][_EQUIP_TYPE]) + "'>" + " / "
         + "<span id='record_view_data_read_appl_brand_" + i + "'>" + appl_brand_text + "</span><input type='text' onfocus='deselectTable();' id='record_view_data_input_appl_brand_" + i + "' style='width: 50px; display: none;' value='" + getHTMLSafeText(_content[rownum][_APPL_BRAND]) + "'>" + "</div>"
         + "<div class='border_center' style='flex-grow: 8;'></div></div>"
         + "<div style='display: block; border-left: solid; border-bottom: solid; border-right: solid; border-width: 2px; border-color: black;'>"
-        + "<p style='padding-left: 10px;'><b>DESCRIP1:</b> <span id='record_view_data_read_descrip1_" + i + "'>" + descrip1_text + "</span><input type='text' onfocus='deselectTable();' id='record_view_data_input_descrip1_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_DESCRIP1]) + "'><br>"
-        + "<b>DESCRIP2: </b><span id='record_view_data_read_descrip2_" + i + "'>" + descrip2_text + "</span><input type='text' onfocus='deselectTable();' id='record_view_data_input_descrip2_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_DESCRIP2]) + "'></p>"
-        + "<p style='padding-left: 10px;'><b>COMMENTS:</b> <span id='record_view_data_read_comments_" + i + "'>" + comments_text + "</span><input type='text' onfocus='deselectTable();' id='record_view_data_input_comments_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_COMMENTS]) + "'></p>";
+        + "<div style='padding-left: 10px;'><b>DESCRIP1:</b> <span id='record_view_data_read_descrip1_" + i + "'>" + descrip1_text + "</span><input type='text' onfocus='deselectTable();' id='record_view_data_input_descrip1_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_DESCRIP1]) + "'><br>"
+        + "<b>DESCRIP2: </b><span id='record_view_data_read_descrip2_" + i + "'>" + descrip2_text + "</span><input type='text' onfocus='deselectTable();' id='record_view_data_input_descrip2_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_DESCRIP2]) + "'></div>"
+        + "<div style='padding-left: 10px;'><b>COMMENTS:</b> <span id='record_view_data_read_comments_" + i + "'>" + comments_text + "</span><input type='text' onfocus='deselectTable();' id='record_view_data_input_comments_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_COMMENTS]) + "'></div>";
       var details_expanded = true;
       if (_recordViews_Key_To_Details_Open.has(_recordViews[i]) && !_recordViews_Key_To_Details_Open.get(_recordViews[i]))
         details_expanded = false;
       if (details_expanded) {
-        htmlToAdd += "</div><div id='div_recordview_collapser_" + i + "' class=clickable style='font-size: 20px; background-color: #96BBFF' onclick='toggleDiv(null, \"record_view_details_" + i + "\")'><span id='record_view_details_" + i + "_expander_icon' style='font-size: 24px; color: white;'>-</span> Details</div>";
+        htmlToAdd += "</div><div id='div_recordview_collapser_" + i + "' class=clickable style='background-color: #96BBFF' onclick='toggleDiv(null, \"record_view_details_" + i + "\")'><span id='record_view_details_" + i + "_expander_icon' style='color: white;'>-</span> Details</div>";
         htmlToAdd += "<div id='record_view_details_" + i + "_div' style='display: block;'>";
       }
       else {
-        htmlToAdd += "</div><div id='div_recordview_collapser_" + i + "' class=clickable style='font-size: 20px; background-color: #96BBFF' onclick='toggleDiv(null, \"record_view_details_" + i + "\")'><span id='record_view_details_" + i + "_expander_icon' style='font-size: 24px; color: white;'>+</span> Details</div>";
+        htmlToAdd += "</div><div id='div_recordview_collapser_" + i + "' class=clickable style='background-color: #96BBFF' onclick='toggleDiv(null, \"record_view_details_" + i + "\")'><span id='record_view_details_" + i + "_expander_icon' style='color: white;'>+</span> Details</div>";
         htmlToAdd += "<div id='record_view_details_" + i + "_div' style='display: none;' >";
       }
       // htmlToAdd += getRecordViewPage(rownum, _record_view_page_list[i], i);
@@ -312,6 +315,7 @@ function startEditRecordViewData(index) {
 function saveEditRecordViewData(index) {
   var rownum = getContentIndexFrom_DB_ID(_recordViews[index]);
   if (rownum != null) {
+    var original_content = objFromContentRow(rownum);
     _content[rownum][_EQUIP_TYPE] = String(document.getElementById("record_view_data_input_equip_type_" + index).value);
     _content[rownum][_APPL_BRAND] = String(document.getElementById("record_view_data_input_appl_brand_" + index).value);
     _content[rownum][_DESCRIP1] = String(document.getElementById("record_view_data_input_descrip1_" + index).value);
@@ -331,11 +335,13 @@ function saveEditRecordViewData(index) {
     _content[rownum][_FROM] = String(document.getElementById("record_view_data_input_FROM_" + index).value);
     generateContent_Standard_Row(rownum);
     var edb_indexes = [];
+    var original_content_extras = [];
     for (var j = 0; j < _EXTRA_DB.length; ++j) {
       var _content_partnum_for_extraDB = _content[rownum][_CONTENT_EXTRA_DB_INDEXES[j]];
       var extraDBIndex = getExtraDBLinkIndex(j, _content_partnum_for_extraDB);
       if (extraDBIndex != null) {
         edb_indexes.push(extraDBIndex);
+        original_content_extras.push(copyObj(_content_extra[j][extraDBIndex][0]));
         for (var k = 0; k < RECORD_VIEW_HEADERS_PAGE1_CONCAT.length; ++k) {
           var ele = document.getElementById("record_view_data_input_" + RECORD_VIEW_HEADERS_PAGE1_CONCAT[k] + "_" + index + "_" + j);
           if (ele != null) {
@@ -343,14 +349,24 @@ function saveEditRecordViewData(index) {
           }
         }
       }
-      else
+      else {
         edb_indexes.push(null);
+        original_content_extras.push(null);
+      }
     }
     for (var j = 0; j < _EXTRA_DB.length; ++j) {
-      if (edb_indexes[j] != null)
+      if (edb_indexes[j] != null) {
         saveContentExtraToDatabase(j, edb_indexes[j]);
+        var content_extra_obj = _content_extra[j][edb_indexes[j]][0];
+        var compare_str = getObjectCompareString(original_content_extras[j], content_extra_obj);
+        if (compare_str != null && !_DEBUG_LOCAL_MODE)
+          writeToChangeHistory("Edit | Child Record", "Edited Child Record in \"" + _EXTRA_DB[j] + "\" with PN \"" + content_extra_obj.PN + "\" " + compare_str);
+      }
     }
     saveContentToDatabase(rownum);
+    var compare_str0 = getObjectCompareString(original_content, objFromContentRow(rownum));
+    if (compare_str0 != null)
+      writeToChangeHistory("Edit | Parent Record", "Edited Parent Record with OEM_PN \"" + original_content.OEM_PN + "\" " + compare_str0);
   }
   populateRecordViews();
 }
@@ -509,19 +525,22 @@ function saveEditRecordPartReference(i1, j1) {
   // console.log("|" + document.getElementById("record_view_partnum_input_" + i1 + "_" + j1).value + "|parts_db/P&A_PRI/" + _recordViews[i1] + "/" + EXTRA_DB_ACTUAL_INDEXES[j1]);
   var rownum = getContentIndexFrom_DB_ID(_recordViews[i1]);
   var value = document.getElementById("record_view_partnum_input_" + i1 + "_" + j1).value;
+  var row = _content[rownum];
+  var originalValue = row[INDEXES_CONCAT.indexOf(_EXTRA_DB_ACTUAL_INDEXES[j1])];
   if (rownum != null) {
     edit_content(rownum, _EXTRA_DB_ACTUAL_INDEXES[j1], value);
   }
   var key = "parts_db/P&A_PRI/" + _recordViews[i1];
-  var row = _content[rownum];
   var partObj = new Object();
   for (var i = 0; i < _INDEXES.length; ++i)
     partObj[_INDEXES[i]] = row[i];
   for (var i = 0; i < _MEMO_INDEXES.length; ++i)
     partObj[_MEMO_INDEXES[i]] = row[i + _INDEXES.length];
   populateRecordViews();
-  if (!_DEBUG_LOCAL_MODE)
+  if (!_DEBUG_LOCAL_MODE) {
     writeToDatabase(key, partObj, true, true, false, null);
+    writeToChangeHistory("Edit | Part Reference", "Edited part reference for " + _EXTRA_DB[j1] + " of Parent Record with OEM_PN \"" + row[_OEM_PN] + "\" from \"" + originalValue + "\" to \"" + value + "\"");
+  }
 }
 
 function selectRecordView(num, scrollIntoView) {
@@ -529,8 +548,16 @@ function selectRecordView(num, scrollIntoView) {
     scrollIntoView = false;
   if (scrollIntoView) {
     var ele = document.getElementById("record_view_" + num);
-    if (ele != null)
-      ele.scrollIntoView({ behavior: "auto", block: "nearest", inline: "nearest" });
+    if (ele != null) {
+      // console.log(ele.getBoundingClientRect());
+      // console.log(window.innerHeight);
+
+      // const y = ele.getBoundingClientRect().top + window.pageYOffset - 103;
+      // window.scrollTo({ top: y, behavior: 'smooth' });
+      // ele.scrollIntoView({ behavior: "auto", block: "nearest", inline: "nearest" });
+
+      eleSmartScroll(ele, 103, 60);
+    }
   }
   if (_recordViews.length > num && _selected_record_view >= 0) {
     _selected_record_view = num;
@@ -636,14 +663,21 @@ function googlesearch_hndlr(response) {
     showSnackbar("No results found", 3000);
 }
 
+var _cse_image_descrip1 = "";
+var _cse_image_partSearchTerm = "";
+
 function showRecordViewImage(descrip1, partSearchTerm, sitesEnum) {
   if (_google_cse_api_key_loaded) {
+    _cse_image_descrip1 = descrip1;
+    _cse_image_partSearchTerm = partSearchTerm;
     var searchEngineID = "";
     switch (sitesEnum) {
       case 0:
+        document.getElementById("radio_image_everywhere").checked = true;
         searchEngineID = "de8eb9876c78e78e6"; //Entire Web
         break;
       case 1:
+        document.getElementById("radio_image_distributors").checked = true;
         searchEngineID = "01922cf7659e937bd"; //Parts Sites
         break;
     }
@@ -657,7 +691,6 @@ function showRecordViewImage(descrip1, partSearchTerm, sitesEnum) {
     descrip1 = "";
     if (descrip1_split.length > 0)
       descrip1 = descrip1_split[0];
-    console.log("|" + descrip1 + " " + cleanPartSearchTerm + "|" + _google_cse_api_key + "|");
     script.src = "https://www.googleapis.com/customsearch/v1?key=" + _google_cse_api_key + "&cx=" + searchEngineID + "&q=" + descrip1 + " " + cleanPartSearchTerm + "&callback=googlesearch_hndlr&searchType=image&num=10";
 
     document.getElementById("googlesearch_api_script_div").innerHTML = "";
@@ -702,6 +735,7 @@ var _RECORDVIEW_SPEC_BORDER_TOP = "border-top:    3px black solid; border-left: 
 var _RECORDVIEW_SPEC_BORDER_MIDDLE = "border-left: 3px black solid; border-right: 3px black solid;";
 var _RECORDVIEW_SPEC_BORDER_BOTTOM = "border-bottom: 3px black solid; border-left: 3px black solid; border-right: 3px black solid;";
 var _RECORDVIEW_MAX_PAGES = 4;
+var _websearch_part_term_map = new Map();
 function getRecordViewPage(rownum, page_num, i) {
   var htmlToAdd = "";
   switch (page_num) {
@@ -710,20 +744,27 @@ function getRecordViewPage(rownum, page_num, i) {
       htmlToAdd += "<table class='recordview'><tr>";
       htmlToAdd += "<th>Page 1</th><th></th><th></th><th></th><th></th><th></th><th></th><th></th>";
       htmlToAdd += "<th colspan='4' style='text-align: center;'>VENDOR PICK/PACK/INV SLIP</th>";
-      htmlToAdd += "<th></th><th></th><th></th><th></th><th></th><th></th>";
+      htmlToAdd += "<th></th><th>"
+        + "<div style='display: flex; flex-direction: row;'>"
+        + "<a id='web_search_r_all_" + i + "' class='clickable' target='_blank'><img src='search_r.png' width=25px title='Search Reliable Parts for every part number'></a>"
+        + "<a id='web_search_e_all_" + i + "' class='clickable' target='_blank'><img src='search_e.png' width=25px title='Search Encompass for every part number'></a>"
+        + "<a id='web_search_m_all_" + i + "' class='clickable' target='_blank'><img src='search_m.png' width=25px title='Search Marcone for every part number'></a>"
+        + "</div>"
+        + "</th><th></th><th></th>";
 
       htmlToAdd += "</tr><tr>";
       for (var j = 0; j < RECORD_VIEW_HEADERS_PAGE1_0.length; ++j) {
         if (j == 0)
           htmlToAdd += "<th style='width: " + RECORD_VIEW_DB_HEADER_WIDTH + ";'></th>";
-        htmlToAdd += "<th style='width: " + RECORD_VIEW_HEADERS_WIDTHS_PAGE1_0[j] + ";'><p>" + RECORD_VIEW_HEADERS_PAGE1_0[j] + "</p></th>";
+        htmlToAdd += "<th style='width: " + RECORD_VIEW_HEADERS_WIDTHS_PAGE1_0[j] + ";'><div>" + RECORD_VIEW_HEADERS_PAGE1_0[j] + "</div></th>";
       }
-      htmlToAdd += "<th>Reliable Parts/Encompass/Marcone</th><th>Image</th>";
+      htmlToAdd += "<th>Sites</th><th>Image</th>";
       for (var j = 0; j < RECORD_VIEW_HEADERS_PAGE1_1.length; ++j) {
-        htmlToAdd += "<th style='width: " + RECORD_VIEW_HEADERS_WIDTHS_PAGE1_1[j] + ";'><p>" + RECORD_VIEW_HEADERS_PAGE1_1[j] + "</p></th>";
+        htmlToAdd += "<th style='width: " + RECORD_VIEW_HEADERS_WIDTHS_PAGE1_1[j] + ";'><div>" + RECORD_VIEW_HEADERS_PAGE1_1[j] + "</div></th>";
       }
       htmlToAdd += "</tr>";
       var parent_record_id = _content[rownum][INDEXES_CONCAT.length];
+      _websearch_part_term_map.set(i, []);
       for (var j = 0; j < _EXTRA_DB.length; ++j) {
         if (j != 2) //Skip DNI ExtraDB
         {
@@ -737,27 +778,28 @@ function getRecordViewPage(rownum, page_num, i) {
           for (var k = 0; k < RECORD_VIEW_HEADERS_PAGE1_0.length; ++k) {
             htmlToAdd += "<td>";
             if (k == 0) {
+              htmlToAdd += "<div style='display: flex; flex-direction: row;'>";
               htmlToAdd += "<div style='width: 30px; display: inline-block;'>" + _EXTRA_DB[j] + "</div>";
               if (extraDBIndex != null) {
-                htmlToAdd += "<div style='display: inline; font-size: 20px;' id='sell_div_" + i + "_" + j + "'><br>";
+                htmlToAdd += "<div style='margin-left: 10px; margin-top: -20px;' id='sell_div_" + i + "_" + j + "'><br>";
                 if (!_subscribed_mode)
-                  htmlToAdd += "<button style='background-color: #70A2FF; color: black;' id='sell_button_" + i + "_" + j + "' onclick='startSell(" + i + "," + j + ");'><span style='color: white;'>S</span>ell</button>";
+                  htmlToAdd += "<button style='background-color: #70A2FF; color: black; font-size: " + rv_fontsize + ";' id='sell_button_" + i + "_" + j + "' onclick='startSell(" + i + "," + j + ");'><span style='color: white;'>S</span>ell</button>";
               }
               htmlToAdd += "<div id='sell_form_" + i + "_" + j + "' style='display: none;'>"
-                + "<p>Quantity</p>"
-                + "<button style='width: 100px;' onclick='changeSellQuantity(" + i + "," + j + ",  1);'>+</button><br>"
-                + "<input onfocus='deselectTable();' style='width: 100px; height: 50px; font-size: 30px; text-align: center;' type='number' value='1' id='sell_quantity_" + i + "_" + j + "'><br>"
-                + "<button style='width: 100px;' onclick='changeSellQuantity(" + i + "," + j + ", -1);'>-</button><br><br>"
-                + "<button id='button_record_view_sell_confirm_" + i + "_" + j + "' style='width: 150px; height: 30px; background-color: #70A2FF; color: black;' onclick='confirmSell(" + i + "," + j + ",\"" + _content_partnum_for_extraDB + "\",\"" + parent_record_id + "\");'>Confirm <span style='color: white;'>S</span>ell</button><br><br>"
-                + "<button id='button_record_view_sell_cancel_" + i + "_" + j + "'  style='width: 150px; height: 30px; background-color: #70A2FF; color: black;' onclick='populateRecordViews();'><span style='color: white;'>C</span>ancel</button></div></div>";
-              htmlToAdd += "</td><td>";
+                + "<div>Quantity</div>"
+                + "<button style='width: 100px; font-size: " + rv_fontsize + ";' onclick='changeSellQuantity(" + i + "," + j + ",  1);'>+</button><br>"
+                + "<input onfocus='deselectTable();' style='width: 100px; height: 50px; text-align: center;' type='number' value='1' id='sell_quantity_" + i + "_" + j + "'><br>"
+                + "<button style='width: 100px; font-size: " + rv_fontsize + ";' onclick='changeSellQuantity(" + i + "," + j + ", -1);'>-</button><br><br>"
+                + "<button id='button_record_view_sell_confirm_" + i + "_" + j + "' style='width: 150px; height: 30px; background-color: #70A2FF; color: black; font-size: " + rv_fontsize + ";' onclick='confirmSell(" + i + "," + j + ",\"" + _content_partnum_for_extraDB + "\",\"" + parent_record_id + "\");'>Confirm <span style='color: white;'>S</span>ell</button><br><br>"
+                + "<button id='button_record_view_sell_cancel_" + i + "_" + j + "'  style='width: 150px; height: 30px; background-color: #70A2FF; color: black; font-size: " + rv_fontsize + ";' onclick='populateRecordViews();'><span style='color: white;'>C</span>ancel</button></div></div>";
+              htmlToAdd += "</div></td><td>";
             }
             else if (k == 1) //PART#
             {
               if (_subscribed_mode)
                 htmlToAdd += "<img id='record_view_partnum_edit_icon_" + i + "_" + j + "' style='width: 0px; height: 0px;'>";
               else
-                htmlToAdd += "<img class='clickable' id='record_view_partnum_edit_icon_" + i + "_" + j + "' src='pencil.png' width=25px height=25px onclick='startEditRecordPartReference(" + i + "," + j + ");' style='position: relative; bottom: -6px;'>&nbsp;&nbsp;";
+                htmlToAdd += "<img class='clickable' id='record_view_partnum_edit_icon_" + i + "_" + j + "' src='pencil.png' width=25px height=25px onclick='startEditRecordPartReference(" + i + "," + j + ");' style='position: relative; bottom: 0px;'>&nbsp;&nbsp;";
               partSearchTerm = _content_partnum_for_extraDB;
               var pText = "";
               var clean_content_partnum_for_extraDB = removeExtraSpaces(_content_partnum_for_extraDB);
@@ -774,9 +816,9 @@ function getRecordViewPage(rownum, page_num, i) {
                 }
                 pText = "<span id='span_recordviews_jump_to_child_part_" + i + "_" + j + "' class='clickable' style='color: blue;' onclick='jumpToChildPartFromRecordView(" + j + "," + extraDBIndex + ");'><u>" + highlighted_partnum + "</u></span>";
               }
-              htmlToAdd += "<p id='record_view_partnum_text_" + i + "_" + j + "' style='display: inline;'>" + pText + "</p><input type='text' style='display: none;' id='record_view_partnum_input_" + i + "_" + j + "' onfocus='onPartNumFocus(" + i + "," + j + ");' value='" + getHTMLSafeText(_content_partnum_for_extraDB) + "' onkeyup='partnum_input_keyup_event(event);' onkeydown='partnum_input_keydown_event(event);'><div style='position: absolute;' id='partnum_autocomplete_" + i + "_" + j + "'></div>"
-                + "<button id='record_view_partnum_save_button_" + i + "_" + j + "' style='width: 70px; font-size: 20px; display: none; background-color: #70A2FF; color: black; margin-bottom: 2px;' onclick='saveEditRecordPartReference(" + i + "," + j + ");'><span style='color: white;'>S</span>ave</button>"
-                + "<button id='record_view_partnum_cancel_button_" + i + "_" + j + "' style='width: 70px; font-size: 20px; display: none; background-color: #70A2FF; color: black;' onclick='populateRecordViews();'><span style='color: white;'>C</span>ancel</button>" + "&nbsp;&nbsp;&nbsp;&nbsp;";
+              htmlToAdd += "<div id='record_view_partnum_text_" + i + "_" + j + "' style='display: inline;'>" + pText + "</div><input type='text' style='display: none;' id='record_view_partnum_input_" + i + "_" + j + "' onfocus='onPartNumFocus(" + i + "," + j + ");' value='" + getHTMLSafeText(_content_partnum_for_extraDB) + "' onkeyup='partnum_input_keyup_event(event);' oninput='partnum_input_keyup_event(event);' onkeydown='partnum_input_keydown_event(event);'><div style='position: absolute;' id='partnum_autocomplete_" + i + "_" + j + "'></div>"
+                + "<button id='record_view_partnum_save_button_" + i + "_" + j + "' style='width: 70px; display: none; background-color: #70A2FF; color: black; margin-bottom: 2px;' onclick='saveEditRecordPartReference(" + i + "," + j + ");'><span style='color: white;'>S</span>ave</button>"
+                + "<button id='record_view_partnum_cancel_button_" + i + "_" + j + "' style='width: 70px; display: none; background-color: #70A2FF; color: black;' onclick='populateRecordViews();'><span style='color: white;'>C</span>ancel</button>" + "&nbsp;&nbsp;&nbsp;&nbsp;";
             }
             if (extraDBIndex != null) {
               var content1 = _content_extra[j][extraDBIndex][0][RECORD_VIEW_HEADERS_ACTUAL_INDEXES_PAGE1_0[k][j]];
@@ -809,7 +851,7 @@ function getRecordViewPage(rownum, page_num, i) {
             else //No matching link found in Extra DB, usually Part# is blank
             {
               if (k == 1) {
-                htmlToAdd += "<input type='text' style='display: none;' id='record_view_partnum_input_" + i + "_" + j + "' onfocus='onPartNumFocus(" + i + "," + j + ");' onkeyup='partnum_input_keyup_event(event);' onkeydown='partnum_input_keydown_event(event);'><div style='position: absolute;' id='partnum_autocomplete_" + i + "_" + j + "'></div>";
+                htmlToAdd += "<input type='text' style='display: none;' id='record_view_partnum_input_" + i + "_" + j + "' onfocus='onPartNumFocus(" + i + "," + j + ");' onkeyup='partnum_input_keyup_event(event);' oninput='partnum_input_keyup_event(event);' onkeydown='partnum_input_keydown_event(event);'><div style='position: absolute;' id='partnum_autocomplete_" + i + "_" + j + "'></div>";
               }
             }
             htmlToAdd += "</td>";
@@ -817,17 +859,22 @@ function getRecordViewPage(rownum, page_num, i) {
           htmlToAdd += "<td>";
           var clean_partSearchTerm = removeExtraSpaces(partSearchTerm);
           if (clean_partSearchTerm != "") {
-            htmlToAdd += "<a href='https://www.reliableparts.com/search?q=" + getStandardPNWebSearchString(partSearchTerm) + "' target='_blank'><img src='search_r.png' width=40px title='Reliable Parts'></a>";
-            htmlToAdd += "<a href='https://encompass.com/search?searchTerm=" + getStandardPNWebSearchString(partSearchTerm) + "' target='_blank'><img src='search_e.png' width=40px title='Encompass'></a>";
-            htmlToAdd += "<a href='https://beta.marcone.com/Home/SearchPartModelList?searchString=" + getStandardPNWebSearchString(partSearchTerm) + "&Type=Part' target='_blank'><img src='search_m.png' width=40px title='Marcone'></a>";
+            var term = getStandardPNWebSearchString(partSearchTerm);
+            if (!_websearch_part_term_map.get(i).includes(term))
+              _websearch_part_term_map.get(i).push(term);
+            htmlToAdd += "<div style='display: flex; flex-direction: row;'>";
+            htmlToAdd += "<a href='https://www.reliableparts.com/search?q=" + term + "' target='_blank'><img id='web_search_r_" + i + "_" + j + "' src='search_r.png' width=25px title='Reliable Parts'></a>";
+            htmlToAdd += "<a href='https://encompass.com/search?searchTerm=" + term + "' target='_blank'><img id='web_search_e_" + i + "_" + j + "' src='search_e.png' width=25px title='Encompass'></a>";
+            htmlToAdd += "<a href='https://beta.marcone.com/Home/SearchPartModelList?searchString=" + term + "&Type=Part' target='_blank'><img id='web_search_m_" + i + "_" + j + "' src='search_m.png' width=25px title='Marcone'></a>";
+            htmlToAdd += "</div>";
           }
           htmlToAdd += "</td>";
           htmlToAdd += "<td>";
           if (clean_partSearchTerm != "") {
             var descrip1 = _content[rownum][_DESCRIP1].replace(/"/g, "");
             descrip1 = descrip1.replace(/'/g, "");
-            htmlToAdd += "<button id='button_recordview_image_everywhere_" + i + "_" + j + "' style='background-color: #70A2FF; color: black;'                  onclick='showRecordViewImage(\"" + descrip1 + "\",\"" + partSearchTerm + "\", 0);'><div class='tooltip'><span class='tooltiptext'>Search entire<br>internet<br>for images</span>E<span style='color: white;'>v</span>erywhere</button>";
-            htmlToAdd += "<button id='button_recordview_image_distributors_" + i + "_" + j + "' style='background-color: #70A2FF; color: black; margin-top: 2px;' onclick='showRecordViewImage(\"" + descrip1 + "\",\"" + partSearchTerm + "\", 1);'><div class='tooltip'><span class='tooltiptext'>Search Appliance Parts Pros,<br>Repair Clinic,<br>Encompass,<br>Marcone,<br>Reliable Parts,<br>and WL MAY<br>websites for images</span><span style='color: white;'>D</span>istributors</button>";
+            htmlToAdd += "<button id='button_recordview_image_everywhere_" + i + "_" + j + "'   style='padding-top: 0px; font-size: " + rv_fontsize + "; height: 16px; background-color: #70A2FF; color: black;'                  onclick='showRecordViewImage(\"" + descrip1 + "\",\"" + partSearchTerm + "\", 0);'>I<span style='color: white;'>m</span>age</button>";
+            // htmlToAdd += "<button id='button_recordview_image_distributors_" + i + "_" + j + "' style='padding-top: 0px; font-size: 14px; height: 16px; background-color: #70A2FF; color: black; margin-top: 2px;' onclick='showRecordViewImage(\"" + descrip1 + "\",\"" + partSearchTerm + "\", 1);'><div class='tooltip'><span class='tooltiptext'>Search Appliance Parts Pros,<br>Repair Clinic,<br>Encompass,<br>Marcone,<br>Reliable Parts,<br>and WL MAY<br>websites for images</span><span style='color: white;'>D</span>istributors</button>";
           }
           htmlToAdd += "</td>";
 
@@ -854,9 +901,9 @@ function getRecordViewPage(rownum, page_num, i) {
         }
       }
 
-      var LKUPPN_CONTENT = getExpandableHTML(_content[rownum][_LOOK_UP_PN], (i + "_LOOK_UP_PN"), 80, "");
-      var ADVICE_CONTENT = getExpandableHTML(_content[rownum][_ADVICE], (i + "_ADVICE"), 80, "");
-      var MODEL_CONTENT = getExpandableHTML(_content[rownum][_MODEL], (i + "_MODEL"), 80, "");
+      var LKUPPN_CONTENT = getExpandableHTML(_content[rownum][_LOOK_UP_PN], (i + "_LOOK_UP_PN"), 18, "");
+      var ADVICE_CONTENT = getExpandableHTML(_content[rownum][_ADVICE], (i + "_ADVICE"), 18, "");
+      var MODEL_CONTENT = getExpandableHTML(_content[rownum][_MODEL], (i + "_MODEL"), 18, "");
       var INPUT_PART_NUMBR = "<input type='text' onfocus='deselectTable();' id='record_view_data_input_PART_NUMBR_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_PART_NUMBR]) + "'>";
       var INPUT_LOCATION = "<input type='text' onfocus='deselectTable();' id='record_view_data_input_LOCATION_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_LOCATION]) + "'>";
       var INPUT_MODIFIED = "<input type='text' onfocus='deselectTable();' id='record_view_data_input_MODIFIED_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_MODIFIED]) + "'>";
@@ -880,30 +927,30 @@ function getRecordViewPage(rownum, page_num, i) {
         + "<td style='text-align: right;'>         ADVICE</td><td colspan=4><span id='record_view_data_read_ADVICE_" + i + "'>" + ADVICE_CONTENT + "</span>" + INPUT_ADVICE + "                    </td>"
         + "<td>REORD <b><span id='record_view_data_read_REORD_QTY_" + i + "'>" + _content[rownum][_REORD_QTY] + "</span>" + INPUT_REORD_QTY + "</b>";
       if (!_subscribed_mode)
-        htmlToAdd += "<button onclick='updateReordFromRecordView(\"" + parent_record_id + "\");'>Update</button>";
+        htmlToAdd += "<button style='font-size: " + rv_fontsize + ";' onclick='updateReordFromRecordView(\"" + parent_record_id + "\");'>Update</button>";
       htmlToAdd += "</td><td colspan=2 style='text-align: right;'>                                          Srce</td>"
         + "<td><b><span id='record_view_data_read_SOURCE_" + i + "'>" + _content[rownum][_SOURCE] + "</span>" + INPUT_SOURCE + "</b></td></tr>"
         + "<tr><td colspan=4></td><td style='text-align: right;'>MODEL</td>"
         + "<td colspan=4><span id='record_view_data_read_MODEL_" + i + "'>" + MODEL_CONTENT + "</span>" + INPUT_MODEL + "</td>"
         + "<td colspan=4>PREF  <b><span id='record_view_data_read_FROM_" + i + "'>" + _content[rownum][_FROM] + "</span>" + INPUT_FROM + "</b></td>                                                                                                                                             </tr>"
-        + "</table><br><br>";
+        + "</table>";
       break;
     //-------------------------------------------------PAGE 2-------------------------------------------------------------
     case 2:
       htmlToAdd += "<table class='recordview'><tr>";
       htmlToAdd += "<th>Page 2</th><th></th><th></th><th></th>";
       htmlToAdd += "<th colspan='4' style='text-align: center;'>MFR PRICEBOOK</th>";
-      htmlToAdd += "<th></th><th></th><th></th><th></th><th></th><th></th><th></th>";
+      htmlToAdd += "<th></th><th></th><th></th><th></th><th></th>";
 
       htmlToAdd += "</tr><tr>";
       for (var j = 0; j < RECORD_VIEW_HEADERS_PAGE2_0.length; ++j) {
         if (j == 0)
           htmlToAdd += "<th style='width: " + RECORD_VIEW_DB_HEADER_WIDTH + ";'></th>";
-        htmlToAdd += "<th style='width: " + RECORD_VIEW_HEADERS_WIDTHS_PAGE2_0[j] + ";'><p>" + RECORD_VIEW_HEADERS_PAGE2_0[j] + "</p></th>";
+        htmlToAdd += "<th style='width: " + RECORD_VIEW_HEADERS_WIDTHS_PAGE2_0[j] + ";'><div>" + RECORD_VIEW_HEADERS_PAGE2_0[j] + "</div></th>";
       }
-      htmlToAdd += "<th>Reliable Parts</th><th>Encompass</th><th>Marcone</th><th>Image</th>";
+      htmlToAdd += "<th>Sites</th><th>Image</th>";
       for (var j = 0; j < RECORD_VIEW_HEADERS_PAGE2_1.length; ++j) {
-        htmlToAdd += "<th style='width: " + RECORD_VIEW_HEADERS_WIDTHS_PAGE2_1[j] + ";'><p>" + RECORD_VIEW_HEADERS_PAGE2_1[j] + "</p></th>";
+        htmlToAdd += "<th style='width: " + RECORD_VIEW_HEADERS_WIDTHS_PAGE2_1[j] + ";'><div>" + RECORD_VIEW_HEADERS_PAGE2_1[j] + "</div></th>";
       }
       htmlToAdd += "</tr>";
       var parent_record_id = _content[rownum][INDEXES_CONCAT.length];
@@ -920,24 +967,28 @@ function getRecordViewPage(rownum, page_num, i) {
           for (var k = 0; k < RECORD_VIEW_HEADERS_PAGE2_0.length; ++k) {
             htmlToAdd += "<td>";
             if (k == 0) {
+              htmlToAdd += "<div style='display: flex; flex-direction: row;'>";
               htmlToAdd += "<div style='width: 30px; display: inline-block;'>" + _EXTRA_DB[j] + "</div>";
               if (extraDBIndex != null) {
-                htmlToAdd += "<div style='display: inline; font-size: 20px;' id='sell_div_" + i + "_" + j + "'><br>";
+                htmlToAdd += "<div style='margin-left: 10px; margin-top: -20px;' id='sell_div_" + i + "_" + j + "'><br>";
                 if (!_subscribed_mode)
-                  htmlToAdd += "<button style='background-color: #70A2FF; color: black;' id='sell_button_" + i + "_" + j + "' onclick='startSell(" + i + "," + j + ");'><span style='color: white;'>S</span>ell</button>";
+                  htmlToAdd += "<button style='background-color: #70A2FF; color: black; font-size: " + rv_fontsize + ";' id='sell_button_" + i + "_" + j + "' onclick='startSell(" + i + "," + j + ");'><span style='color: white;'>S</span>ell</button>";
               }
               htmlToAdd += "<div id='sell_form_" + i + "_" + j + "' style='display: none;'>"
-                + "<p>Quantity</p>"
-                + "<button style='width: 100px;' onclick='changeSellQuantity(" + i + "," + j + ",  1);'>+</button><br>"
-                + "<input onfocus='deselectTable();' style='width: 100px; height: 50px; font-size: 30px; text-align: center;' type='number' value='1' id='sell_quantity_" + i + "_" + j + "'><br>"
-                + "<button style='width: 100px;' onclick='changeSellQuantity(" + i + "," + j + ", -1);'>-</button><br><br>"
-                + "<button id='button_record_view_sell_confirm_" + i + "_" + j + "' style='width: 150px; height: 30px; background-color: #70A2FF; color: black;' onclick='confirmSell(" + i + "," + j + ",\"" + _content_partnum_for_extraDB + "\",\"" + parent_record_id + "\");'>Confirm <span style='color: white;'>S</span>ell</button><br><br>"
-                + "<button id='button_record_view_sell_cancel_" + i + "_" + j + "'  style='width: 150px; height: 30px; background-color: #70A2FF; color: black;' onclick='populateRecordViews();'><span style='color: white;'>C</span>ancel</button></div></div>";
-              htmlToAdd += "</td><td>";
+                + "<div>Quantity</div>"
+                + "<button style='width: 100px; font-size: " + rv_fontsize + ";' onclick='changeSellQuantity(" + i + "," + j + ",  1);'>+</button><br>"
+                + "<input onfocus='deselectTable();' style='width: 100px; height: 50px; text-align: center;' type='number' value='1' id='sell_quantity_" + i + "_" + j + "'><br>"
+                + "<button style='width: 100px; font-size: " + rv_fontsize + ";' onclick='changeSellQuantity(" + i + "," + j + ", -1);'>-</button><br><br>"
+                + "<button id='button_record_view_sell_confirm_" + i + "_" + j + "' style='width: 150px; height: 30px; background-color: #70A2FF; color: black; font-size: " + rv_fontsize + ";' onclick='confirmSell(" + i + "," + j + ",\"" + _content_partnum_for_extraDB + "\",\"" + parent_record_id + "\");'>Confirm <span style='color: white;'>S</span>ell</button><br><br>"
+                + "<button id='button_record_view_sell_cancel_" + i + "_" + j + "'  style='width: 150px; height: 30px; background-color: #70A2FF; color: black; font-size: " + rv_fontsize + ";' onclick='populateRecordViews();'><span style='color: white;'>C</span>ancel</button></div></div>";
+              htmlToAdd += "</div></td><td>";
             }
             else if (k == 1) //PART#
             {
-              htmlToAdd += "<img class='clickable' id='record_view_partnum_edit_icon_" + i + "_" + j + "' src='pencil.png' width=25px height=25px onclick='startEditRecordPartReference(" + i + "," + j + ");' style='position: relative; bottom: -6px;'>&nbsp;&nbsp;";
+              if (_subscribed_mode)
+                htmlToAdd += "<img class='clickable' id='record_view_partnum_edit_icon_" + i + "_" + j + "' style='width: 0px; height: 0px;'>";
+              else
+                htmlToAdd += "<img class='clickable' id='record_view_partnum_edit_icon_" + i + "_" + j + "' src='pencil.png' width=25px height=25px onclick='startEditRecordPartReference(" + i + "," + j + ");' style='position: relative; bottom: 0px;'>&nbsp;&nbsp;";
               partSearchTerm = _content_partnum_for_extraDB;
               var pText = "";
               var clean_content_partnum_for_extraDB = removeExtraSpaces(_content_partnum_for_extraDB);
@@ -954,9 +1005,9 @@ function getRecordViewPage(rownum, page_num, i) {
                 }
                 pText = "<span id='span_recordviews_jump_to_child_part_" + i + "_" + j + "' class='clickable' style='color: blue;' onclick='jumpToChildPartFromRecordView(" + j + "," + extraDBIndex + ");'><u>" + highlighted_partnum + "</u></span>";
               }
-              htmlToAdd += "<p id='record_view_partnum_text_" + i + "_" + j + "' style='display: inline;'>" + pText + "</p><input type='text' style='display: none;' id='record_view_partnum_input_" + i + "_" + j + "' onfocus='onPartNumFocus(" + i + "," + j + ");' value='" + getHTMLSafeText(_content_partnum_for_extraDB) + "' onkeyup='partnum_input_keyup_event(event);' onkeydown='partnum_input_keydown_event(event);'><div style='position: absolute;' id='partnum_autocomplete_" + i + "_" + j + "'></div>"
-                + "<button id='record_view_partnum_save_button_" + i + "_" + j + "' style='width: 70px; font-size: 20px; display: none; background-color: #70A2FF; color: black; margin-bottom: 2px;' onclick='saveEditRecordPartReference(" + i + "," + j + ");'><span style='color: white;'>S</span>ave</button>"
-                + "<button id='record_view_partnum_cancel_button_" + i + "_" + j + "' style='width: 70px; font-size: 20px; display: none; background-color: #70A2FF; color: black;' onclick='populateRecordViews();'><span style='color: white;'>C</span>ancel</button>" + "&nbsp;&nbsp;&nbsp;&nbsp;";
+              htmlToAdd += "<div id='record_view_partnum_text_" + i + "_" + j + "' style='display: inline;'>" + pText + "</div><input type='text' style='display: none;' id='record_view_partnum_input_" + i + "_" + j + "' onfocus='onPartNumFocus(" + i + "," + j + ");' value='" + getHTMLSafeText(_content_partnum_for_extraDB) + "' onkeyup='partnum_input_keyup_event(event);' oninput='partnum_input_keyup_event(event);' onkeydown='partnum_input_keydown_event(event);'><div style='position: absolute;' id='partnum_autocomplete_" + i + "_" + j + "'></div>"
+                + "<button id='record_view_partnum_save_button_" + i + "_" + j + "' style='width: 70px; display: none; background-color: #70A2FF; color: black; margin-bottom: 2px;' onclick='saveEditRecordPartReference(" + i + "," + j + ");'><span style='color: white;'>S</span>ave</button>"
+                + "<button id='record_view_partnum_cancel_button_" + i + "_" + j + "' style='width: 70px; display: none; background-color: #70A2FF; color: black;' onclick='populateRecordViews();'><span style='color: white;'>C</span>ancel</button>" + "&nbsp;&nbsp;&nbsp;&nbsp;";
             }
             if (extraDBIndex != null) {
               var content1 = _content_extra[j][extraDBIndex][0][RECORD_VIEW_HEADERS_ACTUAL_INDEXES_PAGE2_0[k][j]];
@@ -990,7 +1041,7 @@ function getRecordViewPage(rownum, page_num, i) {
             {
               if (k == 1) //PART#
               {
-                htmlToAdd += "<input type='text' style='display: none;' id='record_view_partnum_input_" + i + "_" + j + "' onfocus='onPartNumFocus(" + i + "," + j + ");' onkeyup='partnum_input_keyup_event(event);' onkeydown='partnum_input_keydown_event(event);'><div style='position: absolute;' id='partnum_autocomplete_" + i + "_" + j + "'></div>";
+                htmlToAdd += "<input type='text' style='display: none;' id='record_view_partnum_input_" + i + "_" + j + "' onfocus='onPartNumFocus(" + i + "," + j + ");' onkeyup='partnum_input_keyup_event(event);' oninput='partnum_input_keyup_event(event);' onkeydown='partnum_input_keydown_event(event);'><div style='position: absolute;' id='partnum_autocomplete_" + i + "_" + j + "'></div>";
               }
             }
             htmlToAdd += "</td>";
@@ -998,23 +1049,20 @@ function getRecordViewPage(rownum, page_num, i) {
 
           htmlToAdd += "<td>";
           var clean_partSearchTerm = removeExtraSpaces(partSearchTerm);
-          if (clean_partSearchTerm != "")
-            htmlToAdd += "<a href='https://www.reliableparts.com/search?q=" + getStandardPNWebSearchString(partSearchTerm) + "' target='_blank'>Search</a>";
-          htmlToAdd += "</td>";
-          htmlToAdd += "<td>";
-          if (clean_partSearchTerm != "")
-            htmlToAdd += "<a href='https://encompass.com/search?searchTerm=" + getStandardPNWebSearchString(partSearchTerm) + "' target='_blank'>Search</a>";
-          htmlToAdd += "</td>";
-          htmlToAdd += "<td>";
-          if (clean_partSearchTerm != "")
-            htmlToAdd += "<a href='https://beta.marcone.com/Home/SearchPartModelList?searchString=" + getStandardPNWebSearchString(partSearchTerm) + "&Type=Part' target='_blank'>Search</a>";
+          if (clean_partSearchTerm != "") {
+            htmlToAdd += "<div style='display: flex; flex-direction: row;'>";
+            htmlToAdd += "<a href='https://www.reliableparts.com/search?q=" + getStandardPNWebSearchString(partSearchTerm) + "' target='_blank'><img id='web_search_r_" + i + "_" + j + "' src='search_r.png' width=25px title='Reliable Parts'></a>";
+            htmlToAdd += "<a href='https://encompass.com/search?searchTerm=" + getStandardPNWebSearchString(partSearchTerm) + "' target='_blank'><img id='web_search_e_" + i + "_" + j + "' src='search_e.png' width=25px title='Encompass'></a>";
+            htmlToAdd += "<a href='https://beta.marcone.com/Home/SearchPartModelList?searchString=" + getStandardPNWebSearchString(partSearchTerm) + "&Type=Part' target='_blank'><img id='web_search_m_" + i + "_" + j + "' src='search_m.png' width=25px title='Marcone'></a>";
+            htmlToAdd += "</div>";
+          }
           htmlToAdd += "</td>";
           htmlToAdd += "<td>";
           if (clean_partSearchTerm != "") {
             var descrip1 = _content[rownum][_DESCRIP1].replace(/"/g, "");
             descrip1 = descrip1.replace(/'/g, "");
-            htmlToAdd += "<button id='button_recordview_image_everywhere_" + i + "_" + j + "' style='background-color: #70A2FF; color: black;'                  onclick='showRecordViewImage(\"" + descrip1 + "\",\"" + partSearchTerm + "\", 0);'><div class='tooltip'><span class='tooltiptext'>Search entire<br>internet<br>for images</span>E<span style='color: white;'>v</span>erywhere</button>";
-            htmlToAdd += "<button id='button_recordview_image_distributors_" + i + "_" + j + "' style='background-color: #70A2FF; color: black; margin-top: 2px;' onclick='showRecordViewImage(\"" + descrip1 + "\",\"" + partSearchTerm + "\", 1);'><div class='tooltip'><span class='tooltiptext'>Search Appliance Parts Pros,<br>Repair Clinic,<br>Encompass,<br>Marcone,<br>Reliable Parts,<br>and WL MAY<br>websites for images</span><span style='color: white;'>D</span>istributors</button>";
+            htmlToAdd += "<button id='button_recordview_image_everywhere_" + i + "_" + j + "'   style='padding-top: 0px; font-size: " + rv_fontsize + "; height: 16px; background-color: #70A2FF; color: black;'                  onclick='showRecordViewImage(\"" + descrip1 + "\",\"" + partSearchTerm + "\", 0);'>I<span style='color: white;'>m</span>age</button>";
+            // htmlToAdd += "<button id='button_recordview_image_distributors_" + i + "_" + j + "' style='padding-top: 0px; font-size: 14px; height: 16px; background-color: #70A2FF; color: black; margin-top: 2px;' onclick='showRecordViewImage(\"" + descrip1 + "\",\"" + partSearchTerm + "\", 1);'><div class='tooltip'><span class='tooltiptext'>Search Appliance Parts Pros,<br>Repair Clinic,<br>Encompass,<br>Marcone,<br>Reliable Parts,<br>and WL MAY<br>websites for images</span><span style='color: white;'>D</span>istributors</button>";
           }
           htmlToAdd += "</td>";
 
@@ -1040,7 +1088,7 @@ function getRecordViewPage(rownum, page_num, i) {
             {
               if (k == 1) //PART#
               {
-                htmlToAdd += "<input type='text' style='display: none;' id='record_view_partnum_input_" + i + "_" + j + "' onfocus='onPartNumFocus(" + i + "," + j + ");' onkeyup='partnum_input_keyup_event(event);' onkeydown='partnum_input_keydown_event(event);'><div style='position: absolute;' id='partnum_autocomplete_" + i + "_" + j + "'></div>";
+                htmlToAdd += "<input type='text' style='display: none;' id='record_view_partnum_input_" + i + "_" + j + "' onfocus='onPartNumFocus(" + i + "," + j + ");' onkeyup='partnum_input_keyup_event(event);' oninput='partnum_input_keyup_event(event);' onkeydown='partnum_input_keydown_event(event);'><div style='position: absolute;' id='partnum_autocomplete_" + i + "_" + j + "'></div>";
               }
             }
             htmlToAdd += "</td>";
@@ -1076,13 +1124,13 @@ function getRecordViewPage(rownum, page_num, i) {
         + "<td style='text-align: right;'>         ADVICE</td><td colspan=4><span id='record_view_data_read_ADVICE_" + i + "'>" + ADVICE_CONTENT + "</span>" + INPUT_ADVICE + "                    </td>"
         + "<td>REORD <b><span id='record_view_data_read_REORD_QTY_" + i + "'>" + _content[rownum][_REORD_QTY] + "</span>" + INPUT_REORD_QTY + "</b>";
       if (!_subscribed_mode)
-        htmlToAdd += "<button onclick='updateReordFromRecordView(\"" + parent_record_id + "\");'>Update</button>";
+        htmlToAdd += "<button style='font-size: " + rv_fontsize + ";' onclick='updateReordFromRecordView(\"" + parent_record_id + "\");'>Update</button>";
       htmlToAdd += "</td><td colspan=2 style='text-align: right;'>                                          Srce</td>"
         + "<td><b><span id='record_view_data_read_SOURCE_" + i + "'>" + _content[rownum][_SOURCE] + "</span>" + INPUT_SOURCE + "</b></td></tr>"
         + "<tr><td colspan=4></td><td style='text-align: right;'>MODEL</td>"
         + "<td colspan=4><span id='record_view_data_read_MODEL_" + i + "'>" + MODEL_CONTENT + "</span>" + INPUT_MODEL + "</td>"
         + "<td colspan=4>PREF  <b><span id='record_view_data_read_FROM_" + i + "'>" + _content[rownum][_FROM] + "</span>" + INPUT_FROM + "</b></td>                                                                                                                                             </tr>"
-        + "</table><br><br>";
+        + "</table>";
       break;
     //-------------------------------------------------PAGE 3-------------------------------------------------------------
     case 3:
@@ -1101,7 +1149,7 @@ function getRecordViewPage(rownum, page_num, i) {
         + "<tr style='background-color: #dddddd;'><td style='" + _RECORDVIEW_SPEC_BORDER_MIDDLE + "'>" + _content[rownum][_SPECMETHOD + 29] + "</td><td style='" + _RECORDVIEW_SPEC_BORDER_MIDDLE + "'>" + _content[rownum][_SPECMETHOD + 32] + "</td><td style='" + _RECORDVIEW_SPEC_BORDER_MIDDLE + "'>" + _content[rownum][_SPECMETHOD + 35] + "</td></tr>"
         + "<tr style='background-color: white;'  ><td style='" + _RECORDVIEW_SPEC_BORDER_BOTTOM + "'>" + _content[rownum][_SPECMETHOD + 30] + "</td><td style='" + _RECORDVIEW_SPEC_BORDER_BOTTOM + "'>" + _content[rownum][_SPECMETHOD + 33] + "</td><td style='" + _RECORDVIEW_SPEC_BORDER_BOTTOM + "'>" + _content[rownum][_SPECMETHOD + 36] + "</td></tr>"
         + "<tr><td colspan='3'><br>" + _RECORDVIEW_FRACTIONS_TO_DECIMAL_TEXT + "</td></tr>"
-        + "</table><br><br>";
+        + "</table>";
       break;
     //-------------------------------------------------PAGE 4-------------------------------------------------------------
     case 4:
@@ -1121,7 +1169,7 @@ function getRecordViewPage(rownum, page_num, i) {
       htmlToAdd += "<tr><td><b>NEWER:</b> " + _content[rownum][_NEWER] + "</td></tr>"
         + "<tr><td><b>NEW:</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + _content[rownum][_NEW] + "</td></tr>"
         + "<tr><td><b>QUESTIONS:</b> " + _content[rownum][_QUESTIONS] + "</td></tr>"
-        + "</table><br><br>";
+        + "</table>";
       break;
   }
   return htmlToAdd;
@@ -1133,6 +1181,10 @@ function setRecordViewPage(pagenum, i) {
     var htmlToAdd = getRecordViewPage(rownum, pagenum, i);
     _record_view_page_list[i] = pagenum;
     document.getElementById("record_view_details_" + i + "_div").innerHTML = htmlToAdd;
+
+    document.getElementById("web_search_r_all_" + i).href = getWebSearchURL(0, i);
+    document.getElementById("web_search_e_all_" + i).href = getWebSearchURL(1, i);
+    document.getElementById("web_search_m_all_" + i).href = getWebSearchURL(2, i);
     var ele = document.getElementById("record_view_data_edit_icon_" + i);
     if (ele != null && pagenum != 1)
       ele.style.display = "none";
@@ -1232,4 +1284,60 @@ function recordView_JumpToAka() {
     else
       showSnackbar("Couldn't find part", 5000);
   }
+}
+
+function setImageRadio() {
+  if (document.getElementById("radio_image_everywhere").checked) {
+    showRecordViewImage(_cse_image_descrip1, _cse_image_partSearchTerm, 0);
+  }
+  else {
+    showRecordViewImage(_cse_image_descrip1, _cse_image_partSearchTerm, 1);
+  }
+}
+
+function getWebSearchURL(site, i) {
+  // var ele_name = "";
+  // switch (site) {
+  //   case 0:
+  //     ele_name = "web_search_r";
+  //     break;
+  //   case 1:
+  //     ele_name = "web_search_e";
+  //     break;
+  //   case 2:
+  //     ele_name = "web_search_m";
+  //     break;
+  // }
+
+  // for (var j = 0; j < _EXTRA_DB.length; ++j) { //Firefox blocks it due to lack of user activation
+  //   var ele = document.getElementById(ele_name + "_" + i + "_" + j);
+  //   if (ele != null)
+  //     ele.click();
+  // }
+
+  var sitename = "";
+  switch (site) {
+    case 0:
+      sitename = "www.reliableparts.com";
+      break;
+    case 1:
+      sitename = "encompass.com";
+      break;
+    case 2:
+      sitename = "marcone.com";
+      break;
+  }
+
+  if (_websearch_part_term_map.has(i)) {
+
+    sitename = "https://www.google.com/search?q=site%3Ahttps%3A%2F%2F" + sitename;
+
+    var arr = _websearch_part_term_map.get(i);
+    for (var i = 0; i < arr.length; ++i) {
+      if (i != 0)
+        sitename += "+|";
+      sitename += "+" + arr[i];
+    }
+  }
+  return sitename;
 }

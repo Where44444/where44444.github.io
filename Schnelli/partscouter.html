@@ -3,6 +3,7 @@
 <title>PartScouter</title>
 
 <head>
+  <link rel="icon" type="image/x-icon" href="./favicon.ico">
   <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
   <meta content="utf-8" http-equiv="encoding">
   <!--Ensures debug options don't make it to web version -->
@@ -34,7 +35,6 @@
   <div id="googlesearch_api_script_div"></div>
   <div id="main_loader" class="loader" style="display: none; margin: auto;"></div><br>
   <div id="main_loading_text" style="display: none; margin: auto; text-align: center;"></div>
-  <div style="text-align: center;" id="local_mode_indicator" class="no-print"></div>
   <div class="hide" id="snackbar" style="display: none; z-index: 4;"></div>
   <div id="snackbar_no_anim" style="display: none; z-index: 4;"></div>
   <button class="no-print" id="exit_invoice_button" style="display: none; position: absolute; top: 0px; left: 10px;"
@@ -48,7 +48,7 @@
   <div id="invoice_from_history_content" style="display: none;"></div>
   <div id="add_invoice_content" style="display: none;"></div>
   <div id="key_shortcut_info_bar" class="no-print"
-    style="position: fixed; bottom: 0px; left: 0px; width: 100%; height: 40px; background-color: #70A2FF; color: black; font-size: 30px; z-index: 4; white-space: nowrap;">
+    style="position: fixed; bottom: 0px; left: 0px; width: 100%; height: 40px; background-color: #70A2FF; color: black; font-size: 24px; z-index: 4; white-space: nowrap;">
   </div>
   <div id="key_shortcut_invoice_remove_window" class="no-print"
     style="display: none; position: fixed; width: 95%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #70A2FF; color: black; font-size: 30px; z-index: 6;">
@@ -141,7 +141,7 @@
     </div>
 
     <div id="firebase_temp_login_div" style="display: none;">
-      <button style="width: 200px; height: 40px;" onclick="exitTempLogin();">Back</button>
+      <button style="width: 200px; height: 40px;" id="button_exit_temp_login" onclick="exitTempLogin();">Back</button>
       <h1 id="firebase_temp_login_header" style="text-align: center;"></h1>
 
       <p style="text-align: center;">Email</p>
@@ -221,52 +221,58 @@
     </div>
 
     <div id="content_div" style="display: none;">
-      <h1 style="text-align: center;">PartScouter</h1>
-      <h3 id="database_identifier" style="text-align: center;"></h3>
-      <div style="display: flex; flex-direction: row; margin: auto;">
-        <button onclick="log_out();" id="logout_button">Log Out</button>
-        <button id="button_sync_databases" style="margin-left: 10px;" onclick="sync_button();">Sync Databases</button>
-      </div>
-      <br><br>
-
-      <div id="message">
-        <p>Loading Parts...</p>
-      </div>
-
-      <div style="display: flex; flex-direction: row;">
-        <div id="TAB_search" class="tabButton" style="font-size: 20px;" onclick="setTab(TAB_SEARCH);">Search</div>
-        <div id="TAB_search_results" class="tabButton" style="font-size: 20px;" onclick="setTab(TAB_SEARCH_RESULTS);">
-          Search Results</div>
-        <div id="TAB_record_views" class="tabButton" style="font-size: 20px;" onclick="setTab(TAB_RECORD_VIEWS);">
-          Record Views</div>
-        <div id="TAB_record_browser" class="tabButton" style="font-size: 20px;" onclick="setTab(TAB_RECORD_BROWSER);">
-          Record Browser</div>
-        <div id="TAB_part_child_record_manager" class="tabButton" style="font-size: 20px;"
-          onclick="setTab(TAB_PART_CHILD_RECORD_MANAGER);">Part Child Record Manager</div>
-        <div id="TAB_sort_order" class="tabButton" style="font-size: 20px;" onclick="setTab(TAB_SORT_ORDERS);">Sort
-          Orders</div>
-        <div id="TAB_mainmenu" class="tabButton" style="font-size: 20px; display: none;"></div>
-      </div>
-      <div style="display: flex; flex-direction: row;">
-        <div id="TAB_part_history" class="tabButton" style="font-size: 20px;" onclick="setTab(TAB_PART_HISTORY);">Part
-          History</div>
-        <div id="TAB_fileinput" class="tabButton" style="font-size: 20px;" onclick="setTab(TAB_PDF_IMPORT);">PDF Import
+      <div
+        style="display: flex; flex-direction: row; position: fixed; top: 0px; left: 0px; width: 100%; background-color: lightblue; z-index: 2;">
+        <div style="display: flex; flex-direction: column; width: 100%;">
+          <div style="display: flex; flex-direction: row;">
+            <div id="TAB_search" class="tabButton" onclick="setTab(TAB_SEARCH);">Search</div>
+            <div id="TAB_search_results" class="tabButton" onclick="setTab(TAB_SEARCH_RESULTS);">
+              Search Results</div>
+            <div id="TAB_record_views" class="tabButton" onclick="setTab(TAB_RECORD_VIEWS);">
+              Record Views</div>
+            <div id="TAB_record_browser" class="tabButton" onclick="setTab(TAB_RECORD_BROWSER);">
+              Record Browser</div>
+            <div id="TAB_part_child_record_manager" class="tabButton" onclick="setTab(TAB_PART_CHILD_RECORD_MANAGER);">
+              Part Child Record Manager</div>
+            <div id="TAB_sort_order" class="tabButton" onclick="setTab(TAB_SORT_ORDERS);">
+              Sort
+              Orders</div>
+            <div id="TAB_mainmenu" class="tabButton" style="display: none;"></div>
+          </div>
+          <div style="display: flex; flex-direction: row;">
+            <div id="TAB_part_history" class="tabButton" onclick="setTab(TAB_PART_HISTORY);">
+              Part
+              History</div>
+            <div id="TAB_fileinput" class="tabButton" onclick="setTab(TAB_PDF_IMPORT);">PDF
+              Import
+            </div>
+            <div id="TAB_reorders" class="tabButton" onclick="setTab(TAB_REORDERS);">Reorders
+            </div>
+            <div id="TAB_invoice_history" class="tabButton" onclick="setTab(TAB_INVOICE_HISTORY);">
+              Invoice History</div>
+            <div id="TAB_invoice_settings" class="tabButton" onclick="setTab(TAB_INVOICE_SETTINGS);">
+              Invoice Settings</div>
+            <div id="TAB_invoice" class="tabButton" onclick="setTab(TAB_INVOICE);">Invoice
+            </div>
+            <div id="TAB_add_invoice" class="tabButton" onclick="setTab(TAB_ADD_INVOICE);">
+              Add
+              Invoice</div>
+            <div id="TAB_people" class="tabButton" onclick="setTab(TAB_PEOPLE);">
+              People</div>
+            <div id="TAB_suggestions" class="tabButton" onclick="setTab(TAB_SUGGESTIONS);">
+              Suggestions Box</div>
+            <div id="TAB_change_history" class="tabButton" onclick="setTab(TAB_CHANGE_HISTORY);">
+              Change History</div>
+          </div>
         </div>
-        <div id="TAB_reorders" class="tabButton" style="font-size: 20px;" onclick="setTab(TAB_REORDERS);">Reorders</div>
-        <div id="TAB_invoice_history" class="tabButton" style="font-size: 20px;" onclick="setTab(TAB_INVOICE_HISTORY);">
-          Invoice History</div>
-        <div id="TAB_invoice_settings" class="tabButton" style="font-size: 20px;"
-          onclick="setTab(TAB_INVOICE_SETTINGS);">
-          Invoice Settings</div>
-        <div id="TAB_invoice" class="tabButton" style="font-size: 20px;" onclick="setTab(TAB_INVOICE);">Invoice</div>
-        <div id="TAB_add_invoice" class="tabButton" style="font-size: 20px;" onclick="setTab(TAB_ADD_INVOICE);">Add
-          Invoice</div>
-        <div id="TAB_people" class="tabButton" style="font-size: 20px;" onclick="setTab(TAB_PEOPLE);">
-          People</div>
-        <div id="TAB_suggestions" class="tabButton" style="font-size: 20px;" onclick="setTab(TAB_SUGGESTIONS);">
-          Suggestions Box</div>
+        <div style="width: 20px;"></div>
+        <div style="display: flex; flex-direction: column; margin: 0px;">
+          <button onclick="log_out();" id="logout_button" style="width: 100%;">Log Out</button>
+          <div style="height: 5px;"></div>
+          <button id="button_sync_databases" style="width: 100%;" onclick="sync_button();">Sync Databases</button>
+        </div>
       </div>
-
+      <div style="height: 60px;"></div>
 
       <div id="TAB_mainmenu_div" style="display: none;">
         <br><br><br><br><br>
@@ -286,7 +292,7 @@
               <td>Any Field</td>
             </tr>
             <tr>
-              <td><input type="text" id="part_history_filter_time" name="part_history_filter_time" value=""></td>
+              <td><input style="width: 200px;" type="text" id="part_history_filter_time" name="part_history_filter_time" value=""></td>
               <td><input type="text" id="part_history_filter_pn" value="" oninput="populatePartHistory();"></td>
               <td><input type="text" id="part_history_filter_desc" value="" oninput="populatePartHistory();"></td>
               <td><input type="text" id="part_history_filter_price" value="" oninput="populatePartHistory();"></td>
@@ -354,7 +360,6 @@
           <!-- <p>Please verify these results with the original PDF!</p> -->
         </div>
       </div>
-      <br><br>
 
       <div id="TAB_sort_order_div">
         <div id="sort_order_div" style="display: none;">
@@ -377,7 +382,7 @@
             Number&nbsp;</span>
           <input type="text" id="part_child_edit_input" placeholder="Search For Part Number to Edit..."
             style="width: 300px;" onfocus="onPartChildEditFocus();" onkeyup="partchild_edit_input_keyup_event(event);"
-            onkeydown="partchild_edit_input_keydown_event(event);">
+            oninput="partchild_edit_input_keyup_event(event);" onkeydown="partchild_edit_input_keydown_event(event);">
           <div id="partchild_edit_autocomplete" style="position: absolute;"></div>
           <div id="part_child_edit_table_div"></div>
           <br>
@@ -397,6 +402,7 @@
             <div style="position: absolute; left: 50px;">
               <input id="search_partnum_any_input" type="text" style="width: 230px;" onfocus='deselectTable();'
                 onkeyup='search_partnum_input_keyup_event(event, null);'
+                oninput='search_partnum_input_keyup_event(event, null);'
                 onkeydown='search_partnum_input_keydown_event(event);'>
               <div id="search_partnum_autocomplete_any" style="position: absolute;"></div>
             </div>
@@ -412,7 +418,8 @@
               Similar Words<input type="checkbox" id="search_highlight_similar_words"><span
                 class="checkmark"></span></label>
             <br><input id="repititions_min" type="number" min="0" onchange='setMinRepititions();'
-              onfocus='deselectTable();' style="display: inline-block; width: 50px; font-size: 20px;"><label
+              oninput='setMinRepititions();' onfocus='deselectTable();'
+              style="display: inline-block; width: 50px; font-size: 20px;"><label
               style="display: inline-block; font-size: 20px;"><span style="color: white;">R</span>epititions required
               to
               highlight</label></input>
@@ -463,9 +470,6 @@
       </div>
 
       <div id="TAB_record_views_div">
-        <p>Press the <img title='Open Record View' src='record_view.png' width=50px height=20px> icon in 'Search' or
-          'Record Browser' to add a part children record view</p>
-        <p>Press 'Page Up' and 'Page Down' to change the record view page</p>
         <div id="googlesearch_image_div" class="no-print"
           style="display: none; position: fixed; z-index: 4; height: 50%; top: 50%; left: 50%; transform: translateX(-50%) translateY(-50%);">
           <img id='button_googlesearch_image_exit' class='clickable' src='x.png'
@@ -477,17 +481,33 @@
           <button id="button_googlesearch_image_right"
             style="display: inline; background-color: #70A2FF; font-size: 30px; width: 50%; float: right; padding: 0px;"
             onclick="changeGoogleSearchImage( 1);">&rarr;</button>
+          <div style="background-color: lightblue;">
+            <div class='tooltip'><span class='tooltiptext'>Search entire<br>internet<br>for images</span>
+              <label class="radiobutton_container" style="display: inline;">E<span
+                  style="color: white;">v</span>erywhere&nbsp;&nbsp;<input onchange="setImageRadio();" type="radio"
+                  id="radio_image_everywhere" name="radio_image" checked><span class="radiomark"></span></label>
+            </div>
+            <div class='tooltip'><span class='tooltiptext'>Search Appliance Parts Pros,<br>Repair
+                Clinic,<br>Encompass,<br>Marcone,<br>Reliable Parts,<br>and WL MAY<br>websites for images</span>
+              <label class="radiobutton_container" style="display: inline;"><span
+                  style="color: white;">D</span>istributors&nbsp;&nbsp;<input onchange="setImageRadio();" type="radio"
+                  id="radio_image_distributors" name="radio_image"><span class="radiomark"></span></label>
+            </div>
+          </div>
           <p id="paragraph_googlesearch_image_count"
             style="background-color: #FFFFFFDD; width: 100%; text-align: center;"></p>
         </div>
         <div id="record_views_div">
         </div>
+        <p>Press the <img title='Open Record View' src='record_view.png' width=50px height=20px> icon in 'Search' or
+          'Record Browser' to add a part children record view</p>
+        <p>Press 'Page Up' and 'Page Down' to change the record view page</p>
       </div>
 
       <div id="TAB_record_browser_div">
         <span style="font-size: 30px;">Filter </span>
         <input id="record_browser_filter_input" type="text" style="width: 700px; height: 30px; font-size: 30px;"
-          onkeyup="recordBrowserFilterKeyUpEvent(event);">
+          onkeyup="recordBrowserFilterKeyUpEvent(event);" oninput="recordBrowserFilterKeyUpEvent(event);">
         <button style="height: 40px; font-size: 25px;" onclick="applyRecordBrowserFilter();">Apply</button>
         <div id="record_browser_div">
           <!-- <h1 id="record_browser_heading" onclick="toggle_record_browser();" class="clickable"><span id="record_browser_expander_icon" style="font-size: 50px; font-weight: 100;">-</span> Record Browser</h1> -->
@@ -517,7 +537,7 @@
               <td>Any Field</td>
             </tr>
             <tr>
-              <td><input type="text" id="invoice_history_filter_time" name="invoice_history_filter_time" value="">
+              <td><input style="width: 200px;" type="text" id="invoice_history_filter_time" name="invoice_history_filter_time" value="">
               </td>
               <td><input type="text" id="invoice_history_filter_name" value="" oninput="populateInvoiceHistory();">
               </td>
@@ -584,6 +604,40 @@
         <div id="part_suggestions_table"></div>
       </div>
 
+      <div id="TAB_change_history_div">
+        <div id="change_history_internal_div">
+          <button id="button_update_change_history" style="background-color: #70A2FF; color: black;"
+            onclick="retrieveChangeDataFromDatabase(populateChangeHistory);"><span style="color: white;">U</span>pdate
+            Change History</button>
+          <h3 style="background-color: #70A2FF; color: black;"><span style="color: white">F</span>ilter by</h3>
+          <table>
+            <tr>
+              <td>Date</td>
+              <td>Initials</td>
+              <td>Type</td>
+              <td>Change</td>
+              <td>Any Field</td>
+            </tr>
+            <tr>
+              <td><input style="width: 200px;" type="text" id="change_history_filter_time" name="change_history_filter_time" value="">
+              </td>
+              <td><input type="text" id="change_history_filter_initials" value="" oninput="populateChangeHistory();">
+              </td>
+              <td><input type="text" id="change_history_filter_type" value="" oninput="populateChangeHistory();">
+              </td>
+              <td><input type="text" id="change_history_filter_change" value="" oninput="populateChangeHistory();">
+              </td>
+              <td><input type="text" id="change_history_filter_change_any_field" value=""
+                  oninput="populateChangeHistory();"></td>
+            </tr>
+          </table>
+          <button id="button_clear_change_filters" style="background-color: #70A2FF; color: black;"
+            onclick="clearChangeFilters();"><span style="color: white;">C</span>lear Filters</button>
+          <br><br>
+          <div id="table_change_history_div"></div>
+        </div>
+      </div>
+
       <h2>Hotkeys:</h2>
       <p>Tables</p>
       <p>&nbsp;&nbsp;Arrow Keys - Navigate</p>
@@ -596,14 +650,12 @@
       <p>&nbsp;&nbsp;Page Up - View Next Page</p>
       <p>&nbsp;&nbsp;Page Down - View Previous Page</p>
       <br>
-      <p>v 1.76.3</p>
-      <p><a id="updater_link_web"
-          href="https://where44444.github.io/Schnelli/ez_database_updater/ez_database_updater.html"
-          target="_blank">Alpha 4 Data Importer Web</a></p>
+      <p>v 1.77.0</p>
       <p><a id="updater_link_local" href="ez_database_updater/ez_database_updater.html" target="_blank">Alpha 4 Data
-          Importer Local</a></p>
+          Importer</a></p>
+      <h3 id="database_identifier" style="text-align: center;"></h3>
       <br><br><br><br>
-      <!--Line breaks so key_shortcut_info_bar doesn't hide anything at bottom-->
+      <!--Line breaks so key_shortcut_info_bar and snackbar doesn't hide anything at bottom-->
     </div>
   </div>
 
@@ -633,6 +685,7 @@
   <script type="text/javascript" src="eventlisteners.js"></script>
   <script type="text/javascript" src="init0.js"></script>
   <script type="text/javascript" src="database_funcs.js"></script>
+  <script type="text/javascript" src="change_history.js"></script>
 </body>
 
 </html>

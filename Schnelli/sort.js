@@ -267,6 +267,7 @@ function saveNewSortOrder() {
     var sortListRef = getDatabaseRef('sort_orders');
     var newSortOrderRef = sortListRef.push();
     writeToDatabase('sort_orders/' + newSortOrderRef.key, sortObj, false, false, false, null);
+    writeToChangeHistory("Add | Sort Order", "New Sort Order \"" + sortObj.name + "\" | Order: " + getSortOrderString(sortObj));
   }
 
   cancelNewSortOrder();
@@ -307,6 +308,7 @@ function saveEditSortOrder(id1) {
     sortObj.sorted_indexes = sorted_indexes;
 
     writeToDatabase('sort_orders/' + _sort_orders[id1 - 1].key, sortObj, false, false, false, null);
+    writeToChangeHistory("Edit | Sort Order", "Edited Sort Order \"" + sortObj.name + "\" | Order: " + getSortOrderString(sortObj));
   }
   populateSortOrders();
 }
@@ -328,7 +330,9 @@ function cancelDeleteSortOrder(id1) {
 }
 
 function confirmDeleteSortOrder(id1) {
+  var sortObj = _sort_orders[id1 - 1];
   deleteFromDatabase('sort_orders/' + _sort_orders[id1 - 1].key, false, false, false, null);
+  writeToChangeHistory("Delete | Sort Order", "Deleted Sort Order \"" + sortObj.name + "\" | Order: " + getSortOrderString(sortObj));
   populateSortOrders();
 }
 

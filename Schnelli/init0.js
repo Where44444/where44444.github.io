@@ -34,7 +34,7 @@ firebase.auth().onAuthStateChanged(function (user) {
     // User is signed in. Has saved login info
     console.log("DETECTED AUTH STATE CHANGE|LOGGED IN");
     _FIREBASE_LOGGED_IN = true;
-    // var partRef = firebase.database().ref(_DATABASE_PREFIX);
+    // var partRef = firebase.database().ref("change_history");
     // partRef.remove();
 
     // var ref = firebase.database().ref("");

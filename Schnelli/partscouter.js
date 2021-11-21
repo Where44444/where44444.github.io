@@ -11,10 +11,6 @@ const _DEBUG_SKIP_PART_LOADING = false;
 // const _DEBUG_LOCAL_MODE = _DEBUG_LOCAL_MODE__;
 // const _DEBUG_SKIP_PART_LOADING = _DEBUG_SKIP_PART_LOADING__;
 
-if (_DEBUG_LOCAL_MODE) {
-  document.getElementById("local_mode_indicator").innerHTML = "Local Mode ON";
-}
-
 var _SESSION_ID = -1;
 var _admin_uid = "";
 var _admin_email = "";
@@ -139,6 +135,7 @@ const _ALPHABET = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "
 var _content = null;
 var _content_standard = null;
 var _content_invoice_history = null;
+var _content_change_history = null;
 
 var _content_extra = null;
 // var _indexToContentID;
@@ -149,6 +146,7 @@ const _sortedIndexBGColorReverse = "#FF7070"; //Salmon
 const _selectedRowColor = "#96BBFF"; //Light blue
 const _selectedCellColor = "#70A2FF"; //Slightly Less Light blue
 const _tempTopRowColor = "#A0FF77"; //Light green
+const _top_bar_height = "78px"; //Light green
 
 var _sort_orders = null;
 var _google_cse_api_key = "";
@@ -206,9 +204,9 @@ var _CHILD_PART_LINKS_CACHE = new Map();
 function showContentDiv() {
   document.getElementById("content_div").style.display = "block";
   if (_LOCAL_SERVER_MODE)
-    document.getElementById("database_identifier").innerHTML = "Server: <b>Local</b> <span style='color: lightgray;'>Google Firebase</span>";
+    document.getElementById("database_identifier").innerHTML = "Server: <b>Local</b>";
   else
-    document.getElementById("database_identifier").innerHTML = "Server: <span style='color: lightgray;'>Local</span> <b>Google Firebase</b>";
+    document.getElementById("database_identifier").innerHTML = "Server: <b>Google Firebase</b>";
 }
 
 function initialLoadingFinished() //Called after all parts are downloaded and processed
@@ -281,6 +279,27 @@ $(function () {
   });
 });
 
+$(function () {
+  $('input[name=change_history_filter_time]').daterangepicker({
+    // timePicker: true,
+    // singleDatePicker: true,
+    showDropdowns: true,
+    startDate: new Date(FILTER_TIME_START),
+    endDate: new Date(),
+    // startDate: moment().startOf('hour'),
+    locale: {
+      format: 'MM/DD/YYYY'
+    }
+  }, function (start, end, label) {
+    _change_filter_date_start = start;
+    _change_filter_date_end = end;
+    populateChangeHistory();
+    // console.log("Date Picker|" + start + "|" + end + "|"); //Start and end are milliseconds, start is time at start of day and end is end of day
+    // var date1 = new Date("08 / 31 / 2020");
+    // console.log("Date|" + date1.getTime());
+  });
+});
+
 //Initial Generation--------------------------------------------------------------------------------
 for (var i = 0; i < INDEXES_CONCAT.length; ++i) {
   _searchstring_specific_history.push(new Array());
@@ -294,7 +313,7 @@ for (var i = 0; i < _EXTRA_DB.length; ++i) {
   if (((i + 1) % 5 == 0 && i != 0) || i == _EXTRA_DB.length - 1) {
     htmlToAdd += "<br>";
     for (var i2 = 0; i2 < 5 && i3 < _EXTRA_DB.length; ++i2) {
-      htmlToAdd += "<div style='position: absolute; left: " + (50 + i2 * 250) + "px;'><input id='search_partnum_input_" + i3 + "' type='text' style='width: 230px;' onfocus='deselectTable();' onkeyup='search_partnum_input_keyup_event(event, " + i3 + ");' onkeydown='search_partnum_input_keydown_event(event);'>" +
+      htmlToAdd += "<div style='position: absolute; left: " + (50 + i2 * 250) + "px;'><input id='search_partnum_input_" + i3 + "' type='text' style='width: 230px;' onfocus='deselectTable();' onkeyup='search_partnum_input_keyup_event(event, " + i3 + ");' oninput='search_partnum_input_keyup_event(event, " + i3 + ");' onkeydown='search_partnum_input_keydown_event(event);'>" +
         "<div id='search_partnum_autocomplete_" + i3 + "' style='position: absolute;'></div></div>";
       ++i3;
     }
@@ -312,7 +331,7 @@ for (var i = 0; i < INDEXES_CONCAT.length; ++i) {
       for (var j = 0; j < 5; ++j) {
         var i2 = (i - 4) + j;
         var order_id2 = _INDEX_ORDER[i2];
-        checkboxHTML += "<div style='position:absolute; left:" + ((i2 % 5) * 250 + 50) + "px;'><input id='search_input_" + order_id2 + "' type='text' style='width: 230px;' onfocus='deselectTable(" + order_id2 + ");' onfocusout='onSearchInputFocusOut();' onchange='onSearchInputChanged(" + order_id2 + ")'><div id='search_autocomplete_" + order_id2 + "'></div></div>";
+        checkboxHTML += "<div style='position:absolute; left:" + ((i2 % 5) * 250 + 50) + "px;'><input id='search_input_" + order_id2 + "' type='text' style='width: 230px;' onfocus='deselectTable(" + order_id2 + ");' onfocusout='onSearchInputFocusOut();' oninput='onSearchInputChanged(" + order_id2 + ");'><div id='search_autocomplete_" + order_id2 + "'></div></div>";
       }
       if (i == 4)
         checkboxHTML += "<button id='search_specific_button' style='display: inline; width: 100px; position:absolute; left:" + ((i + 1) * 250 + 50) + "px;' onclick='search_query();'>Go</button>";
@@ -333,7 +352,7 @@ for (var i = 0; i < INDEXES_CONCAT.length; ++i) {
       for (var j = 0; j < 5; ++j) {
         var i2 = (i - 4) + j;
         var order_id2 = _INDEX_ORDER[i2];
-        checkboxHTML_More += "<div style='position:absolute; left:" + ((i2 % 5) * 250 + 50) + "px;'><input id='search_input_" + order_id2 + "' type='text' style='width: 230px;' onfocus='deselectTable(" + order_id2 + ");' onfocusout='onSearchInputFocusOut();' onchange='onSearchInputChanged(" + order_id2 + ")'><div id='search_autocomplete_" + order_id2 + "'></div></div>";
+        checkboxHTML_More += "<div style='position:absolute; left:" + ((i2 % 5) * 250 + 50) + "px;'><input id='search_input_" + order_id2 + "' type='text' style='width: 230px;' onfocus='deselectTable(" + order_id2 + ");' onfocusout='onSearchInputFocusOut();' oninput='onSearchInputChanged(" + order_id2 + ")'><div id='search_autocomplete_" + order_id2 + "'></div></div>";
       }
       checkboxHTML_More += "<br><br><br>";
     }
@@ -466,6 +485,7 @@ function clearData() {
   _content = null;
   _content_standard = null;
   _content_invoice_history = null;
+  _content_change_history = null;
 
   _content_extra = null;
   _sort_orders = null;
@@ -653,7 +673,6 @@ function loadContentDiv2() {
   if (_subscribed_mode || _current_employee != null) {
     var length = TAB_MAINMENU_DIVS.length;
     if (_subscribed_mode) {
-      document.getElementById("updater_link_web").style.display = "none";
       document.getElementById("updater_link_local").style.display = "none";
       document.getElementById("part_child_button_new").style.opacity = "0";
       document.getElementById("part_child_button_new").disabled = true;
@@ -671,12 +690,13 @@ function loadContentDiv2() {
       document.getElementById("TAB_invoice_settings").style.display = "none";
       document.getElementById("TAB_invoice").style.display = "none";
       document.getElementById("TAB_add_invoice").style.display = "none";
+      document.getElementById("TAB_change_history").style.display = "none";
       document.getElementById("button_sync_databases").style.display = "none";
 
       var shortcuts_html = '<table style="margin: auto; font-size: 30px; border: solid 30px #70A2FF;">';
       var cellsAdded = 0;
       for (var i = 0; i < length; ++i)
-        if (TAB_MAINMENU_DIVS[i] != "" && i != TAB_PEOPLE && i != TAB_PART_HISTORY && i != TAB_PDF_IMPORT && i != TAB_REORDERS && i != TAB_INVOICE_HISTORY && i != TAB_INVOICE_SETTINGS && i != TAB_INVOICE && i != TAB_ADD_INVOICE) {
+        if (TAB_MAINMENU_DIVS[i] != "" && i != TAB_PEOPLE && i != TAB_PART_HISTORY && i != TAB_PDF_IMPORT && i != TAB_REORDERS && i != TAB_INVOICE_HISTORY && i != TAB_INVOICE_SETTINGS && i != TAB_INVOICE && i != TAB_ADD_INVOICE && i != TAB_CHANGE_HISTORY) {
           if (cellsAdded == 0)
             shortcuts_html += "<tr>";
           shortcuts_html += '<td style="background-color: #70A2FF; border: 0px;">' + TAB_MAINMENU_DIVS[i] + "</td>";
@@ -692,7 +712,6 @@ function loadContentDiv2() {
       document.getElementById("mainmenu_shortcut_table").innerHTML = shortcuts_html;
 
     } else {
-      document.getElementById("updater_link_web").style.display = "";
       document.getElementById("updater_link_local").style.display = "";
       document.getElementById("part_child_button_new").style.opacity = "1";
       document.getElementById("part_child_button_new").disabled = false;
@@ -710,6 +729,7 @@ function loadContentDiv2() {
       document.getElementById("TAB_invoice_settings").style.display = "";
       document.getElementById("TAB_invoice").style.display = "";
       document.getElementById("TAB_add_invoice").style.display = "";
+      document.getElementById("TAB_change_history").style.display = "";
       document.getElementById("button_sync_databases").style.display = "";
       if (_current_employee.admin)
         document.getElementById("TAB_people").style.display = "";
@@ -865,6 +885,7 @@ function loadContentDiv2() {
     });
 
     retrieveInvoiceDataFromDatabase(null);
+    retrieveChangeDataFromDatabase(null);
   }
   else {
     showSnackbar("Employee ID does not exist", 5000);

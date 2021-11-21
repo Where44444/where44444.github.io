@@ -1,28 +1,25 @@
-document.getElementById("import_wlmay_pdf_input").onchange = function(event) 
-{
-  if(document.getElementById("import_wlmay_pdf_input").value != "")
-  {
+document.getElementById("import_wlmay_pdf_input").onchange = function (event) {
+  if (document.getElementById("import_wlmay_pdf_input").value != "") {
     var file = event.target.files[0];
 
     //Step 2: Read the file using file reader
-    var fileReader = new FileReader();  
+    var fileReader = new FileReader();
 
-    fileReader.onload = function() {
+    fileReader.onload = function () {
 
-        //Step 4:turn array buffer into typed array
-        var typedarray = new Uint8Array(this.result);
+      //Step 4:turn array buffer into typed array
+      var typedarray = new Uint8Array(this.result);
 
-        getPdfText(typedarray);
-        document.getElementById("wlmay_input_div").style.display = "none";
-        document.getElementById("wlmay_pdf_table_div").style.display = "block";
+      getPdfText(typedarray);
+      document.getElementById("wlmay_input_div").style.display = "none";
+      document.getElementById("wlmay_pdf_table_div").style.display = "block";
     };
     //Step 3:Read the file as ArrayBuffer
     fileReader.readAsArrayBuffer(file);
   }
 }
 
-function cancelWLMAYPDF()
-{
+function cancelWLMAYPDF() {
   document.getElementById("wlmay_pdf_table_div").style.display = "none";
   document.getElementById("wlmay_input_div").style.display = "block";
   document.getElementById("import_wlmay_pdf_input").value = "";
@@ -30,41 +27,34 @@ function cancelWLMAYPDF()
   setKeyboardShortcutBar();
 }
 
-function generatePDFAddToDatabaseTable(index)
-{
+function generatePDFAddToDatabaseTable(index) {
   var desc = document.getElementById("pdf_description_" + index).value.split("\n");
   var pn = "";
   var descrip1 = "";
   var pnFound = false;
-  for(var i = 0; i < desc.length; ++i)
-  {
-    if(removeExtraSpaces(desc[i]) != "")
-    {
-      if(!pnFound)
-      {
+  for (var i = 0; i < desc.length; ++i) {
+    if (removeExtraSpaces(desc[i]) != "") {
+      if (!pnFound) {
         pn = removePreWP(desc[i]);
         pnFound = true;
       }
-      else
-      {
+      else {
         descrip1 = desc[i];
         break;
       }
     }
   }
-  
+
   var link = null;
   var extradb = -1;
-  for(var i = 0; i < _EXTRA_DB.length; ++i)
-  {
+  for (var i = 0; i < _EXTRA_DB.length; ++i) {
     link = getExtraDBLinkIndex(i, pn);
-    if(link != null)
-    {
+    if (link != null) {
       extradb = i;
       break;
     }
   }
-  
+
   var dealerprice_ele = document.getElementById("pdf_dealerprice_" + index);
   var yourprice_ele = document.getElementById("pdf_yourprice_" + index);
   var shippedamount_ele = document.getElementById("pdf_shipped_" + index);
@@ -72,22 +62,20 @@ function generatePDFAddToDatabaseTable(index)
   var yourprice = "";
   var shippedamount = "";
   var newqty = "";
-  if(dealerprice_ele != null)
+  if (dealerprice_ele != null)
     dealerprice = dealerprice_ele.value;
-  if(yourprice_ele != null)
+  if (yourprice_ele != null)
     yourprice = yourprice_ele.value;
-  if(shippedamount_ele != null)
-  {
+  if (shippedamount_ele != null) {
     shippedamount = shippedamount_ele.value;
     newqty = Math.floor(Number(shippedamount));
   }
 
-  if(link == null){
+  if (link == null) {
     var notFoundHTML = "<span style='color: red;'>Could not find part number \"" + pn + "\" in any child databases!</span>";
     notFoundHTML += "<p>Add new part child record?</p>";
     notFoundHTML += "<select id='pdf_new_partchild_select_" + index + "' style='width: 300px;'>";
-    for(var i = 0; i < _EXTRA_DB.length; ++i)
-    {
+    for (var i = 0; i < _EXTRA_DB.length; ++i) {
       notFoundHTML += "<option value='" + _EXTRA_DB[0] + "'>" + _EXTRA_DB[i] + "</option>";
     }
     notFoundHTML += "</select>";
@@ -95,24 +83,22 @@ function generatePDFAddToDatabaseTable(index)
     notFoundHTML += "&nbsp;&nbsp;<button id='button_pdfimport_newpartchild_cancel' style='background-color: #70A2FF; color: black;' onclick='cancelPDFAddToDatabase(" + index + ");'><span style='color: white;'>C</span>ancel</button>";
     document.getElementById("pdf_add_to_database_table_" + index).innerHTML = notFoundHTML;
     var ele = document.getElementById("pdf_new_partchild_select_" + index);
-    if(ele != null)
-    {
+    if (ele != null) {
       ele.focus();
     }
   }
-  else
-  {
+  else {
     extraDBs_PDF.set(index, extradb);
     extraDBLinks_PDF.set(index, link);
     var partObj = _content_extra[extradb][link][0];
     dealerprice = Number(partObj.REG);
     yourprice = Number(partObj.SPL);
     shippedamount = Number(partObj.SHOP_QTY);
-    if(dealerprice_ele != null)
+    if (dealerprice_ele != null)
       dealerprice = dealerprice_ele.value;
-    if(yourprice_ele != null)
+    if (yourprice_ele != null)
       yourprice = yourprice_ele.value;
-    if(shippedamount_ele != null)
+    if (shippedamount_ele != null)
       shippedamount = shippedamount_ele.value;
     var dealerprice_change = "";
     var yourprice_change = "";
@@ -121,17 +107,15 @@ function generatePDFAddToDatabaseTable(index)
     //yourprice -> SPL
     //shippedamount -> SHOP_QTY
     var diff = 0;
-    if(Number(dealerprice) == Number(partObj.REG) || removeExtraSpaces(dealerprice) == "")
-    {
+    if (Number(dealerprice) == Number(partObj.REG) || removeExtraSpaces(dealerprice) == "") {
       dealerprice_change = "No Change";
       dealerprice = partObj.REG;
     }
-    else{
+    else {
       diff = get_plus_minus_usd_string(Number(dealerprice) - Number(partObj.REG));
       dealerprice_change = "<img src='down_arrow.png' width=20px height=20px> " + diff;
     }
-    if(Number(yourprice) == Number(partObj.SPL) || removeExtraSpaces(yourprice) == "")
-    {
+    if (Number(yourprice) == Number(partObj.SPL) || removeExtraSpaces(yourprice) == "") {
       yourprice_change = "No Change";
       yourprice = partObj.SPL;
     }
@@ -139,8 +123,7 @@ function generatePDFAddToDatabaseTable(index)
       diff = get_plus_minus_usd_string(Number(yourprice) - Number(partObj.SPL));
       yourprice_change = "<img src='down_arrow.png' width=20px height=20px> " + diff;
     }
-    if(removeExtraSpaces(shippedamount) == "")
-    {
+    if (removeExtraSpaces(shippedamount) == "") {
       shippedamount = 0;
     }
     newqty = 0;
@@ -148,20 +131,20 @@ function generatePDFAddToDatabaseTable(index)
     newqty += Number(partObj.SHOP_QTY);
     diff = newqty - Number(partObj.SHOP_QTY);
     newqty = Math.floor(Number(newqty));
-    if(diff >= 0)
+    if (diff >= 0)
       diff = "+" + diff;
     shippedamount_change = "<img src='down_arrow.png' width=20px height=20px> " + diff;
     var htmlToAdd = "";
-    if(removeExtraSpaces(partObj.FIXED) != "")
+    if (removeExtraSpaces(partObj.FIXED) != "")
       htmlToAdd += "<div style='color: red;'>Fixed price found!</div>";
     htmlToAdd += "<table>"
-    + "<tr><th>DB</th><th>PN</th><th>AKA</th><th>REG</th><th>SPL</th><th>SHOP_QTY</th><th>FIXED</th></tr>"
-    + "<tr><td>" + _EXTRA_DB[extradb] + "</td><td>" + partObj.PN + "</td><td>" + partObj[_EXTRA_DB_FIELDS[extradb][_AKA_GLOBAL]] + "</td><td>" + partObj.REG + "</td><td>" + partObj.SPL + "</td><td>" + partObj.SHOP_QTY + "</td><td>" + partObj.FIXED + "</td></tr>"
-    + "<tr><td></td><td></td><td></td><td>" + dealerprice_change + "</td><td>" + yourprice_change + "</td><td>" + shippedamount_change + "</td><td></td></tr>"
-    + "<tr><td>" + _EXTRA_DB[extradb] + "</td><td>" + partObj.PN + "</td><td>" + partObj[_EXTRA_DB_FIELDS[extradb][_AKA_GLOBAL]] + "</td><td>" + dealerprice + "</td><td>" + yourprice +   "</td><td>" + newqty +           "</td><td>" + partObj.FIXED + "</td></tr>"
-    + "</table>"
-    + "<button id='button_pdfimport_save_addrow'   style='background-color: #70A2FF; color: black;' onclick='confirmPDFAddToDatabase(" + index + ");'><span style='color: white;'>S</span>ave</button>&nbsp;&nbsp;"
-    + "<button id='button_pdfimport_cancel_addrow' style='background-color: #70A2FF; color: black;' onclick='cancelPDFAddToDatabase(" + index + ");' ><span style='color: white;'>C</span>ancel</button>";
+      + "<tr><th>DB</th><th>PN</th><th>AKA</th><th>REG</th><th>SPL</th><th>SHOP_QTY</th><th>FIXED</th></tr>"
+      + "<tr><td>" + _EXTRA_DB[extradb] + "</td><td>" + partObj.PN + "</td><td>" + partObj[_EXTRA_DB_FIELDS[extradb][_AKA_GLOBAL]] + "</td><td>" + partObj.REG + "</td><td>" + partObj.SPL + "</td><td>" + partObj.SHOP_QTY + "</td><td>" + partObj.FIXED + "</td></tr>"
+      + "<tr><td></td><td></td><td></td><td>" + dealerprice_change + "</td><td>" + yourprice_change + "</td><td>" + shippedamount_change + "</td><td></td></tr>"
+      + "<tr><td>" + _EXTRA_DB[extradb] + "</td><td>" + partObj.PN + "</td><td>" + partObj[_EXTRA_DB_FIELDS[extradb][_AKA_GLOBAL]] + "</td><td>" + dealerprice + "</td><td>" + yourprice + "</td><td>" + newqty + "</td><td>" + partObj.FIXED + "</td></tr>"
+      + "</table>"
+      + "<button id='button_pdfimport_save_addrow'   style='background-color: #70A2FF; color: black;' onclick='confirmPDFAddToDatabase(" + index + ");'><span style='color: white;'>S</span>ave</button>&nbsp;&nbsp;"
+      + "<button id='button_pdfimport_cancel_addrow' style='background-color: #70A2FF; color: black;' onclick='cancelPDFAddToDatabase(" + index + ");' ><span style='color: white;'>C</span>ancel</button>";
     document.getElementById("pdf_add_to_database_table_" + index).innerHTML = htmlToAdd;
     document.getElementById("pdf_add_to_database_table_" + index).scrollIntoView({ behavior: "auto", block: "nearest", inline: "nearest" });
     document.activeElement.blur();
@@ -315,13 +298,13 @@ function processPage() {
           //Customer Purchase Order No. 43 471
           setPDFTableValue(findPDFTextContentIndexByPosition(523, 715, textContentArray, null, null), textContentArray, "wlmay_pdf_invoice_no_input");
           setPDFTableValue(findPDFTextContentIndexByPosition(530, 693, textContentArray, null, null), textContentArray, "wlmay_pdf_invoice_date_input");
-          setPDFTableValue(findPDFTextContentIndexByPosition( 43, 471, textContentArray, null, null), textContentArray, "wlmay_pdf_customer_po_no_input");
+          setPDFTableValue(findPDFTextContentIndexByPosition(43, 471, textContentArray, null, null), textContentArray, "wlmay_pdf_customer_po_no_input");
           setPDFTableValue(findPDFTextContentIndexByPosition(421, 436, textContentArray, null, null), textContentArray, "wlmay_pdf_pick_ticket_input");
         }
 
         if (pageOn == pdfOn.numPages) //Last Page
         {
-          setPDFTableValue(findPDFTextContentIndexByPosition( 38, 62, textContentArray, null, null), textContentArray, "wlmay_pdf_subtotal0_input");
+          setPDFTableValue(findPDFTextContentIndexByPosition(38, 62, textContentArray, null, null), textContentArray, "wlmay_pdf_subtotal0_input");
           setPDFTableValue(findPDFTextContentIndexByPosition(121, 62, textContentArray, null, null), textContentArray, "wlmay_pdf_s&h_input");
           setPDFTableValue(findPDFTextContentIndexByPosition(200, 62, textContentArray, null, null), textContentArray, "wlmay_pdf_tax_input");
           setPDFTableValue(findPDFTextContentIndexByPosition(276, 62, textContentArray, null, null), textContentArray, "wlmay_pdf_subtotal1_input");
@@ -354,8 +337,7 @@ function processPage() {
             var numberNamePhone = null;
             while (current_ITEMDESC_Index < ITEMDESC_Indexes.length && textContentArrayAll[ITEMDESC_Indexes[current_ITEMDESC_Index]].adjustedHeight > nextORDEREDHeight) {
               var str = removeExtraSpaces(textContentArrayAll[ITEMDESC_Indexes[current_ITEMDESC_Index]].str);
-              if (str != "") 
-              {
+              if (str != "") {
                 var numberNamePhoneTemp = getPDFNumberNamePhone(str);
                 if (numberNamePhoneTemp != null)
                   numberNamePhone = numberNamePhoneTemp;
@@ -385,8 +367,7 @@ function processPage() {
           tableHTML += "</table>";
           document.getElementById("wlmay_pdf_parts_table_div").innerHTML = tableHTML;
           var ele = document.getElementById("wlmay_pdf_invoice_no_input");
-          if(ele != null && ele.style.display != "none")
-          {
+          if (ele != null && ele.style.display != "none") {
             ele.focus();
             ele.select();
           }
@@ -483,8 +464,7 @@ function findPDFTextContentIndexByPosition(px, py, textContentArray, YMaximum, Y
   }
 }
 
-function cancelPDFAddToDatabase(index)
-{
+function cancelPDFAddToDatabase(index) {
   document.getElementById("pdf_add_to_database_table_" + index).innerHTML = "";
   setPDFAddToDatabaseButtons(true);
 }
@@ -496,11 +476,11 @@ var newPNs = new Map();
 var newDESCRIP1s = new Map();
 var extraDBs_PDF = new Map();
 var extraDBLinks_PDF = new Map();
-function confirmPDFAddToDatabase(index)
-{
+function confirmPDFAddToDatabase(index) {
   var extradb = extraDBs_PDF.get(index);
   var link = extraDBLinks_PDF.get(index);
   var partObj = _content_extra[extradb][link][0];
+  var originalObj = copyObj(partObj);
   partObj.REG = newREGs.get(index);
   partObj.SPL = newSPLs.get(index);
   partObj.SHOP_QTY = newSHOP_QTYs.get(index);
@@ -508,8 +488,12 @@ function confirmPDFAddToDatabase(index)
   document.getElementById("startAddToDatabaseButton_" + index).innerHTML = "Added";
   document.getElementById("startAddToDatabaseButton_" + index).disabled = true;
   document.getElementById("startAddToDatabaseButton_" + index).className = "button_disabled";
-  if(!_DEBUG_LOCAL_MODE)
+  if (!_DEBUG_LOCAL_MODE) {
     writeToDatabase("parts_db/" + _EXTRA_DB[extradb] + "/" + _content_extra[extradb][link][1], partObj, true, false, true, extradb);
+    var compare_str = getObjectCompareString(originalObj, partObj);
+    if (compare_str != null)
+      writeToChangeHistory("Edit | Child Record", "Edited Child Record from PDF Import in \"" + _EXTRA_DB[extradb] + "\" with PN \"" + originalObj.PN + "\" " + compare_str);
+  }
 
   // var parent_indexes = getParentRecordIndexesWithChildPart(extradb, link);
   // for(var i = 0; i < parent_indexes.length; ++i)
@@ -521,8 +505,7 @@ function confirmPDFAddToDatabase(index)
   showSnackbar("Updated child part " + partObj.PN, 5000);
 }
 
-function startPDFNewChildRecord(index)
-{
+function startPDFNewChildRecord(index) {
   document.getElementById("part_child_dropdown_select").selectedIndex = document.getElementById("pdf_new_partchild_select_" + index).selectedIndex;
   setNewPartChildButton();
   setTab(TAB_PART_CHILD_RECORD_MANAGER);
@@ -534,13 +517,11 @@ function startPDFNewChildRecord(index)
   document.getElementById("partchild_new_input_PN").value = newPNs.get(index);
 }
 
-function setPDFAddToDatabaseButtons(show)
-{
+function setPDFAddToDatabaseButtons(show) {
   var inc = 0;
   var ele = document.getElementById("startAddToDatabaseButton_" + inc);
-  while(ele != null)
-  {
-    if(show)
+  while (ele != null) {
+    if (show)
       ele.style.display = "";
     else
       ele.style.display = "none";

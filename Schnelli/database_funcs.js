@@ -207,3 +207,16 @@ function getKeyFromPath(pathAndKey) {
 function getDatabaseRef(key) {
     return firebase.database().ref(_DATABASE_PREFIX + key);
 }
+
+function writeToChangeHistory(type_text, change_info) {
+    //Write employee initials, time, type text, change info
+    var initials = getMyInitials();
+    var time = (new Date()).getTime();
+    var obj = new Object();
+    obj.initials = initials;
+    obj.time = time;
+    obj.type = type_text;
+    obj.change = change_info;
+
+    writeToDB(getNewKeyPath("change_history"), obj, null);
+}

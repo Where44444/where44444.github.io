@@ -123,7 +123,7 @@ function setKeyboardShortcutBar() {
       _key_shortcut_record_views_jump_pn_available = true;
       text += "&nbsp;&nbsp;<span style='color: white;'>J</span>ump Child Part";
       _key_shortcut_record_views_image_available = true;
-      text += "&nbsp;&nbsp;Ctrl+<span style='color: white;'>A</span>KA";
+      text += "&nbsp;&nbsp;<span style='color: white;'>Ctrl</span>+<span style='color: white;'>A</span>KA";
     }
     if (!_focused && _isTableSelected && _selectedTable == _TABLE_RECORD_BROWSER) {
       if (!_subscribed_mode) {
@@ -284,6 +284,23 @@ document.getElementById("password_input_sync").addEventListener("keyup", functio
 });
 
 for (var i = 0; i < INDEXES_CONCAT.length; ++i) {
+  document.getElementById("search_input_" + i).addEventListener("input", function (event) {
+    if (event.code === KEY_ENTER || event.code === KEY_NUMPADENTER) {
+
+    }
+    else if (event.code === KEY_UP_ARROW) {
+
+    }
+    else if (event.code === KEY_DOWN_ARROW) {
+
+    }
+    else if (event.code === KEY_ESCAPE) {
+      // clearSearchAutocomplete();
+    }
+    else {
+      showSearchAutocomplete();
+    }
+  });
   document.getElementById("search_input_" + i).addEventListener("keyup", function (event) {
     if (event.code === KEY_ENTER || event.code === KEY_NUMPADENTER) {
       event.preventDefault();
@@ -1193,6 +1210,24 @@ function clickPartHistory_ClearFilters() {
   return false;
 }
 
+function clickChangeHistory_Update() {
+  var ele = document.getElementById("button_update_change_history");
+  if (ele != null && ele.style.display != "none") {
+    ele.click();
+    return true;
+  }
+  return false;
+}
+
+function clickChangeHistory_ClearFilters() {
+  var ele = document.getElementById("button_clear_change_filters");
+  if (ele != null && ele.style.display != "none") {
+    ele.click();
+    return true;
+  }
+  return false;
+}
+
 var _table_invoicehistory_selected_row = 0;
 function set_tableInvoiceHistory_SelectedRow(newRow) {
   var inc = 0;
@@ -1228,6 +1263,25 @@ function set_tablePartHistory_SelectedRow(newRow) {
     }
     ele2.style.backgroundColor = "#96BBFF";
     _table_parthistory_selected_row = newRow;
+    ele2.scrollIntoView({ behavior: "auto", block: "nearest", inline: "nearest" });
+    return true;
+  }
+  return false;
+}
+
+var _table_changehistory_selected_row = 0;
+function set_tableChangeHistory_SelectedRow(newRow) {
+  var inc = 0;
+  var ele = document.getElementById("changehistory_table_row_" + inc);
+  var ele2 = document.getElementById("changehistory_table_row_" + newRow);
+  if (ele2 != null) {
+    while (ele != null) {
+      ele.style.backgroundColor = "";
+      ++inc;
+      ele = document.getElementById("changehistory_table_row_" + inc);
+    }
+    ele2.style.backgroundColor = "#96BBFF";
+    _table_changehistory_selected_row = newRow;
     ele2.scrollIntoView({ behavior: "auto", block: "nearest", inline: "nearest" });
     return true;
   }
@@ -1290,6 +1344,15 @@ function clickAddInvoice_Cancel() {
 
 function clickInvoice_Print() {
   var ele = document.getElementById("button_invoice_print");
+  if (ele != null && ele.style.display != "none") {
+    ele.click();
+    return true;
+  }
+  return false;
+}
+
+function clickInvoice_Save() {
+  var ele = document.getElementById("button_invoice_save");
   if (ele != null && ele.style.display != "none") {
     ele.click();
     return true;

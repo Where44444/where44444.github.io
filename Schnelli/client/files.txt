@@ -50,7 +50,6 @@ w4_funcs.js
 x.png
 client/client_version.txt
 client/files.txt
-client/local_version.txt
 external/firebasejs/8.9.1/firebase-app.js
 external/firebasejs/8.9.1/firebase-database.js
 external/firebasejs/8.9.1/firebase-auth.js

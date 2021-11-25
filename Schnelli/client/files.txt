@@ -51,7 +51,7 @@ x.png
 client/client_version.txt
 client/files.txt
 external/firebasejs/8.9.1/firebase-app.js
-external/firebasejs/8.9.1/firebase-database.js
+external/firebasejs/8.9.1/firebase-database0.js
 external/firebasejs/8.9.1/firebase-auth.js
 external/jquery/latest/jquery.min.js
 external/momentjs/latest/moment.min.js

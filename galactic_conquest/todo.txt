@@ -1,0 +1,1 @@
+-Fix restart() not working because one of the bools is still true when they shouldn't be

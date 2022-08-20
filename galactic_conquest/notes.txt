@@ -1,0 +1,12 @@
+Hologram:
+Levels 184 181 218
+Hue/Saturation 12/157/0
+Glow 20/60/10
+Top layer opacity 220
+Save as gif frame duration 20ms
+
+Victory/Defeat Font - Palatino Linotype
+lightPlanets/darkPlanets - 23 Array of Numbers, index corresponds to lightFleet(i) image element and value is
+the point the fleet occupies
+
+planetOwners - 23 Array of numbers, index corresponds to point and value is the team that owns the planet

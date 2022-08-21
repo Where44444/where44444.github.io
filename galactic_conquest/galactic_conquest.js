@@ -3802,6 +3802,11 @@ function checkForDestroyFleet(point, team2) {
       if (countFleets(team2) == 0) {
         lightPlanets[0] = getShipStartPoint(team2);
         checkForPlanetAttack(team2, lightPlanets[0]);
+      } else {
+        if (team2 == team)
+          fleet_cost -= 1000;
+        else
+          ai_fleet_cost -= 1000;
       }
     }
     if (team2 == team && !doesArrayInclude(lightPlanets, selectedLightFleet[0])) {
@@ -3820,6 +3825,11 @@ function checkForDestroyFleet(point, team2) {
       if (countFleets(team2) == 0) {
         darkPlanets[0] = getShipStartPoint(team2);
         checkForPlanetAttack(team2, darkPlanets[0]);
+      } else {
+        if (team2 == team)
+          fleet_cost -= 1000;
+        else
+          ai_fleet_cost -= 1000;
       }
     }
     if (team2 == team && !doesArrayInclude(darkPlanets, selectedDarkFleet[0])) {

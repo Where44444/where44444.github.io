@@ -1744,7 +1744,7 @@ function setElements() {
 
         //LEADER
         if (player_bonus == leader)
-          document.getElementById("sf_playas").innerHTML = "DEFAULT";
+          document.getElementById("sf_playas").innerHTML = "FREE FOR ALL";
         else
           document.getElementById("sf_playas").innerHTML = "STARFIGHTERS ONLY";
 
@@ -1804,7 +1804,7 @@ function setElements() {
           document.getElementById("mi_friendly_hero").style.display = "block";
           document.getElementById("mi_friendly_reinforcement").style.display = "block";
           document.getElementById("mi_enemy_vehicle").style.display = "block";
-          if ((attackingPlanet == kessel && team == rebel)
+          if ((attackingPlanet == kessel && team == empire)
             || (attackingPlanet == endor && team == empire)
             || (attackingPlanet == starkillerbase && team == firstorder))
             document.getElementById("mi_mode").innerHTML = "MISSIONS (DEFEND)";

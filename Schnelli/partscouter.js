@@ -3,13 +3,13 @@
 // var time2 = (new Date()).getTime();
 // console.log(time2 - time1);
 
-// const _DATABASE_PREFIX = "";
-// const _DEBUG_LOCAL_MODE = false;
-// const _DEBUG_SKIP_PART_LOADING = false;
+const _DATABASE_PREFIX = "";
+const _DEBUG_LOCAL_MODE = false;
+const _DEBUG_SKIP_PART_LOADING = false;
 
-const _DATABASE_PREFIX = _DATABASE_PREFIX__; //TODO Set this back to "" when uploading to github
-const _DEBUG_LOCAL_MODE = _DEBUG_LOCAL_MODE__;
-const _DEBUG_SKIP_PART_LOADING = _DEBUG_SKIP_PART_LOADING__;
+// const _DATABASE_PREFIX = _DATABASE_PREFIX__; //TODO Set this back to "" when uploading to github
+// const _DEBUG_LOCAL_MODE = _DEBUG_LOCAL_MODE__;
+// const _DEBUG_SKIP_PART_LOADING = _DEBUG_SKIP_PART_LOADING__;
 // const _PORT = "443";
 // const _PORT = "80";
 const _PORT = "5444";

@@ -7,6 +7,15 @@ var _RECORDVIEW_COMPAREALL_MINREPITITIONS = 2;
 const rv_fontsize = "12px";
 
 function populateRecordViews() {
+  var i = 0;
+  while (i < _recordViews.length) { //Remove record views that have been deleted in record browser or elsewhere
+    var rownum = getContentIndexFrom_DB_ID(_recordViews[i]);
+    if (rownum != null)
+      ++i;
+    else
+      _recordViews.splice(i, 1);
+  }
+
   var singleWordsToOccurences = new Map(); //Standardized (word) to      [[num occurences, color],             [actual word spellings], [row nums]]
   var doubleWordsToOccurences = new Map(); //Standardized (word word) to [[num occurences, color, word, word], [actual word spellings], [row nums]]
   var termToHighlightList = [];
@@ -208,19 +217,30 @@ function populateRecordViews() {
           comments_text = highlightStringBasic(comments_text, comments_indexes.startIndexes, comments_indexes.endIndexes, preHTML, postHTML);
         }
       }
+
+      comments_text = getPartChildButtonHTML_NonWorker(comments_text);
+
       var bgstyle = "";
       if (i == _selected_record_view)
         bgstyle = "style='background-color: lightblue;'";
       htmlToAdd += "<div class='recordview' id='record_view_" + i + "' " + bgstyle + " onclick='selectRecordView(" + i + ");'>";
+      htmlToAdd += "<div style='display: flex; flex-direction: row;'><div style='flex-grow: 1;'>";
       htmlToAdd += "<span style='color: white; background-color: #70A2FF; font-size: 30px;'>&nbsp;" + (i + 1) + "&nbsp;</span>&nbsp;";
       htmlToAdd += "<button style='width: 50px; background-color: #70A2FF; font-size: " + rv_fontsize + ";' onclick='removeRecordView(" + i + ");' id='button_record_view_exit_" + i + "'>X</button> "
         + "<button style='background-color: #70A2FF; color: black; font-size: " + rv_fontsize + ";' onclick='populateRecordBrowser(" + rownum + ",true); setTab(" + TAB_RECORD_BROWSER + ");' id='button_record_view_jump_to_browser_" + i + "'><span style='color: white;'>B</span>rowser</button> ";
-      if (_subscribed_mode)
+      if (_subscribed_mode && !_writeable_mode)
         htmlToAdd += "<img id='record_view_data_edit_icon_" + i + "' style='width: 0px; height: 0px;'>"
       else
         htmlToAdd += "<img class='clickable' id='record_view_data_edit_icon_" + i + "' src='pencil.png' onclick='startEditRecordViewData(" + i + ")'; width=25px height=25px style='position: relative; top: 6px;'>"
       htmlToAdd += "<button id='record_view_data_save_button_" + i + "' style='width: 70px; display: none; background-color: #70A2FF; color: black; font-size: " + rv_fontsize + ";' onclick='saveEditRecordViewData(" + i + ");'><span style='color: white;'>S</span>ave</button>&nbsp;"
         + "<button id='record_view_data_cancel_button_" + i + "'  style='width: 70px; display: none; background-color: #70A2FF; color: black; font-size: " + rv_fontsize + ";' onclick='populateRecordViews();'><span style='color: white;'>C</span>ancel</button>"
+        + "</div><div style='flex-grow: 1;'>";
+
+      var attn = stringifyArrayEndChar(_content[rownum][_ATTN], " ");
+      if (standardizeString(attn) != "")
+        htmlToAdd += "<div style='width: 200px; height: 25px; background-color: red; margin-left: auto; color: white;' title='" + getHTMLSafeText(attn) + "'>ATTN: " + getExpandableHTML(_content[rownum][_ATTN], "attn_" + i, 10, "50px") + "</div>";
+
+      htmlToAdd += "</div></div>"
         + "<div style='display: flex;'><div class='border_center' style='flex-grow: 1;'></div>"
         + "<div class='text1'>"
         + "<span id='record_view_data_read_equip_type_" + i + "'>" + equip_type_text + "</span><input type='text' onfocus='deselectTable();' id='record_view_data_input_equip_type_" + i + "' style='width: 50px; display: none;' value='" + getHTMLSafeText(_content[rownum][_EQUIP_TYPE]) + "'>" + " / "
@@ -251,6 +271,12 @@ function populateRecordViews() {
   document.getElementById("record_views_div").innerHTML = htmlToAdd;
   for (var i = 0; i < _recordViews.length; ++i) {
     setRecordViewPage(_record_view_page_list[i], i);
+    var ele = document.getElementById("expandable_html_str_attn_" + i);
+    if (ele != null) {
+      ele.style.backgroundColor = "red";
+      ele.style.color = "white";
+      ele.style.position = "relative";
+    }
   }
   selectRecordView(_last_selected_record_view);
 }
@@ -747,8 +773,10 @@ function getRecordViewPage(rownum, page_num, i) {
       htmlToAdd += "<th></th><th>"
         + "<div style='display: flex; flex-direction: row;'>"
         + "<a id='web_search_r_all_" + i + "' class='clickable' target='_blank'><img src='search_r.png' width=25px title='Search Reliable Parts for every part number'></a>"
-        + "<a id='web_search_e_all_" + i + "' class='clickable' target='_blank'><img src='search_e.png' width=25px title='Search Encompass for every part number'></a>"
+        // + "<a id='web_search_e_all_" + i + "' class='clickable' target='_blank'><img src='search_e.png' width=25px title='Search Encompass for every part number'></a>"
         + "<a id='web_search_m_all_" + i + "' class='clickable' target='_blank'><img src='search_m.png' width=25px title='Search Marcone for every part number'></a>"
+        + "<a id='web_search_w_all_" + i + "' class='clickable' target='_blank'><img src='search_w.png' width=25px title='Search WLMAY for every part number'></a>"
+        + "<a id='web_search_a_all_" + i + "' class='clickable' target='_blank'><img src='search_a.png' width=25px title='Search Appliance Parts Pros for every part number'></a>"
         + "</div>"
         + "</th><th></th><th></th>";
 
@@ -782,7 +810,7 @@ function getRecordViewPage(rownum, page_num, i) {
               htmlToAdd += "<div style='width: 30px; display: inline-block;'>" + _EXTRA_DB[j] + "</div>";
               if (extraDBIndex != null) {
                 htmlToAdd += "<div style='margin-left: 10px; margin-top: -20px;' id='sell_div_" + i + "_" + j + "'><br>";
-                if (!_subscribed_mode)
+                if (!_subscribed_mode || _writeable_mode)
                   htmlToAdd += "<button style='background-color: #70A2FF; color: black; font-size: " + rv_fontsize + ";' id='sell_button_" + i + "_" + j + "' onclick='startSell(" + i + "," + j + ");'><span style='color: white;'>S</span>ell</button>";
               }
               htmlToAdd += "<div id='sell_form_" + i + "_" + j + "' style='display: none;'>"
@@ -796,7 +824,7 @@ function getRecordViewPage(rownum, page_num, i) {
             }
             else if (k == 1) //PART#
             {
-              if (_subscribed_mode)
+              if (_subscribed_mode && !_writeable_mode)
                 htmlToAdd += "<img id='record_view_partnum_edit_icon_" + i + "_" + j + "' style='width: 0px; height: 0px;'>";
               else
                 htmlToAdd += "<img class='clickable' id='record_view_partnum_edit_icon_" + i + "_" + j + "' src='pencil.png' width=25px height=25px onclick='startEditRecordPartReference(" + i + "," + j + ");' style='position: relative; bottom: 0px;'>&nbsp;&nbsp;";
@@ -811,12 +839,14 @@ function getRecordViewPage(rownum, page_num, i) {
               else {
                 var regexp = new RegExp(";", "g");
                 var highlighted_partnum = _content_partnum_for_extraDB;
-                if ((match = regexp.exec(_content_partnum_for_extraDB)) !== null) { //If match found in whole string
+                if (regexp.exec(_content_partnum_for_extraDB) !== null) { //If match found in whole string
                   highlighted_partnum = "<span style='background: orange;'>" + _content_partnum_for_extraDB + "</span>";
                 }
                 pText = "<span id='span_recordviews_jump_to_child_part_" + i + "_" + j + "' class='clickable' style='color: blue;' onclick='jumpToChildPartFromRecordView(" + j + "," + extraDBIndex + ");'><u>" + highlighted_partnum + "</u></span>";
               }
-              htmlToAdd += "<div id='record_view_partnum_text_" + i + "_" + j + "' style='display: inline;'>" + pText + "</div><input type='text' style='display: none;' id='record_view_partnum_input_" + i + "_" + j + "' onfocus='onPartNumFocus(" + i + "," + j + ");' value='" + getHTMLSafeText(_content_partnum_for_extraDB) + "' onkeyup='partnum_input_keyup_event(event);' oninput='partnum_input_keyup_event(event);' onkeydown='partnum_input_keydown_event(event);'><div style='position: absolute;' id='partnum_autocomplete_" + i + "_" + j + "'></div>"
+              htmlToAdd += "<div id='record_view_partnum_text_" + i + "_" + j + "' style='display: inline;'>" + pText + "</div>"
+                + "<div id='record_view_partnum_search_text_" + i + "_" + j + "' style='position: absolute; left: 0px; top: 0px; display: none;'>" + getStandardPNWebSearchString(partSearchTerm) + "</div>"
+                + "<input type='text' style='display: none;' id='record_view_partnum_input_" + i + "_" + j + "' onfocus='onPartNumFocus(" + i + "," + j + ");' value='" + getHTMLSafeText(_content_partnum_for_extraDB) + "' onkeyup='partnum_input_keyup_event(event);' oninput='partnum_input_keyup_event(event);' onkeydown='partnum_input_keydown_event(event);'><div style='position: absolute;' id='partnum_autocomplete_" + i + "_" + j + "'></div>"
                 + "<button id='record_view_partnum_save_button_" + i + "_" + j + "' style='width: 70px; display: none; background-color: #70A2FF; color: black; margin-bottom: 2px;' onclick='saveEditRecordPartReference(" + i + "," + j + ");'><span style='color: white;'>S</span>ave</button>"
                 + "<button id='record_view_partnum_cancel_button_" + i + "_" + j + "' style='width: 70px; display: none; background-color: #70A2FF; color: black;' onclick='populateRecordViews();'><span style='color: white;'>C</span>ancel</button>" + "&nbsp;&nbsp;&nbsp;&nbsp;";
             }
@@ -834,10 +864,12 @@ function getRecordViewPage(rownum, page_num, i) {
                 else if (k == 11) //"COMMENTS"
                 {
                   var htmlCheck = "<input type='checkbox' disabled>";
+                  var styles = "";
                   if (content1.replace(/ /g, "").length > 0) {
                     htmlCheck = "<div class='tooltip'><span class='tooltiptext'>" + content1 + "</span><input type='checkbox' checked disabled></div>";
+                    styles = "style='background-color: lightgreen;'";
                   }
-                  htmlToAdd += "<span id='record_view_data_read_" + RECORD_VIEW_HEADERS_PAGE1_0[k] + "_" + i + "_" + j + "'>" + htmlCheck + "</span>";
+                  htmlToAdd += "<span id='record_view_data_read_" + RECORD_VIEW_HEADERS_PAGE1_0[k] + "_" + i + "_" + j + "'" + styles + ">" + htmlCheck + "</span>";
                 }
                 else {
                   htmlToAdd += "<span id='record_view_data_read_" + RECORD_VIEW_HEADERS_PAGE1_0[k] + "_" + i + "_" + j + "'>" + content1 + "</span>";
@@ -864,8 +896,10 @@ function getRecordViewPage(rownum, page_num, i) {
               _websearch_part_term_map.get(i).push(term);
             htmlToAdd += "<div style='display: flex; flex-direction: row;'>";
             htmlToAdd += "<a href='https://www.reliableparts.com/search?q=" + term + "' target='_blank'><img id='web_search_r_" + i + "_" + j + "' src='search_r.png' width=25px title='Reliable Parts'></a>";
-            htmlToAdd += "<a href='https://encompass.com/search?searchTerm=" + term + "' target='_blank'><img id='web_search_e_" + i + "_" + j + "' src='search_e.png' width=25px title='Encompass'></a>";
+            // htmlToAdd += "<a href='https://encompass.com/search?searchTerm=" + term + "' target='_blank'><img id='web_search_e_" + i + "_" + j + "' src='search_e.png' width=25px title='Encompass'></a>";
             htmlToAdd += "<a href='https://beta.marcone.com/Home/SearchPartModelList?searchString=" + term + "&Type=Part' target='_blank'><img id='web_search_m_" + i + "_" + j + "' src='search_m.png' width=25px title='Marcone'></a>";
+            htmlToAdd += "<a href='https://www.wlmay.com' target='_blank' onclick='clickedWebSearch(1," + i + "," + j + ");'><img id='web_search_w_" + i + "_" + j + "' src='search_w_warning.png' width=25px title='WLMAY part# copy (Right click -> \"paste\" in search field on WLMAY website)'></a>";
+            htmlToAdd += "<a href='https://www.appliancepartspros.com/search.aspx?p=" + term + "' target='_blank'><img id='web_search_a_" + i + "_" + j + "' src='search_a.png' width=25px title='Appliance Parts Pros'></a>";
             htmlToAdd += "</div>";
           }
           htmlToAdd += "</td>";
@@ -926,7 +960,7 @@ function getRecordViewPage(rownum, page_num, i) {
         + "<td colspan=2><span id='record_view_data_read_LKUPPN_" + i + "'>" + LKUPPN_CONTENT + "</span>" + INPUT_LKUPPN + "                      </td>"
         + "<td style='text-align: right;'>         ADVICE</td><td colspan=4><span id='record_view_data_read_ADVICE_" + i + "'>" + ADVICE_CONTENT + "</span>" + INPUT_ADVICE + "                    </td>"
         + "<td>REORD <b><span id='record_view_data_read_REORD_QTY_" + i + "'>" + _content[rownum][_REORD_QTY] + "</span>" + INPUT_REORD_QTY + "</b>";
-      if (!_subscribed_mode)
+      if (!_subscribed_mode || _writeable_mode)
         htmlToAdd += "<button style='font-size: " + rv_fontsize + ";' onclick='updateReordFromRecordView(\"" + parent_record_id + "\");'>Update</button>";
       htmlToAdd += "</td><td colspan=2 style='text-align: right;'>                                          Srce</td>"
         + "<td><b><span id='record_view_data_read_SOURCE_" + i + "'>" + _content[rownum][_SOURCE] + "</span>" + INPUT_SOURCE + "</b></td></tr>"
@@ -940,7 +974,15 @@ function getRecordViewPage(rownum, page_num, i) {
       htmlToAdd += "<table class='recordview'><tr>";
       htmlToAdd += "<th>Page 2</th><th></th><th></th><th></th>";
       htmlToAdd += "<th colspan='4' style='text-align: center;'>MFR PRICEBOOK</th>";
-      htmlToAdd += "<th></th><th></th><th></th><th></th><th></th>";
+      htmlToAdd += "<th></th><th></th><th>";
+      htmlToAdd += "<div style='display: flex; flex-direction: row;'>"
+        + "<a id='web_search_r_all_" + i + "' class='clickable' target='_blank'><img src='search_r.png' width=25px title='Search Reliable Parts for every part number'></a>"
+        // + "<a id='web_search_e_all_" + i + "' class='clickable' target='_blank'><img src='search_e.png' width=25px title='Search Encompass for every part number'></a>"
+        + "<a id='web_search_m_all_" + i + "' class='clickable' target='_blank'><img src='search_m.png' width=25px title='Search Marcone for every part number'></a>"
+        + "<a id='web_search_w_all_" + i + "' class='clickable' target='_blank'><img src='search_w.png' width=25px title='Search WLMAY for every part number'></a>"
+        + "<a id='web_search_a_all_" + i + "' class='clickable' target='_blank'><img src='search_a.png' width=25px title='Search Appliance Parts Pros for every part number'></a>"
+        + "</div>";
+      htmlToAdd += "</th><th></th><th></th>";
 
       htmlToAdd += "</tr><tr>";
       for (var j = 0; j < RECORD_VIEW_HEADERS_PAGE2_0.length; ++j) {
@@ -971,7 +1013,7 @@ function getRecordViewPage(rownum, page_num, i) {
               htmlToAdd += "<div style='width: 30px; display: inline-block;'>" + _EXTRA_DB[j] + "</div>";
               if (extraDBIndex != null) {
                 htmlToAdd += "<div style='margin-left: 10px; margin-top: -20px;' id='sell_div_" + i + "_" + j + "'><br>";
-                if (!_subscribed_mode)
+                if (!_subscribed_mode || _writeable_mode)
                   htmlToAdd += "<button style='background-color: #70A2FF; color: black; font-size: " + rv_fontsize + ";' id='sell_button_" + i + "_" + j + "' onclick='startSell(" + i + "," + j + ");'><span style='color: white;'>S</span>ell</button>";
               }
               htmlToAdd += "<div id='sell_form_" + i + "_" + j + "' style='display: none;'>"
@@ -985,7 +1027,7 @@ function getRecordViewPage(rownum, page_num, i) {
             }
             else if (k == 1) //PART#
             {
-              if (_subscribed_mode)
+              if (_subscribed_mode && !_writeable_mode)
                 htmlToAdd += "<img class='clickable' id='record_view_partnum_edit_icon_" + i + "_" + j + "' style='width: 0px; height: 0px;'>";
               else
                 htmlToAdd += "<img class='clickable' id='record_view_partnum_edit_icon_" + i + "_" + j + "' src='pencil.png' width=25px height=25px onclick='startEditRecordPartReference(" + i + "," + j + ");' style='position: relative; bottom: 0px;'>&nbsp;&nbsp;";
@@ -1000,12 +1042,14 @@ function getRecordViewPage(rownum, page_num, i) {
               else {
                 var regexp = new RegExp(";", "g");
                 var highlighted_partnum = _content_partnum_for_extraDB;
-                if ((match = regexp.exec(_content_partnum_for_extraDB)) !== null) { //If match found in whole string
+                if (regexp.exec(_content_partnum_for_extraDB) !== null) { //If match found in whole string
                   highlighted_partnum = "<span style='background: orange;'>" + _content_partnum_for_extraDB + "</span>";
                 }
                 pText = "<span id='span_recordviews_jump_to_child_part_" + i + "_" + j + "' class='clickable' style='color: blue;' onclick='jumpToChildPartFromRecordView(" + j + "," + extraDBIndex + ");'><u>" + highlighted_partnum + "</u></span>";
               }
-              htmlToAdd += "<div id='record_view_partnum_text_" + i + "_" + j + "' style='display: inline;'>" + pText + "</div><input type='text' style='display: none;' id='record_view_partnum_input_" + i + "_" + j + "' onfocus='onPartNumFocus(" + i + "," + j + ");' value='" + getHTMLSafeText(_content_partnum_for_extraDB) + "' onkeyup='partnum_input_keyup_event(event);' oninput='partnum_input_keyup_event(event);' onkeydown='partnum_input_keydown_event(event);'><div style='position: absolute;' id='partnum_autocomplete_" + i + "_" + j + "'></div>"
+              htmlToAdd += "<div id='record_view_partnum_text_" + i + "_" + j + "' style='display: inline;'>" + pText + "</div>"
+                + "<div id='record_view_partnum_search_text_" + i + "_" + j + "' style='position: absolute; left: 0px; top: 0px; display: none;'>" + getStandardPNWebSearchString(partSearchTerm) + "</div>"
+                + "<input type='text' style='display: none;' id='record_view_partnum_input_" + i + "_" + j + "' onfocus='onPartNumFocus(" + i + "," + j + ");' value='" + getHTMLSafeText(_content_partnum_for_extraDB) + "' onkeyup='partnum_input_keyup_event(event);' oninput='partnum_input_keyup_event(event);' onkeydown='partnum_input_keydown_event(event);'><div style='position: absolute;' id='partnum_autocomplete_" + i + "_" + j + "'></div>"
                 + "<button id='record_view_partnum_save_button_" + i + "_" + j + "' style='width: 70px; display: none; background-color: #70A2FF; color: black; margin-bottom: 2px;' onclick='saveEditRecordPartReference(" + i + "," + j + ");'><span style='color: white;'>S</span>ave</button>"
                 + "<button id='record_view_partnum_cancel_button_" + i + "_" + j + "' style='width: 70px; display: none; background-color: #70A2FF; color: black;' onclick='populateRecordViews();'><span style='color: white;'>C</span>ancel</button>" + "&nbsp;&nbsp;&nbsp;&nbsp;";
             }
@@ -1050,10 +1094,13 @@ function getRecordViewPage(rownum, page_num, i) {
           htmlToAdd += "<td>";
           var clean_partSearchTerm = removeExtraSpaces(partSearchTerm);
           if (clean_partSearchTerm != "") {
+            var term = getStandardPNWebSearchString(partSearchTerm);
             htmlToAdd += "<div style='display: flex; flex-direction: row;'>";
-            htmlToAdd += "<a href='https://www.reliableparts.com/search?q=" + getStandardPNWebSearchString(partSearchTerm) + "' target='_blank'><img id='web_search_r_" + i + "_" + j + "' src='search_r.png' width=25px title='Reliable Parts'></a>";
-            htmlToAdd += "<a href='https://encompass.com/search?searchTerm=" + getStandardPNWebSearchString(partSearchTerm) + "' target='_blank'><img id='web_search_e_" + i + "_" + j + "' src='search_e.png' width=25px title='Encompass'></a>";
-            htmlToAdd += "<a href='https://beta.marcone.com/Home/SearchPartModelList?searchString=" + getStandardPNWebSearchString(partSearchTerm) + "&Type=Part' target='_blank'><img id='web_search_m_" + i + "_" + j + "' src='search_m.png' width=25px title='Marcone'></a>";
+            htmlToAdd += "<a href='https://www.reliableparts.com/search?q=" + term + "' target='_blank'><img id='web_search_r_" + i + "_" + j + "' src='search_r.png' width=25px title='Reliable Parts'></a>";
+            // htmlToAdd += "<a href='https://encompass.com/search?searchTerm=" + getStandardPNWebSearchString(partSearchTerm) + "' target='_blank'><img id='web_search_e_" + i + "_" + j + "' src='search_e.png' width=25px title='Encompass'></a>";
+            htmlToAdd += "<a href='https://beta.marcone.com/Home/SearchPartModelList?searchString=" + term + "&Type=Part' target='_blank'><img id='web_search_m_" + i + "_" + j + "' src='search_m.png' width=25px title='Marcone'></a>";
+            htmlToAdd += "<a href='https://www.wlmay.com' target='_blank' onclick='clickedWebSearch(1," + i + "," + j + ");'><img id='web_search_w_" + i + "_" + j + "' src='search_w_warning.png' width=25px title='WLMAY part# copy (Right click -> \"paste\" in search field on WLMAY website)'></a>";
+            htmlToAdd += "<a href='https://www.appliancepartspros.com/search.aspx?p=" + term + "' target='_blank'><img id='web_search_a_" + i + "_" + j + "' src='search_a.png' width=25px title='Appliance Parts Pros'></a>";
             htmlToAdd += "</div>";
           }
           htmlToAdd += "</td>";
@@ -1123,7 +1170,7 @@ function getRecordViewPage(rownum, page_num, i) {
         + "<td colspan=2><span id='record_view_data_read_LKUPPN_" + i + "'>" + LKUPPN_CONTENT + "</span>" + INPUT_LKUPPN + "                      </td>"
         + "<td style='text-align: right;'>         ADVICE</td><td colspan=4><span id='record_view_data_read_ADVICE_" + i + "'>" + ADVICE_CONTENT + "</span>" + INPUT_ADVICE + "                    </td>"
         + "<td>REORD <b><span id='record_view_data_read_REORD_QTY_" + i + "'>" + _content[rownum][_REORD_QTY] + "</span>" + INPUT_REORD_QTY + "</b>";
-      if (!_subscribed_mode)
+      if (!_subscribed_mode || _writeable_mode)
         htmlToAdd += "<button style='font-size: " + rv_fontsize + ";' onclick='updateReordFromRecordView(\"" + parent_record_id + "\");'>Update</button>";
       htmlToAdd += "</td><td colspan=2 style='text-align: right;'>                                          Srce</td>"
         + "<td><b><span id='record_view_data_read_SOURCE_" + i + "'>" + _content[rownum][_SOURCE] + "</span>" + INPUT_SOURCE + "</b></td></tr>"
@@ -1181,11 +1228,15 @@ function setRecordViewPage(pagenum, i) {
     var htmlToAdd = getRecordViewPage(rownum, pagenum, i);
     _record_view_page_list[i] = pagenum;
     document.getElementById("record_view_details_" + i + "_div").innerHTML = htmlToAdd;
-
-    document.getElementById("web_search_r_all_" + i).href = getWebSearchURL(0, i);
-    document.getElementById("web_search_e_all_" + i).href = getWebSearchURL(1, i);
-    document.getElementById("web_search_m_all_" + i).href = getWebSearchURL(2, i);
-    var ele = document.getElementById("record_view_data_edit_icon_" + i);
+    var ele = document.getElementById("web_search_r_all_" + i);
+    if (ele != null) {
+      document.getElementById("web_search_r_all_" + i).href = getWebSearchURL(0, i);
+      // document.getElementById("web_search_e_all_" + i).href = getWebSearchURL(1, i);
+      document.getElementById("web_search_m_all_" + i).href = getWebSearchURL(2, i);
+      document.getElementById("web_search_w_all_" + i).href = getWebSearchURL(4, i);
+      document.getElementById("web_search_a_all_" + i).href = getWebSearchURL(3, i);
+    }
+    ele = document.getElementById("record_view_data_edit_icon_" + i);
     if (ele != null && pagenum != 1)
       ele.style.display = "none";
     else
@@ -1318,13 +1369,19 @@ function getWebSearchURL(site, i) {
   var sitename = "";
   switch (site) {
     case 0:
-      sitename = "www.reliableparts.com";
+      sitename = "reliableparts.com";
       break;
     case 1:
       sitename = "encompass.com";
       break;
     case 2:
       sitename = "marcone.com";
+      break;
+    case 3:
+      sitename = "appliancepartspros.com";
+      break;
+    case 4:
+      sitename = "wlmay.com";
       break;
   }
 
@@ -1338,6 +1395,17 @@ function getWebSearchURL(site, i) {
         sitename += "+|";
       sitename += "+" + arr[i];
     }
+    if (site == 0) //reliableparts.com
+      sitename += " -lookup";
   }
   return sitename;
+}
+
+function clickedWebSearch(num, i, j) {
+  var ele = document.getElementById("record_view_partnum_search_text_" + i + "_" + j);
+  if (ele != null) {
+    ele.style.display = "";
+    copyTextInEle("record_view_partnum_search_text_" + i + "_" + j);
+    ele.style.display = "none";
+  }
 }

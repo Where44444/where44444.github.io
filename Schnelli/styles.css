@@ -26,7 +26,7 @@ textarea {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 14px;
   border: solid lightgray 1px;
-  border-radius: 20px;
+  border-radius: 10px;
 }
 
 table {
@@ -308,7 +308,7 @@ button:hover {
   color: white;
   border: solid 6px;
   border-color: lightblue;
-  border-radius: 20px;
+  border-radius: 10px;
 }
 
 @media print {
@@ -494,12 +494,12 @@ button:hover {
 
 input[type=text] {
   border: solid lightgray 1px;
-  border-radius: 20px;
+  border-radius: 10px;
 }
 
 input[type=password] {
   border: solid lightgray 1px;
-  border-radius: 20px;
+  border-radius: 10px;
 }
 
 .icon_black_to_blue2:hover {
@@ -518,4 +518,47 @@ input[type=password] {
   /* webkit (konqueror) browsers */
   -ms-user-select: none;
   /* IE10+ */
+}
+
+.pdf_input_small{
+  width: 30px;
+}
+
+.pdf_input_large{
+  width: 60px;
+}
+
+/* * {box-sizing: border-box;} */
+
+.img-zoom-container {
+  position: relative;
+}
+
+.img-zoom-lens {
+  position: absolute;
+  border: 1px solid #d4d4d4;
+  /*set the size of the lens:*/
+  width: 80px;
+  height: 80px;
+}
+
+.img-zoom-result {
+  border: 1px solid #d4d4d4;
+  /*set the size of the result div:*/
+  width: 300px;
+  height: 300px;
+}
+
+.link_button {
+  background-color: rgb(11, 116, 221);
+  border: none;
+  color: white;
+  padding: 4px 8px;
+  text-align: center;
+  font-size: 16px;
+  /* margin: 4px 2px; */
+  opacity: 0.8;
+  transition: 0.3s;
+  cursor: pointer;
+  border-radius: 8px;
 }

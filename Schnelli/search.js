@@ -132,7 +132,7 @@ function searchQueryScope(scope, clearResults) {
             else {
               showSnackbar("Search complete", 1000);
               _searchResults.sort(COMPARE_MATCH_RANKINGS);
-              _search_results_indexes_bool = new Array(content.length);
+              _search_results_indexes_bool = new Array(_content.length);
               _search_results_indexes_bool.fill(false);
               _search_results_row_to_result_index.clear();
               for (var i = 0; i < _searchResults.length; ++i) {

@@ -158,6 +158,61 @@ function removePreWP(str) {
   return str;
 }
 
+//Replaces I i and | with 1
+//Removes non numbers/decimals
+//Keeps first decimal found
+//Adds in missing decimal if length is 3 or more
+function numberize_OCR_String(str, replacements, digits_to_decimal) {
+  if (digits_to_decimal == null)
+    digits_to_decimal = 3;
+  //Find o's and replace with 0 if right next to decimal or another digit
+  if (replacements != null && replacements.has(str))
+    str = replacements.get(str);
+
+  if (str == "I" || str == "i")
+    str = "1";
+  var str2 = "";
+  for (var i = 0; i < str.length; ++i) {
+    var c = str.charAt(i);
+    if (c == "O") {
+      if (i > 0 && (str.charAt(i - 1) == "." || is_numeric(str.charAt(i - 1)))) {
+        str2 += "0";
+      }
+      else if (i < str.length - 1 && (str.charAt(i + 1) == "." || is_numeric(str.charAt(i + 1)))) {
+        str2 += "0";
+      }
+      else {
+        str2 += c;
+      }
+    }
+    else {
+      str2 += c;
+    }
+  }
+
+  str2 = str2.replace(/[^0-9.]/g, ""); //Remove non numbers/decimals
+  str2 = str2.replace(/\.{2,}/g, "."); //Remove extra decimals
+  var newStr = "";
+  var decimalFound = false;
+  for (var i = 0; i < str2.length; ++i) {
+    var c = str2.charAt(i);
+    if (c == '.') {
+      if (!decimalFound) {
+        decimalFound = true;
+        newStr += ".";
+      }
+    }
+    else {
+      newStr += c;
+    }
+  }
+
+  if (!decimalFound && newStr.length >= digits_to_decimal)
+    newStr = newStr.substring(0, newStr.length - 2) + "." + newStr.substring(newStr.length - 2, newStr.length);
+
+  return newStr;
+}
+
 function standardizeString(str) {
   var str2 = String(str).toLowerCase();
 
@@ -330,9 +385,11 @@ function getContentIndexFrom_DB_ID(db_id) {
 }
 
 function getContentExtraIndexFrom_DB_ID(db_id, db_index) {
-  for (var i = 0; i < _content_extra[db_index].length; ++i) {
-    if (_content_extra[db_index][i][1] == db_id)
-      return i;
+  if (_content_extra != null) {
+    for (var i = 0; i < _content_extra[db_index].length; ++i) {
+      if (_content_extra[db_index][i][1] == db_id)
+        return i;
+    }
   }
   // console.log("Failed to find content extra row with id " + db_id);
   return null;
@@ -703,6 +760,40 @@ function deleteFromDatabase(key, addChangeAlert, is_content, is_content_extra, c
 }
 
 function writeToDatabase(key_path, value, addChangeAlert, is_content, is_content_extra, content_extra_db) {
+  if (is_content_extra && value != null) { //Calculate retail price
+    var cgs = value.CGS;
+    var reg = value.REG;
+    if (cgs == null)
+      cgs = "";
+    if (reg == null)
+      reg = "";
+    var cgs_n = Number(cgs);
+    var reg_n = Number(reg);
+    cgs = standardizeString(cgs);
+    reg = standardizeString(reg);
+    if (isNaN(cgs_n))
+      cgs_n = 0;
+    if (isNaN(reg_n))
+      reg_n = 0;
+    if (cgs == "" && reg == "")
+      value.VEND_RET = "0.00";
+    else if (reg == "" || reg_n == 0)
+      value.VEND_RET = get_USD_String(cgs_n * 2);
+    else if (reg_n < 0.5)
+      value.VEND_RET = get_USD_String(reg_n + 0.5);
+    else if (reg_n < 1)
+      value.VEND_RET = get_USD_String(reg_n + 1);
+    else if (reg_n < 5)
+      value.VEND_RET = get_USD_String(reg_n * 1.95);
+    else if (reg_n < 15)
+      value.VEND_RET = get_USD_String(reg_n * 1.85);
+    else if (reg_n < 25)
+      value.VEND_RET = get_USD_String(reg_n * 1.65);
+    else if (reg_n < 50)
+      value.VEND_RET = get_USD_String(reg_n * 1.5);
+    else
+      value.VEND_RET = get_USD_String(reg_n * 1.35);
+  }
   writeToDB(key_path, value, null);
   if (addChangeAlert) {
     addNewChangeAlert(key_path, false, is_content, is_content_extra, content_extra_db);
@@ -750,15 +841,15 @@ function loadChangeAlerts() {
         _CHANGE_ALERTS_CACHE.push(alertOBJ);
         if (alertOBJ.is_content) {
           reloadContentFromChangeAlert(alertOBJ);
-          showSnackbar("Loading new changes for P&A_PRI...", 3000);
+          // showSnackbar("Loading new changes for P&A_PRI...", 3000);
         }
         else if (alertOBJ.is_content_extra) {
           reloadContentExtraFromChangeAlert(alertOBJ);
-          showSnackbar("Loading new changes for Part Child Data...", 3000);
+          // showSnackbar("Loading new changes for Part Child Data...", 3000);
         }
       }
       var timeElapsed = new Date().getTime() - Number(alertOBJ.time);
-      if (timeElapsed >= MILLIS_IN_DAY && !_subscribed_mode) //Delete alert if older than a day
+      if (timeElapsed >= MILLIS_IN_DAY && (!_subscribed_mode || _writeable_mode)) //Delete alert if older than a day
       {
         deleteFromDB("change_alerts/" + key, null);
       }
@@ -795,75 +886,83 @@ function doesChangeAlertsCacheContainMatch(changeAlert) {
 }
 
 function reloadContentFromChangeAlert(alertOBJ) {
-  readFromDB(alertOBJ.key, function (val0, key0) {
-    var rownum = getContentIndexFrom_DB_ID(key0);
-    if (rownum != null) //Edit Record
-    {
-      if (alertOBJ.deleted) //Delete Record
+  if (_content != null && _content_extra != null) {
+    readFromDB(alertOBJ.key, function (val0, key0) {
+      var rownum = getContentIndexFrom_DB_ID(key0);
+      if (rownum != null) //Edit Record
       {
-        _content.splice(rownum, 1);
-        _content_standard.splice(rownum, 1);
-        populateRecordBrowser(_currentRecordBrowserStartIndex, false);
-        setLargestRecordNumbers();
-      }
-      else //Edit Record
-      {
-        var content_line = [];
-        for (var i = 0; i < _INDEXES.length; ++i)
-          content_line.push(String(val0[_INDEXES[i]]));
-        for (var i = 0; i < _MEMO_INDEXES.length; ++i) {
-          var memolines = val0[_MEMO_INDEXES[i]];
-          for (var j = 0; j < memolines.length; ++j)
-            memolines[j] = String(memolines[j]);
-          content_line.push(memolines);
+        if (alertOBJ.deleted) //Delete Record
+        {
+          _content.splice(rownum, 1);
+          _content_standard.splice(rownum, 1);
+          populateRecordBrowser(_currentRecordBrowserStartIndex, false);
+          setLargestRecordNumbers();
         }
-        for (var i = 0; i < content_line.length; ++i)
-          _content[rownum][i] = content_line[i];
-        generateContent_Standard_Row(rownum);
+        else //Edit Record
+        {
+          var content_line = [];
+          for (var i = 0; i < _INDEXES.length; ++i)
+            content_line.push(String(val0[_INDEXES[i]]));
+          for (var i = 0; i < _MEMO_INDEXES.length; ++i) {
+            var memolines = val0[_MEMO_INDEXES[i]];
+            for (var j = 0; j < memolines.length; ++j)
+              memolines[j] = String(memolines[j]);
+            content_line.push(memolines);
+          }
+          for (var i = 0; i < content_line.length; ++i)
+            _content[rownum][i] = content_line[i];
+          generateContent_Standard_Row(rownum);
+        }
+        populateRecordBrowser(_currentRecordBrowserStartIndex, false);
+        populateRecordViews();
       }
-      populateRecordBrowser(_currentRecordBrowserStartIndex, false);
-      populateRecordViews();
-    }
-    else if (!alertOBJ.deleted)//New Record
-    {
-      var content_line = [];
-      for (var i = 0; i < _INDEXES.length; ++i)
-        content_line.push(String(val0[_INDEXES[i]]));
-      for (var i = 0; i < _MEMO_INDEXES.length; ++i) {
-        var memolines = val0[_MEMO_INDEXES[i]];
-        for (var j = 0; j < memolines.length; ++j)
-          memolines[j] = String(memolines[j]);
-        content_line.push(memolines);
+      else if (!alertOBJ.deleted)//New Record
+      {
+        if (val0 != null && objSize(val0) > 0) {
+          var content_line = [];
+          for (var i = 0; i < _INDEXES.length; ++i)
+            content_line.push(String(val0[_INDEXES[i]]));
+          for (var i = 0; i < _MEMO_INDEXES.length; ++i) {
+            var memolines = val0[_MEMO_INDEXES[i]];
+            for (var j = 0; j < memolines.length; ++j)
+              memolines[j] = String(memolines[j]);
+            content_line.push(memolines);
+          }
+          content_line.push(key0);
+          _content.push(content_line);
+          generateContent_Standard_New();
+        }
       }
-      content_line.push(key0);
-      _content.push(content_line);
-      generateContent_Standard_New();
-    }
-  });
+    });
+  }
 }
 
 function reloadContentExtraFromChangeAlert(alertOBJ) {
-  readFromDB(alertOBJ.key, function (val0, key0) {
-    var rownum = getContentExtraIndexFrom_DB_ID(key0, alertOBJ.content_extra_db);
-    if (rownum != null) {
-      if (alertOBJ.deleted) //Delete Record
-      {
-        _content_extra[alertOBJ.content_extra_db].splice(rownum, 1);
+  if (_content != null && _content_extra != null) {
+    readFromDB(alertOBJ.key, function (val0, key0) {
+      var rownum = getContentExtraIndexFrom_DB_ID(key0, alertOBJ.content_extra_db);
+      if (rownum != null) {
+        if (alertOBJ.deleted) //Delete Record
+        {
+          _content_extra[alertOBJ.content_extra_db].splice(rownum, 1);
+        }
+        else //Edit Record
+        {
+          _content_extra[alertOBJ.content_extra_db][rownum][0] = val0;
+        }
       }
-      else //Edit Record
+      else if (!alertOBJ.deleted) //New record
       {
-        _content_extra[alertOBJ.content_extra_db][rownum][0] = val0;
+        if (val0 != null && objSize(val0) > 0) {
+          var arr = [val0, key0];
+          _content_extra[alertOBJ.content_extra_db].push(arr);
+        }
       }
-    }
-    else if (!alertOBJ.deleted) //New record
-    {
-      var arr = [val0, key0];
-      _content_extra[alertOBJ.content_extra_db].push(arr);
-    }
-    populateRecordViews();
+      populateRecordViews();
 
-    _CHILD_PART_LINKS_CACHE.clear();
-  });
+      _CHILD_PART_LINKS_CACHE.clear();
+    });
+  }
 }
 
 function edit_content(rownum, field, value) {
@@ -906,7 +1005,7 @@ const TAB_MAINMENU_DIVS = [
   '<span style="color:white">P</span>art Child Record Manager',
   'S<span style="color:white">o</span>rt Orders',
   'Par<span style="color:white">t</span> History',
-  'P<span style="color:white">D</span>F Import',
+  'I<span style="color:white">m</span>port Parts',
   '<span style="color:white">R</span>eorders',
   'Invoice <span style="color:white">H</span>istory',
   'Invoice S<span style="color:white">e</span>ttings',
@@ -1032,7 +1131,7 @@ function setTab(num) {
   if (num == TAB_RECORD_VIEWS) {
     populateRecordViews();
     if (_recordViews.length > 0)
-      selectRecordView(_recordViews.length - 1, true);
+      selectRecordView(_last_selected_record_view, true);
   }
   if (num == TAB_RECORD_BROWSER) {
     _record_browser_filter_string_Standardized = null;
@@ -1124,15 +1223,54 @@ function get_plus_minus_usd_string(num) {
   return num;
 }
 
+function get_USD_String(num) {
+  if (isNaN(num))
+    num = 0;
+  num = String(Math.floor(num * 100));
+  if (num.length > 2)
+    return num.substring(0, num.length - 2) + "." + num.substring(num.length - 2, num.length);
+  else if (num.length == 2)
+    return "0." + num;
+  else if (num.length == 1)
+    return "0.0" + num;
+  return "0.00";
+}
+
 function searchChildPart(extradb, searchterm) {
-  document.getElementById("part_child_dropdown_select").selectedIndex = extradb;
-  setTab(TAB_PART_CHILD_RECORD_MANAGER);
-  var ele = document.getElementById("part_child_edit_input");
-  ele.value = removeEndSemicolon(searchterm);
-  ele.focus();
-  onPartChildEditFocus();
-  showPartChildEditAutocomplete();
-  cancelEditPartChild();
+  //Old method that just searches child part in part child record manager
+  // document.getElementById("part_child_dropdown_select").selectedIndex = extradb;
+  // setTab(TAB_PART_CHILD_RECORD_MANAGER);
+  // var ele = document.getElementById("part_child_edit_input");
+  // ele.value = removeEndSemicolon(searchterm);
+  // ele.focus();
+  // onPartChildEditFocus();
+  // showPartChildEditAutocomplete();
+  // cancelEditPartChild();
+
+  var child_index = null;
+  if (extradb >= _EXTRA_DB.length) {
+    for (var i = 0; i < _EXTRA_DB.length; ++i) {
+      child_index = getExtraDBLinkIndex(i, searchterm);
+      if (child_index != null) {
+        extradb = i;
+        break;
+      }
+    }
+  }
+  else
+    child_index = getExtraDBLinkIndex(extradb, searchterm);
+  if (child_index != null) {
+    var index = getParentRecordIndexWithChildPart(extradb, child_index);
+    if (index != null) {
+      addRecordView(_content[index][_content[index].length - 1]);
+      setTab(TAB_RECORD_VIEWS);
+      selectRecordView(_recordViews.length - 1, true);
+    }
+    else
+      showSnackbar("Couldn't find a parent record with the child part pn '" + searchterm + "'", 3000);
+  }
+  else
+    showSnackbar("Couldn't find a child record with pn '" + searchterm + "'", 3000);
 }
 
 var _snackbar_times_shown = 0;
@@ -1232,9 +1370,9 @@ function getParentRecordIndexWithChildPart(extraDB_index, pn_index) {
 }
 
 function doesContentMatchFilter(position, filterString) {
-  var regexp = new RegExp(getRegexSafeSearchTerm(filterString), "g");
   for (var i = 0; i < _content_standard[position].length - 1; ++i) {
-    if ((match = regexp.exec(_content_standard[position][i])) !== null) //If match found in whole string
+    var regexp = new RegExp(getRegexSafeSearchTerm(filterString), "g");
+    if (regexp.exec(_content_standard[position][i]) !== null) //If match found in whole string
     {
       return true;
     }
@@ -1416,7 +1554,9 @@ function highlightStringEZ(str, standard_term, startHTML, endHTML) {
   return str;
 }
 
-function getMMDDYYYYText(dateTime) {
+function getMMDDYYYYText(dateTime, separator) {
+  if (separator == null)
+    separator = " / ";
   var dd = dateTime.getDate();
   var mm = dateTime.getMonth() + 1; //January is 0!
   var yyyy = dateTime.getFullYear();
@@ -1424,7 +1564,7 @@ function getMMDDYYYYText(dateTime) {
     dd = '0' + dd;
   if (mm < 10)
     mm = '0' + mm;
-  return mm + " / " + dd + " / " + yyyy;
+  return mm + separator + dd + separator + yyyy;
 }
 
 function getMMDDYYYY_HHMMText(dateTime) {
@@ -1516,9 +1656,8 @@ function getMyInitials() {
 }
 
 function isValidEmail(target) {
-  let match;
   var regexp = new RegExp(/^(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])$/, "");
-  if ((match = regexp.exec(target)) !== null) {
+  if (regexp.exec(target) !== null) {
     return true;
   }
   return false;
@@ -1564,6 +1703,16 @@ function printCopyPressed() {
   window.getSelection().removeAllRanges();
 
   showSnackbar("Copied to clipboard", 5000);
+}
+
+function copyTextInEle(ele) {
+  var element = document.getElementById(ele);
+  window.getSelection().removeAllRanges();
+  let range = document.createRange();
+  range.selectNode(typeof element === 'string' ? document.getElementById(element) : element);
+  window.getSelection().addRange(range);
+  document.execCommand('copy');
+  window.getSelection().removeAllRanges();
 }
 
 function printPrintButtonPressed() {
@@ -1639,4 +1788,391 @@ function eleSmartScroll(ele, pageTop, pageBottom0) { //Scrolls to put ele in vie
     let y = ele.getBoundingClientRect().bottom + window.pageYOffset - pageBottom;
     window.scrollTo({ top: y, behavior: 'smooth' });
   }
+}
+
+var _debug_time1 = null;
+function debugTiming(desc) {
+  if (_debug_time1 == null) {
+    _debug_time1 = (new Date()).getTime();
+    console.log(desc);
+  } else {
+    var t2 = (new Date()).getTime();
+    console.log(desc + "|" + (t2 - _debug_time1));
+    _debug_time1 = t2;
+  }
+}
+
+function isStringNumberLetterMix(str) {
+  var str0 = str.toLowerCase();
+  var regexp0 = new RegExp("[a-z]", "g");
+  var regexp1 = new RegExp("[0-9]", "g");
+  if (regexp0.exec(str0) !== null && regexp1.exec(str0) !== null)
+    return true;
+  return false;
+}
+
+//Return the longest string in an array
+function longestString(arr) {
+  if (arr != null && arr.length > 0) {
+    var longestLength = 0;
+    var longestLengthIndex = 0;
+    for (var i2 = 0; i2 < arr.length; ++i2) {
+      if (arr[i2].length > longestLength) {
+        longestLength = arr[i2].length;
+        longestLengthIndex = i2;
+      }
+    }
+    return arr[longestLengthIndex];
+  }
+  return null;
+}
+
+//Just converts first word found into a number
+function getNumsBeforePointInArray(arr, i2, maxNums, digits_to_decimal) {
+  var last_nums = [];
+  --i2;
+  while (last_nums.length < maxNums && i2 >= 0) {
+    var numberized = numberize_OCR_String(arr[i2], null, digits_to_decimal);
+    if (numberized.length > 0)
+      last_nums.push(numberized);
+    --i2;
+  }
+
+  return last_nums;
+}
+
+//Can tell when a single number was separated into 2 words
+var _lastNums_lastIndex = 0;
+function getNumsBeforePointInArray2(arr, i2, maxNums, replacements_map) {
+  var last_nums = [];
+  --i2;
+  var lastNum = null;
+  while (last_nums.length < maxNums && i2 >= 0) {
+    var regexp = new RegExp(/\./, "g"); //Does number contain decimal
+    var numberized = numberize_OCR_String(arr[i2], replacements_map);
+    _lastNums_lastIndex = i2;
+    if (regexp.exec(numberized) !== null) { //If no decimal
+      if (lastNum != null) {
+        last_nums.push("." + lastNum);
+        lastNum = null;
+      }
+      last_nums.push(numberized);
+    }
+    else {
+      if (lastNum != null) {
+        last_nums.push(numberized + "." + lastNum);
+        lastNum = null;
+      } else {
+        if (numberized.length == 2)
+          lastNum = numberized;
+        else
+          last_nums.push(numberized);
+      }
+    }
+    --i2;
+  }
+  return last_nums;
+}
+
+function imageZoom(imgID, resultID) {
+  var img, lens, result, cx, cy;
+  img = document.getElementById(imgID);
+  result = document.getElementById(resultID);
+  /* Create lens: */
+  lens = document.createElement("DIV");
+  lens.setAttribute("class", "img-zoom-lens");
+  /* Insert lens: */
+  img.parentElement.insertBefore(lens, img);
+  /* Calculate the ratio between result DIV and lens: */
+  cx = result.offsetWidth / lens.offsetWidth;
+  cy = result.offsetHeight / lens.offsetHeight;
+  /* Set background properties for the result DIV */
+  result.style.backgroundImage = "url('" + img.src + "')";
+  result.style.backgroundSize = (img.width * cx) + "px " + (img.height * cy) + "px";
+  /* Execute a function when someone moves the cursor over the image, or the lens: */
+  lens.addEventListener("mousemove", moveLens);
+  img.addEventListener("mousemove", moveLens);
+  /* And also for touch screens: */
+  lens.addEventListener("touchmove", moveLens);
+  img.addEventListener("touchmove", moveLens);
+  function moveLens(e) {
+    var pos, x, y;
+    /* Prevent any other actions that may occur when moving over the image */
+    e.preventDefault();
+    /* Get the cursor's x and y positions: */
+    pos = getCursorPos(e);
+    /* Calculate the position of the lens: */
+    x = pos.x - (lens.offsetWidth / 2);
+    y = pos.y - (lens.offsetHeight / 2);
+    /* Prevent the lens from being positioned outside the image: */
+    if (x > img.width - lens.offsetWidth) { x = img.width - lens.offsetWidth; }
+    if (x < 0) { x = 0; }
+    if (y > img.height - lens.offsetHeight) { y = img.height - lens.offsetHeight; }
+    if (y < 0) { y = 0; }
+    /* Set the position of the lens: */
+    lens.style.left = x + "px";
+    lens.style.top = y + "px";
+    /* Display what the lens "sees": */
+    result.style.backgroundPosition = "-" + (x * cx) + "px -" + (y * cy) + "px";
+  }
+  function getCursorPos(e) {
+    var a, x = 0, y = 0;
+    e = e || window.event;
+    /* Get the x and y positions of the image: */
+    a = img.getBoundingClientRect();
+    /* Calculate the cursor's x and y coordinates, relative to the image: */
+    x = e.pageX - a.left;
+    y = e.pageY - a.top;
+    /* Consider any page scrolling: */
+    x = x - window.pageXOffset;
+    y = y - window.pageYOffset;
+    return { x: x, y: y };
+  }
+}
+
+function multDecimalStr(str) {
+  var j = null;
+  for (var i = 0; i < str.length; ++i)
+    if (str.charAt(i) == ".") {
+      j = i;
+      break;
+    }
+  if (j != null) {
+    var diff = (str.length - 1) - j;
+    if (diff >= 0 && diff <= 2) {
+      var zeroesNeeded = 2 - diff;
+      if (zeroesNeeded == 1)
+        str += "0";
+      if (zeroesNeeded == 2)
+        str += "00";
+    } else if (diff >= 3) {
+      var numDigitsToRemove = diff - 2;
+      str = str.substring(0, str.length - numDigitsToRemove);
+    }
+    str = str.replace(".", "");
+  }
+  else { //No decimal found
+    str += "00";
+  }
+  return Number(str);
+}
+
+function getPartChildButtonHTML_NonWorker(cellContent) {
+  let match;
+  var html0 = cellContent.replace(/(<([^>]+)>)/ig, ''); //Strip HTML tags
+  html0 = html0.replace(/&nbsp;/g, ' '); //Replace &nbsp; tags with spaces
+  html0 = html0.replace(/ {2,}/g, ' '); //Remove extra spaces
+  var htmls = html0.split(" ");
+  var matchedWords = [];
+  for (var i = 0; i < htmls.length; ++i) {
+    var word = htmls[i];
+    var cacheOBJ = null;
+    if (_CHILD_PART_LINKS_CACHE.has(word))
+      cacheOBJ = _CHILD_PART_LINKS_CACHE.get(word);
+    var buttonAdded = false;
+    if (cacheOBJ == null) {
+      if (!matchedWords.includes(word)) {
+        matchedWords.push(word);
+        if (word.length > 1 && word[1] == ":") //PN with B: C: etc prefix before it
+        {
+          var prefix_index = -1;
+          for (var j = 0; j < _EXTRA_DB_COMMENTS_PREFIXES.length; ++j) {
+            if (word[0] == _EXTRA_DB_COMMENTS_PREFIXES[j]) {
+              prefix_index = j;
+            }
+          }
+          if (prefix_index != -1) {
+            var extraDBIndex = getExtraDBLinkIndex(prefix_index, word.substring(2, word.length));
+            if (extraDBIndex != null) {
+              var regexp = new RegExp(getRegexSafeSearchTerm(word), "g");
+              var indexesToAddSpan = [];
+              while ((match = regexp.exec(cellContent)) !== null) {
+                var start = match.index;
+                var end = regexp.lastIndex;
+                if ((start == 0 || cellContent[start - 1] == ">" || cellContent[start - 1] == " ") && //Ensures word has no spaces
+                  (end == cellContent.length || cellContent[end] == "<" || cellContent[end] == " ")) {
+                  indexesToAddSpan.push([start, end]);
+                }
+              }
+              if (indexesToAddSpan.length > 0) {
+                var obj = new Object();
+                obj.buttonAdded = true;
+                obj.searchterm = word.substring(2, word.length);
+                obj.prefix_index = prefix_index;
+                _CHILD_PART_LINKS_CACHE.set(word, obj);
+              }
+              for (var j = indexesToAddSpan.length - 1; j >= 0; --j) {
+                buttonAdded = true;
+                var start = indexesToAddSpan[j][0];
+                var end = indexesToAddSpan[j][1];
+                cellContent = cellContent.substring(0, end) + "</u></span>" + cellContent.substring(end, cellContent.length);
+                // html1 = html1.substring(0, start) + "<span style='color: blue;' onclick='jumpToChildPartFromRecordView(" + prefix_index + "," + extraDBIndex + ");'><u>" + html1.substring(start, html1.length);
+                cellContent = cellContent.substring(0, start) + "<span class='clickable' style='color: blue;' onclick='searchChildPart(" + prefix_index + ",\"" + word.substring(2, word.length) + "\");'><u>" + cellContent.substring(start, cellContent.length);
+              }
+            }
+          }
+        }
+
+        if (word.length > 1 && !buttonAdded) //PN without B: C: etc prefix before it
+        {
+          var extraDBIndex = null;
+          for (var j = 0; j < _EXTRA_DB.length; ++j) {
+            extraDBIndex = getExtraDBLinkIndex(j, word);
+            if (extraDBIndex != null)
+              break;
+          }
+          if (extraDBIndex != null) {
+            var regexp = new RegExp(getRegexSafeSearchTerm(word), "g");
+            var indexesToAddSpan = [];
+            while ((match = regexp.exec(cellContent)) !== null) {
+              var start = match.index;
+              var end = regexp.lastIndex;
+              if ((start == 0 || cellContent[start - 1] == ">" || cellContent[start - 1] == " ") && //Ensures word has no spaces
+                (end == cellContent.length || cellContent[end] == "<" || cellContent[end] == " ")) {
+                indexesToAddSpan.push([start, end]);
+              }
+            }
+            if (indexesToAddSpan.length > 0) {
+              var obj = new Object();
+              obj.buttonAdded = true;
+              obj.searchterm = word;
+              obj.prefix_index = _EXTRA_DB.length;
+              _CHILD_PART_LINKS_CACHE.set(word, obj);
+            }
+            for (var j = indexesToAddSpan.length - 1; j >= 0; --j) {
+              buttonAdded = true;
+              var start = indexesToAddSpan[j][0];
+              var end = indexesToAddSpan[j][1];
+              cellContent = cellContent.substring(0, end) + "</u></span>" + cellContent.substring(end, cellContent.length);
+              // html1 = html1.substring(0, start) + "<span style='color: blue;' onclick='jumpToChildPartFromRecordView(" + prefix_index + "," + extraDBIndex + ");'><u>" + html1.substring(start, html1.length);
+              cellContent = cellContent.substring(0, start) + "<span class='clickable' style='color: blue;' onclick='searchChildPart(" + _EXTRA_DB.length + ",\"" + word + "\");'><u>" + cellContent.substring(start, cellContent.length);
+            }
+          }
+        }
+      }
+      if (!buttonAdded) {
+        var obj = new Object();
+        obj.buttonAdded = false;
+        obj.searchterm = word;
+        obj.prefix_index = -1;
+        _CHILD_PART_LINKS_CACHE.set(word, obj);
+      }
+    }
+    else //Cacheobj found
+    {
+      if (cacheOBJ.buttonAdded) {
+        var regexp = new RegExp(getRegexSafeSearchTerm(word), "g");
+        var indexesToAddSpan = [];
+        while ((match = regexp.exec(cellContent)) !== null) {
+          var start = match.index;
+          var end = regexp.lastIndex;
+          if ((start == 0 || cellContent[start - 1] == ">" || cellContent[start - 1] == " ") && //Ensures word has no spaces
+            (end == cellContent.length || cellContent[end] == "<" || cellContent[end] == " ")) {
+            indexesToAddSpan.push([start, end]);
+          }
+        }
+        for (var j = indexesToAddSpan.length - 1; j >= 0; --j) {
+          buttonAdded = true;
+          var start = indexesToAddSpan[j][0];
+          var end = indexesToAddSpan[j][1];
+          cellContent = cellContent.substring(0, end) + "</u></span>" + cellContent.substring(end, cellContent.length);
+          // html1 = html1.substring(0, start) + "<span style='color: blue;' onclick='jumpToChildPartFromRecordView(" + prefix_index + "," + extraDBIndex + ");'><u>" + html1.substring(start, html1.length);
+          cellContent = cellContent.substring(0, start) + "<span class='clickable' style='color: blue;' onclick='searchChildPart(" + cacheOBJ.prefix_index + ",\"" + cacheOBJ.searchterm + "\");'><u>" + cellContent.substring(start, cellContent.length);
+        }
+      }
+    }
+  }
+  return cellContent;
+}
+
+//PN, Part Name, CGS x Qty on Hand, Loc 
+//Sort by Location
+function exportInventoryList() {
+  var list = [];
+  for (var i = 0; i < _EXTRA_DB.length; ++i) {
+    for (var j = 0; j < _content_extra[i].length; ++j) {
+      list.push(_content_extra[i][j][0]);
+    }
+  }
+  list.sort(COMPARE_OBJ_LOCATION);
+
+  var text = "";
+  var lengths = [];
+  var fields = ["PN", "DESCRIP1", "CGS", "SHOP_QTY", "", "LOCATION"];
+  var field_names = ["Part Number", "Description", "Cost", "Qty", "Total", "Location"];
+  var totals = [];
+  for (var i = 0; i < list.length; ++i) {
+    var obj = list[i];
+    if (lengths.length == 0)
+      for (var j = 0; j < fields.length; ++j)
+        lengths.push(0);
+
+    for (var j = 0; j < fields.length; ++j) {
+      if (j != 4) {
+        if (obj[fields[j]] == null) {
+          obj[fields[j]] = "";
+        }
+        if (obj[fields[j]].length > lengths[j])
+          lengths[j] = obj[fields[j]].length;
+      }
+      else {
+        var cgs = Number(obj.CGS);
+        var shop_qty = Number(obj.SHOP_QTY);
+        var total = "";
+        if (!isNaN(cgs) && !isNaN(shop_qty))
+          total = String(get_USD_String(cgs * shop_qty));
+        if (total.length > lengths[j])
+          lengths[j] = total.length;
+        totals.push(total);
+      }
+    }
+  }
+
+  for (var i = 0; i < list.length; ++i) {
+    var obj = list[i];
+    if (i == 0) {
+      for (var j = 0; j < field_names.length; ++j) {
+        text += field_names[j];
+        if (j != field_names.length - 1) {
+          var spaces_needed = (lengths[j] - field_names[j].length) + 1;
+          for (var k = 0; k < spaces_needed; ++k)
+            text += " ";
+        }
+      }
+      text += "\r\n";
+    }
+
+    for (var j = 0; j < fields.length; ++j) {
+      if (j != 4) {
+        text += obj[fields[j]];
+        if (j != fields.length - 1) {
+          var spaces_needed = (lengths[j] - obj[fields[j]].length) + 1;
+          for (var k = 0; k < spaces_needed; ++k)
+            text += " ";
+        }
+      }
+      else {
+        text += totals[i];
+        var spaces_needed = (lengths[j] - totals[i].length) + 1;
+        for (var k = 0; k < spaces_needed; ++k)
+          text += " ";
+      }
+    }
+    text += "\r\n";
+  }
+
+  download("list.txt", text);
+}
+
+function download(filename, text) {
+  var element = document.createElement('a');
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+  element.setAttribute('download', filename);
+
+  element.style.display = 'none';
+  document.body.appendChild(element);
+
+  element.click();
+
+  document.body.removeChild(element);
 }

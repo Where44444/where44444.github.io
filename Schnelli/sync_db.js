@@ -1,10 +1,11 @@
 var _sync_socket = null;
-const db_lists_to_sync = [
+const _db_lists_to_sync = [
   "change_alerts",
   "invoice_data",
   "parts_db/B_DNI",
   "parts_db/CHLX",
   "parts_db/DNI",
+  "parts_db/F",
   "parts_db/GEM",
   "parts_db/H_RS",
   "parts_db/I_MM",
@@ -12,7 +13,7 @@ const db_lists_to_sync = [
   "parts_db/OEM",
   "parts_db/P&A_PRI",
   "sort_orders",
-  "data/employeeids",
+  "", //13 Set in init0.js "data/employeeids/" +  firebase.auth().currentUser.uid; because user has to log in before this can be retrieved
   "change_history"
 ];
 
@@ -106,9 +107,9 @@ function beginSync() {
   document.getElementById("beginSyncButton").style.display = "none";
   document.getElementById("exitSyncDivButton").style.display = "none";
   document.getElementById("sync_loader").style.display = "block";
-  _sync_i = 0;
-  _firebaseListData = new Object();
-  _localListData = new Object();
+  _sync_i0 = 0;
+  // _firebaseListData = new Object();
+  // _localListData = new Object();
   _deletions = [];
   let ref = firebase.database().ref(_DATABASE_PREFIX + "sync_deletions");
   ref.once('value', function (snapshot) { //Get Firebase Deletions
@@ -130,9 +131,10 @@ function beginSync() {
   });
 }
 
-var _sync_i = 0;
-var firebaseKeysModified = null;
-var localKeysModified = null;
+var _sync_i0 = 0;
+var _sync_i1 = 0;
+var _firebaseKeysModified = null;
+var _localKeysModified = null;
 var _key_i = 0;
 var _firebaseDone = false;
 var _localDone = false;
@@ -143,122 +145,123 @@ var _firebaseDeletions = null;
 var _localDeletions = null;
 var _deletions = null;
 function beginSyncRecursiveLists() {
-  if (_sync_i < db_lists_to_sync.length) {
-    document.getElementById("sync_status").innerHTML = "Downloading lists data...<br>" + (_sync_i + 1) + "/" + db_lists_to_sync.length;
+  _firebaseListData = new Object();
+  _localListData = new Object();
+  _firebaseDone = false;
+  _localDone = false;
+  
+  var listPath = _db_lists_to_sync[_sync_i0];
+  document.getElementById("sync_status").innerHTML = "Downloading lists data... " + listPath + "<br>" + (_sync_i0 + 1) + "/" + _db_lists_to_sync.length;
 
-    _firebaseDone = false;
-    _localDone = false;
+  var ref = firebase.database().ref(_DATABASE_PREFIX + listPath);
+  ref.once('value', function (snapshot) {
+    let val = snapshot.val();
+    if (objSize(val) > 0)
+      _firebaseListData[listPath] = val;
+    snapshot = null; //Helps to prevent "Out of memory" errors?
+    _firebaseDone = true;
+    if (_localDone) {
+      ++_sync_i0;
+      resolveDiffs();
+    }
+  });
 
-    var listPath = db_lists_to_sync[_sync_i];
+  readFunctions.set(listPath, function (val0, key0) {
+    if (objSize(val0) > 0)
+      _localListData[listPath] = val0;
+    _localDone = true;
+    if (_firebaseDone) {
+      ++_sync_i0;
+      resolveDiffs();
+    }
+  });
+  var obj = new Object();
+  obj["req"] = REQUESTTYPE_READ;
+  obj["key"] = listPath;
+  _socket.send(JSON.stringify(obj));
+}
 
-    var ref = firebase.database().ref(_DATABASE_PREFIX + listPath);
-    ref.once('value', function (snapshot) {
-      let val = snapshot.val();
-      if (objSize(val) > 0)
-        _firebaseListData[listPath] = val;
-      snapshot = null; //Helps to prevent "Out of memory" errors?
-      _firebaseDone = true;
-      if (_localDone) {
-        ++_sync_i;
-        beginSyncRecursiveLists();
-      }
-    });
+function resolveDiffs() {
+  var date = new Date();
 
-    readFunctions.set(listPath, function (val0, key0) {
-      if (objSize(val0) > 0)
-        _localListData[listPath] = val0;
-      _localDone = true;
-      if (_firebaseDone) {
-        ++_sync_i;
-        beginSyncRecursiveLists();
-      }
-    });
-    var obj = new Object();
-    obj["req"] = REQUESTTYPE_READ;
-    obj["key"] = listPath;
-    _socket.send(JSON.stringify(obj));
-  } else { //Recursive calls complete
-    var date = new Date();
-
-    let firebaseKeysModified_map = new Map();
-    let localKeysModified_map = new Map();
-    for (var [key0, value0] of Object.entries(_localListData)) {
-      if (value0 != null) {
-        for (var [key1, value1] of Object.entries(value0)) {
-          if (value1.w4_dm == null) {  //Fix missing date modified
-            value1.w4_dm = date.getTime();
-            localKeysModified_map.set(key0 + "/" + key1, [key0, key1]);
-          }
+  let _firebaseKeysModified_map = new Map();
+  let _localKeysModified_map = new Map();
+  for (var [key0, value0] of Object.entries(_localListData)) {
+    if (value0 != null) {
+      for (var [key1, value1] of Object.entries(value0)) {
+        if (value1.w4_dm == null) {  //Fix missing date modified
+          value1.w4_dm = date.getTime();
+          _localKeysModified_map.set(key0 + "/" + key1, [key0, key1]);
         }
       }
     }
-
-    for (var [key0, value0] of Object.entries(_firebaseListData)) {
-      if (value0 != null)
-        for (var [key1, value1] of Object.entries(value0)) {
-          if (value1.w4_dm == null) { //Fix missing date modified
-            value1.w4_dm = date.getTime();
-            firebaseKeysModified_map.set(key0 + "/" + key1, [key0, key1]);
-          }
-        }
-    }
-
-    for (var [key0, value0] of Object.entries(_firebaseListData)) {
-      if (value0 != null)
-        for (var [key1, fir] of Object.entries(value0)) { //Compare fir data
-          if (_localListData[key0] != null && _localListData[key0][key1] != null) { //Keys in fir compare to loc dm
-            let loc = _localListData[key0][key1];
-            if (loc.w4_dm > fir.w4_dm) {
-              _firebaseListData[key0][key1] = loc;
-              firebaseKeysModified_map.set(key0 + "/" + key1, [key0, key1]);
-            }
-          } else { //_localData is missing that value
-            if (_localListData[key0] == null)
-              // _localData[key0] = new Object();
-              // _localData[key0][key1] = fir;
-              localKeysModified_map.set(key0 + "/" + key1, [key0, key1]);
-          }
-        }
-    }
-
-    for (var [key0, value0] of Object.entries(_localListData)) {
-      if (value0 != null)
-        for (var [key1, loc] of Object.entries(value0)) { //Compare loc data
-          if (_firebaseListData[key0] != null && _firebaseListData[key0][key1] != null) { //Keys in loc compare to fir dm
-            let fir = _firebaseListData[key0][key1];
-            if (fir.w4_dm > loc.w4_dm) {
-              // _localData[key0][key1] = fir; //No need to change this array since all database copying will be from firebase array, since everything will be synced to be the same
-              localKeysModified_map.set(key0 + "/" + key1, [key0, key1]);
-            }
-          } else { //_firebaseData is missing that value
-            if (_firebaseListData[key0] == null)
-              _firebaseListData[key0] = new Object();
-            _firebaseListData[key0][key1] = loc;
-            firebaseKeysModified_map.set(key0 + "/" + key1, [key0, key1]);
-          }
-        }
-    }
-
-    firebaseKeysModified = [];
-    localKeysModified = [];
-    for (let [key, value] of firebaseKeysModified_map)
-      firebaseKeysModified.push(value);
-    for (let [key, value] of localKeysModified_map)
-      localKeysModified.push(value);
-
-    _key_i = 0;
-    recursiveSyncListsToFirebase();
   }
+
+  for (var [key0, value0] of Object.entries(_firebaseListData)) {
+    if (value0 != null)
+      for (var [key1, value1] of Object.entries(value0)) {
+        if (value1.w4_dm == null) { //Fix missing date modified
+          value1.w4_dm = date.getTime();
+          _firebaseKeysModified_map.set(key0 + "/" + key1, [key0, key1]);
+        }
+      }
+  }
+
+  for (var [key0, value0] of Object.entries(_firebaseListData)) {
+    if (value0 != null)
+      for (var [key1, fir] of Object.entries(value0)) { //Compare fir data
+        if (_localListData[key0] != null && _localListData[key0][key1] != null) { //Keys in fir compare to loc dm
+          let loc = _localListData[key0][key1];
+          if (loc.w4_dm > fir.w4_dm) {
+            _firebaseListData[key0][key1] = loc;
+            _firebaseKeysModified_map.set(key0 + "/" + key1, [key0, key1]);
+          }
+        } else { //_localData is missing that value
+          if (_localListData[key0] == null)
+            _localListData[key0] = new Object();
+          _localKeysModified_map.set(key0 + "/" + key1, [key0, key1]);
+
+        }
+      }
+  }
+
+  for (var [key0, value0] of Object.entries(_localListData)) {
+    if (value0 != null)
+      for (var [key1, loc] of Object.entries(value0)) { //Compare loc data
+        if (_firebaseListData[key0] != null && _firebaseListData[key0][key1] != null) { //Keys in loc compare to fir dm
+          let fir = _firebaseListData[key0][key1];
+          if (fir.w4_dm > loc.w4_dm) {
+            // _localData[key0][key1] = fir; //No need to change this array since all database copying will be from firebase array, since everything will be synced to be the same
+            _localKeysModified_map.set(key0 + "/" + key1, [key0, key1]);
+          }
+        } else { //_firebaseData is missing that value
+          if (_firebaseListData[key0] == null)
+            _firebaseListData[key0] = new Object();
+          _firebaseListData[key0][key1] = loc;
+          _firebaseKeysModified_map.set(key0 + "/" + key1, [key0, key1]);
+        }
+      }
+  }
+
+  _firebaseKeysModified = [];
+  _localKeysModified = [];
+  for (let [key, value] of _firebaseKeysModified_map)
+    _firebaseKeysModified.push(value);
+  for (let [key, value] of _localKeysModified_map)
+    _localKeysModified.push(value);
+
+  _key_i = 0;
+  recursiveSyncListsToFirebase();
 }
 
 function recursiveSyncListsToFirebase() {
-  if (_key_i < firebaseKeysModified.length) {
-    let keys = firebaseKeysModified[_key_i];
+  if (_key_i < _firebaseKeysModified.length) {
+    let keys = _firebaseKeysModified[_key_i];
     ++_key_i;
     let ref = firebase.database().ref(_DATABASE_PREFIX + keys[0] + "/" + keys[1]);
     ref.set(_firebaseListData[keys[0]][keys[1]], recursiveSyncListsToFirebase);
-    document.getElementById("sync_status").innerHTML = "Syncing " + keys[0] + "/" + keys[1] + " to FireBase<br>" + _key_i + "/" + firebaseKeysModified.length;
-    // console.log("Syncing " + keys[0] + "/" + keys[1] + " to FireBase\n" + _key_i + "/" + firebaseKeysModified.length);
+    document.getElementById("sync_status").innerHTML = "Syncing " + keys[0] + "/" + keys[1] + " to FireBase<br>" + _key_i + "/" + _firebaseKeysModified.length;
+    // console.log("Syncing " + keys[0] + "/" + keys[1] + " to FireBase\n" + _key_i + "/" + _firebaseKeysModified.length);
   } else {
     _key_i = 0;
     recursiveSyncListsToLocal();
@@ -266,8 +269,8 @@ function recursiveSyncListsToFirebase() {
 }
 
 function recursiveSyncListsToLocal() {
-  if (_key_i < localKeysModified.length) {
-    let keys = localKeysModified[_key_i];
+  if (_key_i < _localKeysModified.length) {
+    let keys = _localKeysModified[_key_i];
     ++_key_i;
     let reff = keys[0] + "/" + keys[1];
     writeFunctions.set(reff, recursiveSyncListsToLocal);
@@ -276,25 +279,30 @@ function recursiveSyncListsToLocal() {
     obj["key"] = reff;
     obj["val"] = _firebaseListData[keys[0]][keys[1]];
     _socket.send(JSON.stringify(obj));
-    document.getElementById("sync_status").innerHTML = "Syncing " + keys[0] + "/" + keys[1] + " to Local Server<br>" + _key_i + "/" + localKeysModified.length;
-    // console.log("Syncing " + keys[0] + "/" + keys[1] + " to Local Server\n" + _key_i + "/" + localKeysModified.length);
+    document.getElementById("sync_status").innerHTML = "Syncing " + keys[0] + "/" + keys[1] + " to Local Server<br>" + _key_i + "/" + _localKeysModified.length;
+    // console.log("Syncing " + keys[0] + "/" + keys[1] + " to Local Server\n" + _key_i + "/" + _localKeysModified.length);
   } else {
-    _sync_i = 0;
-    _firebaseOtherData = new Object();
-    _localOtherData = new Object();
-    beginSyncRecursiveOthers();
+    if (_sync_i0 < _db_lists_to_sync.length) {
+      beginSyncRecursiveLists();
+    }
+    else {
+      _sync_i1 = 0;
+      _firebaseOtherData = new Object();
+      _localOtherData = new Object();
+      beginSyncRecursiveOthers();
+    }
   }
 }
 
 var _firebaseOtherData = null;
 var _localOtherData = null;
 function beginSyncRecursiveOthers() {
-  if (_sync_i < db_other_to_sync.length) {
-    document.getElementById("sync_status").innerHTML = "Downloading other data...<br>" + (_sync_i + 1) + "/" + db_other_to_sync.length;
+  if (_sync_i1 < db_other_to_sync.length) {
+    document.getElementById("sync_status").innerHTML = "Downloading other data...<br>" + (_sync_i1 + 1) + "/" + db_other_to_sync.length;
     _firebaseDone = false;
     _localDone = false;
 
-    var otherPath = db_other_to_sync[_sync_i];
+    var otherPath = db_other_to_sync[_sync_i1];
 
     var ref = firebase.database().ref(_DATABASE_PREFIX + otherPath);
     ref.once('value', function (snapshot) {
@@ -304,7 +312,7 @@ function beginSyncRecursiveOthers() {
       snapshot = null; //Helps to prevent "Out of memory" errors?
       _firebaseDone = true;
       if (_localDone) {
-        ++_sync_i;
+        ++_sync_i1;
         beginSyncRecursiveOthers();
       }
     });
@@ -314,7 +322,7 @@ function beginSyncRecursiveOthers() {
         _localOtherData[otherPath] = val0;
       _localDone = true;
       if (_firebaseDone) {
-        ++_sync_i;
+        ++_sync_i1;
         beginSyncRecursiveOthers();
       }
     });
@@ -325,13 +333,13 @@ function beginSyncRecursiveOthers() {
   } else { //Recursive calls complete
     var date = new Date();
 
-    let firebaseKeysModified_map = new Map();
-    let localKeysModified_map = new Map();
+    let _firebaseKeysModified_map = new Map();
+    let _localKeysModified_map = new Map();
     for (var [key0, value0] of Object.entries(_localOtherData)) {
       if (value0 != null)
         if (value0.w4_dm == null) {  //Fix missing date modified
           value0.w4_dm = date.getTime();
-          localKeysModified_map.set(key0, true);
+          _localKeysModified_map.set(key0, true);
         }
     }
 
@@ -339,7 +347,7 @@ function beginSyncRecursiveOthers() {
       if (value0 != null)
         if (value0.w4_dm == null) { //Fix missing date modified
           value0.w4_dm = date.getTime();
-          firebaseKeysModified_map.set(key0, true);
+          _firebaseKeysModified_map.set(key0, true);
         }
     }
 
@@ -350,11 +358,11 @@ function beginSyncRecursiveOthers() {
           let loc = _localOtherData[key0];
           if (loc.w4_dm > fir.w4_dm) {
             _firebaseOtherData[key0] = loc;
-            firebaseKeysModified_map.set(key0, true);
+            _firebaseKeysModified_map.set(key0, true);
           }
         } else { //_localData is missing that value
           if (_localOtherData[key0] == null)
-            localKeysModified_map.set(key0, true);
+            _localKeysModified_map.set(key0, true);
         }
       }
     }
@@ -365,21 +373,21 @@ function beginSyncRecursiveOthers() {
         if (_firebaseOtherData[key0] != null && _firebaseOtherData[key0] != null) { //Keys in loc compare to fir dm
           let fir = _firebaseOtherData[key0];
           if (fir.w4_dm > loc.w4_dm) {
-            localKeysModified_map.set(key0, true);
+            _localKeysModified_map.set(key0, true);
           }
         } else { //_firebaseData is missing that value
           _firebaseOtherData[key0] = loc;
-          firebaseKeysModified_map.set(key0, true);
+          _firebaseKeysModified_map.set(key0, true);
         }
       }
     }
 
-    firebaseKeysModified = [];
-    localKeysModified = [];
-    for (let [key, value] of firebaseKeysModified_map)
-      firebaseKeysModified.push(key);
-    for (let [key, value] of localKeysModified_map)
-      localKeysModified.push(key);
+    _firebaseKeysModified = [];
+    _localKeysModified = [];
+    for (let [key, value] of _firebaseKeysModified_map)
+      _firebaseKeysModified.push(key);
+    for (let [key, value] of _localKeysModified_map)
+      _localKeysModified.push(key);
 
     _key_i = 0;
     recursiveSyncOthersToFirebase();
@@ -387,13 +395,13 @@ function beginSyncRecursiveOthers() {
 }
 
 function recursiveSyncOthersToFirebase() {
-  if (_key_i < firebaseKeysModified.length) {
-    let key = firebaseKeysModified[_key_i];
+  if (_key_i < _firebaseKeysModified.length) {
+    let key = _firebaseKeysModified[_key_i];
     ++_key_i;
     let ref = firebase.database().ref(_DATABASE_PREFIX + key);
     ref.set(_firebaseOtherData[key], recursiveSyncOthersToFirebase);
-    document.getElementById("sync_status").innerHTML = "Syncing " + key + " to FireBase<br>" + _key_i + "/" + firebaseKeysModified.length;
-    // console.log("Syncing " + keys[0] + "/" + keys[1] + " to FireBase\n" + _key_i + "/" + firebaseKeysModified.length);
+    document.getElementById("sync_status").innerHTML = "Syncing " + key + " to FireBase<br>" + _key_i + "/" + _firebaseKeysModified.length;
+    // console.log("Syncing " + keys[0] + "/" + keys[1] + " to FireBase\n" + _key_i + "/" + _firebaseKeysModified.length);
   } else {
     _key_i = 0;
     recursiveSyncOthersToLocal();
@@ -401,8 +409,8 @@ function recursiveSyncOthersToFirebase() {
 }
 
 function recursiveSyncOthersToLocal() {
-  if (_key_i < localKeysModified.length) {
-    let key = localKeysModified[_key_i];
+  if (_key_i < _localKeysModified.length) {
+    let key = _localKeysModified[_key_i];
     ++_key_i;
     let reff = key;
     writeFunctions.set(reff, recursiveSyncOthersToLocal);
@@ -411,8 +419,8 @@ function recursiveSyncOthersToLocal() {
     obj["key"] = reff;
     obj["val"] = _firebaseOtherData[key];
     _socket.send(JSON.stringify(obj));
-    document.getElementById("sync_status").innerHTML = "Syncing " + key + " to Local Server<br>" + _key_i + "/" + localKeysModified.length;
-    // console.log("Syncing " + keys[0] + "/" + keys[1] + " to Local Server\n" + _key_i + "/" + localKeysModified.length);
+    document.getElementById("sync_status").innerHTML = "Syncing " + key + " to Local Server<br>" + _key_i + "/" + _localKeysModified.length;
+    // console.log("Syncing " + keys[0] + "/" + keys[1] + " to Local Server\n" + _key_i + "/" + _localKeysModified.length);
   } else {
     _key_i = 0;
     _keys_to_delete = [];
@@ -466,6 +474,10 @@ function recursiveDeletions2() {
 function finishSync() {
   //Log out and log back in to every machine when a sync is detected, only if user has editing access (just David for now), don't allow other machines to sync while syncing
   if (_LOCAL_SERVER_MODE) {
+    document.getElementById("beginSyncButton").style.display = "block";
+    document.getElementById("exitSyncDivButton").style.display = "block";
+    document.getElementById("sync_loader").style.display = "none";
+    document.getElementById("sync_status").innerHTML = "Syncing complete";
     setDivsOnLogOut();
     document.getElementById("button_server_select_local").click();
     var ip = localStorage.getItem("local_server_ip");
@@ -481,6 +493,13 @@ function finishSync() {
     document.getElementById("password_input").value = _current_password;
     log_in(true);
   }
+  _firebaseListData = null;
+  _localListData = null;
+  _firebaseDeletions = null;
+  _localDeletions = null;
+  _deletions = null;
+  _firebaseKeysModified = null;
+  _localKeysModified = null;
 }
 
 function sync_display_none() {

@@ -2,11 +2,12 @@ var _highlightgreen_requested = false;
 var _RECORD_BROWSER_ROW_IDS = [];
 var _record_browser_filter_string_Standardized = null;
 function populateRecordBrowser(indexStart, highlight_IndexStart_Green, populateFromBottom) {
+  if (indexStart >= _content.length)
+    indexStart = _content.length - 1;
   if (populateFromBottom == null)
     populateFromBottom = false;
 
   _highlightgreen_requested = highlight_IndexStart_Green;
-  document.getElementById("wlmay_input_div").style.display = "block";
 
   document.getElementById("record_browser_table_div").innerHTML = "";
 
@@ -70,7 +71,7 @@ function populateRecordBrowser(indexStart, highlight_IndexStart_Green, populateF
       "<p style='display: inline; background-color: #70A2FF;'>Table Si<span style='color: white;'>z</span>e</p>&nbsp;&nbsp;" +
       "<input id=\"record_browser_max\" type=\"number\" value=" + _recordBrowserMax + " min=\"0\" onfocus='showRecordBrowserMax();' onchange='showRecordBrowserMax();'></input>" +
       "<button id=\"save_record_browser_max\" onclick=\"updateRecordBrowserMax();\" style=\"display: none;'\">Save</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-    if (!_subscribed_mode)
+    if (!_subscribed_mode || _writeable_mode)
       tableHTML += "<button id='button_record_browser_add_new_part' onclick='startNewRecord();' style='background-color: #70A2FF; color: black;'><span style='color: white;'>A</span>dd New Part +</button>";
     tableHTML += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button id='button_record_browser_jump_top'    onclick='recordBrowserJumpToEdge(false);' style='background-color: #70A2FF; color: black;'>Jump to <span style='color: white;'>T</span>op</button>" +
       "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button id='button_record_browser_jump_bottom' onclick='recordBrowserJumpToEdge(true);' style='background-color: #70A2FF; color: black;'>Jump to <span style='color: white;'>B</span>ottom</button>" +
@@ -118,7 +119,7 @@ function populateRecordBrowser(indexStart, highlight_IndexStart_Green, populateF
           else
             contentText = getHTMLSafeText(_content[i][index]);
           tableHTML += "<td id='" + id2 + "' onmouseover='recordViewIconMouseOver(\"browser_" + i1 + "_" + j + "\");' onmouseout='recordViewIconMouseOut(\"browser_" + i1 + "_" + j + "\");' onclick='onCellClick(" + i1 + "," + j + ",\"" + id2 + "\"," + _TABLE_RECORD_BROWSER + ");'>";
-          if (!_subscribed_mode)
+          if (!_subscribed_mode || _writeable_mode)
             tableHTML += "<img id='edit_icon_" + numRows + "' src='pencil.png' width=25px height=25px onclick='startEditRecord(\"" + _content[i][_content[i].length - 1] + "\", " + i1 + ", \"record_browser_row_" + i1 + "\");'>&nbsp;&nbsp;&nbsp;&nbsp;<img id='copy_icon_" + numRows + "' src='copy.png' width=30px height=30px onclick='startNewRecord(" + i + ");'>&nbsp;&nbsp;&nbsp;&nbsp;";
           tableHTML += "<div class='tooltip'><span class='tooltiptext'>" + INDEXES_CONCAT[index] + " for:<br><br>" + getHTMLSafeText(_content[i][1]) + "</span>" + contentText + "&nbsp;&nbsp;&nbsp;<img id='record_view_icon_browser_" + i1 + "_" + j + "' title='Open Record View' src='record_view.png' width=50px height=20px style='display: none;' onclick='addRecordView(\"" + _content[i][_content[i].length - 1] + "\");'></div></td>";
         }
@@ -379,8 +380,8 @@ function confirmDeleteRecord(rownum) {
     writeToChangeHistory("Delete | Parent Record", "Deleted Parent Record with OEM_PN \"" + oem_pn + "\"");
   }
 
-  _content.splice(rownum, 1);
-  _content_standard.splice(rownum, 1);
+  // _content.splice(rownum, 1);
+  // _content_standard.splice(rownum, 1);
 
   populateRecordBrowser(_currentRecordBrowserStartIndex, false);
   setLargestRecordNumbers();

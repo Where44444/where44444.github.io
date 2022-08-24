@@ -22,7 +22,6 @@ firebase.initializeApp(firebaseConfig);
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
-
 // const auth = getAuth();
 // onAuthStateChanged(auth, (user) => {
 firebase.auth().onAuthStateChanged(function (user) {
@@ -30,6 +29,10 @@ firebase.auth().onAuthStateChanged(function (user) {
     document.getElementById("button_server_select_firebase").click();
   }
   if (user) {
+    if (firebase.auth().currentUser.uid != null) {
+      _db_lists_to_sync[13] = "data/employeeids/" + firebase.auth().currentUser.uid;
+      _firebaseAuthUID = firebase.auth().currentUser.uid;
+    }
     document.getElementById("logout_button_main").style.display = "";
     // User is signed in. Has saved login info
     console.log("DETECTED AUTH STATE CHANGE|LOGGED IN");

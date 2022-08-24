@@ -11,13 +11,13 @@ function showSearchAutocomplete() {
     // console.log(`Found ${match[0]} start=${match.index} end=${regexp.lastIndex}.`);
     // expected output: "Found football start=6  end=14."
     // expected output: "Found foosball start=16 end=24."
-    let match;
     var searchstring = document.getElementById("search_input_" + _selected_search_input).value;
     if (searchstring != "") {
-      var regexp = new RegExp(getRegexSafeSearchTerm(standardizeString(searchstring)), "g");
+      var std0 = getRegexSafeSearchTerm(standardizeString(searchstring));
       for (var i = 0; i < _content.length; ++i) {
         var content_string = _content[i][_selected_search_input];
-        if ((match = regexp.exec(standardizeString(content_string))) !== null) //If match found in whole string
+        var regexp = new RegExp(std0, "g");
+        if (regexp.exec(standardizeString(content_string)) !== null) //If match found in whole string
         {
           var s = 0;
           var start = 0;
@@ -142,13 +142,13 @@ var _selected_partnum_input_j = 0;
 function showPartNumAutocomplete() {
   clearPartNumAutocomplete();
   var numMatches = 0;
-  let match;
   var searchstring = document.getElementById("record_view_partnum_input_" + _selected_partnum_input_i + "_" + _selected_partnum_input_j).value;
   if (searchstring != "") {
-    var regexp = new RegExp(getRegexSafeSearchTerm(searchstring.toLowerCase()), "g");
+    var std0 = getRegexSafeSearchTerm(searchstring.toLowerCase());
     for (var i = 0; i < _content_extra[_selected_partnum_input_j].length; ++i) {
       var part_num_string = _content_extra[_selected_partnum_input_j][i][0].PN;
-      if ((match = regexp.exec(part_num_string.toLowerCase())) !== null) //If match found in whole string
+      var regexp = new RegExp(std0, "g");
+      if (regexp.exec(part_num_string.toLowerCase()) !== null) //If match found in whole string
       {
         if (!_partnum_autocomplete_matches.includes(part_num_string)) {
           _partnum_autocomplete_matches.push(part_num_string);
@@ -360,17 +360,17 @@ function showPartChildEditAutocomplete() {
   // console.log(`Found ${match[0]} start=${match.index} end=${regexp.lastIndex}.`);
   // expected output: "Found football start=6  end=14."
   // expected output: "Found foosball start=16 end=24."
-  let match;
   var searchstring = document.getElementById("part_child_edit_input").value;
+  var std0 = getRegexSafeSearchTerm(searchstring.toLowerCase());
   var _selected_extra_db = document.getElementById("part_child_dropdown_select").selectedIndex;
   if (searchstring != "") {
-    var regexp = new RegExp(getRegexSafeSearchTerm(searchstring.toLowerCase()), "g");
     if (_selected_extra_db >= _EXTRA_DB.length) //Search any
     {
       for (var h = 0; h < _EXTRA_DB.length; ++h) {
         for (var i = 0; i < _content_extra[h].length; ++i) {
           var part_child_edit_string = _content_extra[h][i][0].PN;
-          if ((match = regexp.exec(part_child_edit_string.toLowerCase())) !== null) //If match found in whole string
+          var regexp = new RegExp(std0, "g");
+          if (regexp.exec(part_child_edit_string.toLowerCase()) !== null) //If match found in whole string
           {
             if (!doesObjectArraySpecificIndexIncludeX(_partchild_edit_autocomplete_matches, [h, i], ["db", "row"])) {
               var obj = new Object();
@@ -390,7 +390,10 @@ function showPartChildEditAutocomplete() {
     {
       for (var i = 0; i < _content_extra[_selected_extra_db].length; ++i) {
         var part_child_edit_string = _content_extra[_selected_extra_db][i][0].PN;
-        if ((match = regexp.exec(part_child_edit_string.toLowerCase())) !== null) //If match found in whole string
+        if (part_child_edit_string == null)
+          console.log(_content_extra[_selected_extra_db][i]);
+        var regexp = new RegExp(std0, "g");
+        if (regexp.exec(part_child_edit_string.toLowerCase()) !== null) //If match found in whole string
         {
           if (!doesObjectArraySpecificIndexIncludeX(_partchild_edit_autocomplete_matches, [_selected_extra_db, i], ["db", "row"])) {
             var obj = new Object();
@@ -459,7 +462,6 @@ function showSearchPartNumAutocomplete(extradb) {
   // console.log(`Found ${match[0]} start=${match.index} end=${regexp.lastIndex}.`);
   // expected output: "Found football start=6  end=14."
   // expected output: "Found foosball start=16 end=24."
-  let match;
   var searchstring;
   if (extradb < _EXTRA_DB.length)
     searchstring = document.getElementById("search_partnum_input_" + extradb).value;
@@ -467,7 +469,7 @@ function showSearchPartNumAutocomplete(extradb) {
     searchstring = document.getElementById("search_partnum_any_input").value;
 
   if (searchstring != "") {
-    var regexp = new RegExp(getRegexSafeSearchTerm(searchstring.toLowerCase()), "g");
+    var std0 = getRegexSafeSearchTerm(searchstring.toLowerCase());
     if (extradb >= _EXTRA_DB.length) //Search any
     {
       for (var h = 0; h < _EXTRA_DB.length; ++h) {
@@ -475,11 +477,13 @@ function showSearchPartNumAutocomplete(extradb) {
           var matchFound = false;
           var isAKA = false;
           var part_child_string = _content_extra[h][i][0].PN;
-          if ((match = regexp.exec(part_child_string.toLowerCase())) !== null) //If match found in whole string of PN
+          var regexp = new RegExp(std0, "g");
+          if (regexp.exec(part_child_string.toLowerCase()) !== null) //If match found in whole string of PN
             matchFound = true;
           else {
             part_child_string = _content_extra[h][i][0][_EXTRA_DB_FIELDS[h][_AKA_GLOBAL]];
-            if (part_child_string != null && (match = regexp.exec(part_child_string.toLowerCase())) !== null) //If match found in whole string of AKA/JS_LINE_PN
+            var regexp = new RegExp(std0, "g");
+            if (part_child_string != null && regexp.exec(part_child_string.toLowerCase()) !== null) //If match found in whole string of AKA/JS_LINE_PN
             {
               matchFound = true;
               isAKA = true;
@@ -507,13 +511,15 @@ function showSearchPartNumAutocomplete(extradb) {
         var matchFound = false;
         var isAKA = false;
         var part_child_string = _content_extra[extradb][i][0].PN;
-        if (part_child_string != null && (match = regexp.exec(part_child_string.toLowerCase())) !== null) //If match found in whole string
+        var regexp = new RegExp(std0, "g");
+        if (part_child_string != null && regexp.exec(part_child_string.toLowerCase()) !== null) //If match found in whole string
         {
           matchFound = true;
         }
         else {
           part_child_string = _content_extra[extradb][i][0][_EXTRA_DB_FIELDS[extradb][_AKA_GLOBAL]];
-          if (part_child_string != null && (match = regexp.exec(part_child_string.toLowerCase())) !== null) //If match found in whole string of AKA/JS_LINE_PN
+          var regexp = new RegExp(std0, "g");
+          if (part_child_string != null && regexp.exec(part_child_string.toLowerCase()) !== null) //If match found in whole string of AKA/JS_LINE_PN
           {
             matchFound = true;
             isAKA = true;

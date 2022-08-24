@@ -2,9 +2,10 @@ var _change_filter_date_start = -1;
 var _change_filter_date_end = -1;
 function populateChangeHistory() {
     var table_html = "<table style='font-size: 12px;'><tr>"
-        + "<th style='background-color: white; position: sticky; top: " + _top_bar_height + "; z-index: 2;'>Date</th>"
+        + "<th style='background-color: white; position: sticky; top: " + _top_bar_height + "; z-index: 2; width: 200px;'>Date</th>"
         + "<th style='background-color: white; position: sticky; top: " + _top_bar_height + "; z-index: 2;'>Initials</th>"
         + "<th style='background-color: white; position: sticky; top: " + _top_bar_height + "; z-index: 2;'>Type</th>"
+        + "<th style='background-color: white; position: sticky; top: " + _top_bar_height + "; z-index: 2;'>Account</th>"
         + "<th style='background-color: white; position: sticky; top: " + _top_bar_height + "; z-index: 2;'>Change</th>"
         + "</tr>";
     var filter_initials = document.getElementById("change_history_filter_initials").value;
@@ -62,6 +63,7 @@ function populateChangeHistory() {
                 + "<td>" + getMMDDYYYY_HHMMText(new Date(change_obj.time)) + "</td>"
                 + "<td>" + change_obj.initials + "</td>"
                 + "<td>" + change_obj.type + "</td>"
+                + "<td>" + change_obj.account + "</td>"
                 + "<td>" + change_obj.change + "</td>"
                 + "</tr>";
             ++inc;
@@ -91,7 +93,7 @@ function clearChangeFilters() {
 
 var retrieveChangeDataCallback = null;
 function retrieveChangeDataFromDatabase(callback) {
-    if (_LOCAL_SERVER_MODE || firebase.auth().currentUser.uid == _admin_uid) {
+    if (_LOCAL_SERVER_MODE || _firebaseAuthUID == _admin_uid || _writeable_mode) {
         document.getElementById("button_update_change_history").style.display = "none";
         retrieveChangeDataCallback = callback;
         readFromDB("change_history", function (val0, key0) {

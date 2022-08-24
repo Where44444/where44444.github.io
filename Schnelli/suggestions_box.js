@@ -2,7 +2,7 @@ var _part_suggestions = null;
 
 function updateSuggestionsBox() {
   let numSuggestions = 0;
-  if (firebase.auth().currentUser.uid == _admin_uid) { //Populate form for approving suggestions
+  if (_firebaseAuthUID == _admin_uid || _writeable_mode) { //Populate form for approving suggestions
     if (_part_suggestions != null && objSize(_part_suggestions) > 0) {
       let tableHTML = "<h2>Pending Suggestions</h2><table id='review_suggestions_table'><tr><th>Approval</th><th>Suggestion</th></tr>";
       let tableEmpty = true;

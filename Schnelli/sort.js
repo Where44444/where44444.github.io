@@ -30,7 +30,7 @@ function populateSortOrders() {
       "<p style='font-size: 20px;'>Name&nbsp;</p><input id='sort_order_name_" + id1 + "' type='text' style='width: 500px; font-size: 20px;' onfocus='deselectTable();'>" +
       "</div>" +
       "<div id='sort_order_static_" + id1 + "'>";
-    if (!_subscribed_mode)
+    if (!_subscribed_mode || _writeable_mode)
       newHTML += "<img class='clickable' style='display: inline;' id='sort_order_edit_icon_" + i + "' src='pencil.png' width=20px height=20px onclick='startEditSortOrder(" + id1 + ");'>&nbsp;&nbsp;&nbsp;&nbsp;";
     newHTML += "<button id='sort_order_sort_button_" + id1 + "' style='font-size: 20px;' onclick='sortContentBySortOrder(" + i + ");'>Sort</button>&nbsp;&nbsp;&nbsp;&nbsp;" +
       "<p style='display: inline; font-size: 20px;'>" + getHTMLSafeText(_sort_orders[i].name) + "</p>" +
@@ -230,12 +230,12 @@ function appendSortOrderCell(id1, id2) {
   var savedIndexes = [];
   var savedName = document.getElementById("sort_order_name_" + id1).value;
   for (var i = 0; i <= id2; ++i)
-    savedIndexes.push(document.getElementById("sort_order_select_" + id1 + "_" + i).selectedIndex);
+    savedIndexes.push(_INDEX_ORDER[document.getElementById("sort_order_select_" + id1 + "_" + i).selectedIndex]);
 
   document.getElementById('sort_order_row_' + id1).innerHTML += getSortOrderNewCell(id1, id2 + 1);
   document.getElementById("sort_order_buttons_" + id1 + "_" + id2).style.display = "none";
   for (var i = 0; i <= id2; ++i)
-    document.getElementById("sort_order_select_" + id1 + "_" + i).selectedIndex = savedIndexes[i];
+    document.getElementById("sort_order_select_" + id1 + "_" + i).selectedIndex = _INDEX_ORDER.indexOf(savedIndexes[i]);
   document.getElementById("sort_order_name_" + id1).value = savedName;
 }
 
@@ -255,7 +255,7 @@ function saveNewSortOrder() {
   var sorted_indexes = [];
   while (document.getElementById("sort_order_select_0_" + i) != null) {
     var select = document.getElementById("sort_order_select_0_" + i);
-    sorted_indexes.push(select.selectedIndex);
+    sorted_indexes.push(_INDEX_ORDER[select.selectedIndex]);
     ++i;
   }
 
@@ -277,7 +277,7 @@ var _current_sort_order_editing = 0;
 function startEditSortOrder(id1) {
   _current_sort_order_editing = id1;
   document.getElementById("sort_order_static_" + id1).style.display = "none";
-  for (var i = 0; i < _sort_orders.length && !_subscribed_mode; ++i)
+  for (var i = 0; i < _sort_orders.length && (!_subscribed_mode || _writeable_mode); ++i)
     document.getElementById("sort_order_edit_icon_" + i).style.display = "none";
   document.getElementById("sort_order_sort_button_" + id1).style.display = "none";
   document.getElementById("sort_order_buttons_" + id1).style.display = "flex";
@@ -287,7 +287,7 @@ function startEditSortOrder(id1) {
     document.getElementById("sort_order_static_cell_" + id1 + "_" + i).style.display = "none";
     var select1 = document.getElementById("sort_order_select_" + id1 + "_" + i);
     select1.style.display = "";
-    select1.selectedIndex = _sort_orders[id1 - 1].sorted_indexes[i];
+    select1.selectedIndex = _INDEX_ORDER.indexOf(_sort_orders[id1 - 1].sorted_indexes[i]);
     ++i;
   }
   document.getElementById("sort_order_buttons_" + id1 + "_" + (i - 1)).style.display = "";
@@ -298,7 +298,7 @@ function saveEditSortOrder(id1) {
   var sorted_indexes = [];
   while (document.getElementById("sort_order_select_" + id1 + "_" + i) != null) {
     var select = document.getElementById("sort_order_select_" + id1 + "_" + i);
-    sorted_indexes.push(select.selectedIndex);
+    sorted_indexes.push(_INDEX_ORDER[select.selectedIndex]);
     ++i;
   }
 

@@ -103,11 +103,12 @@ document.addEventListener("keydown", function (event) {
         else if (!_focused && _selected_tab == TAB_SORT_ORDERS && clickSortOrder_EditDeleteCancelButton()) { }
         else if (!_focused && _selected_tab == TAB_PDF_IMPORT && clickPdfImport_WLMAY_AddPartChild_Cancel()) { }
         else if (!_focused && _selected_tab == TAB_PDF_IMPORT && clickPdfImport_WLMAY_CancelAddRowButton()) { }
-        else if (!_focused && _selected_tab == TAB_PDF_IMPORT && clickPdfImport_WLMAY_CancelButton()) { }
+        // else if (!_focused && _selected_tab == TAB_PDF_IMPORT && clickPdfImport_WLMAY_CancelButton()) { }   //Dont do anything, better to manually click than to have to start scanning and OCR process all over again
         else if (!_focused && _selected_tab == TAB_INVOICE_HISTORY && clickInvoiceHistory_ExitInvoice()) {
           invoice_history_exit_clicked = true;
         }
         else if (!_focused && _selected_tab == TAB_INVOICE && clickInvoice_ExitInvoice()) { }
+        else if (!_focused && _selected_tab == TAB_PDF_IMPORT && clickCancelScan()) { }
         else if (_key_shortcut_mainmenu_available) {
           setTab(TAB_MAINMENU);
         }
@@ -332,7 +333,7 @@ document.addEventListener("keydown", function (event) {
                 ele1.click();
             }
             else if (!_focused && _selected_tab == TAB_RECORD_BROWSER) {
-              if (!_subscribed_mode) {
+              if (!_subscribed_mode || _writeable_mode) {
                 var ele1 = document.getElementById("button_record_browser_add_new_part");
                 if (ele1 != null) {
                   ele1.click();
@@ -468,9 +469,7 @@ document.addEventListener("keydown", function (event) {
             }
             break;
           case KEY_D:
-            if (shortcutmenu_mainmenu_available)
-              setTab(TAB_PDF_IMPORT);
-            else if (!_focused && _selected_tab == TAB_RECORD_BROWSER) {
+            if (!_focused && _selected_tab == TAB_RECORD_BROWSER) {
               if (clickRecordBrowserEditDeleteButton()) { }
               else if (clickRecordBrowserEditDeleteConfirmButton()) { }
             }
@@ -604,9 +603,17 @@ document.addEventListener("keydown", function (event) {
             }
             break;
           case KEY_M:
-            if (!_focused && _key_shortcut_record_views_image_available) {
+            if (shortcutmenu_mainmenu_available)
+              setTab(TAB_PDF_IMPORT);
+            else if (!_focused && _key_shortcut_record_views_image_available) {
               _selected_imagesource = _IMAGE_EVERYWHERE;
               checkForRecordViewImageButtons();
+            }
+            else if (!_focused && _selected_tab == TAB_PDF_IMPORT) {
+              var ele1 = document.getElementById("import_marcone_ocr_input");
+              if (ele1 != null && _key_shortcut_ocrimport_marcone_available) {
+                ele1.click();
+              }
             }
             break;
           case KEY_N:
@@ -691,6 +698,12 @@ document.addEventListener("keydown", function (event) {
                 ele1.style.display = "";
                 _overlay_window_open = true;
                 ele1.innerHTML = text;
+              }
+            }
+            else if (!_focused && _selected_tab == TAB_PDF_IMPORT) {
+              var ele1 = document.getElementById("import_reliable_ocr_input");
+              if (ele1 != null && _key_shortcut_ocrimport_reliableparts_available) {
+                ele1.click();
               }
             }
             break;
@@ -820,6 +833,12 @@ document.addEventListener("keydown", function (event) {
               var ele1 = document.getElementById("radio_record_views_similarities");
               if (ele1 != null)
                 ele1.click();
+            }
+            else if (!_focused && _selected_tab == TAB_PDF_IMPORT) {
+              var ele1 = document.getElementById("import_wlmay_ocr_input");
+              if (ele1 != null && _key_shortcut_ocrimport_wlmay_available) {
+                ele1.click();
+              }
             }
             break;
           case KEY_X:

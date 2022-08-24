@@ -7,19 +7,20 @@
   <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
   <meta content="utf-8" http-equiv="encoding">
   <!--Ensures debug options don't make it to web version -->
-  <!-- <script type="text/javascript" src="../../../../partscouter_debug.js"></script> -->
+  <script type="text/javascript" src="DONTUPLOAD/partscouter_debug.js"></script>
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Ensures optimal rendering on mobile devices. -->
   <meta http-equiv="X-UA-Compatible" content="IE=edge" /> <!-- Optimal Internet Explorer compatibility -->
 
-  <script src="external/firebasejs/8.9.1/firebase-app.js"></script>
-  <script src="external/firebasejs/8.9.1/firebase-database.js"></script>
-  <script src="external/firebasejs/8.9.1/firebase-auth.js"></script>
+  <script type="text/javascript" src="external/firebasejs/8.9.1/firebase-app.js"></script>
+  <script type="text/javascript" src="external/firebasejs/8.9.1/firebase-database.js"></script>
+  <script type="text/javascript" src="external/firebasejs/8.9.1/firebase-auth.js"></script>
 
   <script type="text/javascript" src="external/jquery/latest/jquery.min.js"></script>
   <script type="text/javascript" src="external/momentjs/latest/moment.min.js"></script>
   <script type="text/javascript" src="external/npm/daterangepicker/daterangepicker.min.js"></script>
+
   <!--Requires jquery-->
   <link rel="stylesheet" type="text/css" href="external/npm/daterangepicker/daterangepicker.css" />
   <link rel="stylesheet" type="text/css" href="styles.css" />
@@ -27,11 +28,19 @@
 
 <body>
 
+  <!-- <button style="position: absolute; top: 200px;" onclick="clearDataTest();">Clear Data Test</button> -->
   <!-- <script async src="https://cse.google.com/cse.js?cx=de8eb9876c78e78e6"></script>
 <div id="google_search">
 <div class="gcse-search"></div>
 </div> -->
 
+  <!-- <a href="scan-to-my-website:">Scan!</a> -->
+  <div id="local_server_closed_warning"
+    style="display: none; position: fixed; top: 110px; background-color: red; color: white; padding: 20px; z-index: 10;">
+    <button onclick="closeLocalServerLostWarning();"
+      style="background-color: white; color: black; width: 50px;">X</button>
+    Lost connection to local server!
+  </div>
   <div id="googlesearch_api_script_div"></div>
   <div id="main_loader" class="loader" style="display: none; margin: auto;"></div><br>
   <div id="main_loading_text" style="display: none; margin: auto; text-align: center;"></div>
@@ -110,7 +119,7 @@
         <h1 style="width: 100%; text-align: center;">Connect to Local PartScouter Server</h1>
         <div style="display: block; margin: auto; width: 75%;">IP Address</div>
         <input id="input_local_server_ip" onkeyup="localServerIPKeyUp(event);"
-          style="display: block; margin: auto; width: 75%; height: 50px; font-size: 18pt;"
+          style="display: block; margin: auto; width: 75%; height: 50px; font-size: 18pt;" value="10.1.10.250"
           placeholder="(192.168.xxx.xxx most likely)" onfocus='deselectTable();'>
         <br>
         <button id="button_server_local_connect" style="display: block; margin: auto; width: 75%; height: 60px;"
@@ -128,6 +137,11 @@
       <div id="employe_id_non_loading" style="display: none;">
         <button style="width: 200px; height: 40px;" onclick="exitEmployeeIDScreen();">Back</button>
         <button style="width: 200px; height: 40px;" onclick="log_out();" id="logout_button">Log Out</button>
+        <br>
+        <div id="select_account_id_local_server_div">
+          <h3>Admin</h3>
+          <select id="select_account_id_local_server" style="width: 400px; height: 50px; font-size: 18pt;"></select>
+        </div>
         <p style="text-align: center;">Employee ID</p>
         <input style="display: block; margin: auto; height: 50px; font-size: 18pt; text-align: center;" id="employee_id"
           type="text" onsubmit="log_in()" onfocus='deselectTable();'>
@@ -180,7 +194,7 @@
           <h1 style="width: 100%; text-align: center;">Connect to Local PartScouter Server to allow syncing</h1>
           <div style="display: block; margin: auto; width: 75%;">IP Address</div>
           <input id="input_local_server_ip_sync"
-            style="display: block; margin: auto; width: 75%; height: 50px; font-size: 18pt;"
+            style="display: block; margin: auto; width: 75%; height: 50px; font-size: 18pt;" value="10.1.10.250"
             placeholder="(192.168.xxx.xxx most likely)">
           <br>
           <button style="display: block; margin: auto; width: 75%; height: 60px;"
@@ -243,8 +257,8 @@
             <div id="TAB_part_history" class="tabButton" onclick="setTab(TAB_PART_HISTORY);">
               Part
               History</div>
-            <div id="TAB_fileinput" class="tabButton" onclick="setTab(TAB_PDF_IMPORT);">PDF
-              Import
+            <div id="TAB_fileinput" class="tabButton" onclick="setTab(TAB_PDF_IMPORT);">
+              Import Parts
             </div>
             <div id="TAB_reorders" class="tabButton" onclick="setTab(TAB_REORDERS);">Reorders
             </div>
@@ -292,7 +306,8 @@
               <td>Any Field</td>
             </tr>
             <tr>
-              <td><input style="width: 200px;" type="text" id="part_history_filter_time" name="part_history_filter_time" value=""></td>
+              <td><input style="width: 200px;" type="text" id="part_history_filter_time" name="part_history_filter_time"
+                  value=""></td>
               <td><input type="text" id="part_history_filter_pn" value="" oninput="populatePartHistory();"></td>
               <td><input type="text" id="part_history_filter_desc" value="" oninput="populatePartHistory();"></td>
               <td><input type="text" id="part_history_filter_price" value="" oninput="populatePartHistory();"></td>
@@ -313,15 +328,33 @@
       </div>
 
       <div id="TAB_fileinput_div">
-        <div id="fileinput_div"></div>
-        <div id="wlmay_input_div" style="display: none; border: solid 2px; border-color: #70A2FF;">
-          <p><a href="example_pdf_wlmay.png" alt="Example PDF" target="_blank"><img src="example_pdf_wlmay.png"
-                width=57px height=74px></a>&nbsp;&nbsp;&nbsp;Import WLMAY PDF</p>
-          <input type="file" accept=".pdf" id="import_wlmay_pdf_input">
+        <div id="fileinput_controls" style="display: none;">
+          <h2>OCR</h2>
+          <div style="display: flexbox; flex-direction: row;">
+            <!-- <a href="scan-to-my-website:" target="_blank">OCR</a> -->
+            <a class="link_button" id="import_marcone_ocr_input" onclick="waitForScan(_OCR_M);"
+              href="scan-to-my-website-m:" target="_blank">Marcone OCR</a>
+            <a class="link_button" id="import_reliable_ocr_input" onclick="waitForScan(_OCR_RP);"
+              href="scan-to-my-website-rp:" target="_blank">Reliable Parts OCR</a>
+            <a class="link_button" id="import_wlmay_ocr_input" onclick="waitForScan(_OCR_W);"
+              href="scan-to-my-website-w:" target="_blank">WLMay OCR</a>
+          </div>
+          <br>
+          <h2>PDF File Input</h2>
+          <div id="wlmay_input_div" style="border: solid 2px; border-color: #70A2FF;">
+            <p><a href="example_pdf_wlmay.png" alt="Example PDF" target="_blank"><img src="example_pdf_wlmay.png"
+                  width=57px height=74px></a>&nbsp;&nbsp;&nbsp;Import WLMAY PDF</p>
+            <input type="file" accept=".pdf" id="import_wlmay_pdf_input">
+          </div>
+        </div>
+        <div id="fileinput_wait_for_scan" style="display: none;">
+          <h2>Scanning... Please Wait...</h2>
+          <button id="button_cancel_scan" onclick="cancel_scan();">Cancel</button>
         </div>
         <div id="wlmay_pdf_table_div" style="display: none;">
           <p id="wlmay_pdf_name"></p>
-          <table>
+          <!-- Hide for now, gets populated with values from pdf import but no use after that -->
+          <table style="display: none;">
             <tr>
               <th>Invoice No.</th>
               <th>Invoice Date</th>
@@ -336,7 +369,8 @@
             </tr>
           </table>
           <div id="wlmay_pdf_parts_table_div"></div>
-          <table>
+          <!-- Hide for now, gets populated with values from pdf import but no use after that -->
+          <table style="display: none;">
             <tr>
               <th>Subtotal</th>
               <th>Shipping & Handling</th>
@@ -537,7 +571,8 @@
               <td>Any Field</td>
             </tr>
             <tr>
-              <td><input style="width: 200px;" type="text" id="invoice_history_filter_time" name="invoice_history_filter_time" value="">
+              <td><input style="width: 200px;" type="text" id="invoice_history_filter_time"
+                  name="invoice_history_filter_time" value="">
               </td>
               <td><input type="text" id="invoice_history_filter_name" value="" oninput="populateInvoiceHistory();">
               </td>
@@ -594,10 +629,12 @@
         <br>
         <div id="new_client_table"></div>
         <br>
+        <button id="button_save_clients" class="largeText" style="width: 200px;" onclick="saveClients();">Save</button>
+        <br><br>
         <button id="button_new_client" class="largeText" style="width: 200px;" onclick="newClient();">Add New
           +</button>
-        <br><br>
-        <button id="button_save_clients" class="largeText" style="width: 200px;" onclick="saveClients();">Save</button>
+        <button id="button_cancel_new_client" class="largeText" style="display: none; width: 200px;"
+          onclick="cancelNewClient();">Cancel</button>
       </div>
 
       <div id="TAB_suggestions_div">
@@ -619,7 +656,8 @@
               <td>Any Field</td>
             </tr>
             <tr>
-              <td><input style="width: 200px;" type="text" id="change_history_filter_time" name="change_history_filter_time" value="">
+              <td><input style="width: 200px;" type="text" id="change_history_filter_time"
+                  name="change_history_filter_time" value="">
               </td>
               <td><input type="text" id="change_history_filter_initials" value="" oninput="populateChangeHistory();">
               </td>
@@ -650,9 +688,10 @@
       <p>&nbsp;&nbsp;Page Up - View Next Page</p>
       <p>&nbsp;&nbsp;Page Down - View Previous Page</p>
       <br>
-      <p>v 1.77.0</p>
+      <p>v 1.76.3</p>
       <p><a id="updater_link_local" href="ez_database_updater/ez_database_updater.html" target="_blank">Alpha 4 Data
           Importer</a></p>
+      <button onclick="exportInventoryList();">Inventory List Export</button>
       <h3 id="database_identifier" style="text-align: center;"></h3>
       <br><br><br><br>
       <!--Line breaks so key_shortcut_info_bar and snackbar doesn't hide anything at bottom-->
@@ -686,6 +725,7 @@
   <script type="text/javascript" src="init0.js"></script>
   <script type="text/javascript" src="database_funcs.js"></script>
   <script type="text/javascript" src="change_history.js"></script>
+  <!-- <script type="text/javascript" src="scan.js"></script> -->
 </body>
 
 </html>

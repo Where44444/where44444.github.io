@@ -3,13 +3,16 @@
 // var time2 = (new Date()).getTime();
 // console.log(time2 - time1);
 
-const _DATABASE_PREFIX = "";
-const _DEBUG_LOCAL_MODE = false;
-const _DEBUG_SKIP_PART_LOADING = false;
+// const _DATABASE_PREFIX = "";
+// const _DEBUG_LOCAL_MODE = false;
+// const _DEBUG_SKIP_PART_LOADING = false;
 
-// const _DATABASE_PREFIX = _DATABASE_PREFIX__; //TODO Set this back to "" when uploading to github
-// const _DEBUG_LOCAL_MODE = _DEBUG_LOCAL_MODE__;
-// const _DEBUG_SKIP_PART_LOADING = _DEBUG_SKIP_PART_LOADING__;
+const _DATABASE_PREFIX = _DATABASE_PREFIX__; //TODO Set this back to "" when uploading to github
+const _DEBUG_LOCAL_MODE = _DEBUG_LOCAL_MODE__;
+const _DEBUG_SKIP_PART_LOADING = _DEBUG_SKIP_PART_LOADING__;
+// const _PORT = "443";
+// const _PORT = "80";
+const _PORT = "5444";
 
 var _SESSION_ID = -1;
 var _admin_uid = "";
@@ -35,6 +38,28 @@ const _EXTRA_DB_FIELDS = /*B_DNI*/[["PN", "AKA", "PART_NUMBR", "COMMON_PN", "DES
                        /*I_MM*/, ["PN", "AKA", "PART_NUMBR", "DESCRIP1", "COMMENTS", "MM_ID", "VEND", "CAT", "PAGE", "SPL", "SPL_DATE", "SPL_FROM", "LOT_CT", "LOT_PR", "LOT_FROM", "REG", "REG_DATE", "REG_FROM", "SUGG", "VEND_RET", "SHOP_QTY", "TRK1_QTY", "TRK2_QTY", "TRK3_QTY", "USED_QTY", "LOCATION", "OTHER", "CGS", "FROM", "DATE", "OEM_PN", "CALCULATED", "FIXED", "SELL", "ZOOM", "SOLD_YTD", "SOLD_DATE", "SOLD_AMT"]
                        /*JS*/, ["PN", "JS_LINE_PN", "PART_NUMBR", "DESCRIP1", "COMMENTS", "JS_LINE", "JS_ID", "CAT", "PAGE", "SPL", "SPL_DATE", "SPL_FROM", "LOT_CT", "LOT_PR", "LOT_FROM", "REG", "REG_DATE", "REG_FROM", "SUGG", "VEND_RET", "SHOP_QTY", "TRK1_QTY", "TRK2_QTY", "TRK3_QTY", "USED_QTY", "LOCATION", "OTHER", "CGS", "FROM", "DATE", "OEM_PN", "CALCULATED", "FIXED", "SELL", "ZOOM", "SOLD_YTD", "SOLD_DATE", "SOLD_AMT"]
                        /*OEM*/, ["PN", "AKA", "PART_NUMBR", "DESCRIP1", "COMMENTS", "APPL_MFR", "VEND", "CAT", "PAGE", "SPL", "SPL_DATE", "SPL_FROM", "LOT_CT", "LOT_PR", "LOT_FROM", "REG", "REG_DATE", "REG_FROM", "SUGG", "VEND_RET", "SHOP_QTY", "TRK1_QTY", "TRK2_QTY", "TRK3_QTY", "USED_QTY", "LOCATION", "COMMON_PN", "CGS", "FROM", "DATE", "OEM_PN2", "CALCULATED", "FIXED", "SELL", "ZOOM", "SOLD_YTD", "SOLD_DATE", "SOLD_AMT", "POST_APPND"]];
+// const APPL_MFR_INDEXES = [
+//   _EXTRA_DB_FIELDS[0].indexOf("PART_MFR"), 
+//   _EXTRA_DB_FIELDS[1].indexOf("PART_MFR"),
+//   _EXTRA_DB_FIELDS[2].indexOf("APPL_MFR"), 
+//   _EXTRA_DB_FIELDS[3].indexOf("PART_MFR"), 
+//   _EXTRA_DB_FIELDS[4].indexOf("GEM_ID"), 
+//   _EXTRA_DB_FIELDS[5].indexOf("RS_ID"), 
+//   _EXTRA_DB_FIELDS[6].indexOf("MM_ID"), 
+//   _EXTRA_DB_FIELDS[7].indexOf("JS_ID"),
+//   _EXTRA_DB_FIELDS[8].indexOf("APPL_MFR")];
+
+const _APPL_MFR_INDEXES = [
+  "PART_MFR",
+  "PART_MFR",
+  "APPL_MFR",
+  "PART_MFR",
+  "GEM_ID",
+  "RS_ID",
+  "MM_ID",
+  "JS_ID",
+  "APPL_MFR"];
+
 const _AKA_GLOBAL = 1;
 const _EXTRA_DB = ["B_DNI", "CHLX", "DNI", "F", "GEM", "H_RS", "I_MM", "JS", "OEM"];
 const _EXTRA_DB_OEM = _EXTRA_DB.indexOf("OEM");
@@ -407,13 +432,13 @@ function setSuggestionsRef() {
   if (_suggestions_ref == null) {
     _suggestions_ref = firebase.database().ref('part_suggestions');
     _suggestions_ref.on('value', (snapshot) => {
-      if (_FIREBASE_LOGGED_IN && firebase.auth().currentUser.uid == _admin_uid) {
+      if (_FIREBASE_LOGGED_IN && (_firebaseAuthUID == _admin_uid || _writeable_mode)) {
         _part_suggestions = snapshot.val();
         updateSuggestionsBox();
       }
     });
   } else {
-    if (_FIREBASE_LOGGED_IN && firebase.auth().currentUser.uid == _admin_uid) {
+    if (_FIREBASE_LOGGED_IN && (_firebaseAuthUID == _admin_uid || _writeable_mode)) {
       readFromDB('part_suggestions', function (val0, key0) {
         _part_suggestions = val0;
         updateSuggestionsBox();
@@ -425,15 +450,17 @@ function setSuggestionsRef() {
 var _data_ref = null;
 var _downloaded_clients = null;
 var _downloaded_blacklist = null;
+var _downloaded_writeable_list = null;
 function setDataRef() {
   if (_data_ref != null)
     _data_ref.off();
   _data_ref = firebase.database().ref('data');
   _data_ref.on('value', (snapshot) => {
-    if (_FIREBASE_LOGGED_IN && firebase.auth().currentUser.uid == _admin_uid) {
+    if (_FIREBASE_LOGGED_IN && _firebaseAuthUID == _admin_uid) { //Only David is allowed to edit clients
       var val0 = snapshot.val();
       _downloaded_clients = val0.clients;
       _downloaded_blacklist = val0.blacklisted_clients;
+      _downloaded_writeable_list = val0.writeable_clients;
       updateClientsTable();
     }
   });
@@ -446,7 +473,7 @@ function setBlacklistedRef() {
   _blacklisted_ref.on('value', (snapshot) => {
     if (_FIREBASE_LOGGED_IN) {
       let blacklist = snapshot.val();
-      if (doesOBJContainKey(blacklist, firebase.auth().currentUser.uid)) {
+      if (doesOBJContainKey(blacklist, _firebaseAuthUID)) {
         log_out();
         showSnackbar(_blacklistMessage, 7000);
       }
@@ -455,6 +482,7 @@ function setBlacklistedRef() {
 }
 
 function openFirebaseServerScreen() {
+  document.getElementById("select_account_id_local_server_div").style.display = "none";
   _LOCAL_SERVER_MODE = false;
   if (_FIREBASE_LOGGED_IN) {
     document.getElementById("server_select_div").style.display = "none";
@@ -501,6 +529,12 @@ function clearData() {
   _searchstring_any_history = [];
   _searchstring_specific_history = [];
   _searchstring_specific_history_index = [];
+
+  for (var i = 0; i < INDEXES_CONCAT.length; ++i) {
+    _searchstring_specific_history.push(new Array());
+    _searchstring_specific_history_index.push(0);
+  }
+
   if (_CHILD_PART_LINKS_CACHE != null)
     _CHILD_PART_LINKS_CACHE.clear();
   _CHANGE_ALERTS_CACHE = [];
@@ -519,6 +553,7 @@ function clearData() {
 
 var _FIREBASE_LOGGED_IN = false;
 function log_out(soft, func) {
+  document.getElementById("local_server_closed_warning").style.display = "none";
   _current_employee = null;
   if (soft == null)
     soft = false;
@@ -599,13 +634,13 @@ function log_in(soft) {
 
 function fetchJSONRecursive(index) {
   if (index < _EXTRA_DB.length) {
-    fetchJSONFile("../Other/csv/" + _EXTRA_DB[index] + ".json", function (data) {
+    fetchJSONFile("DONTUPLOAD/csv/" + _EXTRA_DB[index] + ".json", function (data) {
       processJSONDataExtra(data, index);
       fetchJSONRecursive(index + 1);
     });
   }
   else {
-    fetchJSONFile('../Other/final.json', function (data) {
+    fetchJSONFile('DONTUPLOAD/final.json', function (data) {
       processJSONData(data);
     });
   }
@@ -615,281 +650,349 @@ var _extraDBLoadedIndex = -1;
 var _downloaded_employee_ids = null;
 var _current_employee = null;
 var _firstEmployeeIDListener = true;
+var _subscribed_mode = false;
+var _writeable_mode = false;
+var _account_ids = [];
+var _firebaseAuthUID = "";
+var _current_admin_name = "";
 function loadContentDiv1() {
+  cancelWLMAYPDF();
+  if (_FIREBASE_LOGGED_IN)
+    _firebaseAuthUID = firebase.auth().currentUser.uid; //Need this in case user sets authid when connecting to local server but goes back to connect to firebase
   readFromDB('open_data/admin_uid', function (val0, key0) {
     if (!_LOCAL_SERVER_MODE)
       _admin_uid = val0;
-    if (!_LOCAL_SERVER_MODE && firebase.auth().currentUser.uid != _admin_uid) { //A subscribed client is signing in
-      readFromDB('data/blacklisted_clients', function (val0, key0) {
-        if (!doesOBJContainKey(val0, firebase.auth().currentUser.uid))
-          loadContentDiv2();
-        else {
-          log_out();
-          showSnackbar(_blacklistMessage, 7000);
-        }
-      }, _OVERRIDE_FIREBASE);
-    }
-    else {
-      document.getElementById("employee_id_div").style.display = "block";
-      _downloaded_employee_ids = null;
-      document.getElementById("employe_id_loading").style.display = "block";
-      document.getElementById("employe_id_non_loading").style.display = "none";
-      _firstEmployeeIDListener = true;
-      removeListeners();
-      addDBListener('data/employeeids', function (val0, key0) {
-        _downloaded_employee_ids = val0;
-        updateEmployeeIDsTable();
-        if (_firstEmployeeIDListener) {
-          _firstEmployeeIDListener = false;
+
+    _subscribed_mode = !_LOCAL_SERVER_MODE && _firebaseAuthUID != _admin_uid;
+    readFromDB('data/writeable_clients', function (val0, key0) {
+      _writeable_mode = _subscribed_mode && doesOBJContainKey(val0, _firebaseAuthUID);
+      if (!_LOCAL_SERVER_MODE && _subscribed_mode && !_writeable_mode) { //A subscribed read only client is signing in
+        readFromDB('data/blacklisted_clients', function (val0, key0) {
+          if (!doesOBJContainKey(val0, _firebaseAuthUID)) {
+            loadContentDiv2();
+          }
+          else {
+            log_out();
+            showSnackbar(_blacklistMessage, 7000);
+          }
+        }, _OVERRIDE_FIREBASE);
+      }
+      else {
+        var func = function () {
+          document.getElementById("employee_id_div").style.display = "";
+          _downloaded_employee_ids = null;
           document.getElementById("employe_id_loading").style.display = "none";
-          document.getElementById("employe_id_non_loading").style.display = "block";
+          document.getElementById("employe_id_non_loading").style.display = "";
           document.getElementById("employee_id").value = "";
           document.getElementById("employee_id").focus();
+        };
+
+        _account_ids = [];
+        if (_LOCAL_SERVER_MODE) { //Need to retrieve account ids and admin names to allow logging in as employee of correct account
+          _firebaseAuthUID = "";
+          readFromDB('data/employeeids', function (val0, key0) {
+            var selectHTML = "";
+            for (let [key1, val1] of Object.entries(val0)) {
+              for (let [key2, val2] of Object.entries(val1)) {
+                if (key2 == key1) //Admin found
+                {
+                  _account_ids.push(key2);
+                  selectHTML += "<option>" + val2.first_name + " " + val2.last_name + "</option>";
+                  break;
+                }
+              }
+            }
+            if (selectHTML == "") {
+              document.getElementById("select_account_id_local_server_div").style.display = "none";
+              showSnackbar("No Accounts were found on the local server! Please log in to Google Firebase Server and then press 'Sync Databases' at the top right", 10000);
+            }
+            else
+              document.getElementById("select_account_id_local_server").innerHTML = selectHTML;
+            func();
+          });
         }
-      });
-    }
+        else
+          func();
+      }
+    });
   });
 }
 
-var _subscribed_mode = false;
+
 function loadContentDiv2() {
-  _subscribed_mode = false;
-  if (!_LOCAL_SERVER_MODE && firebase.auth().currentUser.uid != _admin_uid) {
-    _subscribed_mode = true;
-  }
+  if (_account_ids.length > 0)
+    _firebaseAuthUID = _account_ids[document.getElementById("select_account_id_local_server").selectedIndex];
+  else if (_LOCAL_SERVER_MODE)
+    return;
+  else
+    _firebaseAuthUID = firebase.auth().currentUser.uid;
 
-  if (!_subscribed_mode) {
-    var id = document.getElementById("employee_id").value;
-    _current_employee = null;
-    if (_downloaded_employee_ids != null)
-      for (let [key, val] of Object.entries(_downloaded_employee_ids)) {
-        if (val.id == id) {
-          _current_employee = val;
-          break;
-        }
-      }
-  }
-
-  if (_subscribed_mode || _current_employee != null) {
-    var length = TAB_MAINMENU_DIVS.length;
-    if (_subscribed_mode) {
-      document.getElementById("updater_link_local").style.display = "none";
-      document.getElementById("part_child_button_new").style.opacity = "0";
-      document.getElementById("part_child_button_new").disabled = true;
-      document.getElementById("part_child_button_new").style.cursor = "default";
-
-      document.getElementById("button_add_sort_order").style.opacity = "0";
-      document.getElementById("button_add_sort_order").disabled = true;
-      document.getElementById("button_add_sort_order").style.cursor = "default";
-
-      document.getElementById("TAB_people").style.display = "none";
-      document.getElementById("TAB_part_history").style.display = "none";
-      document.getElementById("TAB_fileinput").style.display = "none";
-      document.getElementById("TAB_reorders").style.display = "none";
-      document.getElementById("TAB_invoice_history").style.display = "none";
-      document.getElementById("TAB_invoice_settings").style.display = "none";
-      document.getElementById("TAB_invoice").style.display = "none";
-      document.getElementById("TAB_add_invoice").style.display = "none";
-      document.getElementById("TAB_change_history").style.display = "none";
-      document.getElementById("button_sync_databases").style.display = "none";
-
-      var shortcuts_html = '<table style="margin: auto; font-size: 30px; border: solid 30px #70A2FF;">';
-      var cellsAdded = 0;
-      for (var i = 0; i < length; ++i)
-        if (TAB_MAINMENU_DIVS[i] != "" && i != TAB_PEOPLE && i != TAB_PART_HISTORY && i != TAB_PDF_IMPORT && i != TAB_REORDERS && i != TAB_INVOICE_HISTORY && i != TAB_INVOICE_SETTINGS && i != TAB_INVOICE && i != TAB_ADD_INVOICE && i != TAB_CHANGE_HISTORY) {
-          if (cellsAdded == 0)
-            shortcuts_html += "<tr>";
-          shortcuts_html += '<td style="background-color: #70A2FF; border: 0px;">' + TAB_MAINMENU_DIVS[i] + "</td>";
-          ++cellsAdded;
-          if (cellsAdded == 2) {
-            cellsAdded = 0;
-            shortcuts_html += "</tr>";
+  var func = function () {
+    if (!_subscribed_mode || _writeable_mode) {
+      var id = document.getElementById("employee_id").value;
+      _current_employee = null;
+      if (_downloaded_employee_ids != null)
+        for (let [key, val] of Object.entries(_downloaded_employee_ids)) {
+          if (val.id == id) {
+            _current_employee = val;
+            break;
           }
         }
-      if (cellsAdded != 0)
-        shortcuts_html += '<td style="background-color: #70A2FF; border: 0px;"></td></tr>';
-      shortcuts_html += "</table>";
-      document.getElementById("mainmenu_shortcut_table").innerHTML = shortcuts_html;
+    }
 
-    } else {
-      document.getElementById("updater_link_local").style.display = "";
-      document.getElementById("part_child_button_new").style.opacity = "1";
-      document.getElementById("part_child_button_new").disabled = false;
-      document.getElementById("part_child_button_new").style.cursor = "";
+    if ((_subscribed_mode && !_writeable_mode) || _current_employee != null) {
+      var length = TAB_MAINMENU_DIVS.length;
+      if (_subscribed_mode && !_writeable_mode) {
+        document.getElementById("updater_link_local").style.display = "none";
+        document.getElementById("part_child_button_new").style.opacity = "0";
+        document.getElementById("part_child_button_new").disabled = true;
+        document.getElementById("part_child_button_new").style.cursor = "default";
 
-      document.getElementById("button_add_sort_order").style.opacity = "1";
-      document.getElementById("button_add_sort_order").disabled = false;
-      document.getElementById("button_add_sort_order").style.cursor = "";
+        document.getElementById("button_add_sort_order").style.opacity = "0";
+        document.getElementById("button_add_sort_order").disabled = true;
+        document.getElementById("button_add_sort_order").style.cursor = "default";
 
-      document.getElementById("TAB_people").style.display = "";
-      document.getElementById("TAB_part_history").style.display = "";
-      document.getElementById("TAB_fileinput").style.display = "";
-      document.getElementById("TAB_reorders").style.display = "";
-      document.getElementById("TAB_invoice_history").style.display = "";
-      document.getElementById("TAB_invoice_settings").style.display = "";
-      document.getElementById("TAB_invoice").style.display = "";
-      document.getElementById("TAB_add_invoice").style.display = "";
-      document.getElementById("TAB_change_history").style.display = "";
-      document.getElementById("button_sync_databases").style.display = "";
-      if (_current_employee.admin)
-        document.getElementById("TAB_people").style.display = "";
-      else
         document.getElementById("TAB_people").style.display = "none";
+        document.getElementById("TAB_part_history").style.display = "none";
+        document.getElementById("TAB_fileinput").style.display = "none";
+        document.getElementById("TAB_reorders").style.display = "none";
+        document.getElementById("TAB_invoice_history").style.display = "none";
+        document.getElementById("TAB_invoice_settings").style.display = "none";
+        document.getElementById("TAB_invoice").style.display = "none";
+        document.getElementById("TAB_add_invoice").style.display = "none";
+        document.getElementById("TAB_change_history").style.display = "none";
+        document.getElementById("button_sync_databases").style.display = "none";
 
-      var shortcuts_html = '<table style="margin: auto; font-size: 30px; border: solid 30px #70A2FF;">';
-      var cellsAdded = 0;
-      for (var i = 0; i < length; ++i)
-        if (TAB_MAINMENU_DIVS[i] != "") {
-          if (cellsAdded == 0)
-            shortcuts_html += "<tr>";
-          shortcuts_html += '<td style="background-color: #70A2FF; border: 0px;">' + TAB_MAINMENU_DIVS[i] + "</td>";
-          ++cellsAdded;
-          if (cellsAdded == 2) {
-            cellsAdded = 0;
-            shortcuts_html += "</tr>";
+        var shortcuts_html = '<table style="margin: auto; font-size: 30px; border: solid 30px #70A2FF;">';
+        var cellsAdded = 0;
+        for (var i = 0; i < length; ++i)
+          if (TAB_MAINMENU_DIVS[i] != "" && i != TAB_PEOPLE && i != TAB_PART_HISTORY && i != TAB_PDF_IMPORT && i != TAB_REORDERS && i != TAB_INVOICE_HISTORY && i != TAB_INVOICE_SETTINGS && i != TAB_INVOICE && i != TAB_ADD_INVOICE && i != TAB_CHANGE_HISTORY) {
+            if (cellsAdded == 0)
+              shortcuts_html += "<tr>";
+            shortcuts_html += '<td style="background-color: #70A2FF; border: 0px;">' + TAB_MAINMENU_DIVS[i] + "</td>";
+            ++cellsAdded;
+            if (cellsAdded == 2) {
+              cellsAdded = 0;
+              shortcuts_html += "</tr>";
+            }
           }
-        }
-      if (cellsAdded != 0)
-        shortcuts_html += '<td style="background-color: #70A2FF; border: 0px;"></td></tr>';
-      shortcuts_html += "</table>";
-      document.getElementById("mainmenu_shortcut_table").innerHTML = shortcuts_html;
-    }
-    document.getElementById("employee_id_div").style.display = "none";
-    document.getElementById("password_input").value = "";
-    showSnackbar("Downloading parts from database... This may take up to 60 seconds", 10000);
-    document.getElementById("main_loader").style.display = "block";
-    document.getElementById("main_loading_text").style.display = "block";
-    // document.getElementById("message").innerHTML = "<p>Downloading parts from database... This may take up to 60 seconds</p>";
-    document.getElementById("record_browser_div").style.display = "none";
+        if (cellsAdded != 0)
+          shortcuts_html += '<td style="background-color: #70A2FF; border: 0px;"></td></tr>';
+        shortcuts_html += "</table>";
+        document.getElementById("mainmenu_shortcut_table").innerHTML = shortcuts_html;
 
-    //   $.ajax({
-    //     type: "GET",
-    //     url: "ascii_test.txt",
-    //     dataType: "text",
-    //     success: function(data) {processCSVData(data);}
-    //  });
+      } else {
+        document.getElementById("updater_link_local").style.display = "";
+        document.getElementById("part_child_button_new").style.opacity = "1";
+        document.getElementById("part_child_button_new").disabled = false;
+        document.getElementById("part_child_button_new").style.cursor = "";
 
-    if (_DEBUG_LOCAL_MODE) {
-      // document.getElementById("fileinput_div").innerHTML = "<input id='fileinput_json' type='file' style='width: 500px; height: 200px;'></input><br>";
-      // document.getElementById('fileinput_json').addEventListener('change', readSingleFile_json, false);
-      fetchJSONRecursive(0);
-    }
-    else {
-      _extraDBLoadedIndex = -1;
-      document.getElementById("main_loading_text").innerHTML = "Downloading Part Child Database...";
-      var bogus_dir = "";
-      if (_DEBUG_SKIP_PART_LOADING)
-        bogus_dir = "dir2/";
-      for (var i = 0; i < _EXTRA_DB.length; ++i) {
-        readFromDB("parts_db/" + bogus_dir + _EXTRA_DB[i], function (val0, key0) {
-          var objs = [];
-          var keys = [];
-          for (let [key, val] of Object.entries(val0)) {
-            objs.push(val);
-            keys.push(key);
-            // childSnapshot = null; //Helps to prevent "Out of memory" errors?
+        document.getElementById("button_add_sort_order").style.opacity = "1";
+        document.getElementById("button_add_sort_order").disabled = false;
+        document.getElementById("button_add_sort_order").style.cursor = "";
+
+        document.getElementById("TAB_people").style.display = "";
+        document.getElementById("TAB_part_history").style.display = "";
+        document.getElementById("TAB_fileinput").style.display = "";
+        document.getElementById("TAB_reorders").style.display = "";
+        document.getElementById("TAB_invoice_history").style.display = "";
+        document.getElementById("TAB_invoice_settings").style.display = "";
+        document.getElementById("TAB_invoice").style.display = "";
+        document.getElementById("TAB_add_invoice").style.display = "";
+        document.getElementById("TAB_change_history").style.display = "";
+        document.getElementById("button_sync_databases").style.display = "";
+        if (_current_employee.admin)
+          document.getElementById("TAB_people").style.display = "";
+        else
+          document.getElementById("TAB_people").style.display = "none";
+
+        var shortcuts_html = '<table style="margin: auto; font-size: 30px; border: solid 30px #70A2FF;">';
+        var cellsAdded = 0;
+        for (var i = 0; i < length; ++i)
+          if (TAB_MAINMENU_DIVS[i] != "") {
+            if (cellsAdded == 0)
+              shortcuts_html += "<tr>";
+            shortcuts_html += '<td style="background-color: #70A2FF; border: 0px;">' + TAB_MAINMENU_DIVS[i] + "</td>";
+            ++cellsAdded;
+            if (cellsAdded == 2) {
+              cellsAdded = 0;
+              shortcuts_html += "</tr>";
+            }
           }
-          processJSONDataExtra(objs, _EXTRA_DB.indexOf(key0), keys);
-          ++_extraDBLoadedIndex;
-          document.getElementById("main_loading_text").innerHTML = "Downloading Part Child Database... " + (_extraDBLoadedIndex + 1) + "/" + _EXTRA_DB.length;
-          if (_extraDBLoadedIndex == _EXTRA_DB.length - 1) //Load big P&A_PRI after extra Databases loaded
-          {
-            // var partsRef = firebase.database().ref(_DATABASE_PREFIX + 'parts_db/P&A_PRI').orderByChild('RECORD_NUMBER');
-            document.getElementById("main_loading_text").innerHTML = "Downloading P&A_PRI Database... ";
-            readFromDB("parts_db/" + bogus_dir + "P&A_PRI", function (val0, key0) {
-              showSnackbar("Processing parts...", 3000);
-              // document.getElementById("message").innerHTML = "<p>Processing parts...</p>";
+        if (cellsAdded != 0)
+          shortcuts_html += '<td style="background-color: #70A2FF; border: 0px;"></td></tr>';
+        shortcuts_html += "</table>";
+        document.getElementById("mainmenu_shortcut_table").innerHTML = shortcuts_html;
+      }
+      document.getElementById("employee_id_div").style.display = "none";
+      document.getElementById("password_input").value = "";
+      showSnackbar("Downloading parts from database... This may take up to 60 seconds", 10000);
+      document.getElementById("main_loader").style.display = "block";
+      document.getElementById("main_loading_text").style.display = "block";
+      // document.getElementById("message").innerHTML = "<p>Downloading parts from database... This may take up to 60 seconds</p>";
+      document.getElementById("record_browser_div").style.display = "none";
 
-              // var numChildren = snapshot.numChildren();
-              _content = [];
+      //   $.ajax({
+      //     type: "GET",
+      //     url: "ascii_test.txt",
+      //     dataType: "text",
+      //     success: function(data) {processCSVData(data);}
+      //  });
 
-              var numRecords = 0;
-              for (let [key, val] of Object.entries(val0)) {
-                var content_line = [];
-                //indexToContentID[numRecords] = childSnapshot.key;
-                for (var i0 = 0; i0 < _INDEXES.length; ++i0)
-                  content_line.push(String(val[_INDEXES[i0]]));
-                for (var i0 = 0; i0 < _MEMO_INDEXES.length; ++i0) {
-                  var memolines = val[_MEMO_INDEXES[i0]];
-                  for (var j = 0; j < memolines.length; ++j)
-                    memolines[j] = String(memolines[j]);
-                  content_line.push(memolines);
+      if (_DEBUG_LOCAL_MODE) {
+        // document.getElementById("fileinput_div").innerHTML = "<input id='fileinput_json' type='file' style='width: 500px; height: 200px;'></input><br>";
+        // document.getElementById('fileinput_json').addEventListener('change', readSingleFile_json, false);
+        fetchJSONRecursive(0);
+      }
+      else {
+        // var ref = firebase.database().ref("debug");
+        // ref.remove();
+
+        _extraDBLoadedIndex = -1;
+        document.getElementById("main_loading_text").innerHTML = "Downloading Part Child Database...";
+        var bogus_dir = "";
+        if (_DEBUG_SKIP_PART_LOADING)
+          bogus_dir = "dir2/";
+        // debugTiming("Starting");
+        for (var i = 0; i < _EXTRA_DB.length; ++i) {
+          readFromDB("parts_db/" + bogus_dir + _EXTRA_DB[i], function (val0, key0) {
+            // debugTiming(_EXTRA_DB[_extraDBLoadedIndex + 1]);
+            var objs = [];
+            var keys = [];
+            for (let [key, val] of Object.entries(val0)) {
+              objs.push(val);
+              keys.push(key);
+              // childSnapshot = null; //Helps to prevent "Out of memory" errors?
+            }
+            processJSONDataExtra(objs, _EXTRA_DB.indexOf(key0), keys);
+            ++_extraDBLoadedIndex;
+            document.getElementById("main_loading_text").innerHTML = "Downloading Part Child Database... " + (_extraDBLoadedIndex + 1) + "/" + _EXTRA_DB.length;
+            if (_extraDBLoadedIndex == _EXTRA_DB.length - 1) //Load big P&A_PRI after extra Databases loaded
+            {
+              // var partsRef = firebase.database().ref(_DATABASE_PREFIX + 'parts_db/P&A_PRI').orderByChild('RECORD_NUMBER');
+              document.getElementById("main_loading_text").innerHTML = "Downloading P&A_PRI Database... ";
+              readFromDB("parts_db/" + bogus_dir + "P&A_PRI", function (val0, key0) {
+                // debugTiming("P&A_PRI");
+                showSnackbar("Processing parts...", 3000);
+                // document.getElementById("message").innerHTML = "<p>Processing parts...</p>";
+
+                // var numChildren = snapshot.numChildren();
+                _content = [];
+
+                var numRecords = 0;
+                for (let [key, val] of Object.entries(val0)) {
+                  var content_line = [];
+                  //indexToContentID[numRecords] = childSnapshot.key;
+                  for (var i0 = 0; i0 < _INDEXES.length; ++i0)
+                    content_line.push(String(val[_INDEXES[i0]]));
+                  for (var i0 = 0; i0 < _MEMO_INDEXES.length; ++i0) {
+                    var memolines = val[_MEMO_INDEXES[i0]];
+                    for (var j = 0; j < memolines.length; ++j)
+                      memolines[j] = String(memolines[j]);
+                    content_line.push(memolines);
+                  }
+                  content_line.push(key);
+                  // document.getElementById("loading_parts").innerHTML = "<p>Processing parts...  " + (numRecords / numChildren) + "%</p>";
+                  _content.push(content_line);
+                  ++numRecords;
+                  // childSnapshot = null; //Helps to prevent "Out of memory" errors?
                 }
-                content_line.push(key);
-                // document.getElementById("loading_parts").innerHTML = "<p>Processing parts...  " + (numRecords / numChildren) + "%</p>";
-                _content.push(content_line);
-                ++numRecords;
-                // childSnapshot = null; //Helps to prevent "Out of memory" errors?
-              }
-              if (_LOCAL_SERVER_MODE || _FIREBASE_LOGGED_IN) { //Ensures that loading cancels if user is logged out from another login elsewhere
-                generateContent_Standard();
-                populateRecordBrowser(0, false);
-                _contentSortedReverse = true;
-                loadChangeAlerts();
-                initialLoadingFinished();
-              }
-            });
-          }
-        });
-      }
-    }
-
-    addDBListener('sort_orders', function (val0, key0) {
-      var sortOrders = [];
-      for (let [key, val] of Object.entries(val0)) {
-        var sortObj = val;
-        sortObj.key = key;
-        sortOrders.push(sortObj);
-      }
-      _sort_orders = sortOrders;
-      populateSortOrders();
-    });
-
-    addDBListener('invoice', function (val0, key0) {
-      for (let [key, val] of Object.entries(val0)) {
-        if (key == "address") {
-          document.getElementById("invoice_address_textarea").value = val;
-        }
-        else if (key == "bottom") {
-          document.getElementById("invoice_bottom_textarea").value = val;
-        }
-        else if (key == "last_invoice_no") {
-          document.getElementById("invoice_last_invoice_no_input").value = val;
-          var ele = document.getElementById("invoice_input_invoice_no");
-          if (ele != null)
-            ele.value = val;
-        }
-      }
-    });
-
-    if (!_LOCAL_SERVER_MODE && firebase.auth().currentUser.uid != _admin_uid) {
-      readFromDB('open_data/session_id', function (val0, key0) {
-        _SESSION_ID = val0;
-        writeToDB('open_data/session_id', _SESSION_ID + 1, function () {
-          writeToDB('open_data/session_ids/' + firebase.auth().currentUser.uid, _SESSION_ID, function () {
-            addDBListener('open_data/session_ids', function (val0, key0) { //Check if someone else logged on with same uid, and if so their sessionid will no longer match this one
-              for (let [key, val] of Object.entries(val0)) {
-                if (key == firebase.auth().currentUser.uid && val != _SESSION_ID) {
-                  log_out();
+                if (_LOCAL_SERVER_MODE || _FIREBASE_LOGGED_IN) { //Ensures that loading cancels if user is logged out from another login elsewhere
+                  generateContent_Standard();
+                  populateRecordBrowser(0, false);
+                  _contentSortedReverse = true;
+                  loadChangeAlerts();
+                  initialLoadingFinished();
                 }
-              }
+              });
+            }
+          });
+        }
+      }
+
+      addDBListener('sort_orders', function (val0, key0) {
+        var sortOrders = [];
+        for (let [key, val] of Object.entries(val0)) {
+          var sortObj = val;
+          sortObj.key = key;
+          sortOrders.push(sortObj);
+        }
+        _sort_orders = sortOrders;
+        populateSortOrders();
+      });
+
+      addDBListener('invoice', function (val0, key0) {
+        for (let [key, val] of Object.entries(val0)) {
+          if (key == "address") {
+            document.getElementById("invoice_address_textarea").value = val;
+          }
+          else if (key == "bottom") {
+            document.getElementById("invoice_bottom_textarea").value = val;
+          }
+          else if (key == "last_invoice_no") {
+            document.getElementById("invoice_last_invoice_no_input").value = val;
+            var ele = document.getElementById("invoice_input_invoice_no");
+            if (ele != null)
+              ele.value = val;
+          }
+        }
+      });
+
+      if (!_LOCAL_SERVER_MODE && _firebaseAuthUID != _admin_uid && !_writeable_mode) {
+        readFromDB('open_data/session_id', function (val0, key0) {
+          _SESSION_ID = val0;
+          writeToDB('open_data/session_id', _SESSION_ID + 1, function () {
+            writeToDB('open_data/session_ids/' + _firebaseAuthUID, _SESSION_ID, function () {
+              addDBListener('open_data/session_ids', function (val0, key0) { //Check if someone else logged on with same uid, and if so their sessionid will no longer match this one
+                for (let [key, val] of Object.entries(val0)) {
+                  if (key == _firebaseAuthUID && val != _SESSION_ID) {
+                    log_out();
+                  }
+                }
+              }, _OVERRIDE_FIREBASE);
             }, _OVERRIDE_FIREBASE);
           }, _OVERRIDE_FIREBASE);
         }, _OVERRIDE_FIREBASE);
-      }, _OVERRIDE_FIREBASE);
+      }
+
+      readFromDB("google_cse_api/key", function (val0, key0) {
+        _google_cse_api_key = val0;
+        _google_cse_api_key_loaded = true;
+      });
+
+      retrieveInvoiceDataFromDatabase(null);
+      retrieveChangeDataFromDatabase(null);
     }
+    else {
+      showSnackbar("Employee ID does not exist", 5000);
+      document.getElementById("employee_id_div").style.display = "";
+      document.getElementById("employe_id_loading").style.display = "none";
+      document.getElementById("employe_id_non_loading").style.display = "";
+      document.getElementById("employee_id").value = "";
+      document.getElementById("employee_id").focus();
+    }
+  };
 
-    readFromDB("google_cse_api/key", function (val0, key0) {
-      _google_cse_api_key = val0;
-      _google_cse_api_key_loaded = true;
-    });
-
-    retrieveInvoiceDataFromDatabase(null);
-    retrieveChangeDataFromDatabase(null);
-  }
-  else {
-    showSnackbar("Employee ID does not exist", 5000);
-  }
+  _firstEmployeeIDListener = true;
+  removeListeners();
+  document.getElementById("employee_id_div").style.display = "";
+  document.getElementById("employe_id_loading").style.display = "";
+  document.getElementById("employe_id_non_loading").style.display = "none";
+  addDBListener("data/employeeids/" + _firebaseAuthUID, function (val0, key0) {
+    _downloaded_employee_ids = val0;
+    if (_downloaded_employee_ids != null)
+      for (let [key, val] of Object.entries(_downloaded_employee_ids)) {
+        if (key == _firebaseAuthUID) {
+          _current_admin_name = val.first_name + " " + val.last_name;
+          break;
+        }
+      }
+    updateEmployeeIDsTable();
+    if (_firstEmployeeIDListener) {
+      _firstEmployeeIDListener = false;
+      func();
+    }
+  });
 }
 
 function processJSONData(objs) {
@@ -1006,4 +1109,8 @@ function log_in_temp() {
     document.getElementById("email_input_temp").disabled = false;
     document.getElementById("password_input_temp").disabled = false;
   });
+}
+
+function closeLocalServerLostWarning() {
+  document.getElementById("local_server_closed_warning").style.display = "none";
 }

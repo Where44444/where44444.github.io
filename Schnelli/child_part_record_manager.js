@@ -4,7 +4,7 @@ function populateChildPartRecordManager() {
   clickPCRM_NewCancelButton();
   if (_selected_child_part_db != null && _selected_child_part_record != null) {
     var htmlToAdd = "";
-    if (!_subscribed_mode)
+    if (!_subscribed_mode || _writeable_mode)
       htmlToAdd += "<button id='partchild_edit_button_save'           style='margin: 5px;                background-color: #70A2FF; color: black;' onclick='saveEditPartChild();'     ><span style='color: white;'>S</span>ave</button>"
         + "<button id='partchild_edit_button_cancel'         style='margin: 5px;                background-color: #70A2FF; color: black;' onclick='cancelEditPartChild();'   ><span style='color: white;'>C</span>ancel</button>"
         + "<button id='partchild_edit_button_delete'         style='margin: 5px;                background-color: #70A2FF; color: red;'   onclick='startDeleteEditPartChild();'><span style='color: white;'>D</span>elete</button>"
@@ -98,7 +98,7 @@ function confirmDeleteEditPartChild() {
     deleteFromDatabase("parts_db/" + _EXTRA_DB[_selected_child_part_db] + "/" + _content_extra[_selected_child_part_db][_selected_child_part_record][1], true, false, true, _selected_child_part_db);
     writeToChangeHistory("Delete | Child Record", "Deleted Child Record in \"" + _EXTRA_DB[_selected_child_part_db] + "\" with PN \"" + pn + "\"");
   }
-  _content_extra[_selected_child_part_db].splice(_selected_child_part_record, 1);
+  // _content_extra[_selected_child_part_db].splice(_selected_child_part_record, 1);
   _selected_child_part_db = null;
   _selected_child_part_record = null;
   populateChildPartRecordManager();

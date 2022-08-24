@@ -50,6 +50,9 @@ var _key_shortcut_sort_order_new_available = false;
 var _key_shortcut_sort_order_edit_addremove_available = false;
 var _key_shortcut_sort_order_new_addremove_available = false;
 var _key_shortcut_pdfimport_browse_available = false;
+var _key_shortcut_ocrimport_marcone_available = false;
+var _key_shortcut_ocrimport_reliableparts_available = false;
+var _key_shortcut_ocrimport_wlmay_available = false;
 var _key_shortcut_invoice_remove_available = false;
 var _key_shortcut_record_views_image_available = false;
 var _key_shortcut_record_views_jump_pn_available = false;
@@ -72,6 +75,9 @@ function setKeyboardShortcutBar() {
   _key_shortcut_sort_order_edit_addremove_available = false;
   _key_shortcut_sort_order_new_addremove_available = false;
   _key_shortcut_pdfimport_browse_available = false;
+  _key_shortcut_ocrimport_marcone_available = false;
+  _key_shortcut_ocrimport_reliableparts_available = false;
+  _key_shortcut_ocrimport_wlmay_available = false;
   _key_shortcut_invoice_remove_available = false;
   _key_shortcut_record_views_image_available = false;
   _key_shortcut_record_views_jump_pn_available = false;
@@ -112,11 +118,11 @@ function setKeyboardShortcutBar() {
       text += "&nbsp;&nbsp;<span style='color: white;'>1-9</span>&nbsp;Select";
       _key_shortcut_compare_record_views_available = true;
       text += "&nbsp;&nbsp;<span style='color: white;'>Q</span>&nbsp;Dif.&nbsp;&nbsp;<span style='color: white;'>W</span>&nbsp;Sim.&nbsp;&nbsp;<span style='color: white;'>A</span>&nbsp;All";
-      if (_record_view_page_list[_selected_record_view] < 3 && !_subscribed_mode) {
+      if (_record_view_page_list[_selected_record_view] < 3 && (!_subscribed_mode || _writeable_mode)) {
         _key_shortcut_edit_record_views_pn_available = true;
         text += "&nbsp;&nbsp;<span style='color: white;'>E</span>dit";
       }
-      if (_record_view_page_list[_selected_record_view] == 1 && !_subscribed_mode) {
+      if (_record_view_page_list[_selected_record_view] == 1 && (!_subscribed_mode || _writeable_mode)) {
         _key_shortcut_edit_record_view_whole_available = true;
         text += "&nbsp;&nbsp;<span style='color: white;'>R</span>&nbsp;Edit Record";
       }
@@ -126,7 +132,7 @@ function setKeyboardShortcutBar() {
       text += "&nbsp;&nbsp;<span style='color: white;'>Ctrl</span>+<span style='color: white;'>A</span>KA";
     }
     if (!_focused && _isTableSelected && _selectedTable == _TABLE_RECORD_BROWSER) {
-      if (!_subscribed_mode) {
+      if (!_subscribed_mode || _writeable_mode) {
         _key_shortcut_edit_part_available = true;
         _key_shortcut_copy_part_available = true;
         text += "&nbsp;&nbsp;<span style='color: white;'>E</span>dit";
@@ -143,7 +149,7 @@ function setKeyboardShortcutBar() {
         text += "&nbsp;&nbsp;<span style='color: white;'>-</span> Remove&nbsp;&nbsp;<span style='color: white;'>+</span> Add";
       }
       else if (document.getElementById("key_shortcut_index_window_edit").style.display == "none" && (ele == null || ele.style.display == "none")) {
-        if (!_subscribed_mode) {
+        if (!_subscribed_mode || _writeable_mode) {
           _key_shortcut_sort_order_edit_available = true;
           _key_shortcut_sort_order_new_available = true;
           text += "&nbsp;&nbsp;<span style='color: white;'>E</span>dit&nbsp;&nbsp;<span style='color: white;'>A</span>dd New";
@@ -160,7 +166,10 @@ function setKeyboardShortcutBar() {
       if (!_focused) {
         if (ele != null && ele.style.display != "none") {
           _key_shortcut_pdfimport_browse_available = true;
-          text += "&nbsp;&nbsp;<span style='color: white;'>B</span>rowse";
+          _key_shortcut_ocrimport_marcone_available = true;
+          _key_shortcut_ocrimport_reliableparts_available = true;
+          _key_shortcut_ocrimport_wlmay_available = true;
+          text += "&nbsp;&nbsp;<span style='color: white;'>B</span>rowse&nbsp;&nbsp;<span style='color: white;'>M</span>arcone OCR&nbsp;&nbsp;<span style='color: white;'>R</span>eliable OCR&nbsp;&nbsp;<span style='color: white;'>W</span>LMay OCR";
         }
       }
       ele = document.getElementById("table_pdfimport_row_0");
@@ -728,7 +737,7 @@ function clickRecordViewPNCancelButton() {
 }
 
 function checkForRecordViewSellButtons() {
-  if (!_subscribed_mode) {
+  if (!_subscribed_mode || _writeable_mode) {
     if (!_overlay_window_open) {
       var foundIndexes = [];
       for (var i = 0; i < _EXTRA_DB.length; ++i) {
@@ -1078,9 +1087,8 @@ function clickPdfImport_WLMAY_SaveAddRowButton() {
 }
 
 var _table_pdf_import_selected_row = 0;
-
 function set_tablePDFImport_SelectedRow(newRow) {
-  if (document.activeElement != null && (document.activeElement.tagName == "TEXTAREA" || document.activeElement.tagName == "SELECT")) {
+  if (document.activeElement != null && (document.activeElement.tagName == "TEXTAREA" || document.activeElement.tagName == "SELECT" || document.activeElement.type == "number")) {
 
   }
   else {
@@ -1417,6 +1425,15 @@ function clickRecordView_Image_Right() {
   return false;
 }
 
+function clickCancelScan() {
+  var ele = document.getElementById("button_cancel_scan");
+  var ele2 = document.getElementById("fileinput_wait_for_scan");
+  if (ele != null && ele.style.display != "none" && ele2 != null && ele2.style.display != "none") {
+    ele.click();
+    return true;
+  }
+  return false;
+}
 
 
 function applyRecordBrowserFilter() {

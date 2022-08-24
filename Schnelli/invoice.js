@@ -7,11 +7,12 @@ function populateInvoice() {
   if (numTotalRows > 0) {
     for (var i = 0; i < numTotalRows; ++i) {
       var obj = _invoice_objs[i];
-      specsText += obj.equip_type + "/" + obj.mfr + "/" + obj.equip_design;
-      if (i % 2 == 0)
-        specsText += "           ";
-      else
-        specsText += "\n";
+      // specsText += obj.equip_type + "/" + obj.mfr + "/" + obj.equip_design;
+      // if (i % 2 == 0)
+      //   specsText += "           ";
+      // else
+      //   specsText += "\n";
+
       if (i == 0) {
         htmlToAdd += INVOICE_PRE;
       }
@@ -45,7 +46,7 @@ function populateInvoice() {
           var orderinfo = "";
           if (obj.orderinfo != null && obj.orderinfo != "NULL")
             orderinfo = obj.orderinfo;
-          htmlToAdd += "<br><input type='text' style='width: 493px; height: 15px;' value='" + orderinfo + "' id='invoice_input_orderinfo_" + i + "' placeholder='Order Info (Order Number, Tracking Number, Website Link, etc.)'>";
+          htmlToAdd += "<br><input type='text' style='width: 493px; height: 15px;' value='" + orderinfo + "' id='invoice_input_orderinfo_" + i + "' placeholder='Customer Name and Phone, Order Number, Tracking Number, Web Link, etc.'>";
         }
         htmlToAdd += "</td><td>"
           + "<input type='text' style='width: 48px; height: 15px; text-align: right;' id='invoice_input_sell_" + i + "' value='" + getHTMLSafeText(obj.SELL) + "' onfocus='deselectTable();' onkeyup='calculateInvoiceAmounts();' oninput='calculateInvoiceAmounts();'></td><td>" //oninput added to ensure that right click paste triggers event too, onkeyup needs to stay despite it being a subset so that enter press event is triggered
@@ -221,7 +222,7 @@ function viewInvoiceFromHistory(index) {
         orderinfo = invoice_parts[5];
     }
     if (orderinfo != null)
-      htmlToAdd += "<br><input type='text' style='width: 493px; height: 15px;' value='" + getHTMLSafeText(orderinfo) + "' id='invoice_input_orderinfo_" + i + "' placeholder='Order Info (Order Number, Tracking Number, Website Link, etc.)'>";
+      htmlToAdd += "<br><input type='text' style='width: 493px; height: 15px;' value='" + getHTMLSafeText(orderinfo) + "' id='invoice_input_orderinfo_" + i + "' placeholder='Customer Name and Phone, Order Number, Tracking Number, Web Link, etc.'>";
 
     htmlToAdd += "</td><td>"
       + "<input type='text' style='width: 48px; height: 15px; text-align: right;' id='invoice_input_sell_" + i + "' value='" + getHTMLSafeText(invoice_parts[2]) + "' onfocus='deselectTable();' onkeyup='calculateInvoiceAmounts();' oninput='calculateInvoiceAmounts();'></td><td>"
@@ -394,7 +395,7 @@ function saveInvoiceInfoToDatabase() {
   obj.bottom = bottom;
   obj.last_invoice_no = lastorderno;
   writeToDatabase("invoice", obj, false, false, false, null);
-  writeToChangeHistory("Edit | Invoice Settings", "Edited Invoice Settings | Address: \"" + obj.address + "\" | Info at bottom: \"" + obj.bottom + "\" | Invoice No: \"" + obj.lastorderno + "\"");
+  writeToChangeHistory("Edit | Invoice Settings", "Edited Invoice Settings | Address: \"" + obj.address + "\" | Info at bottom: \"" + obj.bottom + "\" | Invoice No: \"" + obj.last_invoice_no + "\"");
 
   // writeToDatabase("invoice/address", address, false, false, false, null);
   // writeToDatabase("invoice/bottom", bottom, false, false, false, null);
@@ -560,7 +561,7 @@ function saveInvoiceToObject() {
 
 var retrieveInvoiceDataCallback = null;
 function retrieveInvoiceDataFromDatabase(callback) {
-  if (_LOCAL_SERVER_MODE || firebase.auth().currentUser.uid == _admin_uid) {
+  if (_LOCAL_SERVER_MODE || _firebaseAuthUID == _admin_uid || _writeable_mode) {
     document.getElementById("button_update_invoice_history").style.display = "none";
     retrieveInvoiceDataCallback = callback;
     readFromDB("invoice_data", function (val0, key0) {

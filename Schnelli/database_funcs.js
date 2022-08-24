@@ -186,7 +186,7 @@ function deleteFromDB(reff, function1, override) {
 }
 
 function getNewKeyPath(reff) {
-    var ref = firebase.database().ref(_DATABASE_PREFIX + reff).push();
+    var ref = firebase.database().ref(reff).push();
     return reff + "/" + ref.key;
 }
 
@@ -217,6 +217,7 @@ function writeToChangeHistory(type_text, change_info) {
     obj.time = time;
     obj.type = type_text;
     obj.change = change_info;
+    obj.account = _current_admin_name;
 
     writeToDB(getNewKeyPath("change_history"), obj, null);
 }

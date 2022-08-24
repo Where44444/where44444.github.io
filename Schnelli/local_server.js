@@ -2,6 +2,7 @@ var _socket = null;
 var _socket_from_sync = false;
 
 function openLocalServerScreen() {
+    document.getElementById("select_account_id_local_server_div").style.display = "";
     _LOCAL_SERVER_MODE = true;
     document.getElementById("server_select_div").style.display = "none";
     document.getElementById("login_div").style.display = "none";
@@ -18,6 +19,7 @@ function exitLocalServerScreen() {
     document.getElementById("server_select_div").style.display = "block";
     document.getElementById("login_div").style.display = "none";
     document.getElementById("local_server_connect_div").style.display = "none";
+    document.getElementById("local_server_closed_warning").style.display = "none";
 }
 
 function connectToLocalServer(fromSync) {
@@ -38,7 +40,7 @@ function connectToLocalServer(fromSync) {
         // localStorage.clear();
     }
 
-    _socket = new WebSocket('ws://' + ip + ':5444'); //192.168.1.227
+    _socket = new WebSocket('ws://' + ip + ':' + _PORT); //192.168.1.227
     _socket.addEventListener('open', socketOpened);
     _socket.addEventListener('message', socketRecievedMessage);
     _socket.addEventListener('close', socketClosed);
@@ -71,6 +73,7 @@ function closeWebSocket() {
 }
 
 function socketOpened(event) {
+    document.getElementById("local_server_closed_warning").style.display = "none";
     // console.log("Socket connected");
     // console.log(event);
     if (_socket_from_sync) {
@@ -92,4 +95,6 @@ function socketClosed(event) {
     // console.log("Socket closed");
     // console.log(event);
     showSnackbar("Lost connection to local server!", 20000);
+    if (_socket != null)
+        document.getElementById("local_server_closed_warning").style.display = "";
 }

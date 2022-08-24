@@ -102,3 +102,13 @@ function COMPARE_OBJ_TEXT(a, b) {
   }
   return 0;
 }
+
+function COMPARE_OBJ_LOCATION(a, b) {
+  if (a.LOCATION < b.LOCATION) {
+    return -1;
+  }
+  if (a.LOCATION > b.LOCATION) {
+    return 1;
+  }
+  return 0;
+}

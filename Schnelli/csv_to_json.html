@@ -1,0 +1,108 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<body>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+<script>
+      $.ajax({
+    type: "GET",
+    url: "../Other/csv/F.csv",
+    dataType: "text",
+    success: function(data) {processCSVData(data);}
+ });
+
+ var _content;
+ var INDEXES;
+ function processCSVData(allText) {
+  var quotes = false;
+  var row = 0;
+  var column = 0;
+  var start = 0;
+  var end = 0;
+  _content = new Array();
+  INDEXES = new Array();
+  for(var i = 0; i < allText.length; ++i) //Get header names
+  {
+    var n = allText.charAt(i);
+    if(n == '\"'){
+      quotes = !quotes;
+    }
+    else if(n == ',' && !quotes){
+      end = i;
+      INDEXES.push(stripQuotations(allText.substring(start, end)));
+      ++column;
+      start = i + 1;
+    }
+    else if(n == '\n'){
+      end = i;
+      INDEXES.push(stripQuotations(allText.substring(start, end)));
+      column = 0;
+      start = i + 1;
+      break;
+    }
+  }
+
+  _content.push(new Array());
+  for(var i = start; i < allText.length; ++i)
+  {
+    var n = allText.charAt(i);
+    if(n == '\"'){
+      quotes = !quotes;
+    }
+
+    else if(n == ',' && !quotes){
+      end = i;
+      _content[row].push(stripQuotations(allText.substring(start, end)));
+      ++column;
+      start = i + 1;
+    }
+    else if(n == '\n'){
+      end = i;
+      _content[row].push(stripQuotations(allText.substring(start, end)));
+      column = 0;
+      ++row;
+      _content.push(new Array());
+      start = i + 1;
+    }
+  }
+  _content.splice(_content.length - 1, 1);
+  generateJSON();
+}
+
+function stripQuotations(str)
+{
+    if(str.length >= 2 && str[0] == "\"" && str[str.length - 1] == "\"")
+    {
+        return str.substring(1, str.length - 1);
+    }
+    if(str.length >= 3 && str[0] == "\"" && str[str.length - 2] == "\"" && str[str.length - 1] == "\r")
+    {
+        return str.substring(1, str.length - 2);
+    }
+    return str;
+}
+
+function generateJSON(){
+    var objs = [];
+    for(var i = 0; i < _content.length; ++i){
+        var myObj = new Object();
+        for(var j = 0; j < INDEXES.length; ++j)
+            myObj[INDEXES[j]] = _content[i][j];
+        objs.push(myObj);
+    }
+    console.log(objs[0]);
+    var blob = new Blob([JSON.stringify(objs)], {
+      "type": "application/json"
+    });
+    var a = document.createElement("a");
+    a.download = name;
+    a.href = URL.createObjectURL(blob);
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+</script>
+<div id='text1'></div>
+</body>
+</html>

@@ -1,45 +1,64 @@
+@font-face {
+  font-family: "DMSans-Regular";
+  src: url("dm_sans_regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Baloo_Chettan-Regular";
+  src: url("baloo_chettan2_regular.ttf") format("truetype");
+}
+
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Baloo_Chettan-Regular, Arial, Helvetica, sans-serif;
 }
 
 .text1 {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Baloo_Chettan-Regular, Arial, Helvetica, sans-serif;
 }
 
 p {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Baloo_Chettan-Regular, Arial, Helvetica, sans-serif;
 }
 
 label {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Baloo_Chettan-Regular, Arial, Helvetica, sans-serif;
 }
 
 h1 {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Baloo_Chettan-Regular, Arial, Helvetica, sans-serif;
 }
 
 h2 {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Baloo_Chettan-Regular, Arial, Helvetica, sans-serif;
 }
 
 textarea {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Baloo_Chettan-Regular, Arial, Helvetica, sans-serif;
   font-size: 14px;
   border: solid lightgray 1px;
   border-radius: 10px;
 }
 
+input {
+  font-family: Baloo_Chettan-Regular, Arial, Helvetica, sans-serif;
+}
+
+select {
+  font-family: Baloo_Chettan-Regular, Arial, Helvetica, sans-serif;
+}
+
 table {
-  font-family: arial, sans-serif;
+  font-family: Baloo_Chettan-Regular, arial, sans-serif;
   border-collapse: collapse;
   font-size: 14px;
 }
 
-td, th {
+td,
+th {
   border: 1px solid #dddddd;
   text-align: left;
   padding: 4px;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Baloo_Chettan-Regular, Arial, Helvetica, sans-serif;
   font-weight: 600;
 }
 
@@ -104,7 +123,7 @@ tr:nth-child(odd) {
 }
 
 .clickable {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Baloo_Chettan-Regular, Arial, Helvetica, sans-serif;
   cursor: pointer;
 }
 
@@ -261,6 +280,7 @@ tr:nth-child(odd) {
 }
 
 button {
+  font-family: Baloo_Chettan-Regular, Arial, Helvetica, sans-serif;
   background-color: rgb(11, 116, 221);
   border: none;
   color: white;
@@ -295,7 +315,7 @@ button:hover {
 }
 
 .tabButton {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Baloo_Chettan-Regular, Arial, Helvetica, sans-serif;
   font-size: 14px;
   cursor: pointer;
   flex-grow: 1;
@@ -313,36 +333,48 @@ button:hover {
 
 @media print {
   .checkBox_container input {
-    position: absolute;
-    opacity: 1;
-    height: 0px;
-    width: 0px;
+    position: absolute !important;
+    opacity: 1 !important;
+    height: 0px !important;
+    width: 0px !important;
   }
+
   @page {
-    size: portrait;
-    margin: 1cm;
+    size: portrait !important;
+    margin: 1cm !important;
   }
+
   body {
-    margin: 0cm;
-    background-image: none;
+    margin: 0cm !important;
+    background-image: none !important;
   }
+
   input[type=text] {
-    border: 0px;
-    background-color: transparent;
+    border: 0px !important; 
+    background-color: transparent !important;
+    color: black;
   }
+
   textarea {
-    border: 0px;
-    background-color: transparent;
+    border: 0px !important;
+    background-color: transparent !important;
+    resize: none !important; /*Resizing handle*/
   }
-  .no-print, .no-print * {
+
+  .no-print,
+  .no-print * {
     display: none !important;
   }
-  .no-print-hide, .no-print-hide * {
+
+  .no-print-hide,
+  .no-print-hide * {
     visibility: hidden !important;
   }
+
   [class*="invoice_"] {
-    display: block;
+    display: block !important;
   }
+
   #snackbar {
     display: none !important;
   }
@@ -429,6 +461,7 @@ button:hover {
     opacity: 0;
     background-color: blue;
   }
+
   to {
     bottom: 30px;
     opacity: 1;
@@ -441,6 +474,7 @@ button:hover {
     bottom: 30px;
     opacity: 1;
   }
+
   to {
     bottom: 0;
     opacity: 0;
@@ -451,6 +485,7 @@ button:hover {
   from {
     background-color: blue;
   }
+
   to {
     background-color: #333;
   }
@@ -460,6 +495,7 @@ button:hover {
   from {
     background-color: blue;
   }
+
   to {
     background-color: #333;
   }
@@ -483,6 +519,7 @@ button:hover {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
@@ -520,11 +557,11 @@ input[type=password] {
   /* IE10+ */
 }
 
-.pdf_input_small{
+.pdf_input_small {
   width: 30px;
 }
 
-.pdf_input_large{
+.pdf_input_large {
   width: 60px;
 }
 

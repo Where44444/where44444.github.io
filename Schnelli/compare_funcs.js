@@ -42,15 +42,15 @@ function COMPARE_OBJECT_time(a, b) {
 
 function COMPARE_CONTENT_EXTRA_date(a, b) {
 
-  var date_a = Number(a.content_extra[0].data[0].date);
-  var date_b = Number(b.content_extra[0].data[0].date);
-  for (var i = 1; i < a.content_extra[0].data.length; ++i) {
-    if (Number(a.content_extra[0].data[i].date) > date_a)
-      date_a = Number(a.content_extra[0].data[i].date);
+  var date_a = Number(a.content_extra[0][CE_DATA][0].date);
+  var date_b = Number(b.content_extra[0][CE_DATA][0].date);
+  for (var i = 1; i < a.content_extra[0][CE_DATA].length; ++i) {
+    if (Number(a.content_extra[0][CE_DATA][i].date) > date_a)
+      date_a = Number(a.content_extra[0][CE_DATA][i].date);
   }
-  for (var i = 1; i < b.content_extra[0].data.length; ++i) {
-    if (Number(b.content_extra[0].data[i].date) > date_b)
-      date_b = Number(b.content_extra[0].data[i].date);
+  for (var i = 1; i < b.content_extra[0][CE_DATA].length; ++i) {
+    if (Number(b.content_extra[0][CE_DATA][i].date) > date_b)
+      date_b = Number(b.content_extra[0][CE_DATA][i].date);
   }
   if (date_a < date_b) {
     return -1;
@@ -104,11 +104,32 @@ function COMPARE_OBJ_TEXT(a, b) {
 }
 
 function COMPARE_OBJ_LOCATION(a, b) {
-  if (a.LOCATION < b.LOCATION) {
+  if (a[CE_LOCATION] < b[CE_LOCATION]) {
     return -1;
   }
-  if (a.LOCATION > b.LOCATION) {
+  if (a[CE_LOCATION] > b[CE_LOCATION]) {
     return 1;
+  }
+  return 0;
+}
+
+var COMPARE_INDEX_I = 0;
+function COMPARE_INDEX(a, b) {
+  if (a[COMPARE_INDEX_I] < b[COMPARE_INDEX_I]) {
+    return -1;
+  }
+  if (a[COMPARE_INDEX_I] > b[COMPARE_INDEX_I]) {
+    return 1;
+  }
+  return 0;
+}
+
+function COMPARE_INDEX_REVERSE(a, b) {
+  if (a[COMPARE_INDEX_I] < b[COMPARE_INDEX_I]) {
+    return 1;
+  }
+  if (a[COMPARE_INDEX_I] > b[COMPARE_INDEX_I]) {
+    return -1;
   }
   return 0;
 }

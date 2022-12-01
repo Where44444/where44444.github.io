@@ -81,7 +81,9 @@ function clearSearchAutocomplete() {
   _selected_search_autocomplete = -1;
   _search_autocomplete_matches = [];
   for (var i = 0; i < INDEXES_CONCAT.length; ++i) {
-    document.getElementById("search_autocomplete_" + i).innerHTML = "";
+    var ele = document.getElementById("search_autocomplete_" + i);
+    if (ele != null)
+      ele.innerHTML = "";
   }
 }
 
@@ -146,7 +148,7 @@ function showPartNumAutocomplete() {
   if (searchstring != "") {
     var std0 = getRegexSafeSearchTerm(searchstring.toLowerCase());
     for (var i = 0; i < _content_extra[_selected_partnum_input_j].length; ++i) {
-      var part_num_string = _content_extra[_selected_partnum_input_j][i][0].PN;
+      var part_num_string = _content_extra[_selected_partnum_input_j][i][0][CE_PN];
       var regexp = new RegExp(std0, "g");
       if (regexp.exec(part_num_string.toLowerCase()) !== null) //If match found in whole string
       {
@@ -368,7 +370,7 @@ function showPartChildEditAutocomplete() {
     {
       for (var h = 0; h < _EXTRA_DB.length; ++h) {
         for (var i = 0; i < _content_extra[h].length; ++i) {
-          var part_child_edit_string = _content_extra[h][i][0].PN;
+          var part_child_edit_string = _content_extra[h][i][0][CE_PN];
           var regexp = new RegExp(std0, "g");
           if (regexp.exec(part_child_edit_string.toLowerCase()) !== null) //If match found in whole string
           {
@@ -389,9 +391,7 @@ function showPartChildEditAutocomplete() {
     else //Search specific db
     {
       for (var i = 0; i < _content_extra[_selected_extra_db].length; ++i) {
-        var part_child_edit_string = _content_extra[_selected_extra_db][i][0].PN;
-        if (part_child_edit_string == null)
-          console.log(_content_extra[_selected_extra_db][i]);
+        var part_child_edit_string = _content_extra[_selected_extra_db][i][0][CE_PN];
         var regexp = new RegExp(std0, "g");
         if (regexp.exec(part_child_edit_string.toLowerCase()) !== null) //If match found in whole string
         {
@@ -476,12 +476,12 @@ function showSearchPartNumAutocomplete(extradb) {
         for (var i = 0; i < _content_extra[h].length; ++i) {
           var matchFound = false;
           var isAKA = false;
-          var part_child_string = _content_extra[h][i][0].PN;
+          var part_child_string = _content_extra[h][i][0][CE_PN];
           var regexp = new RegExp(std0, "g");
           if (regexp.exec(part_child_string.toLowerCase()) !== null) //If match found in whole string of PN
             matchFound = true;
           else {
-            part_child_string = _content_extra[h][i][0][_EXTRA_DB_FIELDS[h][_AKA_GLOBAL]];
+            part_child_string = _content_extra[h][i][0][CE_AKA];
             var regexp = new RegExp(std0, "g");
             if (part_child_string != null && regexp.exec(part_child_string.toLowerCase()) !== null) //If match found in whole string of AKA/JS_LINE_PN
             {
@@ -510,14 +510,14 @@ function showSearchPartNumAutocomplete(extradb) {
       for (var i = 0; i < _content_extra[extradb].length; ++i) {
         var matchFound = false;
         var isAKA = false;
-        var part_child_string = _content_extra[extradb][i][0].PN;
+        var part_child_string = _content_extra[extradb][i][0][CE_PN];
         var regexp = new RegExp(std0, "g");
         if (part_child_string != null && regexp.exec(part_child_string.toLowerCase()) !== null) //If match found in whole string
         {
           matchFound = true;
         }
         else {
-          part_child_string = _content_extra[extradb][i][0][_EXTRA_DB_FIELDS[extradb][_AKA_GLOBAL]];
+          part_child_string = _content_extra[extradb][i][0][CE_AKA];
           var regexp = new RegExp(std0, "g");
           if (part_child_string != null && regexp.exec(part_child_string.toLowerCase()) !== null) //If match found in whole string of AKA/JS_LINE_PN
           {
@@ -550,9 +550,9 @@ function showSearchPartNumAutocomplete(extradb) {
       var isAKA = _search_partnum_autocomplete_matches[j].isAKA;
       var content1 = null;
       if (isAKA)
-        content1 = _content_extra[db][extraDBIndex][0][_EXTRA_DB_FIELDS[db][_AKA_GLOBAL]] + " <b>(AKA)</b>";
+        content1 = _content_extra[db][extraDBIndex][0][CE_AKA] + " <b>(AKA)</b>";
       else
-        content1 = _content_extra[db][extraDBIndex][0].PN;
+        content1 = _content_extra[db][extraDBIndex][0][CE_PN];
       if (content1 != null) {
         htmlToAdd += "<div class='clickable' id='search_partnum_autocomplete_match_" + j + "' style='position: absolute; width: 230px; z-index: 5; background-color: white; border-top: 2px solid; border-bottom: 2px solid; border-color: grey;' onclick='search_partnum_row_click(" + j + ");'>" + content1 + "</div><br>";
       }

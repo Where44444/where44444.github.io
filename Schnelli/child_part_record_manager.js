@@ -12,9 +12,9 @@ function populateChildPartRecordManager() {
         + "<button id='partchild_edit_button_cancel_delete'  style='display: none; margin: 5px; background-color: #70A2FF; color: black;' onclick='populateChildPartRecordManager();'><span style='color: white;'>C</span>ancel Delete</button>";
     htmlToAdd += "<table>";
     var extraobj = _content_extra[_selected_child_part_db][_selected_child_part_record][0];
-    for (var i = 0; i < _EXTRA_DB_FIELDS[_selected_child_part_db].length; ++i) {
+    for (var i = 1; i < _EXTRA_DB_FIELDS[_selected_child_part_db].length; ++i) {
       var key = _EXTRA_DB_FIELDS[_selected_child_part_db][i];
-      var value = extraobj[key];
+      var value = extraobj[i];
       htmlToAdd += "<tr><th>" + key + "</th>";
       htmlToAdd += "<td><input type='text' onfocus='deselectTable();' id='partchild_edit_input_" + key + "' value='" + getHTMLSafeText(value) + "' style='width: 1000px;'></td></tr>";
     }
@@ -40,7 +40,7 @@ function startNewPartChild() {
       "<button id='partchild_new_button_save'           style='margin: 5px; background-color: #70A2FF; color: black;' onclick='saveNewPartChild();'  ><span style='color: white;'>S</span>ave</button>"
       + "<button id='partchild_new_button_cancel'         style='margin: 5px; background-color: #70A2FF; color: black;' onclick='cancelNewPartChild();'><span style='color: white;'>C</span>ancel</button>"
       + "<table>";
-    for (var i = 0; i < _EXTRA_DB_FIELDS[db_index].length; ++i) {
+    for (var i = 1; i < _EXTRA_DB_FIELDS[db_index].length; ++i) {
       htmlToAdd += "<tr><th>" + _EXTRA_DB_FIELDS[db_index][i] + "</th>";
       htmlToAdd += "<td><input type='text' onfocus='deselectTable();' id='partchild_new_input_" + _EXTRA_DB_FIELDS[db_index][i] + "' style='width: 1000px;'></td></tr>";
     }
@@ -55,20 +55,21 @@ function startNewPartChild() {
 }
 
 function saveEditPartChild() {
-  // var extraobj = _content_extra[_selected_child_part_db][_selected_child_part_record][0];
-
-  var newObj = new Object();
-  for (var i = 0; i < _EXTRA_DB_FIELDS[_selected_child_part_db].length; ++i) {
-    var key = _EXTRA_DB_FIELDS[_selected_child_part_db][i];
-    newObj[key] = document.getElementById("partchild_edit_input_" + key).value;
-  }
   var originalObj = copyObj(_content_extra[_selected_child_part_db][_selected_child_part_record][0]);
+  var numFields = _EXTRA_DB_FIELDS[_selected_child_part_db].length;
+  var newObj = Array.apply(null, Array(numFields)).map(function () { }) //Init array
+  newObj[CE_DATA] = originalObj[CE_DATA];
+  for (var i = 1; i < _EXTRA_DB_FIELDS[_selected_child_part_db].length; ++i) {
+    var key = _EXTRA_DB_FIELDS[_selected_child_part_db][i];
+    newObj[i] = document.getElementById("partchild_edit_input_" + key).value;
+  }
   _content_extra[_selected_child_part_db][_selected_child_part_record][0] = newObj;
   if (!_DEBUG_LOCAL_MODE) {
-    writeToDatabase("parts_db/" + _EXTRA_DB[_selected_child_part_db] + "/" + _content_extra[_selected_child_part_db][_selected_child_part_record][1], newObj, true, false, true, _selected_child_part_db);
+    var newObj0 = getContentExtraObj(_selected_child_part_db, _selected_child_part_record);
+    writeToDatabase("parts_db/" + _EXTRA_DB[_selected_child_part_db] + "/" + _content_extra[_selected_child_part_db][_selected_child_part_record][1], newObj0, true, false, true, _selected_child_part_db);
     var compare_str = getObjectCompareString(originalObj, newObj);
     if (compare_str != null)
-      writeToChangeHistory("Edit | Child Record", "Edited Child Record in \"" + _EXTRA_DB[_selected_child_part_db] + "\" with PN \"" + originalObj.PN + "\" " + compare_str);
+      writeToChangeHistory("Edit | Child Record", "Edited Child Record in \"" + _EXTRA_DB[_selected_child_part_db] + "\" with PN \"" + originalObj[CE_PN] + "\" " + compare_str);
   }
   _selected_child_part_db = null;
   _selected_child_part_record = null;
@@ -93,12 +94,11 @@ function startDeleteEditPartChild() {
 }
 
 function confirmDeleteEditPartChild() {
-  var pn = _content_extra[_selected_child_part_db][_selected_child_part_record][0].PN;
+  var pn = _content_extra[_selected_child_part_db][_selected_child_part_record][0][CE_PN];
   if (!_DEBUG_LOCAL_MODE) {
     deleteFromDatabase("parts_db/" + _EXTRA_DB[_selected_child_part_db] + "/" + _content_extra[_selected_child_part_db][_selected_child_part_record][1], true, false, true, _selected_child_part_db);
     writeToChangeHistory("Delete | Child Record", "Deleted Child Record in \"" + _EXTRA_DB[_selected_child_part_db] + "\" with PN \"" + pn + "\"");
   }
-  // _content_extra[_selected_child_part_db].splice(_selected_child_part_record, 1);
   _selected_child_part_db = null;
   _selected_child_part_record = null;
   populateChildPartRecordManager();
@@ -125,15 +125,16 @@ function setNewPartChildButton() {
 
 function saveNewPartChild() {
   var db_index = document.getElementById("part_child_dropdown_select").selectedIndex;
-  var newObj = new Object();
-  for (var i = 0; i < _EXTRA_DB_FIELDS[db_index].length; ++i) {
-    newObj[_EXTRA_DB_FIELDS[db_index][i]] = document.getElementById("partchild_new_input_" + _EXTRA_DB_FIELDS[db_index][i]).value;
-  }
+  var numFields = _EXTRA_DB_FIELDS[db_index].length;
+  var newObj = Array.apply(null, Array(numFields)).map(function () { }) //Init arrays
+  for (var i = 1; i < numFields; ++i)
+    newObj[i] = document.getElementById("partchild_new_input_" + _EXTRA_DB_FIELDS[db_index][i]).value;
   var newRef = getDatabaseRef("parts_db/" + _EXTRA_DB[db_index]).push();
   _content_extra[db_index].push([newObj, newRef.key])
   if (!_DEBUG_LOCAL_MODE) {
-    writeToDatabase("parts_db/" + _EXTRA_DB[db_index] + "/" + newRef.key, newObj, true, false, true, db_index);
-    writeToChangeHistory("Add | Child Record", "New Child Record in \"" + _EXTRA_DB[db_index] + "\" with PN \"" + newObj.PN + "\"");
+    var newObj0 = getContentExtraObj(db_index, _content_extra[db_index].length - 1);
+    writeToDatabase("parts_db/" + _EXTRA_DB[db_index] + "/" + newRef.key, newObj0, true, false, true, db_index);
+    writeToChangeHistory("Add | Child Record", "New Child Record in \"" + _EXTRA_DB[db_index] + "\" with PN \"" + newObj[CE_PN] + "\"");
   }
 
   document.getElementById("part_child_button_new").style.display = "";

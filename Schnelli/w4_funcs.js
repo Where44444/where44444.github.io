@@ -69,14 +69,9 @@
 // }
 
 function getExtraDBPartManufacturer(i, j) {
-  var MFR_INDEXES = ["PART_MFR", "GEM_ID", "RS_ID", "MM_ID", "JS_ID", "APPL_MFR"];
   var part = _content_extra[i][j][0];
-  for (var k = 0; k < MFR_INDEXES.length; ++k) {
-    var mfr = part[MFR_INDEXES[k]];
-    if (mfr != null) {
-      return mfr;
-    }
-  }
+  var mfr = part[CE_PART_MFR];
+  return mfr;
 }
 
 function getParentIndexFromID(id1) {
@@ -88,46 +83,56 @@ function getParentIndexFromID(id1) {
   return null;
 }
 
-var _extradb_link_index_cache = [new Map(), new Map(), new Map(), new Map(), new Map(), new Map(), new Map(), new Map(), new Map()];
+function updateExtraLinkCacheInDatabase(db, pn, val, remove) {
+  if (remove)
+    deleteFromDatabase("extra_pn_cache/" + _EXTRA_DB[db] + "/" + val);
+  else {
+    writeToDatabase("extra_pn_cache/" + _EXTRA_DB[db] + "/" + val, [pn, val]);
+  }
+}
+
+var _extradb_link_index_cache = null;
 function getExtraDBLinkIndex(db, pn) {
   if (pn.length > 0) {
     if (_extradb_link_index_cache[db].has(pn)) {
       var index = _extradb_link_index_cache[db].get(pn);
-      if (_content_extra[db].length > index && String(_content_extra[db][index][0].PN) == pn) //Only include exact match PN in cache to ensure it doesn't load inferior match if indexes are changed
+      if (_content_extra[db].length > index && String(_content_extra[db][index][0][CE_PN]) == pn) //Only include exact match PN in cache to ensure it doesn't load inferior match if indexes are changed
       {
         return index;
       }
       _extradb_link_index_cache[db].delete(pn); //Cache invalid
+      updateExtraLinkCacheInDatabase(db, pn, index, true);
     }
 
     for (var i = 0; i < _content_extra[db].length; ++i) //Exact match PN
     {
-      if (String(_content_extra[db][i][0].PN) == pn) {
+      if (String(_content_extra[db][i][0][CE_PN]) == pn) {
         _extradb_link_index_cache[db].set(pn, i);
+        updateExtraLinkCacheInDatabase(db, pn, i);
         return i;
       }
     }
+    var pn1 = getStandardPNString(pn);
     for (var i = 0; i < _content_extra[db].length; ++i) {
-      var pn1 = getStandardPNString(pn);
-      if (getStandardPNString(String(_content_extra[db][i][0].PN)) == pn1) //General match PN
+      if (getStandardPNString(String(_content_extra[db][i][0][CE_PN])) == pn1) //General match PN
       {
         return i;
       }
     }
     for (var i = 0; i < _content_extra[db].length; ++i) //Exact match AKA
     {
-      if (String(_content_extra[db][i][0][_EXTRA_DB_FIELDS[db][_AKA_GLOBAL]]) == pn) {
+      if (String(_content_extra[db][i][0][CE_AKA]) == pn) {
         return i;
       }
     }
     for (var i = 0; i < _content_extra[db].length; ++i) {
-      var pn1 = getStandardPNString(pn);
-      if (getStandardPNString(String(_content_extra[db][i][0][_EXTRA_DB_FIELDS[db][_AKA_GLOBAL]])) == pn1) //General match AKA
+      if (getStandardPNString(String(_content_extra[db][i][0][CE_AKA])) == pn1) //General match AKA
       {
         return i;
       }
     }
   }
+
   return null;
 }
 
@@ -543,6 +548,7 @@ function getCell(row, column, table_enum) {
 function saveContentToDatabase(rownum, addChangeAlert) {
   if (addChangeAlert == null)
     addChangeAlert = true;
+  generateContent_Standard_Row(rownum);
   if (!_DEBUG_LOCAL_MODE) {
     var row = _content[rownum];
     var partObj = new Object();
@@ -659,31 +665,41 @@ function highlightStringBasic(str1, startIndexes, endIndexes, preHTML, postHTML)
   return str2;
 }
 
+var _record_views_expanded = true;
 function toggleDiv(bool, id1) {
   if (bool != null) {
-    if (bool) {
-      document.getElementById(id1 + "_div").style.display = "block";
-      document.getElementById(id1 + "_expander_icon").innerHTML = "-";
-    }
-    else {
-      document.getElementById(id1 + "_div").style.display = "none";
-      document.getElementById(id1 + "_expander_icon").innerHTML = "+";
-    }
+    _record_views_expanded = bool;
   }
   else {
     if (document.getElementById(id1 + "_div").style.display == "none") {
-      document.getElementById(id1 + "_div").style.display = "block";
-      document.getElementById(id1 + "_expander_icon").innerHTML = "-";
-      if (id1.length > 1 && id1.substring(0, id1.length - 1) == "record_view_details_")
-        _recordViews_Key_To_Details_Open.set(_recordViews[Number(id1.substring(id1.length - 1, id1.length))], true);
+      _record_views_expanded = true;
+      // if (id1.length > 1 && id1.substring(0, id1.length - 1) == "record_view_details_")
+      //   _recordViews_Key_To_Details_Open.set(_recordViews[Number(id1.substring(id1.length - 1, id1.length))], true);
     }
     else {
-      document.getElementById(id1 + "_div").style.display = "none";
-      document.getElementById(id1 + "_expander_icon").innerHTML = "+";
-      if (id1.length > 1 && id1.substring(0, id1.length - 1) == "record_view_details_")
-        _recordViews_Key_To_Details_Open.set(_recordViews[Number(id1.substring(id1.length - 1, id1.length))], false);
+      _record_views_expanded = false;
+      // if (id1.length > 1 && id1.substring(0, id1.length - 1) == "record_view_details_")
+      //   _recordViews_Key_To_Details_Open.set(_recordViews[Number(id1.substring(id1.length - 1, id1.length))], false);
     }
   }
+
+  var inc = 0;
+  var ele = document.getElementById("record_view_details_" + inc + "_div");
+  while (ele != null) {
+    if (_record_views_expanded) {
+      document.getElementById("record_view_details_" + inc + "_div").style.display = "block";
+      document.getElementById("record_view_details_" + inc + "_expander_icon").innerHTML = "-";
+    }
+    else {
+      document.getElementById("record_view_details_" + inc + "_div").style.display = "none";
+      document.getElementById("record_view_details_" + inc + "_expander_icon").innerHTML = "+";
+    }
+    ++inc;
+    ele = document.getElementById("record_view_details_" + inc + "_div");
+  }
+  ele = document.getElementById("record_view_" + _selected_record_view);
+  if (ele != null)
+    eleSmartScroll(ele, 103, 60, 'smooth');
 }
 
 function getExpandableHTML(str_array, id, char_limit, width, /*optional*/ html_string, /*optional*/ string_to_highlight, highlight_term) {
@@ -761,6 +777,10 @@ function deleteFromDatabase(key, addChangeAlert, is_content, is_content_extra, c
 
 function writeToDatabase(key_path, value, addChangeAlert, is_content, is_content_extra, content_extra_db) {
   if (is_content_extra && value != null) { //Calculate retail price
+    if (testing_enabled && value[CE_PN] != null) {
+      console.log("Content Extra was not changed to object format");
+      console.log(value);
+    }
     var cgs = value.CGS;
     var reg = value.REG;
     if (cgs == null)
@@ -794,10 +814,10 @@ function writeToDatabase(key_path, value, addChangeAlert, is_content, is_content
     else
       value.VEND_RET = get_USD_String(reg_n * 1.35);
   }
+
   writeToDB(key_path, value, null);
-  if (addChangeAlert) {
+  if (addChangeAlert)
     addNewChangeAlert(key_path, false, is_content, is_content_extra, content_extra_db);
-  }
 }
 
 var MILLIS_IN_DAY = 1000 * 60 * 60 * 24;
@@ -939,7 +959,8 @@ function reloadContentFromChangeAlert(alertOBJ) {
 
 function reloadContentExtraFromChangeAlert(alertOBJ) {
   if (_content != null && _content_extra != null) {
-    readFromDB(alertOBJ.key, function (val0, key0) {
+    readFromDB(alertOBJ.key, function (val1, key0) {
+      val0 = getContentExtraArr(alertOBJ.content_extra_db, val1);
       var rownum = getContentExtraIndexFrom_DB_ID(key0, alertOBJ.content_extra_db);
       if (rownum != null) {
         if (alertOBJ.deleted) //Delete Record
@@ -953,7 +974,7 @@ function reloadContentExtraFromChangeAlert(alertOBJ) {
       }
       else if (!alertOBJ.deleted) //New record
       {
-        if (val0 != null && objSize(val0) > 0) {
+        if (val1 != null && objSize(val1) > 0) {
           var arr = [val0, key0];
           _content_extra[alertOBJ.content_extra_db].push(arr);
         }
@@ -974,9 +995,10 @@ function edit_content(rownum, field, value) {
 }
 
 function saveContentExtraToDatabase(i, j) {
-  var extraobj = _content_extra[i][j][0];
-  if (!_DEBUG_LOCAL_MODE)
-    writeToDatabase("parts_db/" + _EXTRA_DB[i] + "/" + _content_extra[i][j][1], extraobj, true, false, true, i);
+  if (!_DEBUG_LOCAL_MODE) {
+    var extraobj0 = getContentExtraObj(i, j);
+    writeToDatabase("parts_db/" + _EXTRA_DB[i] + "/" + _content_extra[i][j][1], extraobj0, true, false, true, i);
+  }
   _CHILD_PART_LINKS_CACHE.clear();
 }
 
@@ -997,7 +1019,8 @@ const TAB_DIVS = [
   "TAB_add_invoice",
   "TAB_people",
   "TAB_suggestions",
-  "TAB_change_history"];
+  "TAB_change_history",
+  "TAB_export"];
 const TAB_MAINMENU_DIVS = [
   '<span style="color:white">S</span>earch',
   'Record <span style="color:white">V</span>iews',
@@ -1008,14 +1031,15 @@ const TAB_MAINMENU_DIVS = [
   'I<span style="color:white">m</span>port Parts',
   '<span style="color:white">R</span>eorders',
   'Invoice <span style="color:white">H</span>istory',
-  'Invoice S<span style="color:white">e</span>ttings',
+  'Invoice Settin<span style="color:white">g</span>s',
   '<span style="color:white">I</span>nvoice',
   '',
   'Se<span style="color:white">a</span>rch Results',
   'Add <span style="color:white">N</span>ew Invoice',
   'Peop<span style="color:white">l</span>e',
   'S<span style="color:white">u</span>ggestions',
-  '<span style="color:white">C</span>hange History'
+  '<span style="color:white">C</span>hange History',
+  '<span style="color:white">E</span>xport'
 ];
 
 const SUBSCRIBED_DIVS = [
@@ -1055,6 +1079,7 @@ var TAB_ADD_INVOICE = 13;
 var TAB_PEOPLE = 14;
 var TAB_SUGGESTIONS = 15;
 var TAB_CHANGE_HISTORY = 16;
+var TAB_EXPORT = 17;
 var TAB_SYNC_DB = -1;
 
 var _selected_tab = 0;
@@ -1117,6 +1142,7 @@ function setTab(num) {
     var ele = document.getElementById("search_div");
     ele.scrollIntoView({ behavior: "auto", block: "nearest", inline: "nearest" });
   }
+
   if (num == TAB_MAINMENU) {
     window.scrollTo(0, false);
   }
@@ -1177,9 +1203,9 @@ function setTab(num) {
     updateReorderParentIDs();
   }
 
-  if (num == TAB_INVOICE_HISTORY) {
-    document.getElementById("button_update_invoice_history").click();
-  }
+  // if (num == TAB_INVOICE_HISTORY) {
+  //   document.getElementById("button_update_invoice_history").click();
+  // }
 
   if (num == TAB_INVOICE_SETTINGS) {
     var ele = document.getElementById("invoice_address_textarea");
@@ -1352,7 +1378,7 @@ function getParentRecordIndexWithChildPart_IncludingAKA(extraDB_index, pn_index)
 }
 
 function getParentRecordIndexWithChildPart(extraDB_index, pn_index) {
-  var child_pn = _content_extra[extraDB_index][pn_index][0].PN;
+  var child_pn = _content_extra[extraDB_index][pn_index][0][CE_PN];
   for (var i = 0; i < _content.length; ++i) //Exact match
   {
     var parent_pn = _content[i][_CONTENT_EXTRA_DB_INDEXES[extraDB_index]];
@@ -1614,7 +1640,6 @@ function getCookie(cname) {
       c = c.substring(1);
     }
     if (c.indexOf(name) == 0) {
-      // console.log("Loaded " + cname + " JSON|" + JSON.parse(c.substring(name.length, c.length)) + "|");
       return JSON.parse(c.substring(name.length, c.length));
     }
   }
@@ -1627,7 +1652,6 @@ function setCookie(cname, cvalue) {
   d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
   var expires = "expires=" + d.toUTCString();
   var jvalue = JSON.stringify(cvalue);
-  // console.log("Saved " + cname + " JSON|" + jvalue + "|");
   document.cookie = cname + "=" + jvalue + ";" + expires + "; SameSite=Strict; path=/";
 }
 
@@ -1778,27 +1802,47 @@ function ellipsizeText(text, max_length) {
   return result;
 }
 
-function eleSmartScroll(ele, pageTop, pageBottom0) { //Scrolls to put ele in view with as little scrolling as possible, and doesn't scroll if it's already fully in view
+function eleSmartScroll(ele, pageTop, pageBottom0, behavior) { //Scrolls to put ele in view with as little scrolling as possible, and doesn't scroll if it's already fully in view
+  if (behavior == null)
+    behavior = 'auto';
   let pageBottom = window.innerHeight - pageBottom0;
   if (ele.getBoundingClientRect().top < pageTop) {
     let y = ele.getBoundingClientRect().top + window.pageYOffset - pageTop;
-    window.scrollTo({ top: y, behavior: 'smooth' });
+    window.scrollTo({ top: y, behavior: behavior });
   }
   else if (ele.getBoundingClientRect().bottom > pageBottom) {
     let y = ele.getBoundingClientRect().bottom + window.pageYOffset - pageBottom;
-    window.scrollTo({ top: y, behavior: 'smooth' });
+    window.scrollTo({ top: y, behavior: behavior });
   }
 }
 
 var _debug_time1 = null;
-function debugTiming(desc) {
-  if (_debug_time1 == null) {
-    _debug_time1 = (new Date()).getTime();
-    console.log(desc);
-  } else {
-    var t2 = (new Date()).getTime();
-    console.log(desc + "|" + (t2 - _debug_time1));
-    _debug_time1 = t2;
+var _debug_time_add = 0;
+function debugTiming(desc, addTimes, printAdd) {
+  if (addTimes || printAdd) {
+    if (printAdd) {
+      console.log(desc + "|" + _debug_time_add);
+      _debug_time_add = 0;
+      _debug_time1 = null;
+    }
+    else
+      if (_debug_time1 == null) {
+        _debug_time1 = (new Date()).getTime();
+      } else {
+        var t2 = (new Date()).getTime();
+        _debug_time_add += (t2 - _debug_time1);
+        _debug_time1 = null;
+      }
+  }
+  else {
+    if (_debug_time1 == null) {
+      _debug_time1 = (new Date()).getTime();
+      console.log(desc);
+    } else {
+      var t2 = (new Date()).getTime();
+      console.log(desc + "|" + (t2 - _debug_time1));
+      _debug_time1 = t2;
+    }
   }
 }
 
@@ -2085,9 +2129,74 @@ function getPartChildButtonHTML_NonWorker(cellContent) {
   return cellContent;
 }
 
+function exportInventoryList(qty_only) {
+  var list = [];
+  for (var i = 0; i < _EXTRA_DB.length; ++i) {
+    for (var j = 0; j < _content_extra[i].length; ++j) {
+      var qty = Number(_content_extra[i][j][0][CE_SHOP_QTY]);
+      if (!qty_only || (qty != NaN && qty > 0))
+        list.push(_content_extra[i][j][0]);
+    }
+  }
+  list.sort(COMPARE_OBJ_LOCATION);
+
+  var text = "<table>";
+  var fields = [CE_PN, CE_DESCRIP1, CE_CGS, CE_SHOP_QTY, null, CE_LOCATION]; //Null array item isn't used - if (j != 4)
+  var field_names = ["Part Number", "Description", "Cost", "Qty", "Total", "Location"];
+  var totals = [];
+  var grandTotal = 0;
+  for (var i = 0; i < list.length; ++i) {
+    var obj = list[i];
+
+    for (var j = 0; j < fields.length; ++j) {
+      if (j != 4) {
+        if (obj[fields[j]] == null) {
+          obj[fields[j]] = "";
+        }
+      }
+      else {
+        var cgs = Number(obj[CE_CGS]);
+        var shop_qty = Number(obj[CE_SHOP_QTY]);
+        var total = "";
+        if (!isNaN(cgs) && !isNaN(shop_qty)) {
+          total = String(get_USD_String(cgs * shop_qty));
+          grandTotal += cgs * shop_qty;
+        }
+        totals.push(total);
+      }
+    }
+  }
+
+  for (var i = 0; i < list.length; ++i) {
+    var obj = list[i];
+    if (i == 0) {
+      text += "<thead><tr>"
+      for (var j = 0; j < field_names.length; ++j)
+        text += "<th>" + field_names[j] + "</th>";
+      text += "</tr></thead>";
+    }
+
+    text += "<tr>";
+    for (var j = 0; j < fields.length; ++j) {
+      if (j != 4)
+        text += "<td>" + obj[fields[j]] + "</td>";
+      else {
+        text += "<td>" + totals[i] + "</td>";
+
+      }
+    }
+    text += "</tr>";
+  }
+  text += "</table>";
+
+  text = "Grand Total:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + get_USD_String(grandTotal) + "<br>" + text;
+
+  startEmail("Inventory List", text);
+}
+
 //PN, Part Name, CGS x Qty on Hand, Loc 
 //Sort by Location
-function exportInventoryList() {
+function exportInventoryListOLD() {
   var list = [];
   for (var i = 0; i < _EXTRA_DB.length; ++i) {
     for (var j = 0; j < _content_extra[i].length; ++j) {
@@ -2098,7 +2207,7 @@ function exportInventoryList() {
 
   var text = "";
   var lengths = [];
-  var fields = ["PN", "DESCRIP1", "CGS", "SHOP_QTY", "", "LOCATION"];
+  var fields = [CE_PN, CE_DESCRIP1, CE_CGS, CE_SHOP_QTY, null, CE_LOCATION]; //Null array item isn't used - if (j != 4)
   var field_names = ["Part Number", "Description", "Cost", "Qty", "Total", "Location"];
   var totals = [];
   for (var i = 0; i < list.length; ++i) {
@@ -2116,8 +2225,8 @@ function exportInventoryList() {
           lengths[j] = obj[fields[j]].length;
       }
       else {
-        var cgs = Number(obj.CGS);
-        var shop_qty = Number(obj.SHOP_QTY);
+        var cgs = Number(obj[CE_CGS]);
+        var shop_qty = Number(obj[CE_SHOP_QTY]);
         var total = "";
         if (!isNaN(cgs) && !isNaN(shop_qty))
           total = String(get_USD_String(cgs * shop_qty));
@@ -2175,4 +2284,101 @@ function download(filename, text) {
   element.click();
 
   document.body.removeChild(element);
+}
+
+function getContentExtraObj(extradb, index, arr) {
+  if (arr != null) {
+    var obj = new Object();
+    for (var i = 0; i < _EXTRA_DB_FIELDS[extradb].length; ++i)
+      obj[_EXTRA_DB_FIELDS[extradb][i]] = arr[i];
+    return obj;
+  }
+  else {
+    var obj = new Object();
+    for (var i = 0; i < _EXTRA_DB_FIELDS[extradb].length; ++i)
+      obj[_EXTRA_DB_FIELDS[extradb][i]] = _content_extra[extradb][index][0][i];
+    return obj;
+  }
+}
+
+function getContentExtraArr(_content_extra_db, obj0) {
+  var numFields = _EXTRA_DB_FIELDS[_content_extra_db].length;
+  var obj1 = Array.apply(null, Array(numFields)).map(function () { }) //Init array
+  for (var j = 0; j < numFields; ++j)
+    obj1[j] = obj0[_EXTRA_DB_FIELDS[_content_extra_db][j]];
+  return obj1;
+}
+
+//Doesn't work with maps
+function roughSizeOfObject(object) {
+
+  var objectList = [];
+  var stack = [object];
+  var bytes = 0;
+
+  while (stack.length) {
+    var value = stack.pop();
+
+    if (typeof value === 'boolean') {
+      bytes += 4;
+    }
+    else if (typeof value === 'string') {
+      bytes += value.length * 2;
+    }
+    else if (typeof value === 'number') {
+      bytes += 8;
+    }
+    else if
+      (
+      typeof value === 'object'
+      && objectList.indexOf(value) === -1
+    ) {
+      objectList.push(value);
+
+      for (var i in value) {
+        stack.push(value[i]);
+      }
+    }
+  }
+  return bytes;
+}
+
+const getSizeInBytes = obj => {
+  let str = null;
+  if (typeof obj === 'string') {
+    // If obj is a string, then use it
+    str = obj;
+  } else {
+    // Else, make obj into a string
+    str = JSON.stringify(obj);
+  }
+  // Get the length of the Uint8Array
+  const bytes = new TextEncoder().encode(str).length;
+  return bytes;
+};
+
+const logSizeInBytes = (description, obj) => {
+  const bytes = getSizeInBytes(obj);
+  console.log(`${description} is approximately ${bytes} B`);
+};
+
+function getInvoiceByID(id) {
+  var num = _content_invoice_history.length;
+  for (var i = 0; i < num; ++i)
+    if (_content_invoice_history[i].id == id)
+      return i;
+  return null;
+}
+
+function charInStr(c, str) {
+  for (var i = 0; i < str.length; ++i)
+    if (str.charAt(i) == c)
+      return true;
+  return false;
+}
+
+function trimString(str, maxlength) {
+  if (str.length > maxlength)
+    return str.substring(0, maxlength);
+  return str;
 }

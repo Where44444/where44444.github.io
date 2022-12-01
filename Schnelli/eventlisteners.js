@@ -188,13 +188,13 @@ function setKeyboardShortcutBar() {
       var ele = document.getElementById("invoicehistory_table_row_0");
       var ele2 = document.getElementById("invoice_from_history_content");
       if (ele != null && ele.style.display != "none" && (ele2 == null || ele2.style.display == "none")) {
-        text += "&nbsp;&nbsp;<span style='color: white;'>&uarr; &darr;</span>Select Row&nbsp;&nbsp;<span style='color: white;'>Enter</span> View";
+        text += "&nbsp;&nbsp;<span style='color: white;'>&uarr; &darr;</span>Select Row&nbsp;&nbsp;<span style='color: white;'>Enter</span> View&nbsp;&nbsp;<span style='color: white;'>S</span>elect Row";
       }
     }
     if (_selected_tab == TAB_PART_HISTORY) {
       var ele = document.getElementById("parthistory_table_row_0");
       if (ele != null && ele.style.display != "none") {
-        text += "&nbsp;&nbsp;<span style='color: white;'>&uarr; &darr;</span>Select Row&nbsp;&nbsp;<span style='color: white;'>Enter</span> View";
+        text += "&nbsp;&nbsp;<span style='color: white;'>&uarr; &darr;</span>Select Row";
       }
     }
     if (_selected_tab == TAB_INVOICE) {
@@ -293,63 +293,66 @@ document.getElementById("password_input_sync").addEventListener("keyup", functio
 });
 
 for (var i = 0; i < INDEXES_CONCAT.length; ++i) {
-  document.getElementById("search_input_" + i).addEventListener("input", function (event) {
-    if (event.code === KEY_ENTER || event.code === KEY_NUMPADENTER) {
+  var ele = document.getElementById("search_input_" + i);
+  if (ele != null) {
+    ele.addEventListener("input", function (event) {
+      if (event.code === KEY_ENTER || event.code === KEY_NUMPADENTER) {
 
-    }
-    else if (event.code === KEY_UP_ARROW) {
+      }
+      else if (event.code === KEY_UP_ARROW) {
 
-    }
-    else if (event.code === KEY_DOWN_ARROW) {
+      }
+      else if (event.code === KEY_DOWN_ARROW) {
 
-    }
-    else if (event.code === KEY_ESCAPE) {
-      // clearSearchAutocomplete();
-    }
-    else {
-      showSearchAutocomplete();
-    }
-  });
-  document.getElementById("search_input_" + i).addEventListener("keyup", function (event) {
-    if (event.code === KEY_ENTER || event.code === KEY_NUMPADENTER) {
-      event.preventDefault();
-      if (_search_autocomplete_matches.length > 0)
-        searchInputAutocomplete();
-      else
-        document.getElementById("search_specific_button").click();
-    }
-    else if (event.code === KEY_UP_ARROW) {
+      }
+      else if (event.code === KEY_ESCAPE) {
+        // clearSearchAutocomplete();
+      }
+      else {
+        showSearchAutocomplete();
+      }
+    });
+    ele.addEventListener("keyup", function (event) {
+      if (event.code === KEY_ENTER || event.code === KEY_NUMPADENTER) {
+        event.preventDefault();
+        if (_search_autocomplete_matches.length > 0)
+          searchInputAutocomplete();
+        else
+          document.getElementById("search_specific_button").click();
+      }
+      else if (event.code === KEY_UP_ARROW) {
 
-    }
-    else if (event.code === KEY_DOWN_ARROW) {
+      }
+      else if (event.code === KEY_DOWN_ARROW) {
 
-    }
-    else if (event.code === KEY_ESCAPE) {
-      // clearSearchAutocomplete();
-    }
-    else {
-      showSearchAutocomplete();
-    }
-  });
-  document.getElementById("search_input_" + i).addEventListener("keydown", function (event) {
-    if (event.code === KEY_ENTER || event.code === KEY_NUMPADENTER) {
+      }
+      else if (event.code === KEY_ESCAPE) {
+        // clearSearchAutocomplete();
+      }
+      else {
+        showSearchAutocomplete();
+      }
+    });
+    ele.addEventListener("keydown", function (event) {
+      if (event.code === KEY_ENTER || event.code === KEY_NUMPADENTER) {
 
-    }
-    else if (event.code === KEY_UP_ARROW) {
-      event.preventDefault();
-      if (_search_autocomplete_matches.length > 0)
-        selectSearchAutocompleteUp();
-      else
-        viewHistory(null, -1);
-    }
-    else if (event.code === KEY_DOWN_ARROW) {
-      event.preventDefault();
-      if (_search_autocomplete_matches.length > 0)
-        selectSearchAutocompleteDown();
-      else
-        viewHistory(null, 1);
-    }
-  });
+      }
+      else if (event.code === KEY_UP_ARROW) {
+        event.preventDefault();
+        if (_search_autocomplete_matches.length > 0)
+          selectSearchAutocompleteUp();
+        else
+          viewHistory(null, -1);
+      }
+      else if (event.code === KEY_DOWN_ARROW) {
+        event.preventDefault();
+        if (_search_autocomplete_matches.length > 0)
+          selectSearchAutocompleteDown();
+        else
+          viewHistory(null, 1);
+      }
+    });
+  }
 }
 
 // var KEY_ENTER = 13;
@@ -1108,7 +1111,8 @@ function set_tablePDFImport_SelectedRow(newRow) {
         ele.focus();
         ele.select();
       }
-      ele2.scrollIntoView({ behavior: "auto", block: "nearest", inline: "nearest" });
+      eleSmartScroll(ele2, 103, 60);
+      // ele2.scrollIntoView({ behavior: "auto", block: "nearest", inline: "nearest" });
       return true;
     }
   }
@@ -1135,22 +1139,40 @@ function clickPdfImport_WLMAY_AddPartChild_Submit() {
   return false;
 }
 
-var _table_reorders_selected_row = 0;
-
+var _table_reorders_selected_row = -1;
 function set_tableReorders_SelectedRow(newRow) {
   var inc = 0;
   var ele = document.getElementById("table_reorders_row_" + inc);
-  var ele2 = document.getElementById("table_reorders_row_" + newRow);
-  if (ele2 != null) {
-    while (ele != null) {
+  var rowNum = -1;
+  while (ele != null) {
+    if (_reorders_order_map.has(inc) && _reorders_order_map.get(inc))
+      ele.style.backgroundColor = "lightgreen";
+    else
       ele.style.backgroundColor = "";
-      ++inc;
-      ele = document.getElementById("table_reorders_row_" + inc);
+    rowNum = inc;
+    ++inc;
+    ele = document.getElementById("table_reorders_row_" + inc);
+  }
+
+  var newRow2 = newRow;
+  if (newRow2 > rowNum)
+    newRow2 = rowNum;
+  if (newRow2 < 0)
+    newRow2 = 0;
+
+  var ele2 = document.getElementById("table_reorders_row_" + newRow2);
+  if (ele2 != null) {
+    var newColor = "#96BBFF";
+    if (_reorders_order_map.has(newRow2) && _reorders_order_map.get(newRow2))
+      newColor = "greenyellow";
+
+    ele2.style.backgroundColor = newColor;
+    eleSmartScroll(ele2, 103, 60);
+    // ele2.scrollIntoView({ behavior: "auto", block: "nearest", inline: "nearest" });
+    if (newRow2 != _table_reorders_selected_row) {
+      _table_reorders_selected_row = newRow2;
+      return true;
     }
-    ele2.style.backgroundColor = "#96BBFF";
-    _table_reorders_selected_row = newRow;
-    ele2.scrollIntoView({ behavior: "auto", block: "nearest", inline: "nearest" });
-    return true;
   }
   return false;
 }
@@ -1173,8 +1195,17 @@ function clickReorders_AddRecordView() {
   return false;
 }
 
-function clickReorders_JumpBrowser() {
-  var ele = document.getElementById("button_reorder_jumprecordbrowser_" + _table_reorders_selected_row);
+// function clickReorders_JumpBrowser() {
+//   var ele = document.getElementById("button_reorder_jumprecordbrowser_" + _table_reorders_selected_row);
+//   if (ele != null && ele.style.display != "none") {
+//     ele.click();
+//     return true;
+//   }
+//   return false;
+// }
+
+function clickReorders_Order() {
+  var ele = document.getElementById("button_reorder_order_" + _table_reorders_selected_row);
   if (ele != null && ele.style.display != "none") {
     ele.click();
     return true;
@@ -1191,14 +1222,14 @@ function clickReorders_UpdateRow() {
   return false;
 }
 
-function clickInvoiceHistory_Update() {
-  var ele = document.getElementById("button_update_invoice_history");
-  if (ele != null && ele.style.display != "none") {
-    ele.click();
-    return true;
-  }
-  return false;
-}
+// function clickInvoiceHistory_Update() {
+//   var ele = document.getElementById("button_update_invoice_history");
+//   if (ele != null && ele.style.display != "none") {
+//     ele.click();
+//     return true;
+//   }
+//   return false;
+// }
 
 function clickInvoiceHistory_ClearFilters() {
   var ele = document.getElementById("button_clear_invoice_filters");
@@ -1249,7 +1280,8 @@ function set_tableInvoiceHistory_SelectedRow(newRow) {
     }
     ele2.style.backgroundColor = "#96BBFF";
     _table_invoicehistory_selected_row = newRow;
-    ele2.scrollIntoView({ behavior: "auto", block: "nearest", inline: "nearest" });
+    eleSmartScroll(ele2, 103, 60);
+    // ele2.scrollIntoView({ behavior: "auto", block: "nearest", inline: "nearest" });
     return true;
   }
   return false;
@@ -1261,18 +1293,32 @@ function set_tablePartHistory_SelectedRow(newRow) {
   var ele = document.getElementById("parthistory_table_row_" + inc);
   if (ele == null) //If list is empty
     document.getElementById("table_part_history_div_view").innerHTML = "";
-  var ele2 = document.getElementById("parthistory_table_row_" + newRow);
+
+  var rowNum = -1;
+  while (ele != null) {
+    ele.style.backgroundColor = "";
+    rowNum = inc;
+    ++inc;
+    ele = document.getElementById("parthistory_table_row_" + inc);
+  }
+
+  var newRow2 = newRow;
+  if (newRow2 > rowNum)
+    newRow2 = rowNum;
+  if (newRow2 < 0)
+    newRow2 = 0;
+
+  var ele2 = document.getElementById("parthistory_table_row_" + newRow2);
   if (ele2 != null) {
-    populatePartHistoryView(newRow);
-    while (ele != null) {
-      ele.style.backgroundColor = "";
-      ++inc;
-      ele = document.getElementById("parthistory_table_row_" + inc);
-    }
+    populatePartHistoryView(newRow2);
+
     ele2.style.backgroundColor = "#96BBFF";
-    _table_parthistory_selected_row = newRow;
-    ele2.scrollIntoView({ behavior: "auto", block: "nearest", inline: "nearest" });
-    return true;
+    eleSmartScroll(ele2, 103, 60);
+    // ele2.scrollIntoView({ behavior: "auto", block: "nearest", inline: "nearest" });
+    if (newRow2 != _table_parthistory_selected_row) {
+      _table_parthistory_selected_row = newRow2;
+      return true;
+    }
   }
   return false;
 }
@@ -1290,7 +1336,8 @@ function set_tableChangeHistory_SelectedRow(newRow) {
     }
     ele2.style.backgroundColor = "#96BBFF";
     _table_changehistory_selected_row = newRow;
-    ele2.scrollIntoView({ behavior: "auto", block: "nearest", inline: "nearest" });
+    eleSmartScroll(ele2, 103, 60);
+    // ele2.scrollIntoView({ behavior: "auto", block: "nearest", inline: "nearest" });
     return true;
   }
   return false;

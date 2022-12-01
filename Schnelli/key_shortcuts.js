@@ -26,6 +26,10 @@ document.addEventListener("keydown", function (event) {
   //   _CTRL_HELD = true;
   // if(event.code == KEY_SHIFT)
   //   _SHIFT_HELD = true;
+  w4keypress(event);
+});
+
+function w4keypress(event) {
   var content_div_visible = document.getElementById("content_div").style.display != "none";
   if (!pressedKeys[KEY_CTRL_LEFT] && !pressedKeys[KEY_SHIFT_LEFT] && !pressedKeys[KEY_ALT_LEFT]
     && !pressedKeys[KEY_CTRL_RIGHT] && !pressedKeys[KEY_SHIFT_RIGHT] && !pressedKeys[KEY_ALT_RIGHT]) {
@@ -160,12 +164,18 @@ document.addEventListener("keydown", function (event) {
               }
             }
             else if (_selected_tab == TAB_INVOICE_HISTORY) {
-              var ele1 = document.getElementById("invoicehistory_table_row_" + _table_invoicehistory_selected_row);
-              if (ele1 != null && ele1.style.display != "none") {
-                ele1.click();
-                event.preventDefault();
-                _invoice_history_last_active_element = document.activeElement;
-                document.activeElement.blur();
+              if (document.activeElement != null && document.activeElement.id == "qwc_password") {
+                document.getElementById("button_qwc_apply").click();
+              }
+              else {
+                var ele1 = document.getElementById("invoicehistory_table_row_" + _table_invoicehistory_selected_row);
+                var ele2 = document.getElementById("invoice_from_history_content");
+                if (ele1 != null && ele1.style.display != "none" && ele2.style.display == "none") {
+                  ele1.children[1].click();
+                  event.preventDefault();
+                  _invoice_history_last_active_element = document.activeElement;
+                  document.activeElement.blur();
+                }
               }
             }
             else if (_selected_tab == TAB_PART_HISTORY) {
@@ -294,6 +304,14 @@ document.addEventListener("keydown", function (event) {
               }
               event.preventDefault();
             }
+            else if (!_focused && _selected_tab == TAB_REORDERS) {
+              if (set_tableReorders_SelectedRow(_table_reorders_selected_row - 6))
+                event.preventDefault();
+            }
+            else if (!_focused && _selected_tab == TAB_PART_HISTORY) {
+              if (set_tablePartHistory_SelectedRow(_table_parthistory_selected_row - 10))
+                event.preventDefault();
+            }
             break;
           case KEY_PAGE_DOWN:
             if (_isTableSelected) {
@@ -305,6 +323,14 @@ document.addEventListener("keydown", function (event) {
                 setRecordViewPage(_record_view_page_list[_selected_record_view] + 1, _selected_record_view);
               }
               event.preventDefault();
+            }
+            else if (!_focused && _selected_tab == TAB_REORDERS) {
+              if (set_tableReorders_SelectedRow(_table_reorders_selected_row + 6))
+                event.preventDefault();
+            }
+            else if (!_focused && _selected_tab == TAB_PART_HISTORY) {
+              if (set_tablePartHistory_SelectedRow(_table_parthistory_selected_row + 10))
+                event.preventDefault();
             }
             break;
           case KEY_HOME:
@@ -374,6 +400,9 @@ document.addEventListener("keydown", function (event) {
               if (clickAddInvoice_AddRow())
                 event.preventDefault();
             }
+            else if (!_focused && _selected_tab == TAB_EXPORT) {
+              document.getElementById("button_export_inventory_all").click();
+            }
             break;
           case KEY_B:
             if (shortcutmenu_mainmenu_available)
@@ -398,9 +427,6 @@ document.addEventListener("keydown", function (event) {
               if (ele1 != null && _key_shortcut_pdfimport_browse_available) {
                 ele1.click();
               }
-            }
-            else if (!_focused && _selected_tab == TAB_REORDERS) {
-              clickReorders_JumpBrowser();
             }
             break;
           case KEY_C:
@@ -497,7 +523,7 @@ document.addEventListener("keydown", function (event) {
             break;
           case KEY_E:
             if (shortcutmenu_mainmenu_available) {
-              setTab(TAB_INVOICE_SETTINGS);
+              setTab(TAB_EXPORT);
               event.preventDefault();
             }
             else if (!_focused && _selected_tab == TAB_SEARCH) {
@@ -528,6 +554,8 @@ document.addEventListener("keydown", function (event) {
                 }
                 deselectTable();
               }
+            } else if (!_focused && _selected_tab == TAB_REORDERS) {
+              document.getElementById("button_export_reorders").click();
             }
             else if (!_focused && _key_shortcut_edit_record_views_pn_available) {
               checkForRecordViewEditButtons();
@@ -536,6 +564,9 @@ document.addEventListener("keydown", function (event) {
               document.getElementById("key_shortcut_index_window_edit").style.display = "";
               _overlay_window_open = true;
               setKeyboardShortcutBar();
+            }
+            else if (!_focused && _selected_tab == TAB_INVOICE_HISTORY) {
+              document.getElementById("button_export_invoices").click();
             }
             break;
           case KEY_F:
@@ -572,7 +603,11 @@ document.addEventListener("keydown", function (event) {
             }
             break;
           case KEY_G:
-            if (!_focused && _selected_tab == TAB_SEARCH)
+            if (shortcutmenu_mainmenu_available) {
+              setTab(TAB_INVOICE_SETTINGS);
+              event.preventDefault();
+            }
+            else if (!_focused && _selected_tab == TAB_SEARCH)
               document.getElementById("search_highlight_similar_words").click();
             break;
           case KEY_H:
@@ -625,6 +660,9 @@ document.addEventListener("keydown", function (event) {
           case KEY_O:
             if (shortcutmenu_mainmenu_available)
               setTab(TAB_SORT_ORDERS);
+            else if (!_focused && _selected_tab == TAB_REORDERS) {
+              clickReorders_Order();
+            }
             break;
           case KEY_P:
             if (shortcutmenu_mainmenu_available)
@@ -659,6 +697,9 @@ document.addEventListener("keydown", function (event) {
               var ele1 = document.getElementById("radio_record_views_differences");
               if (ele1 != null)
                 ele1.click();
+            }
+            else if (!_focused && _selected_tab == TAB_EXPORT) {
+              document.getElementById("button_export_inventory_qty").click();
             }
             break;
           case KEY_R:
@@ -763,8 +804,10 @@ document.addEventListener("keydown", function (event) {
                 event.preventDefault();
             }
             else if (!_focused && _selected_tab == TAB_INVOICE_HISTORY) {
-              if (clickInvoice_Save())
+              if (document.getElementById("invoice_from_history_content").style.display != "none" && clickInvoice_Save())
                 event.preventDefault();
+              else
+                document.getElementById("invoice_checkbox_" + _table_invoicehistory_selected_row).click();
             }
             break;
           case KEY_T:
@@ -799,7 +842,7 @@ document.addEventListener("keydown", function (event) {
               clickReorders_UpdateRow();
             }
             else if (!_focused && _selected_tab == TAB_INVOICE_HISTORY) {
-              clickInvoiceHistory_Update();
+              // clickInvoiceHistory_Update();
             }
             else if (!_focused && _selected_tab == TAB_CHANGE_HISTORY) {
               clickChangeHistory_Update();
@@ -900,12 +943,12 @@ document.addEventListener("keydown", function (event) {
               }
             }
             else if (!_focused && _selected_tab == TAB_RECORD_VIEWS) {
-              for (var i = 0; i < _recordViews.length; ++i) {
-                var ele1 = document.getElementById("div_recordview_collapser_" + i);
-                var ele2 = document.getElementById("record_view_details_" + i + "_div");
-                if (ele1 != null && ele1.style.display != "none" && ele2 != null && ele2.style.display != "none")
-                  ele1.click();
-              }
+              var i = 0;
+              var ele1 = document.getElementById("div_recordview_collapser_" + i);
+              var ele2 = document.getElementById("record_view_details_" + i + "_div");
+              if (ele1 != null && ele1.style.display != "none" && ele2 != null && ele2.style.display != "none")
+                toggleDiv(null, "record_view_details_" + i);
+
             }
             break;
           case KEY_PLUS:
@@ -944,12 +987,11 @@ document.addEventListener("keydown", function (event) {
               }
             }
             else if (!_focused && _selected_tab == TAB_RECORD_VIEWS) {
-              for (var i = 0; i < _recordViews.length; ++i) {
-                var ele1 = document.getElementById("div_recordview_collapser_" + i);
-                var ele2 = document.getElementById("record_view_details_" + i + "_div");
-                if (ele1 != null && ele1.style.display != "none" && ele2 != null && ele2.style.display == "none")
-                  ele1.click();
-              }
+              var i = 0;
+              var ele1 = document.getElementById("div_recordview_collapser_" + i);
+              var ele2 = document.getElementById("record_view_details_" + i + "_div");
+              if (ele1 != null && ele1.style.display != "none" && ele2 != null && ele2.style.display == "none")
+                toggleDiv(null, "record_view_details_" + i);
             }
             break;
         }
@@ -1098,6 +1140,15 @@ document.addEventListener("keydown", function (event) {
     if (event.code == KEY_ESCAPE) {
       pressedKeys = {};
     }
+  } else { //Content div not visible
+    if (!pressedKeys[KEY_CTRL_LEFT] && !pressedKeys[KEY_SHIFT_LEFT] && !pressedKeys[KEY_ALT_LEFT]
+      && !pressedKeys[KEY_CTRL_RIGHT] && !pressedKeys[KEY_SHIFT_RIGHT] && !pressedKeys[KEY_ALT_RIGHT]) {
+      if (event.code == KEY_ESCAPE) {
+        var ele1 = document.getElementById("do_Print");
+        if (ele1.style.display != "none") {
+          document.getElementById("print_back_button").click();
+        }
+      }
+    }
   }
 }
-);

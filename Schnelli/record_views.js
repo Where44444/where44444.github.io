@@ -1,5 +1,5 @@
 var _recordViews = [];
-var _recordViews_Key_To_Details_Open = new Map();
+// var _recordViews_Key_To_Details_Open = new Map();
 var _recordViewHightlightType = 0;
 var _selected_record_view = 0;
 var _last_selected_record_view = 0;
@@ -170,7 +170,6 @@ function populateRecordViews() {
     compareall_checked = "checked";
   if (_recordViews.length > 0)
     htmlToAdd +=
-      // "<h1 class='clickable' onclick='toggleDiv(null, \"record_views_table\");'><span id='record_views_table_expander_icon' style='font-size: 50px; font-weight: 100;'>-</span> Record Views</h1>" + 
       "<div id='record_views_table_div' style='font-size: 16px;'>" +
       "<div style='position: fixed; top: " + _top_bar_height + "; left: 0px; background-color: lightblue; width: 100%; z-index: 2;'>" +
       "<label class='radiobutton_container' style='display: inline;'>Show Differences&nbsp;&nbsp; <input onchange='setRecordViewHighlightType(0);' type='radio' id='radio_record_views_differences'  name='radio_record_views_highlighting'" + differences_checked + "><span class='radiomark'></span></label>" +
@@ -250,10 +249,10 @@ function populateRecordViews() {
         + "<div style='padding-left: 10px;'><b>DESCRIP1:</b> <span id='record_view_data_read_descrip1_" + i + "'>" + descrip1_text + "</span><input type='text' onfocus='deselectTable();' id='record_view_data_input_descrip1_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_DESCRIP1]) + "'><br>"
         + "<b>DESCRIP2: </b><span id='record_view_data_read_descrip2_" + i + "'>" + descrip2_text + "</span><input type='text' onfocus='deselectTable();' id='record_view_data_input_descrip2_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_DESCRIP2]) + "'></div>"
         + "<div style='padding-left: 10px;'><b>COMMENTS:</b> <span id='record_view_data_read_comments_" + i + "'>" + comments_text + "</span><input type='text' onfocus='deselectTable();' id='record_view_data_input_comments_" + i + "' style='width: 90%; display: none;' value='" + getHTMLSafeText(_content[rownum][_COMMENTS]) + "'></div>";
-      var details_expanded = true;
-      if (_recordViews_Key_To_Details_Open.has(_recordViews[i]) && !_recordViews_Key_To_Details_Open.get(_recordViews[i]))
-        details_expanded = false;
-      if (details_expanded) {
+      // var details_expanded = true;
+      // if (_recordViews_Key_To_Details_Open.has(_recordViews[i]) && !_recordViews_Key_To_Details_Open.get(_recordViews[i]))
+      //   details_expanded = false;
+      if (_record_views_expanded) {
         htmlToAdd += "</div><div id='div_recordview_collapser_" + i + "' class=clickable style='background-color: #96BBFF' onclick='toggleDiv(null, \"record_view_details_" + i + "\")'><span id='record_view_details_" + i + "_expander_icon' style='color: white;'>-</span> Details</div>";
         htmlToAdd += "<div id='record_view_details_" + i + "_div' style='display: block;'>";
       }
@@ -365,6 +364,7 @@ function saveEditRecordViewData(index) {
     for (var j = 0; j < _EXTRA_DB.length; ++j) {
       var _content_partnum_for_extraDB = _content[rownum][_CONTENT_EXTRA_DB_INDEXES[j]];
       var extraDBIndex = getExtraDBLinkIndex(j, _content_partnum_for_extraDB);
+      // var extraDBIndex = getExtraDBLinkIndex2(rownum, j);
       if (extraDBIndex != null) {
         edb_indexes.push(extraDBIndex);
         original_content_extras.push(copyObj(_content_extra[j][extraDBIndex][0]));
@@ -386,7 +386,7 @@ function saveEditRecordViewData(index) {
         var content_extra_obj = _content_extra[j][edb_indexes[j]][0];
         var compare_str = getObjectCompareString(original_content_extras[j], content_extra_obj);
         if (compare_str != null && !_DEBUG_LOCAL_MODE)
-          writeToChangeHistory("Edit | Child Record", "Edited Child Record in \"" + _EXTRA_DB[j] + "\" with PN \"" + content_extra_obj.PN + "\" " + compare_str);
+          writeToChangeHistory("Edit | Child Record", "Edited Child Record in \"" + _EXTRA_DB[j] + "\" with PN \"" + content_extra_obj[CE_PN] + "\" " + compare_str);
       }
     }
     saveContentToDatabase(rownum);
@@ -556,15 +556,16 @@ function saveEditRecordPartReference(i1, j1) {
   if (rownum != null) {
     edit_content(rownum, _EXTRA_DB_ACTUAL_INDEXES[j1], value);
   }
-  var key = "parts_db/P&A_PRI/" + _recordViews[i1];
-  var partObj = new Object();
-  for (var i = 0; i < _INDEXES.length; ++i)
-    partObj[_INDEXES[i]] = row[i];
-  for (var i = 0; i < _MEMO_INDEXES.length; ++i)
-    partObj[_MEMO_INDEXES[i]] = row[i + _INDEXES.length];
+  // var key = "parts_db/P&A_PRI/" + _recordViews[i1];
+  // var partObj = new Object();
+  // for (var i = 0; i < _INDEXES.length; ++i)
+  //   partObj[_INDEXES[i]] = row[i];
+  // for (var i = 0; i < _MEMO_INDEXES.length; ++i)
+  //   partObj[_MEMO_INDEXES[i]] = row[i + _INDEXES.length];
   populateRecordViews();
   if (!_DEBUG_LOCAL_MODE) {
-    writeToDatabase(key, partObj, true, true, false, null);
+    // writeToDatabase(key, partObj, true, true, false, null);
+    saveContentToDatabase(rownum, true);
     writeToChangeHistory("Edit | Part Reference", "Edited part reference for " + _EXTRA_DB[j1] + " of Parent Record with OEM_PN \"" + row[_OEM_PN] + "\" from \"" + originalValue + "\" to \"" + value + "\"");
   }
 }
@@ -582,7 +583,7 @@ function selectRecordView(num, scrollIntoView) {
       // window.scrollTo({ top: y, behavior: 'smooth' });
       // ele.scrollIntoView({ behavior: "auto", block: "nearest", inline: "nearest" });
 
-      eleSmartScroll(ele, 103, 60);
+      eleSmartScroll(ele, 103, 60, 'smooth');
     }
   }
   if (_recordViews.length > num && _selected_record_view >= 0) {
@@ -605,7 +606,7 @@ function jumpToChildPartFromRecordView(extradb, index) {
   clearPartChildEditAutocomplete();
   setNewPartChildButton();
   if (_content_extra[extradb].length > _selected_child_part_record)
-    document.getElementById("part_child_edit_input").value = _content_extra[extradb][_selected_child_part_record][0].PN;
+    document.getElementById("part_child_edit_input").value = _content_extra[extradb][_selected_child_part_record][0][CE_PN];
 }
 
 function startSell(i1, j1) {
@@ -621,32 +622,34 @@ function changeSellQuantity(i1, j1, amount) {
 
 var _invoice_objs = [];
 function confirmSell(i1, j1, _content_partnum_for_extraDB, _parent_record_id) {
-  var extraDBIndex = getExtraDBLinkIndex(j1, _content_partnum_for_extraDB);
   var parentRecordIndex = getParentIndexFromID(_parent_record_id);
+  var extraDBIndex = getExtraDBLinkIndex(j1, _content_partnum_for_extraDB);
+  // var extraDBIndex = getExtraDBLinkIndex2(parentRecordIndex, j1);
   var parentRecordData = _content[parentRecordIndex];
   if (extraDBIndex != null && parentRecordIndex != null) {
     var partObj = _content_extra[j1][extraDBIndex][0];
-    var currentAmount = Number(partObj.SHOP_QTY);
+    var currentAmount = Number(partObj[CE_SHOP_QTY]);
     var amountToSell = Number(document.getElementById("sell_quantity_" + i1 + "_" + j1).value);
-    partObj.SHOP_QTY = currentAmount - amountToSell;
+    partObj[CE_SHOP_QTY] = currentAmount - amountToSell;
     var partkey = _content_extra[j1][extraDBIndex][1];
     if (!_DEBUG_LOCAL_MODE) {
-      writeToDatabase("parts_db/" + _EXTRA_DB[j1] + "/" + partkey, partObj, true, false, true, j1);
+      var partObj0 = getContentExtraObj(j1, extraDBIndex);
+      writeToDatabase("parts_db/" + _EXTRA_DB[j1] + "/" + partkey, partObj0, true, false, true, j1);
     }
     var invoice_obj = new Object();
     invoice_obj.currentAmount = currentAmount;
     invoice_obj.amountToSell = amountToSell;
     invoice_obj.DESCRIP1 = parentRecordData[_DESCRIP1];
-    invoice_obj.SELL = partObj.SELL;
+    invoice_obj.SELL = partObj[CE_SELL];
     invoice_obj.extradb = j1;
     invoice_obj.partkey = partkey;
-    invoice_obj.PN = partObj.PN;
+    invoice_obj.PN = partObj[CE_PN];
     invoice_obj.equip_type = parentRecordData[_EQUIP_TYPE];
     invoice_obj.mfr = getExtraDBPartManufacturer(j1, extraDBIndex);
     invoice_obj.equip_design = parentRecordData[_EQUIP_DESIGN];
     invoice_obj.parent_record_id = _parent_record_id;
     _invoice_objs.push(invoice_obj);
-    showSnackbar("Added to Invoice<br>Removed <u>" + amountToSell + "</u> " + partObj.PN + " from Inventory", 5000);
+    showSnackbar("Added to Invoice<br>Removed <u>" + amountToSell + "</u> " + partObj[CE_PN] + " from Inventory", 5000);
     updateReorder(parentRecordIndex);
   }
   populateRecordViews();
@@ -798,6 +801,7 @@ function getRecordViewPage(rownum, page_num, i) {
         {
           var _content_partnum_for_extraDB = _content[rownum][_CONTENT_EXTRA_DB_INDEXES[j]];
           var extraDBIndex = getExtraDBLinkIndex(j, _content_partnum_for_extraDB);
+          // var extraDBIndex = getExtraDBLinkIndex2(rownum, j);
           if (j == _EXTRA_DB.length - 1) //Last row
             htmlToAdd += "<tr id='record_view_parts_row_" + i + "_" + j + "' onclick='onRecordViewPartsRowClick(" + i + "," + j + ");' style='border-top: solid; border-bottom: solid; border-width: 4px; border-color: black;'>";
           else
@@ -1001,6 +1005,7 @@ function getRecordViewPage(rownum, page_num, i) {
         {
           var _content_partnum_for_extraDB = _content[rownum][_CONTENT_EXTRA_DB_INDEXES[j]];
           var extraDBIndex = getExtraDBLinkIndex(j, _content_partnum_for_extraDB);
+          // var extraDBIndex = getExtraDBLinkIndex2(rownum, j);
           if (j == _EXTRA_DB.length - 1) //Last row
             htmlToAdd += "<tr id='record_view_parts_row_" + i + "_" + j + "' onclick='onRecordViewPartsRowClick(" + i + "," + j + ");' style='border-top: solid; border-bottom: solid; border-width: 4px; border-color: black;'>";
           else
@@ -1207,8 +1212,9 @@ function getRecordViewPage(rownum, page_num, i) {
           htmlToAdd += "<tr><td><b>" + _EXTRA_DB[j] + ":</b> ";
           var _content_partnum_for_extraDB = _content[rownum][_CONTENT_EXTRA_DB_INDEXES[j]];
           var extraDBIndex = getExtraDBLinkIndex(j, _content_partnum_for_extraDB);
+          // var extraDBIndex = getExtraDBLinkIndex2(rownum, j);
           if (extraDBIndex != null) {
-            htmlToAdd += _content_extra[j][extraDBIndex][0].COMMENTS;
+            htmlToAdd += _content_extra[j][extraDBIndex][0][CE_COMMENTS];
           }
           htmlToAdd += "</td></tr>";
         }
@@ -1264,16 +1270,13 @@ function changeRecordViewDown() {
     if (_recordViews.length > _selected_record_view && _selected_record_view >= 0) {
       var rownum = getContentIndexFrom_DB_ID(_recordViews[_selected_record_view]);
       if (rownum != null) {
-        // if(rownum < _content.length - 1)
-        // {
         var nextIndex = getNextContentIndexInSortOrder(rownum, !_contentSortedReverse);
         if (nextIndex != null) {
-          // var newID = _content[rownum + 1][_content[rownum + 1].length - 1];
           var newID = _content[nextIndex][_content[nextIndex].length - 1];
-          if (_recordViews_Key_To_Details_Open.has(_recordViews[_selected_record_view]) && !_recordViews_Key_To_Details_Open.get(_recordViews[_selected_record_view]))
-            _recordViews_Key_To_Details_Open.set(newID, false);
-          else
-            _recordViews_Key_To_Details_Open.set(newID, true);
+          // if (_recordViews_Key_To_Details_Open.has(_recordViews[_selected_record_view]) && !_recordViews_Key_To_Details_Open.get(_recordViews[_selected_record_view]))
+          //   _recordViews_Key_To_Details_Open.set(newID, false);
+          // else
+          //   _recordViews_Key_To_Details_Open.set(newID, true);
           _recordViews[_selected_record_view] = newID
           populateRecordViews();
         }
@@ -1294,10 +1297,10 @@ function changeRecordViewUp() {
         if (nextIndex != null) {
           // var newID = _content[rownum - 1][_content[rownum - 1].length - 1];
           var newID = _content[nextIndex][_content[nextIndex].length - 1];
-          if (_recordViews_Key_To_Details_Open.has(_recordViews[_selected_record_view]) && !_recordViews_Key_To_Details_Open.get(_recordViews[_selected_record_view]))
-            _recordViews_Key_To_Details_Open.set(newID, false);
-          else
-            _recordViews_Key_To_Details_Open.set(newID, true);
+          // if (_recordViews_Key_To_Details_Open.has(_recordViews[_selected_record_view]) && !_recordViews_Key_To_Details_Open.get(_recordViews[_selected_record_view]))
+          //   _recordViews_Key_To_Details_Open.set(newID, false);
+          // else
+          //   _recordViews_Key_To_Details_Open.set(newID, true);
           _recordViews[_selected_record_view] = newID
           populateRecordViews();
         }
@@ -1313,15 +1316,15 @@ function recordView_JumpToAka() {
     if (rownum != null) {
       var content_extra_pn = _content[rownum][_OEM_PN];
       var extraDBIndex = getExtraDBLinkIndex(_EXTRA_DB_OEM, content_extra_pn);
+      // var extraDBIndex = getExtraDBLinkIndex2(rownum, _EXTRA_DB_OEM);
       if (extraDBIndex != null) {
-        var akaPN = _content_extra[_EXTRA_DB_OEM][extraDBIndex][0].AKA;
+        var akaPN = _content_extra[_EXTRA_DB_OEM][extraDBIndex][0][CE_AKA];
         if (akaPN != null && akaPN.length > 0) {
           var extraDBIndex_aka = getExtraDBLinkIndex(_EXTRA_DB_OEM, akaPN);
           if (extraDBIndex_aka != null) {
             var rownum_aka = getParentRecordIndexWithChildPart_IncludingAKA(_EXTRA_DB_OEM, extraDBIndex_aka);
-            if (rownum_aka != null) {
+            if (rownum_aka != null)
               replaceRecordView(_selected_record_view, _content[rownum_aka][INDEXES_CONCAT.length]);
-            }
           }
           else
             showSnackbar("Couldn't find AKA Part Number in Database", 5000);

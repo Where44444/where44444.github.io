@@ -158,9 +158,9 @@ function populateRecordBrowser(indexStart, highlight_IndexStart_Green, populateF
     tableHTML += "</tbody></table>";
     document.getElementById("record_browser_table_div").innerHTML = tableHTML;
   }
-  if (highlight_IndexStart_Green && document.getElementById("record_browser_row_" + origIndexStart) != null) {
-    document.getElementById("record_browser_row_" + origIndexStart).style.backgroundColor = _tempTopRowColor;
-  }
+  // if (highlight_IndexStart_Green && document.getElementById("record_browser_row_" + origIndexStart) != null) {
+  //   document.getElementById("record_browser_row_" + origIndexStart).style.backgroundColor = _tempTopRowColor;
+  // }
 }
 
 function startEditRecord(record_id, rownum, row_id) {

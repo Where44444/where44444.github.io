@@ -1,7 +1,19 @@
-var _part_filter_date_start = -1;
-var _part_filter_date_end = -1;
+var _part_filter_date_start = 0;
+var _part_filter_date_end = new Date();
+_part_filter_date_end = new Date(_part_filter_date_end.getFullYear(), _part_filter_date_end.getMonth() + 1, _part_filter_date_end.getDate());
 var _part_history_content_extra_objs = [];
 var _part_history_table_indexes = [];
+
+var partHistorySortIndex = 0;
+
+function setPartHistorySortIndex(index) {
+  if (partHistorySortIndex == index)
+    partHistorySortIndex = -index;
+  else
+    partHistorySortIndex = index;
+
+  populatePartHistory();
+}
 
 function populatePartHistory() {
   _part_history_content_extra_objs = [];
@@ -9,7 +21,7 @@ function populatePartHistory() {
   _part_history_table_indexes = [];
   for (var i = 0; i < _EXTRA_DB.length; ++i) {
     for (var j = 0; j < _content_extra[i].length; ++j) {
-      if (_content_extra[i][j][0].data != null) {
+      if (_content_extra[i][j][0][CE_DATA] != null) {
         var final_obj = new Object();
         final_obj.i = i;
         final_obj.j = j;
@@ -20,10 +32,11 @@ function populatePartHistory() {
   }
 
   var table_html = "<table><tr>"
-    + "<th style='background-color: white; position: sticky; top: " + _top_bar_height + "; z-index: 2;'>Date Last Sold</th>"
-    + "<th style='background-color: white; position: sticky; top: " + _top_bar_height + "; z-index: 2;'>Part Number</th>"
-    + "<th style='background-color: white; position: sticky; top: " + _top_bar_height + "; z-index: 2;'>Description</th>"
-    + "<th style='background-color: white; position: sticky; top: " + _top_bar_height + "; z-index: 2;'>Quantity</th></tr>";
+    + "<th id='partHistoryHeader1' class='clickable' onclick='setPartHistorySortIndex(1)' style='background-color: white; position: sticky; top: " + _top_bar_height + "; z-index: 2;'>Date Last Sold</th>"
+    + "<th id='partHistoryHeader2' class='clickable' onclick='setPartHistorySortIndex(2)' style='background-color: white; position: sticky; top: " + _top_bar_height + "; z-index: 2;'>Part Number</th>"
+    + "<th id='partHistoryHeader3' class='clickable' onclick='setPartHistorySortIndex(3)' style='background-color: white; position: sticky; top: " + _top_bar_height + "; z-index: 2;'>Description</th>"
+    + "<th id='partHistoryHeader4' class='clickable' onclick='setPartHistorySortIndex(4)' style='background-color: white; position: sticky; top: " + _top_bar_height + "; z-index: 2;'>Qty Time Frame</th>"
+    + "<th id='partHistoryHeader5' class='clickable' onclick='setPartHistorySortIndex(5)' style='background-color: white; position: sticky; top: " + _top_bar_height + "; z-index: 2;'>Qty All Time</th></tr>";
   var filter_pn = document.getElementById("part_history_filter_pn").value;
   var filter_desc = document.getElementById("part_history_filter_desc").value;
   var filter_price = document.getElementById("part_history_filter_price").value;
@@ -32,45 +45,59 @@ function populatePartHistory() {
   var do_filter_desc = (filter_desc.replace(/ /g, "").length > 0);
   var do_filter_price = (filter_price.replace(/ /g, "").length > 0);
   var do_filter_any_field = (filter_any_field.replace(/ /g, "").length > 0);
-  var inc = 0;
   _part_history_content_extra_objs.sort(COMPARE_CONTENT_EXTRA_date);
+  var rows = [];
+  var latestTime = -999999;
   for (var i = _part_history_content_extra_objs.length - 1; i >= 0; --i) {
     var obj = _part_history_content_extra_objs[i].content_extra;
-    
-    var latestTime = Number(obj[0].data[0].date);
-    var totalQuantity = Number(obj[0].data[0].quantity);
-    for (var j = 1; j < obj[0].data.length; ++j) {
-      totalQuantity += Number(obj[0].data[j].quantity);
-      if (Number(obj[0].data[j].date) > latestTime)
-      latestTime = Number(obj[0].data[j].date);
+    var totalQuantity = 0;
+    var timeFrameQty = 0;
+    var partDates = [];
+    for (var j = 0; j < obj[0][CE_DATA].length; ++j) {
+      totalQuantity += Number(obj[0][CE_DATA][j].quantity);
+      var partDate = Number(obj[0][CE_DATA][j].date);
+      if (partDate >= _part_filter_date_start && partDate < _part_filter_date_end)
+        timeFrameQty += Number(obj[0][CE_DATA][j].quantity);
+      if (partDate > latestTime)
+        latestTime = partDate;
+      partDates.push(partDate);
     }
-    
+
     var match_failed = false;
     if (!match_failed && _part_filter_date_start != -1) {
-      if (!isNaN(latestTime) && (latestTime < _part_filter_date_start || latestTime >= _part_filter_date_end))
-      match_failed = true;
+      var matchFound = false;
+      for (let partDate of partDates)
+        if (!isNaN(partDate) && partDate >= _part_filter_date_start && partDate < _part_filter_date_end) {
+          matchFound = true;
+          break;
+        }
+      if (!matchFound)
+        match_failed = true;
     }
     if (!match_failed && do_filter_pn) {
-      var result = String(obj[0].PN).toLowerCase().match(getRegexSafeSearchTerm(filter_pn).toLowerCase());
-      if (result == null)
-      match_failed = true;
+      var result = String(obj[0][CE_PN]).toLowerCase().match(getRegexSafeSearchTerm(filter_pn).toLowerCase());
+      if (result == null) {
+        match_failed = true;
+      }
     }
     if (!match_failed && do_filter_desc) {
-      var result = String(obj[0].DESCRIP1).toLowerCase().match(getRegexSafeSearchTerm(filter_desc).toLowerCase());
-      if (result == null)
-      match_failed = true;
+      var result = String(obj[0][CE_DESCRIP1]).toLowerCase().match(getRegexSafeSearchTerm(filter_desc).toLowerCase());
+      if (result == null) {
+        match_failed = true;
+      }
     }
     if (!match_failed && do_filter_price) {
       var matchFound = false;
-      for (var j = 0; j < obj[0].data.length; ++j) {
-        var result = String(obj[0].data[j].price).toLowerCase().match(getRegexSafeSearchTerm(filter_price).toLowerCase());
+      for (var j = 0; j < obj[0][CE_DATA].length; ++j) {
+        var result = String(obj[0][CE_DATA][j].price).toLowerCase().match(getRegexSafeSearchTerm(filter_price).toLowerCase());
         if (result != null) {
           matchFound = true;
           break;
         }
       }
-      if (!matchFound)
-      match_failed = true;
+      if (!matchFound) {
+        match_failed = true;
+      }
     }
     if (!match_failed && do_filter_any_field) {
       var any_field_match_found = false;
@@ -78,34 +105,56 @@ function populatePartHistory() {
         if (!any_field_match_found) {
           var result = String(value).toLowerCase().match(getRegexSafeSearchTerm(filter_any_field).toLowerCase());
           if (result != null)
-          any_field_match_found = true;
+            any_field_match_found = true;
         }
       }
-      if (!any_field_match_found)
-      match_failed = true;
+      if (!any_field_match_found) {
+        match_failed = true;
+      }
     }
-    
-    
+
     var latestTimeDT = new Date(latestTime);
-    
-    if (!match_failed) {
-      _part_history_table_indexes.push(i);
-      table_html += "<tr id='parthistory_table_row_" + inc + "' class='clickable' onclick='set_tablePartHistory_SelectedRow(" + inc + ");')>"
-      + "<td>" + getMMDDYYYYText(latestTimeDT) + "</td>"
-      + "<td>" + obj[0].PN + "</td>"
-      + "<td>" + obj[0].DESCRIP1 + "</td>"
-      + "<td>" + totalQuantity + "</td>"
-      + "</tr>";
-      ++inc;
+
+    if (!match_failed)
+      rows.push([i, latestTimeDT, obj[0][CE_PN], obj[0][CE_DESCRIP1], timeFrameQty, totalQuantity]);
+  }
+
+  if (partHistorySortIndex != 0) {
+    if (partHistorySortIndex > 0) {
+      COMPARE_INDEX_I = partHistorySortIndex;
+      rows.sort(COMPARE_INDEX);
+    } else {
+      COMPARE_INDEX_I = -partHistorySortIndex;
+      rows.sort(COMPARE_INDEX_REVERSE);
     }
   }
+
+  for (var i = 0; i < rows.length; ++i) {
+    _part_history_table_indexes.push(rows[i][0]);
+    table_html += "<tr id='parthistory_table_row_" + i + "' class='clickable' onclick='set_tablePartHistory_SelectedRow(" + i + ");')>"
+      + "<td>" + getMMDDYYYYText(rows[i][1]) + "</td>"
+      + "<td>" + rows[i][2] + "</td>"
+      + "<td>" + rows[i][3] + "</td>"
+      + "<td>" + rows[i][4] + "</td>"
+      + "<td>" + rows[i][5] + "</td>"
+      + "</tr>";
+  }
+
   table_html += "</table>";
   document.getElementById("table_part_history_div_list").innerHTML = table_html;
+
+  if (partHistorySortIndex != 0) {
+    if (partHistorySortIndex > 0)
+      document.getElementById("partHistoryHeader" + partHistorySortIndex).style.backgroundColor = "rgb(100,100,255)"; // Blue
+    else
+      document.getElementById("partHistoryHeader" + (-partHistorySortIndex)).style.backgroundColor = "rgb(255,100,100)"; // Red
+  }
+
   if (!set_tablePartHistory_SelectedRow(_table_parthistory_selected_row))
     set_tablePartHistory_SelectedRow(0);
 }
 
-function savePartToHistory(db_id, db_index, date_millis, quantity, price) {
+function savePartToHistory(db_id, db_index, date_millis, quantity, price, invoiceID) {
   var index = getContentExtraIndexFrom_DB_ID(db_id, db_index);
   if (index != null) {
     var partObj = _content_extra[db_index][index][0];
@@ -114,12 +163,14 @@ function savePartToHistory(db_id, db_index, date_millis, quantity, price) {
     dataObj.quantity = quantity;
     dataObj.price = price;
     dataObj.initials = getMyInitials();
-    if (partObj.data == null)
-      partObj.data = [dataObj];
+    dataObj.invoiceID = invoiceID;
+    if (partObj[CE_DATA] == null)
+      partObj[CE_DATA] = [dataObj];
     else
-      partObj.data.push(dataObj);
+      partObj[CE_DATA].push(dataObj);
     if (!_DEBUG_LOCAL_MODE) {
-      writeToDatabase("parts_db/" + _EXTRA_DB[db_index] + "/" + _content_extra[db_index][index][1], partObj, true, false, true, db_index);
+      var partObj0 = getContentExtraObj(db_index, index);
+      writeToDatabase("parts_db/" + _EXTRA_DB[db_index] + "/" + _content_extra[db_index][index][1], partObj0, true, false, true, db_index);
     }
   }
 }
@@ -127,6 +178,7 @@ function savePartToHistory(db_id, db_index, date_millis, quantity, price) {
 function clearPartFilters() {
   var date0 = new Date(FILTER_TIME_START);
   var date1 = new Date();
+  var date1 = new Date(date1.getFullYear(), date1.getMonth() + 1, date1.getDate());
   $('#part_history_filter_time').data('daterangepicker').setStartDate(date0);
   $('#part_history_filter_time').data('daterangepicker').setEndDate(date1);
   document.getElementById("part_history_filter_pn").value = "";
@@ -135,13 +187,14 @@ function clearPartFilters() {
   document.getElementById("part_history_filter_part_any_field").value = "";
   _part_filter_date_start = date0.getTime();
   _part_filter_date_end = date1.getTime();
+  partHistorySortIndex = 0;
   populatePartHistory();
 }
 
 function populatePartHistoryView(i0) {
   var i = _part_history_table_indexes[i0];
   if (i < _part_history_content_extra_objs.length) {
-    var obj_data = _part_history_content_extra_objs[i].content_extra[0].data;
+    var obj_data = _part_history_content_extra_objs[i].content_extra[0][CE_DATA];
     if (obj_data != null && obj_data.length > 0) {
       var html0 = "";
       var i1 = _part_history_content_extra_objs[i].i;
@@ -153,19 +206,83 @@ function populatePartHistoryView(i0) {
         html0 += "<table><tr><th>" + descrip1 + "</th></tr>";
         html0 += "<tr><th>" + descrip2 + "</th></tr></table>";
       }
-      html0 += "<table><tr><th>Date</th><th>Quantity</th><th>Price</th><th>Sold By</th></tr>";
+      html0 += "<table><tr><th>Date</th><th>Quantity</th><th>Price</th><th>Sold By</th><th>Customer</th></tr>";
+
+      var dateMap = new Map();
       for (var i = obj_data.length - 1; i >= 0; --i) {
+        var filter_price = document.getElementById("part_history_filter_price").value;
+        var do_filter_price = (filter_price.replace(/ /g, "").length > 0);
         var dataObj = obj_data[i];
-        html0 += "<tr>";
-        // dataObj.date = date_millis;
-        // dataObj.quantity = quantity;
-        // dataObj.price = price;
-        var date = new Date(dataObj.date);
-        html0 += "<td>" + getMMDDYYYY_HHMMText(date) + "</td>";
-        html0 += "<td>" + dataObj.quantity + "</td>";
-        html0 += "<td>$" + dataObj.price + "</td>";
-        html0 += "<td>" + dataObj.initials + "</td></tr>";
+        var match_failed = false;
+        if (!match_failed && _part_filter_date_start != -1) {
+          if (!isNaN(dataObj.date) && (dataObj.date < _part_filter_date_start || dataObj.date >= _part_filter_date_end)) {
+            match_failed = true;
+          }
+        }
+
+        if (!match_failed && do_filter_price) {
+          var result = String(dataObj.price).toLowerCase().match(getRegexSafeSearchTerm(filter_price).toLowerCase());
+          if (result == null) {
+            match_failed = true;
+          }
+        }
+
+        if (!match_failed) {
+          html0 += "<tr>";
+          var date = new Date(dataObj.date);
+          html0 += "<td>" + getMMDDYYYY_HHMMText(date) + "</td>";
+          html0 += "<td>" + dataObj.quantity + "</td>";
+          html0 += "<td>$" + dataObj.price + "</td>";
+          html0 += "<td>" + dataObj.initials + "</td>";
+          var invoice_index = getInvoiceByID(dataObj.invoiceID);
+          var customerName = "";
+          if (invoice_index != null) {
+            var invoice = _content_invoice_history[invoice_index];
+            if (standardizeString(invoice.name) == "")
+              customerName = "<span style='color: blue;' class='clickable' onclick='linkToInvoice(" + invoice_index + ");'><u>Unknown</u></span>";
+            else
+              customerName = "<span style='color: blue;' class='clickable' onclick='linkToInvoice(" + invoice_index + ");'><u>" + invoice.name + "</u></span>";
+          }
+          html0 += "<td>" + customerName + "</td>";
+          html0 += "</tr>";
+
+          if (dateMap.has(dataObj.date))
+            dateMap.set(dataObj.date, dateMap.get(dataObj.date) + dataObj.quantity);
+          else
+            dateMap.set(dataObj.date, dataObj.quantity);
+        }
       }
+
+      var x_axis = [];
+      var y_axis = [];
+      for (let [key, val] of dateMap) {
+        let date = new Date(key);
+        x_axis.push(date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate());
+        y_axis.push(val);
+      }
+
+      var trace1 = {
+        x: x_axis,
+        y: y_axis,
+        type: 'scatter',
+        name: 'Quantity',
+        showlegend: false
+      };
+
+      var layout = {
+        // title: '',
+        margin: {
+          l: 50,
+          r: 50,
+          b: 50,
+          t: 0,
+          pad: 4
+        },
+        showlegend: true
+      };
+
+      Plotly.newPlot('part_history_graph', [trace1], layout, { scrollZoom: true });
+
       html0 += "</table>";
       document.getElementById("table_part_history_div_view").innerHTML = html0;
     }

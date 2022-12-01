@@ -3,7 +3,8 @@ var _EXTRA_DB = null;
 var _EXTRA_DB_COMMENTS_PREFIXES = null;
 var _CHILD_PART_LINKS_CACHE = null;
 var _EXTRA_DB_FIELDS = null;
-var _AKA_GLOBAL = null;
+var CE_AKA = null;
+var CE_PN = null;
 var _extradb_link_index_cache = null;
 var _ROW_OFFSET = 0;
 
@@ -20,11 +21,11 @@ onmessage = function (e) {
   var _TABLE_SEARCH_RESULTS = e.data[9];
   _CHILD_PART_LINKS_CACHE = e.data[10];
   _EXTRA_DB_FIELDS = e.data[11];
-  _AKA_GLOBAL = e.data[12];
+  CE_AKA = e.data[12];
   _extradb_link_index_cache = e.data[13];
   var _ROW_OFFSET = e.data[14];
   var THREAD_ID = e.data[15];
-  // var rankings = e.data[16];
+  CE_PN = e.data[16];
 
   var _table_HTML_0 = "";
   var numLinkCells = array_trimmed.length * 2; //_DESCRIP2 and _COMMENTS
@@ -70,7 +71,7 @@ onmessage = function (e) {
   _TABLE_SEARCH_RESULTS = null;
   _CHILD_PART_LINKS_CACHE = null;
   _EXTRA_DB_FIELDS = null;
-  _AKA_GLOBAL = null;
+  CE_AKA = null;
   _extradb_link_index_cache = null;
   _ROW_OFFSET = null;
   THREAD_ID = null;
@@ -80,7 +81,7 @@ function getExtraDBLinkIndex(db, pn) {
   if (pn.length > 0) {
     if (_extradb_link_index_cache[db].has(pn)) {
       var index = _extradb_link_index_cache[db].get(pn);
-      if (_content_extra[db].length > index && String(_content_extra[db][index][0].PN) == pn) //Only include exact match PN in cache to ensure it doesn't load inferior match if indexes are changed
+      if (_content_extra[db].length > index && String(_content_extra[db][index][0][CE_PN]) == pn) //Only include exact match PN in cache to ensure it doesn't load inferior match if indexes are changed
       {
         return index;
       }
@@ -90,27 +91,27 @@ function getExtraDBLinkIndex(db, pn) {
 
     for (var i = 0; i < _content_extra[db].length; ++i) //Exact match PN
     {
-      if (String(_content_extra[db][i][0].PN) == pn) {
+      if (String(_content_extra[db][i][0][CE_PN]) == pn) {
         _extradb_link_index_cache[db].set(pn, i);
         return i;
       }
     }
     for (var i = 0; i < _content_extra[db].length; ++i) {
       var pn1 = getStandardPNString(pn);
-      if (getStandardPNString(String(_content_extra[db][i][0].PN)) == pn1) //General match PN
+      if (getStandardPNString(String(_content_extra[db][i][0][CE_PN])) == pn1) //General match PN
       {
         return i;
       }
     }
     for (var i = 0; i < _content_extra[db].length; ++i) //Exact match AKA
     {
-      if (String(_content_extra[db][i][0][_EXTRA_DB_FIELDS[db][_AKA_GLOBAL]]) == pn) {
+      if (String(_content_extra[db][i][0][CE_AKA]) == pn) {
         return i;
       }
     }
     for (var i = 0; i < _content_extra[db].length; ++i) {
       var pn1 = getStandardPNString(pn);
-      if (getStandardPNString(String(_content_extra[db][i][0][_EXTRA_DB_FIELDS[db][_AKA_GLOBAL]])) == pn1) //General match AKA
+      if (getStandardPNString(String(_content_extra[db][i][0][CE_AKA])) == pn1) //General match AKA
       {
         return i;
       }

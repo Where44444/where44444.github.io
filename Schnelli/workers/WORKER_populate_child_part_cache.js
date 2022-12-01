@@ -1,7 +1,8 @@
 var _content_extra = null;
 var _extradb_link_index_cache = null;
 var _EXTRA_DB_FIELDS = null;
-var _AKA_GLOBAL = null;
+var CE_AKA = null;
+var CE_PN = null;
 
 onmessage = function(e) {
     var _content = e.data[0];
@@ -10,7 +11,8 @@ onmessage = function(e) {
     _extradb_link_index_cache = e.data[3];
     var _CONTENT_EXTRA_DB_INDEXES = e.data[4];
     _EXTRA_DB_FIELDS = e.data[5];
-    _AKA_GLOBAL = e.data[6];
+    CE_AKA = e.data[6];
+    CE_PN = e.data[7];
 
     for(var i = 0; i < _content.length; ++i)
     {
@@ -29,7 +31,7 @@ onmessage = function(e) {
     _extradb_link_index_cache = null;
     _CONTENT_EXTRA_DB_INDEXES = null;
     _EXTRA_DB_FIELDS = null;
-    _AKA_GLOBAL = null;
+    CE_AKA = null;
 }
 
 function getExtraDBLinkIndex(db, pn) 
@@ -39,7 +41,7 @@ function getExtraDBLinkIndex(db, pn)
     if(_extradb_link_index_cache[db].has(pn))
     {
       var index = _extradb_link_index_cache[db].get(pn);
-      if(_content_extra[db].length > index && String(_content_extra[db][index][0].PN) == pn) //Only include exact match PN in cache to ensure it doesn't load inferior match if indexes are changed
+      if(_content_extra[db].length > index && String(_content_extra[db][index][0][CE_PN]) == pn) //Only include exact match PN in cache to ensure it doesn't load inferior match if indexes are changed
       {
         return index;
       }
@@ -48,7 +50,7 @@ function getExtraDBLinkIndex(db, pn)
     
     for (var i = 0; i < _content_extra[db].length; ++i) //Exact match PN
     {
-      if (String(_content_extra[db][i][0].PN) == pn) 
+      if (String(_content_extra[db][i][0][CE_PN]) == pn) 
       {
         _extradb_link_index_cache[db].set(pn, i);
         return i;
@@ -56,20 +58,20 @@ function getExtraDBLinkIndex(db, pn)
     }
     for (var i = 0; i < _content_extra[db].length; ++i) {
       var pn1 = getStandardPNString(pn);
-      if (getStandardPNString(String(_content_extra[db][i][0].PN)) == pn1) //General match PN
+      if (getStandardPNString(String(_content_extra[db][i][0][CE_PN])) == pn1) //General match PN
       {
         return i;
       }
     }
     for (var i = 0; i < _content_extra[db].length; ++i) //Exact match AKA
     {
-      if (String(_content_extra[db][i][0][_EXTRA_DB_FIELDS[db][_AKA_GLOBAL]]) == pn) {
+      if (String(_content_extra[db][i][0][CE_AKA]) == pn) {
         return i;
       }
     }
     for (var i = 0; i < _content_extra[db].length; ++i) {
       var pn1 = getStandardPNString(pn);
-      if (getStandardPNString(String(_content_extra[db][i][0][_EXTRA_DB_FIELDS[db][_AKA_GLOBAL]])) == pn1) //General match AKA
+      if (getStandardPNString(String(_content_extra[db][i][0][CE_AKA])) == pn1) //General match AKA
       {
         return i;
       }

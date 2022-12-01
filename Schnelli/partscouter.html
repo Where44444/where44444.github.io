@@ -3,11 +3,22 @@
 <title>PartScouter</title>
 
 <head>
+  <div id="TEST_WARNING"
+    style="display: none; position: fixed; top: 0px; font-size: 10pt; color: red; z-index: 10000000;">TESTING
+    MODE</div>
+  <script>
+    var debug_present = false;
+  </script>
+  <!--Ensures debug options don't make it to web version -->
+  <!-- <script type="text/javascript" src="partscouter_tests.js"></script> -->
+  <!-- //Don't use, won't handle new _content format -->
+  <!-- <script type="text/javascript" src="DONTUPLOAD/partscouter_debug.js"></script> -->
+  <!-- //Don't use, won't handle new _content format -->
+
   <link rel="icon" type="image/x-icon" href="./favicon.ico">
   <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
   <meta content="utf-8" http-equiv="encoding">
-  <!--Ensures debug options don't make it to web version -->
-  <!-- <script type="text/javascript" src="DONTUPLOAD/partscouter_debug.js"></script> -->
+
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Ensures optimal rendering on mobile devices. -->
@@ -16,10 +27,13 @@
   <script type="text/javascript" src="external/firebasejs/8.9.1/firebase-app.js"></script>
   <script type="text/javascript" src="external/firebasejs/8.9.1/firebase-database.js"></script>
   <script type="text/javascript" src="external/firebasejs/8.9.1/firebase-auth.js"></script>
+  <script type="text/javascript" src="external/firebasejs/8.9.1/firebase-firestore.js"></script>
 
   <script type="text/javascript" src="external/jquery/latest/jquery.min.js"></script>
   <script type="text/javascript" src="external/momentjs/latest/moment.min.js"></script>
   <script type="text/javascript" src="external/npm/daterangepicker/daterangepicker.min.js"></script>
+
+  <script type="text/javascript" src="external/plotly/plotly-2.14.0.min.js"></script>
 
   <!--Requires jquery-->
   <link rel="stylesheet" type="text/css" href="external/npm/daterangepicker/daterangepicker.css" />
@@ -46,13 +60,16 @@
   <div id="main_loading_text" style="display: none; margin: auto; text-align: center;"></div>
   <div class="hide" id="snackbar" style="display: none; z-index: 4;"></div>
   <div id="snackbar_no_anim" style="display: none; z-index: 4;"></div>
-  <button class="no-print" id="exit_invoice_button" style="display: none; position: absolute; top: 0px; left: 10px;"
-    onclick="exitInvoice();">&lt; Back</button>
+  <button class="no-print" id="exit_invoice_button"
+    style="display: none; position: absolute; top: 0px; left: 10px; z-index: 2;" onclick="exitInvoice();">&lt;
+    Back</button>
   <button class="no-print" id="exit_invoice_from_history_button"
-    style="display: none; position: absolute; top: 0px; left: 10px;" onclick="exitInvoiceFromHistory();">&lt;
+    style="display: none; position: absolute; top: 0px; left: 10px; z-index: 2;"
+    onclick="exitInvoiceFromHistory();">&lt;
     Back</button>
   <button class="no-print" id="exit_invoice_from_new_button"
-    style="display: none; position: absolute; top: 0px; left: 10px;" onclick="exitInvoiceFromNew();">&lt; Back</button>
+    style="display: none; position: absolute; top: 0px; left: 10px; z-index: 2;" onclick="exitInvoiceFromNew();">&lt;
+    Back</button>
   <div id="invoice_content" style="display: none;"></div>
   <div id="invoice_from_history_content" style="display: none;"></div>
   <div id="add_invoice_content" style="display: none;"></div>
@@ -166,12 +183,11 @@
         id="password_input_temp" type="password" onfocus='deselectTable();'>
       <br>
       <button id="button_login_temp" style="width: 500px; height: 50px; display: block; margin: auto;"
-        onclick="log_in_temp()">Login</button>
+        onclick="log_in_temp();">Login</button>
       <div id="login_temp_loader" class="loader" style="display: none; margin: auto;"></div>
     </div>
 
     <div id="sync_db_div" style="display: none;">
-
       <div id="sync_db_firebase_login_div" style="display: none;">
         <button style="width: 200px; height: 40px;" onclick="exitFirebaseServerScreen_sync();">Back</button>
         <h1 style="text-align: center;">Log in to Google FireBase to allow syncing</h1>
@@ -251,6 +267,8 @@
             <div id="TAB_sort_order" class="tabButton" onclick="setTab(TAB_SORT_ORDERS);">
               Sort
               Orders</div>
+            <div id="TAB_export" class="tabButton" onclick="setTab(TAB_EXPORT);">
+              Export</div>
             <div id="TAB_mainmenu" class="tabButton" style="display: none;"></div>
           </div>
           <div style="display: flex; flex-direction: row;">
@@ -289,7 +307,7 @@
       <div style="height: 60px;"></div>
 
       <div id="TAB_mainmenu_div" style="display: none;">
-        <br><br><br><br><br>
+        <br>
         <div id="mainmenu_shortcut_table"></div>
       </div>
 
@@ -315,9 +333,10 @@
               </td>
             </tr>
           </table>
-          <button id="button_clear_part_filters" style="background-color: #70A2FF; color: black;"
+          <button id="button_clear_part_filters" style="background-color: #70A2FF; color: black; margin-right: 10px;"
             onclick="clearPartFilters();"><span style="color: white;">C</span>lear Filters</button>
           <br><br>
+          <div id="part_history_graph" style="height: 200px;"></div>
           <div style="display: flex; flex-direction: row;">
             <div id="table_part_history_div_list"></div>
             <div style="width: 20px;"></div>
@@ -397,7 +416,6 @@
 
       <div id="TAB_sort_order_div">
         <div id="sort_order_div" style="display: none;">
-          <!-- <h1 class='clickable' onclick='toggleDiv(null, "sort_order_toggle");'><span id="sort_order_toggle_expander_icon" style="font-size: 50px; font-weight: 100;">-</span> Sort Orders</h1> -->
           <div id="sort_order_toggle_div">
             <div id="sort_order_table_div"></div>
             <button id="button_add_sort_order" onclick="startNewSortOrder(0);"
@@ -551,16 +569,18 @@
       <br>
 
       <div id="TAB_reorders_div">
-        <button id="button_update_reorders" style="background-color: #70A2FF; color: black;"
+        <button id="button_update_reorders" style="background-color: #70A2FF; color: black; margin-right: 20px;"
           onclick="updateReorders();">Update All <span style="color: white;">R</span>eorders</button>
+        <button id="button_export_reorders" style="background-color: #70A2FF; color: black;"
+          onclick="exportReorders();"><span style="color: white;">E</span>xport</button>
         <div id="table_reorders_div"></div>
       </div>
 
       <div id="TAB_invoice_history_div">
         <div id="invoice_history_internal_div">
-          <button id="button_update_invoice_history" style="background-color: #70A2FF; color: black;"
+          <!-- <button id="button_update_invoice_history" style="background-color: #70A2FF; color: black;"
             onclick="retrieveInvoiceDataFromDatabase(populateInvoiceHistory);"><span style="color: white;">U</span>pdate
-            Invoice History</button>
+            Invoice History</button> -->
           <h3 style="background-color: #70A2FF; color: black;"><span style="color: white">F</span>ilter by</h3>
           <table>
             <tr>
@@ -586,7 +606,20 @@
           </table>
           <button id="button_clear_invoice_filters" style="background-color: #70A2FF; color: black;"
             onclick="clearInvoiceFilters();"><span style="color: white;">C</span>lear Filters</button>
-          <br><br>
+          <button id="button_export_invoices" style="background-color: #70A2FF; color: black;"
+            onclick="exportInvoicesToQuickBooks();"><span style="color: white;">E</span>xport Selected to
+            QuickBooks</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <button id="button_get_webconnector" style="background-color: #70A2FF; color: black;"
+            onclick="getWebConnector();"
+            title="Quickbooks Web Connector is required to export invoices from PartScouter to Quickbooks">Download
+            Quickbooks Web Connector</button>
+          <button id="button_get_qwc" style="background-color: #70A2FF; color: black;" onclick="getQWC();"
+            title="Once downloaded, open this file and it will give Quickbooks Web Connector the information to connect to PartScouter">Download
+            QWC File</button>
+          <input id="qwc_password" style="display: none; width: 250px; height: 40px; font-size: 16px;" type="password"
+            placeholder="Choose Web Connector Password">
+          <button id="button_qwc_apply" style="display: none; background-color: #70A2FF; color: black;"
+            onclick="applyQWC();">Apply</button>
           <div id="table_invoice_history_div"></div>
         </div>
       </div>
@@ -676,6 +709,15 @@
         </div>
       </div>
 
+      <div id="TAB_export_div">
+        <button id="button_export_inventory_all" style="background-color: #70A2FF; color: black;"
+          onclick="exportInventoryList();">Inventory List Export (<span
+            style="color: white;">A</span>ll)</button><br><br>
+        <button id="button_export_inventory_qty" style="background-color: #70A2FF; color: black;"
+          onclick="exportInventoryList(true);">Inventory List Export (<span style="color: white;">Q</span>uantity 1 or
+          more)</button>
+      </div>
+
       <h2>Hotkeys:</h2>
       <p>Tables</p>
       <p>&nbsp;&nbsp;Arrow Keys - Navigate</p>
@@ -691,7 +733,6 @@
       <p>v 1.76.3</p>
       <p><a id="updater_link_local" href="ez_database_updater/ez_database_updater.html" target="_blank">Alpha 4 Data
           Importer</a></p>
-      <button onclick="exportInventoryList();">Inventory List Export</button>
       <h3 id="database_identifier" style="text-align: center;"></h3>
       <br><br><br><br>
       <!--Line breaks so key_shortcut_info_bar and snackbar doesn't hide anything at bottom-->

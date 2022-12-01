@@ -109,7 +109,7 @@ function generatePDFAddToDatabaseTable(index) {
     _extraDBs_PDF.set(index, extradb);
     _extraDBLinks_PDF.set(index, link);
     var partObj = _content_extra[extradb][link][0];
-    stockamount = Number(partObj.SHOP_QTY);
+    stockamount = Number(partObj[CE_SHOP_QTY]);
     if (stock_ele != null)
       stockamount = stock_ele.value;
     var shippedamount_change = "";
@@ -127,83 +127,83 @@ function generatePDFAddToDatabaseTable(index) {
     if (removeExtraSpaces(stockamount) == "") {
       stockamount = 0;
     }
-    if (descrip == partObj.DESCRIP1 || removeExtraSpaces(descrip) == "") {
+    if (descrip == partObj[CE_DESCRIP1] || removeExtraSpaces(descrip) == "") {
       descrip_change = "No Change";
-      descrip = partObj.DESCRIP1;
+      descrip = partObj[CE_DESCRIP1];
     }
     else {
       descrip_change = "<img src='down_arrow.png' width=20px height=20px>";
     }
-    if (make == partObj[_APPL_MFR_INDEXES[extradb]] || removeExtraSpaces(make) == "") {
+    if (make == partObj[CE_PART_MFR] || removeExtraSpaces(make) == "") {
       make_change = "No Change";
-      make = partObj[_APPL_MFR_INDEXES[extradb]];
+      make = partObj[CE_PART_MFR];
     }
     else {
       make_change = "<img src='down_arrow.png' width=20px height=20px>";
     }
-    if (make == partObj[_APPL_MFR_INDEXES[extradb]] || removeExtraSpaces(make) == "") {
+    if (make == partObj[CE_PART_MFR] || removeExtraSpaces(make) == "") {
       make_change = "No Change";
-      make = partObj[_APPL_MFR_INDEXES[extradb]];
+      make = partObj[CE_PART_MFR];
     }
     else {
       make_change = "<img src='down_arrow.png' width=20px height=20px>";
     }
-    if (date == partObj.DATE || removeExtraSpaces(date) == "") {
+    if (date == partObj[CE_DATE] || removeExtraSpaces(date) == "") {
       date_change = "No Change";
-      date = partObj.DATE;
+      date = partObj[CE_DATE];
     }
     else {
       date_change = "<img src='down_arrow.png' width=20px height=20px>";
     }
-    if (from == partObj.FROM || removeExtraSpaces(from) == "") {
+    if (from == partObj[CE_FROM] || removeExtraSpaces(from) == "") {
       from_change = "No Change";
-      from = partObj.FROM;
+      from = partObj[CE_FROM];
     }
     else {
       from_change = "<img src='down_arrow.png' width=20px height=20px>";
     }
 
-    if (cgs == partObj.CGS || removeExtraSpaces(cgs) == "") {
+    if (cgs == partObj[CE_CGS] || removeExtraSpaces(cgs) == "") {
       cgs_change = "No Change";
-      cgs = partObj.CGS;
+      cgs = partObj[CE_CGS];
     }
     else {
-      diff = get_plus_minus_usd_string(Number(cgs) - Number(partObj.CGS));
+      diff = get_plus_minus_usd_string(Number(cgs) - Number(partObj[CE_CGS]));
       cgs_change = "<img src='down_arrow.png' width=20px height=20px> " + diff;
     }
-    if (reg == partObj.REG || removeExtraSpaces(reg) == "") {
+    if (reg == partObj[CE_REG] || removeExtraSpaces(reg) == "") {
       reg_change = "No Change";
-      reg = partObj.REG;
+      reg = partObj[CE_REG];
     }
     else {
-      diff = get_plus_minus_usd_string(Number(reg) - Number(partObj.REG));
+      diff = get_plus_minus_usd_string(Number(reg) - Number(partObj[CE_REG]));
       reg_change = "<img src='down_arrow.png' width=20px height=20px> " + diff;
     }
-    if (spl == partObj.SPL || removeExtraSpaces(spl) == "") {
+    if (spl == partObj[CE_SPL] || removeExtraSpaces(spl) == "") {
       spl_change = "No Change";
-      spl = partObj.SPL;
+      spl = partObj[CE_SPL];
     }
     else {
-      diff = get_plus_minus_usd_string(Number(spl) - Number(partObj.SPL));
+      diff = get_plus_minus_usd_string(Number(spl) - Number(partObj[CE_SPL]));
       spl_change = "<img src='down_arrow.png' width=20px height=20px> " + diff;
     }
 
     newqty = 0;
     newqty += Number(stockamount);
-    newqty += Number(partObj.SHOP_QTY);
-    diff = newqty - Number(partObj.SHOP_QTY);
+    newqty += Number(partObj[CE_SHOP_QTY]);
+    diff = newqty - Number(partObj[CE_SHOP_QTY]);
     newqty = Math.floor(Number(newqty));
     if (diff >= 0)
       diff = "+" + diff;
     shippedamount_change = "<img src='down_arrow.png' width=20px height=20px> " + diff;
     var htmlToAdd = "";
-    if (removeExtraSpaces(partObj.FIXED) != "")
+    if (removeExtraSpaces(partObj[CE_FIXED]) != "")
       htmlToAdd += "<div style='color: red;'>Fixed price found!</div>";
     htmlToAdd += "<table id='import_part_form_" + index + "'>"
       + "<tr><th>DB</th><th>PN</th><th>AKA</th><th>REG</th><th>SPL</th><th>SHOP_QTY</th><th>FIXED</th><th>MAKE</th><th>DESCRIP1</th><th>DATE</th><th>FROM</th><th>CGS</th></tr>"
-      + "<tr><td>" + _EXTRA_DB[extradb] + "</td><td>" + partObj.PN + "</td><td>" + partObj[_EXTRA_DB_FIELDS[extradb][_AKA_GLOBAL]] + "</td><td>" + partObj.REG + "</td><td>" + partObj.SPL + "</td><td>" + partObj.SHOP_QTY + "</td><td>" + partObj.FIXED + "</td><td>" + partObj[_APPL_MFR_INDEXES[extradb]] + "</td><td>" + partObj.DESCRIP1 + "</td><td>" + partObj.DATE + "</td><td>" + partObj.FROM + "</td><td>" + partObj.CGS + "</td></tr>"
+      + "<tr><td>" + _EXTRA_DB[extradb] + "</td><td>" + partObj[CE_PN] + "</td><td>" + partObj[CE_AKA] + "</td><td>" + partObj[CE_REG] + "</td><td>" + partObj[CE_SPL] + "</td><td>" + partObj[CE_SHOP_QTY] + "</td><td>" + partObj[CE_FIXED] + "</td><td>" + partObj[CE_PART_MFR] + "</td><td>" + partObj[CE_DESCRIP1] + "</td><td>" + partObj[CE_DATE] + "</td><td>" + partObj[CE_FROM] + "</td><td>" + partObj[CE_CGS] + "</td></tr>"
       + "<tr><td></td><td></td><td></td><td>" + reg_change + "</td><td>" + spl_change + "</td><td>" + shippedamount_change + "</td><td></td><td>" + make_change + "</td><td>" + descrip_change + "</td><td>" + date_change + "</td><td>" + from_change + "</td><td>" + cgs_change + "</td></tr>"
-      + "<tr><td>" + _EXTRA_DB[extradb] + "</td><td>" + partObj.PN + "</td><td>" + partObj[_EXTRA_DB_FIELDS[extradb][_AKA_GLOBAL]] + "</td><td>" + reg + "</td><td>" + spl + "</td><td>" + newqty + "</td><td>" + partObj.FIXED + "</td><td>" + make + "</td><td>" + descrip + "</td><td>" + date + "</td><td>" + from + "</td><td>" + cgs + "</td></tr>"
+      + "<tr><td>" + _EXTRA_DB[extradb] + "</td><td>" + partObj[CE_PN] + "</td><td>" + partObj[CE_AKA] + "</td><td>" + reg + "</td><td>" + spl + "</td><td>" + newqty + "</td><td>" + partObj[CE_FIXED] + "</td><td>" + make + "</td><td>" + descrip + "</td><td>" + date + "</td><td>" + from + "</td><td>" + cgs + "</td></tr>"
       + "</table>"
       + "<button id='button_pdfimport_save_addrow'   style='background-color: #70A2FF; color: black;' onclick='confirmPDFAddToDatabase(" + index + ");'><span style='color: white;'>S</span>ave</button>&nbsp;&nbsp;"
       + "<button id='button_pdfimport_cancel_addrow' style='background-color: #70A2FF; color: black;' onclick='cancelPDFAddToDatabase(" + index + ");' ><span style='color: white;'>C</span>ancel</button>";
@@ -636,23 +636,24 @@ function confirmPDFAddToDatabase(index) {
   var link = _extraDBLinks_PDF.get(index);
   var partObj = _content_extra[extradb][link][0];
   var originalObj = copyObj(partObj);
-  partObj.REG = _newREGs.get(index);
-  partObj.SPL = _newSPLs.get(index);
-  partObj.SHOP_QTY = _newSHOP_QTYs.get(index);
-  partObj.DESCRIP1 = _newDESCRIPs.get(index);
-  partObj[_APPL_MFR_INDEXES[extradb]] = _newMAKEs.get(index);
-  partObj.DATE = _newDATEs.get(index);
-  partObj.FROM = _newFROMs.get(index);
-  partObj.CGS = _newCGSs.get(index);
+  partObj[CE_REG] = _newREGs.get(index);
+  partObj[CE_SPL] = _newSPLs.get(index);
+  partObj[CE_SHOP_QTY] = _newSHOP_QTYs.get(index);
+  partObj[CE_DESCRIP1] = _newDESCRIPs.get(index);
+  partObj[CE_PART_MFR] = _newMAKEs.get(index);
+  partObj[CE_DATE] = _newDATEs.get(index);
+  partObj[CE_FROM] = _newFROMs.get(index);
+  partObj[CE_CGS] = _newCGSs.get(index);
   document.getElementById("pdf_add_to_database_table_" + index).innerHTML = "";
   document.getElementById("startAddToDatabaseButton_" + index).innerHTML = "Added";
   document.getElementById("startAddToDatabaseButton_" + index).disabled = true;
   document.getElementById("startAddToDatabaseButton_" + index).className = "button_disabled";
   if (!_DEBUG_LOCAL_MODE) {
-    writeToDatabase("parts_db/" + _EXTRA_DB[extradb] + "/" + _content_extra[extradb][link][1], partObj, true, false, true, extradb);
+    var partObj0 = getContentExtraObj(extradb, link);
+    writeToDatabase("parts_db/" + _EXTRA_DB[extradb] + "/" + _content_extra[extradb][link][1], partObj0, true, false, true, extradb);
     var compare_str = getObjectCompareString(originalObj, partObj);
     if (compare_str != null)
-      writeToChangeHistory("Edit | Child Record", "Edited Child Record from PDF Import in \"" + _EXTRA_DB[extradb] + "\" with PN \"" + originalObj.PN + "\" " + compare_str);
+      writeToChangeHistory("Edit | Child Record", "Edited Child Record from PDF Import in \"" + _EXTRA_DB[extradb] + "\" with PN \"" + originalObj[CE_PN] + "\" " + compare_str);
   }
 
   // var parent_indexes = getParentRecordIndexesWithChildPart(extradb, link);
@@ -662,7 +663,7 @@ function confirmPDFAddToDatabase(index) {
   //   updateReorder(parent_indexes[i]);
   // }
   setPDFAddToDatabaseButtons(true);
-  showSnackbar("Updated child part " + partObj.PN, 5000);
+  showSnackbar("Updated child part " + partObj[CE_PN], 5000);
 }
 
 function startPDFNewChildRecord(index) {

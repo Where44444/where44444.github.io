@@ -608,7 +608,7 @@ function populateSearchResults(indexStart, selectTopRow, selectBottomRow, rowToS
 
         var childPartButtonWorker = new Worker('workers/WORKER_add_child_part_button_html.js');
         _adding_child_part_links = true;
-        childPartButtonWorker.postMessage([_EXTRA_DB, _EXTRA_DB_COMMENTS_PREFIXES, _content_extra, array_trimmed_slice, INDEXES_CONCAT, _DESCRIP1, _INDEX_ORDER, _DESCRIP2, _COMMENTS, _TABLE_SEARCH_RESULTS, _CHILD_PART_LINKS_CACHE, _EXTRA_DB_FIELDS, _AKA_GLOBAL, _extradb_link_index_cache, orig_indexStart, i /*, /*DEBUG rankings DEBUG*/]);
+        childPartButtonWorker.postMessage([_EXTRA_DB, _EXTRA_DB_COMMENTS_PREFIXES, _content_extra, array_trimmed_slice, INDEXES_CONCAT, _DESCRIP1, _INDEX_ORDER, _DESCRIP2, _COMMENTS, _TABLE_SEARCH_RESULTS, _CHILD_PART_LINKS_CACHE, _EXTRA_DB_FIELDS, CE_AKA, _extradb_link_index_cache, orig_indexStart, i, CE_PN]);
 
         childPartButtonWorker.onmessage = function (e) {
           if (e.data[0] == 1) { //Finished
@@ -845,7 +845,9 @@ function clearSearchPartNumInputs() {
 function clearSearchStandardInputs() {
   document.getElementById("search_input").value = "";
   for (var i = 0; i < INDEXES_CONCAT.length; ++i) {
-    document.getElementById("search_input_" + i).value = "";
+    var ele = document.getElementById("search_input_" + i);
+    if (ele != null)
+      ele.value = "";
   }
 }
 

@@ -88,14 +88,18 @@ function populateInvoice() {
 
     document.getElementById("invoice_input_invoice_no").value = document.getElementById("invoice_last_invoice_no_input").value;
     document.getElementById("invoice_input_date").value = today;
-    document.getElementById("invoice_address_textarea_2").innerHTML = document.getElementById("invoice_address_textarea").value;
+    document.getElementById("invoice_address_textarea_2").innerHTML = document.getElementById("invoice_address_textarea").value.replace(/\n/g, "<br>");
     document.getElementById("invoice_bottom_textarea_2").value = document.getElementById("invoice_bottom_textarea").value;
 
     if (_invoice_data.customer_order_no != null) {
       document.getElementById("invoice_input_customer_order_no").value = _invoice_data.customer_order_no;
+      document.getElementById("invoice_input_email").value = _invoice_data.email;
       document.getElementById("invoice_input_name").value = _invoice_data.name;
       document.getElementById("invoice_input_address").value = _invoice_data.address;
-      document.getElementById("invoice_input_citystatezip").value = _invoice_data.citystatezip;
+      document.getElementById("invoice_input_city").value = _invoice_data.city;
+      document.getElementById("invoice_input_state").value = _invoice_data.state;
+      document.getElementById("invoice_input_zip").value = _invoice_data.zip;
+      document.getElementById("invoice_input_unpaid").checked = _invoice_data.unpaid;
       document.getElementById("invoice_input_phone").value = _invoice_data.phone;
       document.getElementById("invoice_input_soldby").value = _invoice_data.soldby;
       document.getElementById("invoice_textarea_misc").value = _invoice_data.misc;
@@ -108,10 +112,182 @@ function populateInvoice() {
   }
 }
 
+function sanitizeXMLString(str) {
+  return str.replace(/</g, "(").replace(/>/g, ")");
+}
+
+function getWebConnector() {
+  var windowReference = window.open();
+  windowReference.location = "https://quickbooks.intuit.com/learn-support/en-us/help-article/install-products/set-quickbooks-web-connector/L4Vp7VI44_US_en_US";
+}
+
+function getQWC() {
+  if (_FIREBASE_LOGGED_IN) {
+    if (document.getElementById("qwc_password").style.display != "") {
+      document.getElementById("qwc_password").style.display = "";
+      document.getElementById("button_qwc_apply").style.display = "";
+    }
+    else {
+      document.getElementById("qwc_password").style.display = "none";
+      document.getElementById("button_qwc_apply").style.display = "none";
+    }
+  }
+  else
+    invoiceHistoryLogin();
+}
+
+function applyQWC() {
+  if (_FIREBASE_LOGGED_IN) {
+    var password = document.getElementById("qwc_password").value;
+    if (password.length >= 6) {
+      if (!charInStr('&', password)) {
+        document.getElementById("qwc_password").style.display = "none";
+        document.getElementById("button_qwc_apply").style.display = "none";
+        document.getElementById("qwc_password").value = "";
+
+        let id = _firebaseAuthUID;
+        showSnackbar("Adding user...", 5000);
+        const xmlhttp = new XMLHttpRequest();
+        xmlhttp.onload = function () {
+          showSnackbar("User added", 5000);
+          let qwc =
+            '<?xml version="1.0"?>'
+            + '<QBWCXML>'
+            + '<AppName>PartScouter Invoices Connector</AppName>'
+            + '<AppID></AppID>'
+            + '<AppURL>https://www.cleanassistant.net/partscouter_server/server.php</AppURL>'
+            + '<AppDescription></AppDescription>'
+            + '<AppSupport>https://www.cleanassistant.net/partscouter_server/help.html</AppSupport>'
+            + '<UserName>' + id + '</UserName>'
+            + '<OwnerID>{90A44FB7-33D9-4815-AC85-AC86A7E7D1EB}</OwnerID>'
+            + '<FileID>{57F3B9B6-86F1-4FCC-B1FF-967DE1813D20}</FileID>'
+            + '<QBType>QBFS</QBType>'
+            + '<IsReadOnly>false</IsReadOnly>'
+            + '<Style>RPC</Style>'
+            + '</QBWCXML>';
+          download("PartScouter.qwc", qwc);
+        }
+        xmlhttp.onerror = function (err) {
+          showSnackbar("Error adding user!", 5000);
+        };
+        xmlhttp.open("GET", "https://www.cleanassistant.net/partscouter_server/adduser.php?user=" + id + "&pass=" + password);
+        xmlhttp.send();
+      }
+      else
+        showSnackbar("Password may not use '&'", 5000);
+    }
+    else
+      showSnackbar("Password must be at least 6 characters in length", 5000);
+  }
+  else
+    invoiceHistoryLogin();
+}
+
+function exportInvoicesToQuickBooks() {
+  if (_FIREBASE_LOGGED_IN) {
+    var selected_invoices = [];
+    var found = true;
+    var inc = 0;
+    while (found) {
+      var ele = document.getElementById("invoice_checkbox_" + inc);
+      if (ele != null) {
+        if (ele.checked)
+          selected_invoices.push(_table_invoice_objs[inc]);
+      } else {
+        found = false;
+      }
+      ++inc;
+    }
+
+    //Qty, Desc, Sell, Amount, SO, Order_Info, DB, ID
+    var inc = 0;
+    for (let invoice of selected_invoices) {
+      var date = new Date(invoice.time);
+      //TODO Change to InvoiceAddRq from SalesReceiptAddRq if unpaid
+      var pre = RECEIPT_XML_PRE;
+      var is_invoice = false;
+      if (invoice.unpaid == "true") {
+        is_invoice = true;
+        pre = INVOICE_XML_PRE;
+        pre = pre.replace("W4CUSTOMER", trimString(sanitizeXMLString(invoice.name), 209));
+      }
+      pre = pre.replace("W4DATE", sanitizeXMLString(date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate()));
+      pre = pre.replace("W4REFNUMBER", trimString(sanitizeXMLString(invoice.invoice_no), 11));
+      pre = pre.replace("W4ADDR1", trimString(sanitizeXMLString(invoice.address), 41));
+      pre = pre.replace("W4CITY", trimString(sanitizeXMLString(invoice.city), 31));
+      pre = pre.replace("W4STATE", trimString(sanitizeXMLString(invoice.state), 21));
+      pre = pre.replace("W4POSTALCODE", trimString(sanitizeXMLString(invoice.zip), 13));
+      pre = pre.replace("W4NOTE", trimString(sanitizeXMLString(invoice.name), 41));
+      pre = pre.replace("W4IS_PENDING", sanitizeXMLString(invoice.unpaid));
+      if (is_invoice)
+        pre = pre.replace("W4PONUMBER", trimString(sanitizeXMLString(invoice.customer_order_no), 25));
+      pre = pre.replace("W4PHONE", trimString(sanitizeXMLString(standardizeString(invoice.phone)), 13));
+      pre = pre.replace("W4MEMO", trimString(sanitizeXMLString(invoice.email), 4095));
+      pre = pre.replace("W4OTHER", trimString(sanitizeXMLString(invoice.soldby + "|" + invoice.specs + "|" + invoice.misc), 29));
+
+      for (let part of invoice.invoice_parts) {
+        var part_index = getContentExtraIndexFrom_DB_ID(part[7], Number(part[6]));
+
+        var qty = "0";
+        var reg = "0"; //Dealer Cost
+        if (part_index != null) {
+          var part0 = _content_extra[part[6]][part_index][0];
+          qty = String(part0[CE_SHOP_QTY]);
+          reg = String(part0[CE_REG]);
+        }
+        var item = RECEIPT_XML_ITEM;
+        if (invoice.unpaid === "true")
+          item = INVOICE_XML_ITEM;
+        item = item.replace("W4FULLNAME", sanitizeXMLString(part[6]) + "|" + sanitizeXMLString(part[7]));
+        item = item.replace("W4DESC", trimString(sanitizeXMLString(part[1]), 4095));
+        item = item.replace("W4QUANTITY", sanitizeXMLString(part[0]));
+        item = item.replace("W4AMOUNT", sanitizeXMLString(part[3].replace("$", "")));
+        item = item.replace("W4OTHER1", trimString(sanitizeXMLString(qty), 29));
+        item = item.replace("W4OTHER2", trimString(sanitizeXMLString(reg), 29));
+        pre += item;
+      }
+      if (invoice.unpaid === "true")
+        pre += INVOICE_XML_POST;
+      else
+        pre += RECEIPT_XML_POST;
+
+      pre = pre.replace(/&/g, "");
+      ++inc;
+      const xmlhttp = new XMLHttpRequest();
+      xmlhttp.onload = function () {
+        showSnackbar("Invoice sent! " + inc + "/" + selected_invoices.length, 5000);
+      }
+      xmlhttp.onerror = function (err) {
+        showSnackbar("Error sending!", 5000);
+      };
+      xmlhttp.open("GET", "https://www.cleanassistant.net/partscouter_server/input.php?q=" + pre + "&user=" + _firebaseAuthUID);
+      xmlhttp.send();
+    }
+  }
+  else
+    invoiceHistoryLogin();
+}
+
+function selectAllInvoices() {
+  var found = true;
+  var inc = 0;
+  while (found) {
+    var ele = document.getElementById("invoice_checkbox_" + inc);
+    if (ele != null) {
+      ele.checked = document.getElementById("select_all_invoices").checked;
+    } else {
+      found = false;
+    }
+    ++inc;
+  }
+}
+
 var _invoice_filter_date_start = -1;
 var _invoice_filter_date_end = -1;
+var _table_invoice_objs = [];
 function populateInvoiceHistory() {
   var table_html = "<table><tr>"
+    + "<th style='background-color: white; position: sticky; top: " + _top_bar_height + "; z-index: 2;'><input id='select_all_invoices' type='checkbox' onchange='selectAllInvoices();'></th>"
     + "<th style='background-color: white; position: sticky; top: " + _top_bar_height + "; z-index: 2;'>Date</th>"
     + "<th style='background-color: white; position: sticky; top: " + _top_bar_height + "; z-index: 2;'>Name</th>"
     + "<th style='background-color: white; position: sticky; top: " + _top_bar_height + "; z-index: 2;'>Total</th>"
@@ -130,6 +306,7 @@ function populateInvoiceHistory() {
   var regex_filter_total = getRegexSafeSearchTerm(filter_total).toLowerCase();
   var regex_filter_invoice_no = getRegexSafeSearchTerm(filter_invoice_no).toLowerCase();
   var regex_filter_any_field = getRegexSafeSearchTerm(filter_any_field).toLowerCase();
+  _table_invoice_objs = [];
   for (var i = _content_invoice_history.length - 1; i >= 0; --i) {
     var invoice_obj = _content_invoice_history[i];
     var match_failed = false;
@@ -169,19 +346,19 @@ function populateInvoiceHistory() {
 
 
     if (!match_failed) {
-      table_html += "<tr id='invoicehistory_table_row_" + inc + "' class='clickable' onclick='viewInvoiceFromHistory(" + i + ");'>"
-        + "<td>" + getMMDDYYYY_HHMMText(new Date(invoice_obj.time)) + "</td>"
-        + "<td>" + invoice_obj.name + "</td>"
-        + "<td>" + invoice_obj.total + "</td>"
-        + "<td>" + invoice_obj.invoice_no + "</td>"
+      _table_invoice_objs.push(invoice_obj);
+      table_html += "<tr id='invoicehistory_table_row_" + inc + "' class='clickable'>"
+        + "<td><input id='invoice_checkbox_" + inc + "' type='checkbox'></td>"
+        + "<td onclick='viewInvoiceFromHistory(" + i + ");'>" + getMMDDYYYY_HHMMText(new Date(invoice_obj.time)) + "</td>"
+        + "<td onclick='viewInvoiceFromHistory(" + i + ");'>" + invoice_obj.name + "</td>"
+        + "<td onclick='viewInvoiceFromHistory(" + i + ");'>" + invoice_obj.total + "</td>"
+        + "<td onclick='viewInvoiceFromHistory(" + i + ");'>" + invoice_obj.invoice_no + "</td>"
         + "</tr>";
       ++inc;
     }
   }
   table_html += "</table>";
   document.getElementById("table_invoice_history_div").innerHTML = table_html;
-  // var date1 = new Date("abc");
-  // console.log("DATE" + date1.getTime() + "|" +  isNaN(date1.getTime()));
   if (!set_tableInvoiceHistory_SelectedRow(_table_invoicehistory_selected_row))
     set_tableInvoiceHistory_SelectedRow(0);
 }
@@ -246,9 +423,13 @@ function viewInvoiceFromHistory(index) {
   document.getElementById("invoice_input_invoice_no").value = _invoice_obj.invoice_no;
   document.getElementById("invoice_input_date").value = _invoice_obj.date;
   document.getElementById("invoice_input_customer_order_no").value = _invoice_obj.customer_order_no;
+  document.getElementById("invoice_input_email").value = _invoice_obj.email;
   document.getElementById("invoice_input_name").value = _invoice_obj.name;
   document.getElementById("invoice_input_address").value = _invoice_obj.address;
-  document.getElementById("invoice_input_citystatezip").value = _invoice_obj.citystatezip;
+  document.getElementById("invoice_input_city").value = _invoice_obj.city;
+  document.getElementById("invoice_input_state").value = _invoice_obj.state;
+  document.getElementById("invoice_input_zip").value = _invoice_obj.zip;
+  document.getElementById("invoice_input_unpaid").checked = _invoice_obj.unpaid === "true";
   document.getElementById("invoice_input_phone").value = _invoice_obj.phone;
   document.getElementById("invoice_input_soldby").value = _invoice_obj.soldby;
   document.getElementById("invoice_textarea_specs").value = _invoice_obj.specs;
@@ -264,15 +445,27 @@ function saveInvoiceFromHistory() {
   ele = document.getElementById("invoice_input_customer_order_no");
   if (ele != null)
     _current_viewed_invoice_data.customer_order_no = ele.value;
+  ele = document.getElementById("invoice_input_email");
+  if (ele != null)
+    _current_viewed_invoice_data.email = ele.value;
   ele = document.getElementById("invoice_input_name");
   if (ele != null)
     _current_viewed_invoice_data.name = ele.value;
   ele = document.getElementById("invoice_input_address");
   if (ele != null)
     _current_viewed_invoice_data.address = ele.value;
-  ele = document.getElementById("invoice_input_citystatezip");
+  ele = document.getElementById("invoice_input_city");
   if (ele != null)
-    _current_viewed_invoice_data.citystatezip = ele.value;
+    _current_viewed_invoice_data.city = ele.value;
+  ele = document.getElementById("invoice_input_state");
+  if (ele != null)
+    _current_viewed_invoice_data.state = ele.value;
+  ele = document.getElementById("invoice_input_zip");
+  if (ele != null)
+    _current_viewed_invoice_data.zip = ele.value;
+  ele = document.getElementById("invoice_input_unpaid");
+  if (ele != null)
+    _current_viewed_invoice_data.unpaid = String(ele.checked);
   ele = document.getElementById("invoice_input_phone");
   if (ele != null)
     _current_viewed_invoice_data.phone = ele.value;
@@ -301,6 +494,7 @@ function saveInvoiceFromHistory() {
   if (ele != null)
     _current_viewed_invoice_data.date = ele.value;
 
+  //Qty, Desc, Sell, Amount, SO, Order_Info, DB, ID
   var i = 0;
   ele = document.getElementById("invoice_input_qty_" + i);
   var invoice_parts = [];
@@ -324,13 +518,16 @@ function saveInvoiceFromHistory() {
       invoice_parts[i].push(ele.value);
     else
       invoice_parts[i].push("NULL");
+
+    invoice_parts[i].push(_current_viewed_invoice_data.invoice_parts[i][6]); //ExtraDB
+    invoice_parts[i].push(_current_viewed_invoice_data.invoice_parts[i][7]); //Partkey
     ++i;
     ele = document.getElementById("invoice_input_qty_" + i);
   }
   _current_viewed_invoice_data.invoice_parts = invoice_parts;
   writeToDatabase('invoice_data/' + _current_viewed_invoice_data.key, _current_viewed_invoice_data, false, false, false, null);
   document.getElementById("exit_invoice_from_history_button").click();
-  document.getElementById("button_update_invoice_history").click();
+  // document.getElementById("button_update_invoice_history").click();
   showSnackbar("Invoice successfully saved", 3000);
 }
 
@@ -396,10 +593,6 @@ function saveInvoiceInfoToDatabase() {
   obj.last_invoice_no = lastorderno;
   writeToDatabase("invoice", obj, false, false, false, null);
   writeToChangeHistory("Edit | Invoice Settings", "Edited Invoice Settings | Address: \"" + obj.address + "\" | Info at bottom: \"" + obj.bottom + "\" | Invoice No: \"" + obj.last_invoice_no + "\"");
-
-  // writeToDatabase("invoice/address", address, false, false, false, null);
-  // writeToDatabase("invoice/bottom", bottom, false, false, false, null);
-  // writeToDatabase("invoice/last_invoice_no", lastorderno, false, false, false, null);
   document.getElementById("invoice_info_button_save").style.display = "none";
 }
 
@@ -442,12 +635,13 @@ function removeFromInvoice(index) {
   var link = getContentExtraIndexFrom_DB_ID(invoice_obj.partkey, invoice_obj.extradb);
   if (link != null) {
     var content_obj = _content_extra[invoice_obj.extradb][link][0];
-    var newAmount = Number(content_obj.SHOP_QTY) + Number(invoice_obj.amountToSell);
-    content_obj.SHOP_QTY = newAmount;
+    var newAmount = Number(content_obj[CE_SHOP_QTY]) + Number(invoice_obj.amountToSell);
+    content_obj[CE_SHOP_QTY] = newAmount;
     if (!_DEBUG_LOCAL_MODE) {
-      writeToDatabase("parts_db/" + _EXTRA_DB[invoice_obj.extradb] + "/" + invoice_obj.partkey, content_obj, true, false, true, invoice_obj.extradb);
+      var content_obj0 = getContentExtraObj(invoice_obj.extradb, link);
+      writeToDatabase("parts_db/" + _EXTRA_DB[invoice_obj.extradb] + "/" + invoice_obj.partkey, content_obj0, true, false, true, invoice_obj.extradb);
     }
-    showSnackbar("Added <u>" + invoice_obj.amountToSell + "</u> " + content_obj.PN + " back into inventory", 3000);
+    showSnackbar("Added <u>" + invoice_obj.amountToSell + "</u> " + content_obj[CE_PN] + " back into inventory", 3000);
 
     var parentRecordIndex = getParentIndexFromID(invoice_obj.parent_record_id);
     if (parentRecordIndex != null)
@@ -461,26 +655,76 @@ function removeFromInvoice(index) {
   calculateInvoiceAmounts();
 }
 
+function sendInvoiceEmail(key) {
+  if (_FIREBASE_LOGGED_IN) {
+    var list = [];
+    for (var line of _invoice_data.invoice_parts) {
+      var obj = new Object();
+      obj.invoice_input_qty = line[0];
+      obj.invoice_input_desc = line[1];
+      obj.invoice_input_sell = line[2];
+      obj.invoice_input_amount = line[3];
+      obj.invoice_input_specialorder = line[4];
+      obj.invoice_input_orderinfo = line[5];
+      list.push(obj);
+    }
+
+    firestore_db.collection("invoice-emails").doc(key).set({
+      email: _invoice_data.email,
+      subject: "Appliance Parts Invoice",
+      seller_address: document.getElementById("invoice_address_textarea_2").innerHTML.replace(/<br>/g, "\n"),
+      invoice_parts: list,
+      customer_order_no: _invoice_data.customer_order_no,
+      name: _invoice_data.name,
+      address: _invoice_data.address,
+      citystatezip: _invoice_data.city + " " + _invoice_data.state + " " + _invoice_data.zip,
+      phone: _invoice_data.phone,
+      soldby: _invoice_data.soldby,
+      specs: _invoice_data.specs,
+      misc: _invoice_data.misc,
+      signature: _invoice_data.signature,
+      bottom: _invoice_data.bottom.replace(/\n/g, "<br>"),
+      total: _invoice_data.total,
+      invoice_no: _invoice_data.invoice_no,
+      date: _invoice_data.date,
+      unpaid: _invoice_data.unpaid
+    })
+      .then(() => {
+      })
+      .catch((error) => {
+        console.error("Error writing document: ", error);
+        showSnackbar("Error sending email! " + error, 10000);
+      });
+  }
+}
+
 function finishInvoiceSale() {
+  calculateInvoiceAmounts();
   saveInvoiceToObject();
+  var invoiceDataListRef = getDatabaseRef('invoice_data');
+  var newInvoiceRef = invoiceDataListRef.push();
+
   for (var i = 0; i < _invoice_objs.length; ++i) { //Save part history to database
     var obj = _invoice_objs[i];
     var obj2 = _invoice_data.invoice_parts[i];
     var quantity = obj2[0];
     var price = obj2[2];
-    // var date = new Date(String(_invoice_data.date));
+    var date = new Date(String(_invoice_data.date));
     var datenow = new Date();
-    savePartToHistory(obj.partkey, obj.extradb, datenow.getTime(), quantity, price);
+    datenow.setFullYear(date.getFullYear(), date.getMonth(), date.getDate());
+    savePartToHistory(obj.partkey, obj.extradb, datenow.getTime(), quantity, price, newInvoiceRef.key);
   }
 
   _invoice_objs = [];
+
+
+  sendInvoiceEmail(newInvoiceRef.key);
   populateInvoice();
   writeToDatabase("invoice/last_invoice_no", Number(document.getElementById("invoice_last_invoice_no_input").value) + 1, false, false, false, null);
 
-  var invoiceDataListRef = getDatabaseRef('invoice_data');
-  var newInvoiceRef = invoiceDataListRef.push();
   _invoice_data.bottom = null;
   _invoice_data.time = datenow.getTime();
+  _invoice_data.id = newInvoiceRef.key;
   writeToDatabase('invoice_data/' + newInvoiceRef.key, _invoice_data, false, false, false, null);
   _invoice_data = new Object();
   showSnackbar("Sale Finished!", 3000);
@@ -492,15 +736,27 @@ function saveInvoiceToObject() {
   ele = document.getElementById("invoice_input_customer_order_no");
   if (ele != null)
     _invoice_data.customer_order_no = ele.value;
+  ele = document.getElementById("invoice_input_email");
+  if (ele != null)
+    _invoice_data.email = ele.value;
   ele = document.getElementById("invoice_input_name");
   if (ele != null)
     _invoice_data.name = ele.value;
   ele = document.getElementById("invoice_input_address");
   if (ele != null)
     _invoice_data.address = ele.value;
-  ele = document.getElementById("invoice_input_citystatezip");
+  ele = document.getElementById("invoice_input_city");
   if (ele != null)
-    _invoice_data.citystatezip = ele.value;
+    _invoice_data.city = ele.value;
+  ele = document.getElementById("invoice_input_state");
+  if (ele != null)
+    _invoice_data.state = ele.value;
+  ele = document.getElementById("invoice_input_zip");
+  if (ele != null)
+    _invoice_data.zip = ele.value;
+  ele = document.getElementById("invoice_input_unpaid");
+  if (ele != null)
+    _invoice_data.unpaid = String(ele.checked);
   ele = document.getElementById("invoice_input_phone");
   if (ele != null)
     _invoice_data.phone = ele.value;
@@ -553,30 +809,35 @@ function saveInvoiceToObject() {
       invoice_parts[i].push("NULL");
     }
 
+    invoice_parts[i].push(String(_invoice_objs[i].extradb));
+    invoice_parts[i].push(_invoice_objs[i].partkey);
+
+    //Add child part id here
+
     ++i;
     ele = document.getElementById("invoice_input_qty_" + i);
   }
   _invoice_data.invoice_parts = invoice_parts;
 }
 
-var retrieveInvoiceDataCallback = null;
-function retrieveInvoiceDataFromDatabase(callback) {
-  if (_LOCAL_SERVER_MODE || _firebaseAuthUID == _admin_uid || _writeable_mode) {
-    document.getElementById("button_update_invoice_history").style.display = "none";
-    retrieveInvoiceDataCallback = callback;
-    readFromDB("invoice_data", function (val0, key0) {
-      _content_invoice_history = [];
-      for (let [key, val] of Object.entries(val0)) {
-        var invoice_obj = val;
-        invoice_obj.key = key;
-        _content_invoice_history.push(invoice_obj);
-      }
-      if (retrieveInvoiceDataCallback != null)
-        retrieveInvoiceDataCallback();
-      document.getElementById("button_update_invoice_history").style.display = "";
-    });
-  }
-}
+// var retrieveInvoiceDataCallback = null;
+// function retrieveInvoiceDataFromDatabase(callback) {
+//   if (_LOCAL_SERVER_MODE || _firebaseAuthUID == _admin_uid || _writeable_mode) {
+//     document.getElementById("button_update_invoice_history").style.display = "none";
+//     retrieveInvoiceDataCallback = callback;
+//     readFromDB("invoice_data", function (val0, key0) {
+//       _content_invoice_history = [];
+//       for (let [key, val] of Object.entries(val0)) {
+//         var invoice_obj = val;
+//         invoice_obj.key = key;
+//         _content_invoice_history.push(invoice_obj);
+//       }
+//       if (retrieveInvoiceDataCallback != null)
+//         retrieveInvoiceDataCallback();
+//       document.getElementById("button_update_invoice_history").style.display = "";
+//     });
+//   }
+// }
 
 function clearInvoicesContent() {
   document.getElementById("invoice_content").innerHTML = "";
@@ -614,15 +875,27 @@ function addInvoice_Save() {
   ele = document.getElementById("invoice_input_customer_order_no");
   if (ele != null)
     _invoice_data.customer_order_no = ele.value;
+  ele = document.getElementById("invoice_input_email");
+  if (ele != null)
+    _invoice_data.email = ele.value;
   ele = document.getElementById("invoice_input_name");
   if (ele != null)
     _invoice_data.name = ele.value;
   ele = document.getElementById("invoice_input_address");
   if (ele != null)
     _invoice_data.address = ele.value;
-  ele = document.getElementById("invoice_input_citystatezip");
+  ele = document.getElementById("invoice_input_city");
   if (ele != null)
-    _invoice_data.citystatezip = ele.value;
+    _invoice_data.city = ele.value;
+  ele = document.getElementById("invoice_input_state");
+  if (ele != null)
+    _invoice_data.state = ele.value;
+  ele = document.getElementById("invoice_input_zip");
+  if (ele != null)
+    _invoice_data.zip = ele.value;
+  ele = document.getElementById("invoice_input_unpaid");
+  if (ele != null)
+    _invoice_data.unpaid = String(ele.checked);
   ele = document.getElementById("invoice_input_phone");
   if (ele != null)
     _invoice_data.phone = ele.value;
@@ -679,14 +952,28 @@ function startDeleteInvoice() {
 }
 
 function confirmDeleteInvoice() {
-  // console.log(_content_invoice_history);
   deleteFromDatabase("invoice_data/" + _current_viewed_invoice_id, false, false, false, null);
   exitInvoiceFromHistory();
-  clickInvoiceHistory_Update();
+  // clickInvoiceHistory_Update();
 }
 
 function cancelDeleteInvoice() {
   document.getElementById("button_viewInvoice_delete").style.display = "";
   document.getElementById("button_viewInvoice_confirmdelete").style.display = "none";
   document.getElementById("button_viewInvoice_canceldelete").style.display = "none";
+}
+
+function validateEmail() {
+  var ele = document.getElementById("invoice_input_email");
+  var invalid_ele = document.getElementById("invalid_email");
+  if (ele != null && (isValidEmail(ele.value) || ele.value == "")) {
+    ele.style.borderColor = "";
+    ele.style.backgroundColor = "";
+    invalid_ele.style.display = "none";
+  }
+  else {
+    ele.style.borderColor = "red";
+    ele.style.backgroundColor = "pink";
+    invalid_ele.style.display = "";
+  }
 }

@@ -137,6 +137,16 @@ function clientsTableLogin() {
     document.getElementById("content_div").style.display = "none";
 }
 
+function invoiceHistoryLogin() {
+    _current_login_temp_intent = TAB_INVOICE_HISTORY;
+    document.getElementById("firebase_temp_login_header").innerHTML = "Login to FireBase to Export Invoices";
+    document.getElementById("firebase_temp_login_div").style.display = "";
+    document.getElementById("password_input_temp").value = "";
+    document.getElementById("email_input_temp").focus();
+    document.getElementById("email_input_temp").select();
+    document.getElementById("content_div").style.display = "none";
+}
+
 var _intent_people = false;
 var _newUserUID = "";
 var _newClient_for_info = null;

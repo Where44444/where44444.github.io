@@ -3,13 +3,22 @@
 // var time2 = (new Date()).getTime();
 // console.log(time2 - time1);
 
-const _DATABASE_PREFIX = "";
-const _DEBUG_LOCAL_MODE = false;
-const _DEBUG_SKIP_PART_LOADING = false;
 
-// const _DATABASE_PREFIX = _DATABASE_PREFIX__; //TODO Set this back to "" when uploading to github
-// const _DEBUG_LOCAL_MODE = _DEBUG_LOCAL_MODE__;
-// const _DEBUG_SKIP_PART_LOADING = _DEBUG_SKIP_PART_LOADING__;
+var _DATABASE_PREFIX = "";
+var _DEBUG_LOCAL_MODE = false;
+var _DEBUG_SKIP_PART_LOADING = false;
+var testing_enabled = false;
+
+if (debug_present) {
+  _DATABASE_PREFIX = _DATABASE_PREFIX__;
+  _DEBUG_LOCAL_MODE = _DEBUG_LOCAL_MODE__;
+  _DEBUG_SKIP_PART_LOADING = _DEBUG_SKIP_PART_LOADING__;
+}
+else {
+  _DATABASE_PREFIX = "";
+  _DEBUG_LOCAL_MODE = false;
+  _DEBUG_SKIP_PART_LOADING = false;
+}
 // const _PORT = "443";
 // const _PORT = "80";
 const _PORT = "5444";
@@ -18,104 +27,12 @@ var _SESSION_ID = -1;
 var _admin_uid = "";
 var _admin_email = "";
 var _admin_password = "";
-var FILTER_TIME_START = 631180800000; //Jan 1 1990
+var FILTER_TIME_START = new Date();
+FILTER_TIME_START = new Date(FILTER_TIME_START.getFullYear(), FILTER_TIME_START.getMonth() - 1, FILTER_TIME_START.getDate());
 var PROFILING_STARTTIME = 0;
 var PROFILING_ENDTIME = 0;
 
 var _overlay_window_open = false;
-const _INDEX_ORDER = [20, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 76, 77, 78, 79, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 0];
-const _INDEXES = ["RECORD_NUMBER", "DESCRIP1", "DESCRIP2", "COMMENTS", "EQUIP_TYPE", "EQUIP_DSGN", "APPL_BRAND", "APPL_MFR", "PART_TYPE", "B_PN", "CHLX_PN", "F_PN", "GEM_PN", "RS_PN", "MM_PN", "JS_PN", "K_PN", "L_PN", "M_PN", "N_PN", "OEM_PN", "PART_NUMBR", "Q_PN", "SOURCE", "UNIT", "KEEP", "REORD_QTY", "GET", "PICKED", "TAG", "FROM", "CGS", "DATE", "FRT_IN", "QUESTIONS", "MODIFIED", "NEW", "NEWER", "LOCATION", "SPECMETHOD", "SPEC01NAME", "SPEC01HINT", "SPEC01DATA", "SPEC02NAME", "SPEC02HINT", "SPEC02DATA", "SPEC03NAME", "SPEC03HINT", "SPEC03DATA", "SPEC04NAME", "SPEC04HINT", "SPEC04DATA", "SPEC05NAME", "SPEC05HINT", "SPEC05DATA", "SPEC06NAME", "SPEC06HINT", "SPEC06DATA", "SPEC07NAME", "SPEC07HINT", "SPEC07DATA", "SPEC08NAME", "SPEC08HINT", "SPEC08DATA", "SPEC09NAME", "SPEC09HINT", "SPEC09DATA", "SPEC10NAME", "SPEC10HINT", "SPEC10DATA", "SPEC11NAME", "SPEC11HINT", "SPEC11DATA", "SPEC12NAME", "SPEC12HINT", "SPEC12DATA"];
-const _INDEX_WIDTHS = ["initial", "200px", "200px", "400px", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "400px", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial"];
-const _MEMO_INDEXES = ["LOOK_UP_PN", "ADVICE", "ATTN", "MODEL"]; //76, 77, 78, 79 LOCATION = 38
-const _MEMO_INDEX_WIDTHS = ["400px", "400px", "400px", "400px"];
-const _WORDS_TO_IGNORE = ["the", "at", "there", "some", "my", "of", "be", "use", "her", "than", "and", "this", "an", "would", "a", "have", "each", "make", "to", "from", "which", "like", "been", "in", "or", "she", "him", "call", "is", "one", "do", "into", "who", "you", "had", "how", "time", "that", "by", "their", "has", "its", "it", "word", "if", "look", "now", "he", "but", "will", "two", "find", "was", "not", "up", "more", "for", "what", "down", "on", "all", "about", "go", "day", "are", "were", "out", "see", "did", "as", "we", "get", "with", "when", "then", "no", "come", "his", "your", "them", "way", "made", "they", "can", "these", "could", "may", "i", "said", "so"];
-const _EXTRA_DB_FIELDS = /*B_DNI*/[["PN", "AKA", "PART_NUMBR", "COMMON_PN", "DESCRIP1", "COMMENTS", "PART_MFR", "VEND", "CAT", "PAGE", "SPL", "SPL_DATE", "SPL_FROM", "LOT_CT", "LOT_PR", "LOT_FROM", "REG", "REG_DATE", "REG_FROM", "SUGG", "VEND_RET", "SHOP_QTY", "TRK1_QTY", "TRK2_QTY", "TRK3_QTY", "USED_QTY", "LOCATION", "OTHER", "CGS", "FROM", "DATE", "OEM_PN", "CALCULATED", "FIXED", "SELL", "ZOOM", "SOLD_YTD", "SOLD_DATE", "SOLD_AMT", "POST_APPND"]
-                       /*CHLX*/, ["PN", "AKA", "PART_NUMBR", "DESCRIP1", "COMMENTS", "PART_MFR", "VEND", "CAT", "PAGE", "SPL", "SPL_DATE", "SPL_FROM", "LOT_CT", "LOT_PR", "LOT_FROM", "REG", "REG_DATE", "REG_FROM", "SUGG", "VEND_RET", "SHOP_QTY", "TRK1_QTY", "TRK2_QTY", "TRK3_QTY", "USED_QTY", "LOCATION", "OTHER", "CGS", "FROM", "DATE", "OEM_PN", "CALCULATED", "FIXED", "SELL", "ZOOM", "SOLD_YTD", "SOLD_DATE", "SOLD_AMT"]
-                       /*DNI*/, ["PN", "AKA", "PART_NUMBR", "DESCRIP1", "COMMENTS", "APPL_MFR", "VEND", "CAT", "PAGE", "SPL", "SPL_DATE", "SPL_FROM", "LOT_CT", "LOT_PR", "LOT_FROM", "REG", "REG_DATE", "REG_FROM", "SUGG", "VEND_RET", "SHOP_QTY", "TRK1_QTY", "TRK2_QTY", "TRK3_QTY", "USED_QTY", "LOCATION", "COMMON_PN", "CGS", "FROM", "DATE", "OEM_PN2", "CALCULATED", "FIXED", "SELL", "ZOOM", "SOLD_YTD", "SOLD_DATE", "SOLD_AMT", "POST_APPND"]
-                       /*F*/, ["PN", "AKA", "PART_NUMBR", "DESCRIP1", "COMMENTS", "PART_MFR", "VEND", "CAT", "PAGE", "SPL", "SPL_DATE", "SPL_FROM", "LOT_CT", "LOT_PR", "LOT_FROM", "REG", "REG_DATE", "REG_FROM", "SUGG", "VEND_RET", "SHOP_QTY", "TRK1_QTY", "TRK2_QTY", "TRK3_QTY", "USED_QTY", "LOCATION", "OTHER", "CGS", "FROM", "DATE", "OEM_PN", "CALCULATED", "FIXED", "SELL", "ZOOM", "SOLD_YTD", "SOLD_DATE", "SOLD_AMT"]
-                       /*GEM*/, ["PN", "AKA", "PART_NUMBR", "DESCRIP1", "COMMENTS", "GEM_ID", "VEND", "CAT", "PAGE", "SPL", "SPL_DATE", "SPL_FROM", "LOT_CT", "LOT_PR", "LOT_FROM", "REG", "REG_DATE", "REG_FROM", "SUGG", "VEND_RET", "SHOP_QTY", "TRK1_QTY", "TRK2_QTY", "TRK3_QTY", "USED_QTY", "LOCATION", "OTHER", "CGS", "FROM", "DATE", "OEM_PN", "CALCULATED", "FIXED", "SELL", "ZOOM", "SOLD_YTD", "SOLD_DATE", "SOLD_AMT"]
-                       /*H_RS*/, ["PN", "AKA", "PART_NUMBR", "DESCRIP1", "COMMENTS", "RS_ID", "VEND", "CAT", "PAGE", "SPL", "SPL_DATE", "SPL_FROM", "LOT_CT", "LOT_PR", "LOT_FROM", "REG", "REG_DATE", "REG_FROM", "SUGG", "VEND_RET", "SHOP_QTY", "TRK1_QTY", "TRK2_QTY", "TRK3_QTY", "USED_QTY", "LOCATION", "OTHER", "CGS", "FROM", "DATE", "OEM_PN", "CALCULATED", "FIXED", "SELL", "ZOOM", "SOLD_YTD", "SOLD_DATE", "SOLD_AMT"]
-                       /*I_MM*/, ["PN", "AKA", "PART_NUMBR", "DESCRIP1", "COMMENTS", "MM_ID", "VEND", "CAT", "PAGE", "SPL", "SPL_DATE", "SPL_FROM", "LOT_CT", "LOT_PR", "LOT_FROM", "REG", "REG_DATE", "REG_FROM", "SUGG", "VEND_RET", "SHOP_QTY", "TRK1_QTY", "TRK2_QTY", "TRK3_QTY", "USED_QTY", "LOCATION", "OTHER", "CGS", "FROM", "DATE", "OEM_PN", "CALCULATED", "FIXED", "SELL", "ZOOM", "SOLD_YTD", "SOLD_DATE", "SOLD_AMT"]
-                       /*JS*/, ["PN", "JS_LINE_PN", "PART_NUMBR", "DESCRIP1", "COMMENTS", "JS_LINE", "JS_ID", "CAT", "PAGE", "SPL", "SPL_DATE", "SPL_FROM", "LOT_CT", "LOT_PR", "LOT_FROM", "REG", "REG_DATE", "REG_FROM", "SUGG", "VEND_RET", "SHOP_QTY", "TRK1_QTY", "TRK2_QTY", "TRK3_QTY", "USED_QTY", "LOCATION", "OTHER", "CGS", "FROM", "DATE", "OEM_PN", "CALCULATED", "FIXED", "SELL", "ZOOM", "SOLD_YTD", "SOLD_DATE", "SOLD_AMT"]
-                       /*OEM*/, ["PN", "AKA", "PART_NUMBR", "DESCRIP1", "COMMENTS", "APPL_MFR", "VEND", "CAT", "PAGE", "SPL", "SPL_DATE", "SPL_FROM", "LOT_CT", "LOT_PR", "LOT_FROM", "REG", "REG_DATE", "REG_FROM", "SUGG", "VEND_RET", "SHOP_QTY", "TRK1_QTY", "TRK2_QTY", "TRK3_QTY", "USED_QTY", "LOCATION", "COMMON_PN", "CGS", "FROM", "DATE", "OEM_PN2", "CALCULATED", "FIXED", "SELL", "ZOOM", "SOLD_YTD", "SOLD_DATE", "SOLD_AMT", "POST_APPND"]];
-// const APPL_MFR_INDEXES = [
-//   _EXTRA_DB_FIELDS[0].indexOf("PART_MFR"), 
-//   _EXTRA_DB_FIELDS[1].indexOf("PART_MFR"),
-//   _EXTRA_DB_FIELDS[2].indexOf("APPL_MFR"), 
-//   _EXTRA_DB_FIELDS[3].indexOf("PART_MFR"), 
-//   _EXTRA_DB_FIELDS[4].indexOf("GEM_ID"), 
-//   _EXTRA_DB_FIELDS[5].indexOf("RS_ID"), 
-//   _EXTRA_DB_FIELDS[6].indexOf("MM_ID"), 
-//   _EXTRA_DB_FIELDS[7].indexOf("JS_ID"),
-//   _EXTRA_DB_FIELDS[8].indexOf("APPL_MFR")];
-
-const _APPL_MFR_INDEXES = [
-  "PART_MFR",
-  "PART_MFR",
-  "APPL_MFR",
-  "PART_MFR",
-  "GEM_ID",
-  "RS_ID",
-  "MM_ID",
-  "JS_ID",
-  "APPL_MFR"];
-
-const _AKA_GLOBAL = 1;
-const _EXTRA_DB = ["B_DNI", "CHLX", "DNI", "F", "GEM", "H_RS", "I_MM", "JS", "OEM"];
-const _EXTRA_DB_OEM = _EXTRA_DB.indexOf("OEM");
-const _EXTRA_DB_ACTUAL_INDEXES = ["B_PN", "CHLX_PN", "Q_PN", "F_PN", "GEM_PN", "RS_PN", "MM_PN", "JS_PN", "OEM_PN"];
-const _EXTRA_DB_COMMENTS_PREFIXES = ["B", "C", "D", "F", "G", "H", "I", "J", "O"];
-const _CONTENT_EXTRA_DB_INDEXES = [9, 10, 22, 11, 12, 13, 14, 15, 20];
-
-const RECORD_VIEW_DB_HEADER_WIDTH = "150px";
-const RECORD_VIEW_HEADERS_PAGE1_0 = ["MFR", "PART#", "S", "LOC", "T1", "T2", "U", "VEND", "DATE", "CGS", "RETAIL", "COMMENT"];
-const RECORD_VIEW_HEADERS_WIDTHS_PAGE1_0 = ["100px", "300px", "70px", "100px", "70px", "70px", "70px", "100px", "200px", "100px", "100px", "50px"];
-const RECORD_VIEW_HEADERS_PAGE1_1 = ["SELL"];
-const RECORD_VIEW_HEADERS_WIDTHS_PAGE1_1 = ["100px"];
-const RECORD_VIEW_HEADERS_PAGE2_0 = ["MFR", "PART#", "AKA", "MFR", "DATE", "CGS", "SUGG", "FIXED", "COMMENT"];
-const RECORD_VIEW_HEADERS_WIDTHS_PAGE2_0 = ["100px", "300px", "70px", "100px", "70px", "70px", "70px", "100px", "100px"];
-const RECORD_VIEW_HEADERS_PAGE2_1 = ["SELL"];
-const RECORD_VIEW_HEADERS_WIDTHS_PAGE2_1 = ["200px"];
-
-const RECORD_VIEW_HEADERS_PAGE1_CONCAT = RECORD_VIEW_HEADERS_PAGE1_0.concat(RECORD_VIEW_HEADERS_PAGE1_1);
-const RECORD_VIEW_HEADERS_PAGE2_CONCAT = RECORD_VIEW_HEADERS_PAGE2_0.concat(RECORD_VIEW_HEADERS_PAGE2_1);
-
-// var RECORD_VIEW_HEADERS_ACTUAL_INDEXES = [["PART_MFR", "GEM_ID", "RS_ID", "MM_ID", "JS_ID", "APPL_MFR"], ["PN"],  ["SHOP_QTY"], ["LOCATION"], ["TRK1_QTY"], ["TRK2_QTY"], ["USED_QTY"],  ["FROM"], ["DATE"], ["CGS"], ["VEND_RET"], ["SELL"]];
-const RECORD_VIEW_HEADERS_ACTUAL_INDEXES_PAGE1_0 = [
-  ["PART_MFR", "PART_MFR", "APPL_MFR", "PART_MFR", "GEM_ID", "RS_ID", "MM_ID", "JS_ID", "APPL_MFR"],
-  ["PN", "PN", "PN", "PN", "PN", "PN", "PN", "PN", "PN"],
-  ["SHOP_QTY", "SHOP_QTY", "SHOP_QTY", "SHOP_QTY", "SHOP_QTY", "SHOP_QTY", "SHOP_QTY", "SHOP_QTY", "SHOP_QTY"],
-  ["LOCATION", "LOCATION", "LOCATION", "LOCATION", "LOCATION", "LOCATION", "LOCATION", "LOCATION", "LOCATION"],
-  ["TRK1_QTY", "TRK1_QTY", "TRK1_QTY", "TRK1_QTY", "TRK1_QTY", "TRK1_QTY", "TRK1_QTY", "TRK1_QTY", "TRK1_QTY"],
-  ["TRK2_QTY", "TRK2_QTY", "TRK2_QTY", "TRK2_QTY", "TRK2_QTY", "TRK2_QTY", "TRK2_QTY", "TRK2_QTY", "TRK2_QTY"],
-  ["USED_QTY", "USED_QTY", "USED_QTY", "USED_QTY", "USED_QTY", "USED_QTY", "USED_QTY", "USED_QTY", "USED_QTY"],
-  ["FROM", "FROM", "FROM", "FROM", "FROM", "FROM", "FROM", "FROM", "FROM"],
-  ["DATE", "DATE", "DATE", "DATE", "DATE", "DATE", "DATE", "DATE", "DATE"],
-  ["CGS", "CGS", "CGS", "CGS", "CGS", "CGS", "CGS", "CGS", "CGS"],
-  ["VEND_RET", "VEND_RET", "VEND_RET", "VEND_RET", "VEND_RET", "VEND_RET", "VEND_RET", "VEND_RET", "VEND_RET"],
-  ["COMMENTS", "COMMENTS", "COMMENTS", "COMMENTS", "COMMENTS", "COMMENTS", "COMMENTS", "COMMENTS", "COMMENTS"]
-];
-
-const RECORD_VIEW_HEADERS_ACTUAL_INDEXES_PAGE1_1 = [
-  ["SELL", "SELL", "SELL", "SELL", "SELL", "SELL", "SELL", "SELL", "SELL"]
-];
-
-const RECORD_VIEW_HEADERS_ACTUAL_INDEXES_PAGE1_CONCAT = RECORD_VIEW_HEADERS_ACTUAL_INDEXES_PAGE1_0.concat(RECORD_VIEW_HEADERS_ACTUAL_INDEXES_PAGE1_1);
-
-const RECORD_VIEW_HEADERS_ACTUAL_INDEXES_PAGE2_0 = [
-  ["PART_MFR", "PART_MFR", "APPL_MFR", "PART_MFR", "GEM_ID", "RS_ID", "MM_ID", "JS_ID", "APPL_MFR"],
-  ["PN", "PN", "PN", "PN", "PN", "PN", "PN", "PN", "PN"],
-  ["AKA", "AKA", "AKA", "AKA", "AKA", "AKA", "AKA", "JS_LINE_PN", "AKA"],
-  ["REG_FROM", "REG_FROM", "REG_FROM", "REG_FROM", "REG_FROM", "REG_FROM", "REG_FROM", "REG_FROM", "REG_FROM"],
-  ["REG_DATE", "REG_DATE", "REG_DATE", "REG_DATE", "REG_DATE", "REG_DATE", "REG_DATE", "REG_DATE", "REG_DATE"],
-  ["REG", "REG", "REG", "REG", "REG", "REG", "REG", "REG", "REG"],
-  ["SUGG", "SUGG", "SUGG", "SUGG", "SUGG", "SUGG", "SUGG", "SUGG", "SUGG"],
-  ["FIXED", "FIXED", "FIXED", "FIXED", "FIXED", "FIXED", "FIXED", "FIXED", "FIXED"], //?
-  ["COMMENTS", "COMMENTS", "COMMENTS", "COMMENTS", "COMMENTS", "COMMENTS", "COMMENTS", "COMMENTS", "COMMENTS"]
-];
-const RECORD_VIEW_HEADERS_ACTUAL_INDEXES_PAGE2_1 = [
-  ["SELL", "SELL", "SELL", "SELL", "SELL", "SELL", "SELL", "SELL", "SELL"]
-];
 
 const _RECORD_NUMBER = 0;
 const _DESCRIP1 = 1;
@@ -149,10 +66,109 @@ const _SPEC09DATA = 66;
 const _SPEC10DATA = 69;
 const _SPEC11DATA = 72;
 const _SPEC12DATA = 75;
-const _LOOK_UP_PN = 76;
-const _ADVICE = 77;
-const _ATTN = 78;
-const _MODEL = 79;
+const _ORDERED = 76;
+const _LOOK_UP_PN = 77;
+const _ADVICE = 78;
+const _ATTN = 79;
+const _MODEL = 80;
+
+const _INDEX_ORDER = [20, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, _LOOK_UP_PN, _ADVICE, _ATTN, _MODEL, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 0];
+const _INDEXES = ["RECORD_NUMBER", "DESCRIP1", "DESCRIP2", "COMMENTS", "EQUIP_TYPE", "EQUIP_DSGN", "APPL_BRAND", "APPL_MFR", "PART_TYPE", "B_PN", "CHLX_PN", "F_PN", "GEM_PN", "RS_PN", "MM_PN", "JS_PN", "K_PN", "L_PN", "M_PN", "N_PN", "OEM_PN", "PART_NUMBR", "Q_PN", "SOURCE", "UNIT", "KEEP", "REORD_QTY", "GET", "PICKED", "TAG", "FROM", "CGS", "DATE", "FRT_IN", "QUESTIONS", "MODIFIED", "NEW", "NEWER", "LOCATION", "SPECMETHOD", "SPEC01NAME", "SPEC01HINT", "SPEC01DATA", "SPEC02NAME", "SPEC02HINT", "SPEC02DATA", "SPEC03NAME", "SPEC03HINT", "SPEC03DATA", "SPEC04NAME", "SPEC04HINT", "SPEC04DATA", "SPEC05NAME", "SPEC05HINT", "SPEC05DATA", "SPEC06NAME", "SPEC06HINT", "SPEC06DATA", "SPEC07NAME", "SPEC07HINT", "SPEC07DATA", "SPEC08NAME", "SPEC08HINT", "SPEC08DATA", "SPEC09NAME", "SPEC09HINT", "SPEC09DATA", "SPEC10NAME", "SPEC10HINT", "SPEC10DATA", "SPEC11NAME", "SPEC11HINT", "SPEC11DATA", "SPEC12NAME", "SPEC12HINT", "SPEC12DATA", "ORDERED"];
+const _INDEX_WIDTHS = ["initial", "200px", "200px", "400px", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "400px", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial", "initial"];
+const _MEMO_INDEXES = ["LOOK_UP_PN", "ADVICE", "ATTN", "MODEL"]; //76, 77, 78, 79 LOCATION = 38
+const _MEMO_INDEX_WIDTHS = ["400px", "400px", "400px", "400px"];
+const _WORDS_TO_IGNORE = ["the", "at", "there", "some", "my", "of", "be", "use", "her", "than", "and", "this", "an", "would", "a", "have", "each", "make", "to", "from", "which", "like", "been", "in", "or", "she", "him", "call", "is", "one", "do", "into", "who", "you", "had", "how", "time", "that", "by", "their", "has", "its", "it", "word", "if", "look", "now", "he", "but", "will", "two", "find", "was", "not", "up", "more", "for", "what", "down", "on", "all", "about", "go", "day", "are", "were", "out", "see", "did", "as", "we", "get", "with", "when", "then", "no", "come", "his", "your", "them", "way", "made", "they", "can", "these", "could", "may", "i", "said", "so"];
+const _EXTRA_DB_FIELDS = /*B_DNI*/[["data", "PN", "AKA", "PART_NUMBR", "DESCRIP1", "COMMENTS", "PART_MFR", "VEND", "CAT", "PAGE", "SPL", "SPL_DATE", "SPL_FROM", "LOT_CT", "LOT_PR", "LOT_FROM", "REG", "REG_DATE", "REG_FROM", "SUGG", "VEND_RET", "SHOP_QTY", "TRK1_QTY", "TRK2_QTY", "TRK3_QTY", "USED_QTY", "LOCATION", "OTHER", "CGS", "FROM", "DATE", "OEM_PN", "CALCULATED", "FIXED", "SELL", "ZOOM", "SOLD_YTD", "SOLD_DATE", "SOLD_AMT", "POST_APPND", "COMMON_PN"]
+                         /*CHLX*/, ["data", "PN", "AKA", "PART_NUMBR", "DESCRIP1", "COMMENTS", "PART_MFR", "VEND", "CAT", "PAGE", "SPL", "SPL_DATE", "SPL_FROM", "LOT_CT", "LOT_PR", "LOT_FROM", "REG", "REG_DATE", "REG_FROM", "SUGG", "VEND_RET", "SHOP_QTY", "TRK1_QTY", "TRK2_QTY", "TRK3_QTY", "USED_QTY", "LOCATION", "OTHER", "CGS", "FROM", "DATE", "OEM_PN", "CALCULATED", "FIXED", "SELL", "ZOOM", "SOLD_YTD", "SOLD_DATE", "SOLD_AMT"]
+                          /*DNI*/, ["data", "PN", "AKA", "PART_NUMBR", "DESCRIP1", "COMMENTS", "APPL_MFR", "VEND", "CAT", "PAGE", "SPL", "SPL_DATE", "SPL_FROM", "LOT_CT", "LOT_PR", "LOT_FROM", "REG", "REG_DATE", "REG_FROM", "SUGG", "VEND_RET", "SHOP_QTY", "TRK1_QTY", "TRK2_QTY", "TRK3_QTY", "USED_QTY", "LOCATION", "COMMON_PN", "CGS", "FROM", "DATE", "OEM_PN2", "CALCULATED", "FIXED", "SELL", "ZOOM", "SOLD_YTD", "SOLD_DATE", "SOLD_AMT", "POST_APPND"]
+                            /*F*/, ["data", "PN", "AKA", "PART_NUMBR", "DESCRIP1", "COMMENTS", "PART_MFR", "VEND", "CAT", "PAGE", "SPL", "SPL_DATE", "SPL_FROM", "LOT_CT", "LOT_PR", "LOT_FROM", "REG", "REG_DATE", "REG_FROM", "SUGG", "VEND_RET", "SHOP_QTY", "TRK1_QTY", "TRK2_QTY", "TRK3_QTY", "USED_QTY", "LOCATION", "OTHER", "CGS", "FROM", "DATE", "OEM_PN", "CALCULATED", "FIXED", "SELL", "ZOOM", "SOLD_YTD", "SOLD_DATE", "SOLD_AMT"]
+                          /*GEM*/, ["data", "PN", "AKA", "PART_NUMBR", "DESCRIP1", "COMMENTS", "GEM_ID", "VEND", "CAT", "PAGE", "SPL", "SPL_DATE", "SPL_FROM", "LOT_CT", "LOT_PR", "LOT_FROM", "REG", "REG_DATE", "REG_FROM", "SUGG", "VEND_RET", "SHOP_QTY", "TRK1_QTY", "TRK2_QTY", "TRK3_QTY", "USED_QTY", "LOCATION", "OTHER", "CGS", "FROM", "DATE", "OEM_PN", "CALCULATED", "FIXED", "SELL", "ZOOM", "SOLD_YTD", "SOLD_DATE", "SOLD_AMT"]
+                         /*H_RS*/, ["data", "PN", "AKA", "PART_NUMBR", "DESCRIP1", "COMMENTS", "RS_ID", "VEND", "CAT", "PAGE", "SPL", "SPL_DATE", "SPL_FROM", "LOT_CT", "LOT_PR", "LOT_FROM", "REG", "REG_DATE", "REG_FROM", "SUGG", "VEND_RET", "SHOP_QTY", "TRK1_QTY", "TRK2_QTY", "TRK3_QTY", "USED_QTY", "LOCATION", "OTHER", "CGS", "FROM", "DATE", "OEM_PN", "CALCULATED", "FIXED", "SELL", "ZOOM", "SOLD_YTD", "SOLD_DATE", "SOLD_AMT"]
+                         /*I_MM*/, ["data", "PN", "AKA", "PART_NUMBR", "DESCRIP1", "COMMENTS", "MM_ID", "VEND", "CAT", "PAGE", "SPL", "SPL_DATE", "SPL_FROM", "LOT_CT", "LOT_PR", "LOT_FROM", "REG", "REG_DATE", "REG_FROM", "SUGG", "VEND_RET", "SHOP_QTY", "TRK1_QTY", "TRK2_QTY", "TRK3_QTY", "USED_QTY", "LOCATION", "OTHER", "CGS", "FROM", "DATE", "OEM_PN", "CALCULATED", "FIXED", "SELL", "ZOOM", "SOLD_YTD", "SOLD_DATE", "SOLD_AMT"]
+                           /*JS*/, ["data", "PN", "JS_LINE_PN", "PART_NUMBR", "DESCRIP1", "COMMENTS", "JS_ID", "JS_LINE", "CAT", "PAGE", "SPL", "SPL_DATE", "SPL_FROM", "LOT_CT", "LOT_PR", "LOT_FROM", "REG", "REG_DATE", "REG_FROM", "SUGG", "VEND_RET", "SHOP_QTY", "TRK1_QTY", "TRK2_QTY", "TRK3_QTY", "USED_QTY", "LOCATION", "OTHER", "CGS", "FROM", "DATE", "OEM_PN", "CALCULATED", "FIXED", "SELL", "ZOOM", "SOLD_YTD", "SOLD_DATE", "SOLD_AMT"]
+                          /*OEM*/, ["data", "PN", "AKA", "PART_NUMBR", "DESCRIP1", "COMMENTS", "APPL_MFR", "VEND", "CAT", "PAGE", "SPL", "SPL_DATE", "SPL_FROM", "LOT_CT", "LOT_PR", "LOT_FROM", "REG", "REG_DATE", "REG_FROM", "SUGG", "VEND_RET", "SHOP_QTY", "TRK1_QTY", "TRK2_QTY", "TRK3_QTY", "USED_QTY", "LOCATION", "COMMON_PN", "CGS", "FROM", "DATE", "OEM_PN2", "CALCULATED", "FIXED", "SELL", "ZOOM", "SOLD_YTD", "SOLD_DATE", "SOLD_AMT", "POST_APPND"]
+];
+
+const CE_DATA = 0;
+const CE_PN = 1;
+const CE_AKA = 2;
+const CE_DESCRIP1 = 4;
+const CE_COMMENTS = 5;
+const CE_PART_MFR = 6;
+const CE_SPL = 10;
+const CE_REG = 16;
+const CE_REG_DATE = 17;
+const CE_REG_FROM = 18;
+const CE_SUGG = 19;
+const CE_VEND_RET = 20;
+const CE_SHOP_QTY = 21;
+const CE_TRK1_QTY = 22;
+const CE_TRK2_QTY = 23;
+const CE_TRK3_QTY = 24;
+const CE_USED_QTY = 25;
+const CE_LOCATION = 26;
+const CE_CGS = 28;
+const CE_FROM = 29;
+const CE_DATE = 30;
+const CE_FIXED = 33;
+const CE_SELL = 34;
+
+const _EXTRA_DB = ["B_DNI", "CHLX", "DNI", "F", "GEM", "H_RS", "I_MM", "JS", "OEM"];
+const _EXTRA_DB_OEM = _EXTRA_DB.indexOf("OEM");
+const _EXTRA_DB_ACTUAL_INDEXES = ["B_PN", "CHLX_PN", "Q_PN", "F_PN", "GEM_PN", "RS_PN", "MM_PN", "JS_PN", "OEM_PN"];
+const _EXTRA_DB_COMMENTS_PREFIXES = ["B", "C", "D", "F", "G", "H", "I", "J", "O"];
+const _CONTENT_EXTRA_DB_INDEXES = [9, 10, 22, 11, 12, 13, 14, 15, 20];
+// const _CONTENT_EXTRA_DB_ID_INDEXES = [B_ID, C_ID, D_ID, F_ID, G_ID, H_ID, I_ID, J_ID, O_ID];
+
+const RECORD_VIEW_DB_HEADER_WIDTH = "150px";
+const RECORD_VIEW_HEADERS_PAGE1_0 = ["MFR", "PART#", "S", "LOC", "T1", "T2", "U", "VEND", "DATE", "CGS", "RETAIL", "COMMENT"];
+const RECORD_VIEW_HEADERS_WIDTHS_PAGE1_0 = ["100px", "300px", "70px", "100px", "70px", "70px", "70px", "100px", "200px", "100px", "100px", "50px"];
+const RECORD_VIEW_HEADERS_PAGE1_1 = ["SELL"];
+const RECORD_VIEW_HEADERS_WIDTHS_PAGE1_1 = ["100px"];
+const RECORD_VIEW_HEADERS_PAGE2_0 = ["MFR", "PART#", "AKA", "MFR", "DATE", "CGS", "SUGG", "FIXED", "COMMENT"];
+const RECORD_VIEW_HEADERS_WIDTHS_PAGE2_0 = ["100px", "300px", "70px", "100px", "70px", "70px", "70px", "100px", "100px"];
+const RECORD_VIEW_HEADERS_PAGE2_1 = ["SELL"];
+const RECORD_VIEW_HEADERS_WIDTHS_PAGE2_1 = ["200px"];
+
+const RECORD_VIEW_HEADERS_PAGE1_CONCAT = RECORD_VIEW_HEADERS_PAGE1_0.concat(RECORD_VIEW_HEADERS_PAGE1_1);
+const RECORD_VIEW_HEADERS_PAGE2_CONCAT = RECORD_VIEW_HEADERS_PAGE2_0.concat(RECORD_VIEW_HEADERS_PAGE2_1);
+
+const RECORD_VIEW_HEADERS_ACTUAL_INDEXES_PAGE1_0 = [
+  [CE_PART_MFR, CE_PART_MFR, CE_PART_MFR, CE_PART_MFR, CE_PART_MFR, CE_PART_MFR, CE_PART_MFR, CE_PART_MFR, CE_PART_MFR],
+  [CE_PN, CE_PN, CE_PN, CE_PN, CE_PN, CE_PN, CE_PN, CE_PN, CE_PN],
+  [CE_SHOP_QTY, CE_SHOP_QTY, CE_SHOP_QTY, CE_SHOP_QTY, CE_SHOP_QTY, CE_SHOP_QTY, CE_SHOP_QTY, CE_SHOP_QTY, CE_SHOP_QTY],
+  [CE_LOCATION, CE_LOCATION, CE_LOCATION, CE_LOCATION, CE_LOCATION, CE_LOCATION, CE_LOCATION, CE_LOCATION, CE_LOCATION],
+  [CE_TRK1_QTY, CE_TRK1_QTY, CE_TRK1_QTY, CE_TRK1_QTY, CE_TRK1_QTY, CE_TRK1_QTY, CE_TRK1_QTY, CE_TRK1_QTY, CE_TRK1_QTY],
+  [CE_TRK2_QTY, CE_TRK2_QTY, CE_TRK2_QTY, CE_TRK2_QTY, CE_TRK2_QTY, CE_TRK2_QTY, CE_TRK2_QTY, CE_TRK2_QTY, CE_TRK2_QTY],
+  [CE_USED_QTY, CE_USED_QTY, CE_USED_QTY, CE_USED_QTY, CE_USED_QTY, CE_USED_QTY, CE_USED_QTY, CE_USED_QTY, CE_USED_QTY],
+  [CE_FROM, CE_FROM, CE_FROM, CE_FROM, CE_FROM, CE_FROM, CE_FROM, CE_FROM, CE_FROM],
+  [CE_DATE, CE_DATE, CE_DATE, CE_DATE, CE_DATE, CE_DATE, CE_DATE, CE_DATE, CE_DATE],
+  [CE_CGS, CE_CGS, CE_CGS, CE_CGS, CE_CGS, CE_CGS, CE_CGS, CE_CGS, CE_CGS],
+  [CE_VEND_RET, CE_VEND_RET, CE_VEND_RET, CE_VEND_RET, CE_VEND_RET, CE_VEND_RET, CE_VEND_RET, CE_VEND_RET, CE_VEND_RET],
+  [CE_COMMENTS, CE_COMMENTS, CE_COMMENTS, CE_COMMENTS, CE_COMMENTS, CE_COMMENTS, CE_COMMENTS, CE_COMMENTS, CE_COMMENTS]
+];
+
+const RECORD_VIEW_HEADERS_ACTUAL_INDEXES_PAGE1_1 = [
+  [CE_SELL, CE_SELL, CE_SELL, CE_SELL, CE_SELL, CE_SELL, CE_SELL, CE_SELL, CE_SELL]
+];
+
+const RECORD_VIEW_HEADERS_ACTUAL_INDEXES_PAGE1_CONCAT = RECORD_VIEW_HEADERS_ACTUAL_INDEXES_PAGE1_0.concat(RECORD_VIEW_HEADERS_ACTUAL_INDEXES_PAGE1_1);
+
+const RECORD_VIEW_HEADERS_ACTUAL_INDEXES_PAGE2_0 = [
+  [CE_PART_MFR, CE_PART_MFR, CE_PART_MFR, CE_PART_MFR, CE_PART_MFR, CE_PART_MFR, CE_PART_MFR, CE_PART_MFR, CE_PART_MFR],
+  [CE_PN, CE_PN, CE_PN, CE_PN, CE_PN, CE_PN, CE_PN, CE_PN, CE_PN],
+  [CE_AKA, CE_AKA, CE_AKA, CE_AKA, CE_AKA, CE_AKA, CE_AKA, CE_AKA, CE_AKA],
+  [CE_REG_FROM, CE_REG_FROM, CE_REG_FROM, CE_REG_FROM, CE_REG_FROM, CE_REG_FROM, CE_REG_FROM, CE_REG_FROM, CE_REG_FROM],
+  [CE_DATE, CE_DATE, CE_DATE, CE_DATE, CE_DATE, CE_DATE, CE_DATE, CE_DATE, CE_DATE],
+  [CE_REG, CE_REG, CE_REG, CE_REG, CE_REG, CE_REG, CE_REG, CE_REG, CE_REG],
+  [CE_SUGG, CE_SUGG, CE_SUGG, CE_SUGG, CE_SUGG, CE_SUGG, CE_SUGG, CE_SUGG, CE_SUGG],
+  [CE_FIXED, CE_FIXED, CE_FIXED, CE_FIXED, CE_FIXED, CE_FIXED, CE_FIXED, CE_FIXED, CE_FIXED], //?
+  [CE_COMMENTS, CE_COMMENTS, CE_COMMENTS, CE_COMMENTS, CE_COMMENTS, CE_COMMENTS, CE_COMMENTS, CE_COMMENTS, CE_COMMENTS]
+];
+const RECORD_VIEW_HEADERS_ACTUAL_INDEXES_PAGE2_1 = [
+  [CE_SELL, CE_SELL, CE_SELL, CE_SELL, CE_SELL, CE_SELL, CE_SELL, CE_SELL, CE_SELL]
+];
+
 const _SPEC_DATA_INDEXES = [_SPEC01DATA, _SPEC02DATA, _SPEC03DATA, _SPEC04DATA, _SPEC05DATA, _SPEC06DATA, _SPEC07DATA, _SPEC08DATA, _SPEC09DATA, _SPEC10DATA, _SPEC11DATA, _SPEC12DATA];
 
 const _ALPHABET = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
@@ -238,21 +254,6 @@ function initialLoadingFinished() //Called after all parts are downloaded and pr
 {
   sortContentByIndex(_OEM_PN);
 
-  // var populateChildPartCacheWorker = new Worker('workers/WORKER_populate_child_part_cache.js');
-  // populateChildPartCacheWorker.postMessage([_content, _content_extra, _EXTRA_DB, _extradb_link_index_cache, _CONTENT_EXTRA_DB_INDEXES, _EXTRA_DB_FIELDS, _AKA_GLOBAL]);
-  // populateChildPartCacheWorker.onmessage = function (e) {
-  //   if(e.data[0] == 1)
-  //   { //Finished
-  //     _extradb_link_index_cache = e.data[1];
-  //     showSnackbar("Populating child part cache...100%", 1500);
-  //   }
-  //   else //Percent status update message
-  //   {
-  //     showSnackbar("Populating child part cache..." + Math.floor(e.data[1] * 100) + "%", 3000);
-  //     // document.getElementById("message").innerHTML = "<br><br><br><p>Adding Child Part Links... " + Math.floor(e.data[1] * 100) + "%</p>";
-  //   }
-  // }//END onMessage from PartChildButton worker
-
   document.getElementById("sync_db_div").style.display = "none";
   document.getElementById("main_loader").style.display = "none";
   document.getElementById("main_loading_text").style.display = "none";
@@ -266,6 +267,7 @@ function initialLoadingFinished() //Called after all parts are downloaded and pr
     viewInfo(null, _newClient_for_info);
     _newClient_for_info = null;
   }
+  clearPartFilters();
 }
 
 $(function () {
@@ -543,9 +545,9 @@ function clearData() {
   _google_cse_api_key_loaded = false;
   if (_DBID_to_ContentIndex_Cache != null)
     _DBID_to_ContentIndex_Cache.clear();
-  for (var i = 0; i < _EXTRA_DB.length; ++i)
-    if (_extradb_link_index_cache[i] != null)
-      _extradb_link_index_cache[i].clear();
+  // for (var i = 0; i < _EXTRA_DB.length; ++i)
+  //   if (_extradb_link_index_cache[i] != null)
+  //     _extradb_link_index_cache[i].clear();
 
   _part_history_content_extra_objs = [];
   removeListeners();
@@ -766,7 +768,7 @@ function loadContentDiv2() {
         var shortcuts_html = '<table style="margin: auto; font-size: 30px; border: solid 30px #70A2FF;">';
         var cellsAdded = 0;
         for (var i = 0; i < length; ++i)
-          if (TAB_MAINMENU_DIVS[i] != "" && i != TAB_PEOPLE && i != TAB_PART_HISTORY && i != TAB_PDF_IMPORT && i != TAB_REORDERS && i != TAB_INVOICE_HISTORY && i != TAB_INVOICE_SETTINGS && i != TAB_INVOICE && i != TAB_ADD_INVOICE && i != TAB_CHANGE_HISTORY) {
+          if (TAB_MAINMENU_DIVS[i] != "" && i != TAB_PEOPLE && i != TAB_PART_HISTORY && i != TAB_PDF_IMPORT && i != TAB_REORDERS && i != TAB_INVOICE_HISTORY && i != TAB_INVOICE_SETTINGS && i != TAB_INVOICE && i != TAB_ADD_INVOICE && i != TAB_CHANGE_HISTORY && i != TAB_EXPORT) {
             if (cellsAdded == 0)
               shortcuts_html += "<tr>";
             shortcuts_html += '<td style="background-color: #70A2FF; border: 0px;">' + TAB_MAINMENU_DIVS[i] + "</td>";
@@ -829,57 +831,38 @@ function loadContentDiv2() {
       showSnackbar("Downloading parts from database... This may take up to 60 seconds", 10000);
       document.getElementById("main_loader").style.display = "block";
       document.getElementById("main_loading_text").style.display = "block";
-      // document.getElementById("message").innerHTML = "<p>Downloading parts from database... This may take up to 60 seconds</p>";
       document.getElementById("record_browser_div").style.display = "none";
 
-      //   $.ajax({
-      //     type: "GET",
-      //     url: "ascii_test.txt",
-      //     dataType: "text",
-      //     success: function(data) {processCSVData(data);}
-      //  });
-
       if (_DEBUG_LOCAL_MODE) {
-        // document.getElementById("fileinput_div").innerHTML = "<input id='fileinput_json' type='file' style='width: 500px; height: 200px;'></input><br>";
-        // document.getElementById('fileinput_json').addEventListener('change', readSingleFile_json, false);
         fetchJSONRecursive(0);
       }
       else {
-        // var ref = firebase.database().ref("debug");
-        // ref.remove();
+        // deleteFromDatabase("extra_pn_cache", false);
 
         _extraDBLoadedIndex = -1;
         document.getElementById("main_loading_text").innerHTML = "Downloading Part Child Database...";
         var bogus_dir = "";
         if (_DEBUG_SKIP_PART_LOADING)
           bogus_dir = "dir2/";
-        // debugTiming("Starting");
+        _extradb_link_index_cache = [new Map(), new Map(), new Map(), new Map(), new Map(), new Map(), new Map(), new Map(), new Map()];
         for (var i = 0; i < _EXTRA_DB.length; ++i) {
           readFromDB("parts_db/" + bogus_dir + _EXTRA_DB[i], function (val0, key0) {
-            // debugTiming(_EXTRA_DB[_extraDBLoadedIndex + 1]);
             var objs = [];
             var keys = [];
             for (let [key, val] of Object.entries(val0)) {
               objs.push(val);
               keys.push(key);
-              // childSnapshot = null; //Helps to prevent "Out of memory" errors?
             }
             processJSONDataExtra(objs, _EXTRA_DB.indexOf(key0), keys);
             ++_extraDBLoadedIndex;
             document.getElementById("main_loading_text").innerHTML = "Downloading Part Child Database... " + (_extraDBLoadedIndex + 1) + "/" + _EXTRA_DB.length;
             if (_extraDBLoadedIndex == _EXTRA_DB.length - 1) //Load big P&A_PRI after extra Databases loaded
             {
-              // var partsRef = firebase.database().ref(_DATABASE_PREFIX + 'parts_db/P&A_PRI').orderByChild('RECORD_NUMBER');
               document.getElementById("main_loading_text").innerHTML = "Downloading P&A_PRI Database... ";
               readFromDB("parts_db/" + bogus_dir + "P&A_PRI", function (val0, key0) {
-                // debugTiming("P&A_PRI");
                 showSnackbar("Processing parts...", 3000);
-                // document.getElementById("message").innerHTML = "<p>Processing parts...</p>";
-
-                // var numChildren = snapshot.numChildren();
                 _content = [];
 
-                var numRecords = 0;
                 for (let [key, val] of Object.entries(val0)) {
                   var content_line = [];
                   //indexToContentID[numRecords] = childSnapshot.key;
@@ -892,10 +875,7 @@ function loadContentDiv2() {
                     content_line.push(memolines);
                   }
                   content_line.push(key);
-                  // document.getElementById("loading_parts").innerHTML = "<p>Processing parts...  " + (numRecords / numChildren) + "%</p>";
                   _content.push(content_line);
-                  ++numRecords;
-                  // childSnapshot = null; //Helps to prevent "Out of memory" errors?
                 }
                 if (_LOCAL_SERVER_MODE || _FIREBASE_LOGGED_IN) { //Ensures that loading cancels if user is logged out from another login elsewhere
                   generateContent_Standard();
@@ -906,6 +886,15 @@ function loadContentDiv2() {
                 }
               });
             }
+          });
+
+          readFromDB("extra_pn_cache/" + _EXTRA_DB[i], function (val0, key0) {
+            for (var i2 = 0; i2 < _EXTRA_DB.length; ++i2)
+              if (key0 == _EXTRA_DB[i2]) {
+                for (let [key, val] of Object.entries(val0)) {
+                  _extradb_link_index_cache[i2].set(val[0], val[1]);
+                }
+              }
           });
         }
       }
@@ -960,7 +949,20 @@ function loadContentDiv2() {
         _google_cse_api_key_loaded = true;
       });
 
-      retrieveInvoiceDataFromDatabase(null);
+
+      addDBListener('invoice_data', function (val0, key0) {
+        if (_LOCAL_SERVER_MODE || _firebaseAuthUID == _admin_uid || _writeable_mode) {
+          _content_invoice_history = [];
+          for (let [key, val] of Object.entries(val0)) {
+            var invoice_obj = val;
+            invoice_obj.key = key;
+            _content_invoice_history.push(invoice_obj);
+          }
+          populateInvoiceHistory();
+        }
+      });
+
+      // retrieveInvoiceDataFromDatabase(null);
       retrieveChangeDataFromDatabase(null);
     }
     else {
@@ -995,28 +997,28 @@ function loadContentDiv2() {
   });
 }
 
-function processJSONData(objs) {
-  _content = [];
-  for (var i = 0; i < objs.length; ++i) {
-    var content_line = [];
-    var obj = objs[i];
-    for (var j = 0; j < _INDEXES.length; ++j) {
-      content_line.push(String(obj[_INDEXES[j]]));
-    }
-    for (var j = 0; j < _MEMO_INDEXES.length; ++j) {
-      content_line.push(obj[_MEMO_INDEXES[j]]);
-    }
-    content_line.push(i + "n");
-    _content.push(content_line);
-    // var in1 = 6;
-    // var link = getExtraDBLinkIndex(in1, content_line[CONTENT_EXTRA_DB_INDEXES[in1]]);
-    // if(link == null)
-    //   console.log(content_line[CONTENT_EXTRA_DB_INDEXES[in1]]);
-  }
-  generateContent_Standard();
-  populateRecordBrowser(0, false);
-  initialLoadingFinished();
-}
+// function processJSONData(objs) {
+//   _content = [];
+//   for (var i = 0; i < objs.length; ++i) {
+//     var content_line = [];
+//     var obj = objs[i];
+//     for (var j = 0; j < _INDEXES.length; ++j) {
+//       content_line.push(String(obj[_INDEXES[j]]));
+//     }
+//     for (var j = 0; j < _MEMO_INDEXES.length; ++j) {
+//       content_line.push(obj[_MEMO_INDEXES[j]]);
+//     }
+//     content_line.push(i + "n");
+//     _content.push(content_line);
+//     // var in1 = 6;
+//     // var link = getExtraDBLinkIndex(in1, content_line[CONTENT_EXTRA_DB_INDEXES[in1]]);
+//     // if(link == null)
+//     //   console.log(content_line[CONTENT_EXTRA_DB_INDEXES[in1]]);
+//   }
+//   generateContent_Standard();
+//   populateRecordBrowser(0, false);
+//   initialLoadingFinished();
+// }
 
 function processJSONDataExtra(objs, _content_extra_db, keys) {
   if (_content_extra == null) {
@@ -1027,14 +1029,10 @@ function processJSONDataExtra(objs, _content_extra_db, keys) {
 
   for (var i = 0; i < objs.length; ++i) {
     var content_line = [];
-    content_line.push(objs[i]);
-    // for(var j = 0; j < EXTRA_INDEXES.length; ++j){
-    //   var item = obj[EXTRA_INDEXES[j]];
-    //   if(item == null)
-    //     content_line.push("");
-    //   else
-    //     content_line.push(String(item));
-    // }
+    var obj0 = objs[i];
+    var obj1 = getContentExtraArr(_content_extra_db, obj0);
+
+    content_line.push(obj1);
     if (keys == null)
       content_line.push(i + "e");
     else {
@@ -1089,6 +1087,10 @@ function log_in_temp() {
       switch (_current_login_temp_intent) {
         case TAB_SUGGESTIONS:
           setTab(TAB_SUGGESTIONS);
+          break;
+        case TAB_INVOICE_HISTORY:
+          setTab(TAB_INVOICE_HISTORY);
+          document.getElementById("button_get_qwc").click();
           break;
         default:
           setTab(TAB_PEOPLE);

@@ -1,0 +1,45 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\scan-to-my-website-m]
+@="URL:scan-to-my-website-m Protocol"
+"URL Protocol"=""
+
+[HKEY_CLASSES_ROOT\scan-to-my-website-m\DefaultIcon]
+@="C:\\Program Files (x86)\\NAPS2\\NAPS2.exe"
+
+[HKEY_CLASSES_ROOT\scan-to-my-website-m\Shell]
+
+[HKEY_CLASSES_ROOT\scan-to-my-website-m\Shell\Open]
+
+[HKEY_CLASSES_ROOT\scan-to-my-website-m\Shell\Open\command]
+@="\"C:\\Program Files (x86)\\NAPS2\\ScanToMyWebsite_M.bat\""
+
+
+[HKEY_CLASSES_ROOT\scan-to-my-website-rp]
+@="URL:scan-to-my-website-rp Protocol"
+"URL Protocol"=""
+
+[HKEY_CLASSES_ROOT\scan-to-my-website-rp\DefaultIcon]
+@="C:\\Program Files (x86)\\NAPS2\\NAPS2.exe"
+
+[HKEY_CLASSES_ROOT\scan-to-my-website-rp\Shell]
+
+[HKEY_CLASSES_ROOT\scan-to-my-website-rp\Shell\Open]
+
+[HKEY_CLASSES_ROOT\scan-to-my-website-rp\Shell\Open\command]
+@="\"C:\\Program Files (x86)\\NAPS2\\ScanToMyWebsite_RP.bat\""
+
+
+[HKEY_CLASSES_ROOT\scan-to-my-website-w]
+@="URL:scan-to-my-website-w Protocol"
+"URL Protocol"=""
+
+[HKEY_CLASSES_ROOT\scan-to-my-website-w\DefaultIcon]
+@="C:\\Program Files (x86)\\NAPS2\\NAPS2.exe"
+
+[HKEY_CLASSES_ROOT\scan-to-my-website-w\Shell]
+
+[HKEY_CLASSES_ROOT\scan-to-my-website-w\Shell\Open]
+
+[HKEY_CLASSES_ROOT\scan-to-my-website-w\Shell\Open\command]
+@="\"C:\\Program Files (x86)\\NAPS2\\ScanToMyWebsite_W.bat\""

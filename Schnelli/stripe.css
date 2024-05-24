@@ -1,0 +1,241 @@
+@font-face {
+  font-family: "DMSans-Regular";
+  src: url("dm_sans_regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "BalooChettan2-Regular";
+  src: url("baloo_chettan2_regular.ttf") format("truetype");
+}
+
+p {
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+h2 {
+  font-size: 24px;
+  font-family: BalooChettan2-Regular;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+.loader {
+  border: 16px solid white;
+  border-top: 16px solid rgb(11, 116, 221);
+  ;
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  animation: loader_spin 2s linear infinite;
+}
+
+@keyframes loader_spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+body {
+  box-sizing: border-box;
+  font-family: BalooChettan2-Regular, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+  margin: 0;
+}
+
+header {
+  background: rgb(11, 116, 221);
+  /* padding: 1rem 5vw; */
+  width: 100%;
+}
+
+header a {
+  color: #fff;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+main {
+  display: none;
+  margin: 4rem auto 6rem;
+  max-width: 650px;
+  width: 90vw;
+}
+
+#firebaseui-auth-container {
+  font-weight: 800;
+  margin: 4rem auto 6rem;
+  max-width: 650px;
+  width: 90vw;
+}
+
+footer {
+  color: #444;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+footer a {
+  color: inherit;
+}
+
+.products {
+  /* display: grid;
+  gap: 2rem;
+  grid-template-columns: repeat(2, 1fr);
+  margin-top: -2rem;
+  max-width: 100%; */
+
+  /* width: 100%; */
+  width: 75%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: -60px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.product {
+  max-width: 400px;
+  margin: 20px;
+}
+
+.product img {
+  width: 300px;
+}
+
+.product input {
+  border: 1px solid rgb(11, 116, 221);
+  border-radius: 0.25rem;
+  font-size: 1.125rem;
+  line-height: 1.25rem;
+  padding: 0.25rem;
+}
+
+.icon_black_to_blue2:hover {
+  filter: sepia(100%) saturate(1400%) brightness(500%) hue-rotate(180deg);
+  cursor: pointer;
+}
+
+/* button {
+  font-family: BalooChettan2-Regular;
+  display: block;
+  cursor: pointer;
+  background: #38F094;
+  border: none;
+  border-radius: 0.25rem;
+  color: #fff;
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1.25rem;
+  margin-top: 0.25rem;
+  padding: 0.25rem;
+} */
+
+button {
+  display: block;
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  background-color: #70A2FF;
+  border-radius: 28px;
+  color: black;
+  transition: 0.3s;
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1.25rem;
+  margin-top: 0.25rem;
+  padding: 0.25rem;
+  max-width: 100%;
+}
+
+button:hover {
+  background-color: #e6f6ff;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+select {
+  transition: box-shadow 0.2s ease;
+  background: none;
+  border: 5px solid rgb(11, 116, 221);
+  font-size: 1.25rem;
+}
+
+label {
+  display: block;
+}
+
+#subscribe,
+#my-subscription {
+  display: none;
+}
+
+/* Test card number */
+.test-card-notice {
+  display: block;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+}
+
+.card-number {
+  display: inline;
+  white-space: nowrap;
+  font-family: Menlo, Consolas, monospace;
+  color: #3c4257;
+  font-weight: 500;
+}
+
+.card-number span {
+  display: inline-block;
+  width: 4px;
+}
+
+.textBlock {
+  display: block;
+  margin: auto;
+  max-width: 700px;
+}
+
+.headerButton {
+  color: white;
+  display: inline;
+  width: 200px;
+  margin-bottom: 10px;
+}
+
+/* Mobile */
+@media (max-aspect-ratio: 3/4) {
+
+  /* .tabButton {
+    height: unset;
+    min-height: 25px;
+  } */
+  .headerButton {
+    display: block;
+    width: 50%;
+    margin: auto;
+    margin-bottom: 10px;
+  }
+
+  header {
+    padding-bottom: 5px;
+  }
+
+  .textBlock {
+    display: block;
+    margin: auto;
+    width: 90%;
+  }
+}

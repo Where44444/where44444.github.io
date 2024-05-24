@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<title>Contact AAA Quality Appliance Care</title>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=0.41, maximum-scale=1" />
+  <!--Ensures debug options don't make it to web version -->
+  <!-- <script type="text/javascript" src="partscouter_tests.js"></script> -->
+  <!-- //Don't use, won't handle new _content format -->
+  <!-- <script type="text/javascript" src="DONTUPLOAD/partscouter_debug.js"></script> -->
+  <!-- //Don't use, won't handle new _content format -->
+
+  <link rel="icon" type="image/x-icon" href="./favicon.ico">
+  <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+  <meta content="utf-8" http-equiv="encoding">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Ensures optimal rendering on mobile devices. -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" /> <!-- Optimal Internet Explorer compatibility -->
+
+  <script type="text/javascript" src="external/firebasejs/8.9.1/firebase-app.js"></script>
+  <script type="text/javascript" src="external/firebasejs/8.9.1/firebase-database.js"></script>
+  <script type="text/javascript" src="external/firebasejs/8.9.1/firebase-storage.js"></script>
+  <script type="text/javascript" src="external/firebasejs/8.9.1/firebase-firestore.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="styles.css" />
+</head>
+<style>
+  h2 {
+    margin-bottom: 0px;
+  }
+</style>
+
+<body>
+
+  <div id="submitted_div" style="display: none; width: 80%; margin: auto;">
+    <p style="text-align: center; font-size: 20px;">Thank you. Your request has been sent.</p>
+  </div>
+  <div id="main_div">
+    <img src="./send_message.png" style="display: block; margin: auto; width: 80%;">
+    <div style="display: block; width: 80%; margin: auto;">
+      <h2>Name</h2>
+      <input type="text" id="name" style="width: 100%; height: 30px;">
+      <h2>Email</h2>
+      <input type="text" id="email" style="width: 100%; height: 30px;">
+      <h2>Phone</h2>
+      <input type="text" id="phone" style="width: 100%; height: 30px;">
+      <h2>Address</h2>
+      <input type="text" id="address" style="width: 100%; height: 30px;">
+      <h2>Notes</h2>
+      <textarea id="notes" style="width: 100%; height: 100px;"></textarea>
+      <h2>Images</h2>
+      <input type="file" id="image_input" accept="image/*" multiple>
+      <div id="loader" class="loader" style="display: none;"></div>
+      <div id="images_thumbnails" style="display: flex; flex-direction: row;"></div>
+      <br><br>
+      <button style="width: 100%; height: 50px;" onclick="submit_form();">Submit</button>
+      <br><br>
+    </div>
+  </div>
+</body>
+
+
+<script>
+  var firebaseConfig = {
+    apiKey: "AIzaSyBiHDF9LJepi4QyOhHeayZT_etKN5AjlGs",
+    authDomain: "appliance-parts-f45cd.firebaseapp.com",
+    databaseURL: "https://appliance-parts-f45cd.firebaseio.com",
+    projectId: "appliance-parts-f45cd",
+    storageBucket: "appliance-parts-f45cd.appspot.com",
+    messagingSenderId: "671454569102",
+    appId: "1:671454569102:web:479b1d3a11bedf601c1fdf"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+
+  var reff0 = firebase.database().ref().push();
+
+  document.getElementById("image_input").addEventListener('change', readFile, false);
+
+  var thumbnails = [];
+
+  function readFile(evt) {
+    document.getElementById("loader").style.display = "block";
+    for (let f of evt.target.files) {
+      if (f) {
+        var reff = firebase.database().ref().push();
+        var Ref = firebase.storage().ref().child("appliance_customers_requests").child(reff0.key).child(reff.key + "." + getExtension(f.name));
+        Ref.put(f).then((snapshot) => {
+          return snapshot.ref.getDownloadURL();
+        })
+          .then(downloadURL => {
+            thumbnails.push(downloadURL);
+            populateThumbnails();
+          })
+          .catch((error) => {
+            console.error("File upload failed:|" + error.code + "|" + error.message);
+          });
+      } else {
+        window.alert("Failed to load file");
+      }
+    }
+    document.getElementById("image_input").value = "";
+  }
+
+  function getExtension(name) {
+    return name.split(".").pop();
+  }
+
+  function populateThumbnails() {
+    document.getElementById("loader").style.display = "none";
+    var html = "";
+    if (thumbnails.length > 0)
+      html += "<p style='margin-right: 5px;'>(Click To Remove)</p>"
+    var i = 0;
+    for (let thumb of thumbnails) {
+      html += "<img class='clickable' src='" + thumb + "' style='height: 50px; margin-right: 5px;' title='Click to Remove' onclick='removeImage(" + i + ");'>";
+      ++i;
+    }
+    document.getElementById("images_thumbnails").innerHTML = html;
+  }
+
+
+  function removeImage(index) {
+    var regexp = new RegExp(/appliance_customers_requests%2F(.*)%2F(.*)\?/, "g");
+    let match;
+    if (match = regexp.exec(thumbnails[index])) {
+      firebase.storage().ref().child("appliance_customers_requests").child(match[1]).child(match[2]).delete();
+      thumbnails.splice(index, 1);
+    }
+    populateThumbnails();
+  }
+
+  function submit_form() {
+    document.getElementById("main_div").style.display = "none";
+    document.getElementById("submitted_div").style.display = "";
+
+    firebase.firestore().collection("appliance_customers_requests").doc(reff0.key).set({
+      name: document.getElementById("name").value,
+      email: document.getElementById("email").value,
+      phone: document.getElementById("phone").value,
+      address: document.getElementById("address").value,
+      notes: document.getElementById("notes").value,
+      images: thumbnails,
+    })
+      .then(() => {
+      })
+      .catch((error) => {
+        console.error("Error writing document: ", error);
+      });
+  }
+</script>
+
+</html>

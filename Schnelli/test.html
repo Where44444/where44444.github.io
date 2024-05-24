@@ -1,0 +1,22 @@
+<script>
+fetch('https://stgapi.reliableparts.net:8077/ws/rest/ReliablePartsBoomiAPI/partSearch/v2/query', {
+  method: 'POST',
+  headers: {
+    'X-API-Key': '8cbb261d-c32b-41ac-b9bb-8918116564d1',
+    'Authorization': 'Basic MDQwMzcyOlJQQFN0Z0FwaUFhQXF1QXBwIzIwMjM=',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+  "PartSearchNewRequest": {
+    "distanceMeasure": "",
+    "partNumber": "WX09X10006",
+    "postalCode": "97402",
+    "quantity": "",
+    "warehouse": ""
+  }
+})
+})
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch(error => console.error(error))
+</script>

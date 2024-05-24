@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PartScouter Subscriptions</title>
+    <link href="./Home_files/platform.client.min.css" type="text/css" rel="stylesheet">
+    <link rel="stylesheet" href="stripe.css" />
+</head>
+
+<body>
+    <header>
+        <a href="stripe.html" rel="home"
+            style="font-size: 25pt; font-family: DMSans-Regular;">&nbsp;&nbsp;&nbsp;PartScouter</a>
+        <button id="about_button" class="headerButton" onclick="showAbout();">About</button>
+        <button id="sign_up_button" class="headerButton" onclick="showSignUp();">Sign Up</button>
+    </header>
+    <div id="sign_up">
+        <div id="start_buttons" style="display: none;">
+            <br><br><br><br><br><br><br><br>
+            <button onclick="signIn();" style="width: 75%; height: 50px; margin: auto;">Sign In</button>
+            <br><br>
+            <button onclick="newAccount();" style="width: 75%; height: 50px; margin: auto;">New Account</button>
+        </div>
+        <section id="firebaseui-auth-container" style="display: none;">
+            <div class="clickable" id="account_back_arrow" onclick="accountBack();"><img class="icon_black_to_blue2"
+                    src="arrow_back2.png" width="50" height="50"></div>
+            <div id="loader">Loading &hellip;</div>
+        </section>
+        <main>
+            <button type="button" id="signout" style="width: 150px; margin-top: -60px;">
+                Sign out
+            </button>
+            <section id="info-form" style="display: none;">
+                <div class="booking-step col20" id="contact_form">
+                    <div class="widget-form">
+                        <div class="booking-name">
+                            <h2>Contact Info</h2>
+                        </div>
+                        <div class="form-field  required-field" data-type="text">
+                            <span class="title" style="color:#333333;">
+                                Name<span class="required">*</span></span>
+                            <span class="field-error" id="field_error_name">Required field!</span>
+                            <input id="form_name" style="color:#333333; background-color: #ffffff;" data-name="Name"
+                                aria-label="Name" type="text" data-type="text" name="field0" placeholder="">
+                        </div>
+                        <div class="form-field  required-field" data-type="text">
+                            <span class="title" style="color:#333333;">Email<span class="required">*</span></span>
+                            <span class="field-error" id="field_error_email">Required field!</span>
+                            <input id="form_email" style="color:#333333; background-color: #ffffff;" data-name="Email"
+                                aria-label="Email" type="text" data-type="email" name="field1" placeholder="">
+                        </div>
+                        <div class="form-field " data-type="text">
+                            <span class="title" style="color:#333333;">Phone<span class="required">*</span></span>
+                            <span class="field-error" id="field_error_phone">Required field!</span>
+                            <input id="form_phone" style="color:#333333; background-color: #ffffff;" data-name="Phone"
+                                aria-label="Phone" type="text" data-type="text" name="field2" placeholder="">
+                        </div>
+                        <div class="form-field " data-type="text">
+                            <span class="title" style="color:#333333;">Company Name<span
+                                    class="required">*</span></span>
+                            <span class="field-error" id="field_error_company">Required field!</span>
+                            <input id="form_company" style="color:#333333; background-color: #ffffff;"
+                                data-name="Company Name" aria-label="Company Name" type="text" data-type=""
+                                name="field3" placeholder="">
+                        </div>
+                        <div class="form-field " data-type="text">
+                            <span class="title" style="color:#333333;">Message</span>
+                            <input id="form_message" style="color:#333333; background-color: #ffffff;"
+                                data-name="Message" aria-label="Message" type="text" data-type="" name="field3"
+                                placeholder="">
+                        </div>
+
+                        <button style="padding: 20px; display: block; margin: auto; width: 100%;"
+                            onclick="saveInfoForm();">Continue &gt;</button>
+                    </div>
+                </div>
+            </section>
+            <section id="my-subscription">
+                <h2>My subscription</h2>
+                <p></p>
+                <button style="width: 75%; height: 50px; margin: auto;" id="billing-portal-button">Access customer
+                    portal</button>
+                <br>
+            </section>
+            <div id="subscribe">
+                <h2>Subscribe</h2>
+
+                <!-- <div class=" test-card-notice">
+                Use any of the
+                <a href="https://stripe.com/docs/testing#cards" target="_blank" rel="noopener noreferrer">Stripe test
+                    cards</a>
+                for this demo, e.g.
+                <div class="card-number">
+                    4242<span></span>4242<span></span>4242<span></span>4242
+                </div>
+            </div> -->
+                <section class="products"></section>
+            </div>
+            <a style="text-decoration: none;" href="./partscouter.html" target="_blank"><button
+                    style="width: 75%; height: 50px; margin: auto;">Go To PartScouter</button></a>
+            <br><br>
+            <div class="loader" id="loader0" style="width: 80px; height: 80px; margin: auto;"></div>
+        </main>
+    </div>
+
+    <div id="about" style="display: none;">
+        <div class="textBlock">
+            <h2 style="text-align: center;">
+                Search software for "No Model" appliance parts.
+            </h2>
+            <h3>
+                Vision
+            </h3>
+            <p>
+                The creation of a highly organized cross-referencing appliance parts database is ambitious. When that
+                high
+                level
+                of organization can narrow or broaden part research across brands and manufacturers by standardized part
+                descriptions and specifications rather than model numbers, the results are dramatic, profitable and
+                repeatable.
+                PartScouter is an effort to identify functionally suitable or interchangeable parts for the appliance
+                industry,
+                which has traditionally relied strictly on model number research. This information is to be made
+                available
+                online by subscription to support the appliance parts retailers and distributors in the marketplace, not
+                to
+                the
+                general public.
+            </p>
+
+            <p>
+                For over 20 years, PartScouter has identified and standardized individual parts from various appliance
+                equipment
+                types and manufacturers. PartScouter has logged thousands of factory part numbers, mold numbers, 3rd
+                party
+                supplier numbers, and even patent numbers from years of parts sales and appliance service. From that
+                data
+                PartScouter is now able to recover specific orderable or historic part numbers for the industry's
+                customers.
+                By
+                standardizing and sorting physical properties such as equipment type, dimensions, material and color,
+                functionality, motor wiring, switch contacts, knob specs, and a host of other relative specifications,
+                PartScouter can confirm research solutions that may be otherwise tentative. By knowing boxed kit
+                contents,
+                double orders can be avoided. By noting confusing factory descriptions while using standard industry
+                descriptions, questionable research results can be reaffirmed. And by keeping pertinent tech data and
+                instructions, diagnosis can be more specific and installation times can be more closely estimated.
+            </p>
+
+            <p>
+                As the internet has grown to accommodate retail customers doing their own research with their own model
+                number
+                to mail- order parts that they hope will solve their own DIY problems, PartScouter has found an
+                alternate
+                market. Customers come to PartScouter shops because they can often find specific solutions that are at
+                least
+                functional if not official. And, PartScouter shops can usually find solutions for walk-in customers with
+                defective part in hand but without a model number. For technicians, PartScouter can provide technical
+                insight to
+                avoid many mistakes, although we do not diagnose specifically. PartScouter shops are also more likely to
+                have
+                the specific part, an equivalent, or a substitute part on hand or obtained by the next business day,
+                certainly
+                with more assurance and possibly for less money than through the guesswork of the internet. This creates
+                a
+                "go
+                to" business that solves real problems in a real marketplace for real consumers.
+            </p>
+            <p>
+                For now, PartScouter is strictly an online research tool in progress. It should help retail parts
+                counters
+                sell
+                appropriately to walk-in customers, and it should help parts distributors place relevant orders to
+                valuable
+                suppliers. Eventually, with inventory uploaded, permitted sales between subscribers might be enabled.
+                Data
+                accumulation is another goal of our efforts. Social networking methods can allow subscribers to give and
+                get
+                insights and instructions from other subscribers regarding specific parts via web based updates,
+                cross-references, pictures, diagrams, error corrections, blogs, and links to other sites. Again, this
+                would
+                be
+                for techs and to support counter sales. PartScouter wants to support the economies of local servicers
+                and
+                parts
+                shops across the country, which are working hard to supply their own local markets with instant
+                research,
+                technical insight, and functional parts, and thereby creating their own happy customers.
+            </p>
+            <h3>
+                partscouter@partscouter.org
+            </h3>
+
+            <h2 style="text-align: center;">
+                PART NUMBERS WITHOUT MODEL NUMBERS.
+            </h2>
+
+            <h3>
+                History
+            </h3>
+            <p>
+
+                The potential of an organized appliance parts database became clear to me in the late 1980's as a
+                servicer.
+                I
+                was accustomed to doing my own research for replacement parts for my local Eugene, OR service business.
+                I
+                quickly learned that factory parts such as bake and broil elements also had equivalents sold at my local
+                Johnstone wholesale outlet under Johnstone's own part numbering system. However, these aftermarket parts
+                also
+                were sold by their independent producer's parts numbers that could be ordered elsewhere. I began
+                creating a
+                rudimentary database showing the OEM part number and up to 5 additional equivalent numbers that each
+                showed
+                inventory so that no matter which number I stocked (OEM, Johnstone, Chromalox, Gemline, Robertshaw,
+                etc.), I
+                could see whether I had the actual OEM part or a suitable replacement. Conversely, if a catalog gave me,
+                say, a
+                Gemline part number for a particular model, my database would still show me the OEM and other
+                equivalents I
+                had
+                on hand or could order, and a common description that matches all those associated parts, all on a
+                single
+                screen.
+            </p>
+            <p>
+                When a NW parts distributor closed their Eugene branch, my service shop was located next door and I was
+                able
+                to
+                move into the same location and maintain the research materials there. I soon learned that parts would
+                need
+                to
+                be identified without knowing a model number, since so many customers walked in with only the defective
+                part
+                in
+                their hands. I began to measure sizes and note specifications so I could find the same part again, and I
+                also
+                noted that many parts had distinctive and unique numbers molded into the plastic or printed on the
+                part's
+                label.
+                As I logged those numbers, I could recover my part record just by letting the computer search for a text
+                string
+                in a large memo field. Within a few years I was "magically" finding many parts without knowing model
+                numbers
+                and
+                parts were sailing out the door in the hands of happy customers. The parts counter had become a stand-
+                alone
+                profit center while the service shop grew through customer confidence.
+            </p>
+            <p>
+                I could see that a market for this information must exist. Even my parts distributor could not find
+                parts
+                without model numbers and I was finding solutions through my own research and comparison every day. I
+                attended
+                trade shows to gauge the market and found enthusiasm for my work, but my DOS database was outdated in
+                the
+                computer world and Windows programming was beyond my interest. Eventually I engaged the services of a
+                knowledgeable and fluent programmer, who reworked my data into the SQL project that it is. As I read
+                several
+                entrepreneurial books, I became convinced that my work could solve problems on a significant scale.
+                However,
+                my
+                interest has not been to sell the parts themselves except in my own local markets. I want to support the
+                economies of local servicers and parts shops across the country, who are working to supply their own
+                local
+                markets with instant research, technical insight, and functional parts sold to their own happy
+                customers.
+            </p>
+            <p>
+
+                As the internet has grown to accommodate customers doing their own research with their own model number
+                to
+                mail-order parts for their own DIY projects, there is an alternate market. Customers come to my shop
+                because
+                we
+                can often find solutions that are functional if not official. We can find many solutions for walk-in
+                customers
+                without models numbers. And we can provide technical insight to avoid many mistakes. We also typically
+                have
+                the
+                part on hand or can have it tomorrow, probably for equal or less money than the internet. This has
+                created a
+                "go
+                to" business that solves real problems in a real marketplace for real consumers.
+            </p>
+            <h3>
+                partscouter@partscouter.org
+            </h3>
+        </div>
+    </div>
+
+    <template id="product">
+        <div class="product">
+            <img src="" alt="" />
+            <h2>name</h2>
+            <p class="description">description</p>
+            <form class="product-form">
+                <!-- <label for="price">Choose pricing plan</label> -->
+                <select id="price" name="price"></select>
+                <div id="price_div"></div>
+                <button type="submit" style="width: 200px;">Subscribe</button>
+            </form>
+        </div>
+    </template>
+
+    <template id="product2">
+        <div class="product">
+            <h2>name</h2>
+            <p class="description">description</p>
+            <button style="width: 200px;" onclick="subscribeFreeTrial();">Subscribe</button>
+        </div>
+    </template>
+
+    <!-- Insert these scripts at the bottom of the HTML, but before you use any Firebase services -->
+
+    <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/7.14.6/firebase.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.14.6/firebase-functions.js"></script>
+
+    <!-- If you enabled Analytics in your project, add the Firebase SDK for Analytics -->
+    <script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-analytics.js"></script>
+
+    <!-- Add Firebase products that you want to use -->
+    <script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-firestore.js"></script>
+
+    <script src="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css" />
+
+    <!-- Add Stripe.js -->
+    <script src="https://js.stripe.com/v3/"></script>
+
+    <!-- Application Code -->
+    <script src="stripe.js"></script>
+
+
+    <br><br>
+    <a href="./Privacy_Policy.html" style="display: block; width: 100%; text-align: center;">Privacy Policy</a>
+    <a href="./EULA.html" style="display: block; width: 100%; text-align: center;">EULA</a>
+    <br><br>
+</body>
+
+</html>

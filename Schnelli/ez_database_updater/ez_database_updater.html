@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+  <meta content="utf-8" http-equiv="encoding">
+  <!--Ensures debug options don't make it to web version -->
+  <!-- <script type="text/javascript" src="../DONTUPLOAD/partscouter_debug.js"></script> -->
+
+<body>
+  <script src="../external/firebasejs/8.9.1/firebase-app.js"></script>
+  <script src="../external/firebasejs/8.9.1/firebase-database.js"></script>
+  <script src="../external/firebasejs/8.9.1/firebase-auth.js"></script>
+  <link rel="stylesheet" type="text/css" href="../styles.css" />
+
+  <div class="hide" id="snackbar" style="display: none;"></div>
+
+  <div id="server_select_div">
+    <h1 style="text-align: center;">PartScouter<br>Alpha 4 Data Importer</h1>
+    <h3 style="text-align: center;">PLEASE do not use both of these! It will break the syncing feature and cause it to
+      create duplicates on both databases. Choose one or the other and then press "Sync Databases" in PartScouter to
+      copy data to the empty database.</h3>
+    <br>
+    <button style="display: block; margin: auto; width: 75%; height: 60px;"
+      onclick="openFirebaseServerScreen();">Connect to
+      Google Firebase Server</button>
+    <br>
+    <button id="button_server_select_local" style="display: block; margin: auto; width: 75%; height: 60px;"
+      onclick="openLocalServerScreen();">Connect
+      to
+      Local Server</button>
+  </div>
+
+  <div id="login_div" style="display: none;">
+    <button style="width: 200px; height: 40px;" onclick="exitFirebaseServerScreen();">Back</button>
+    <h1 style="text-align: center;">PartScouter</h1>
+    <p style="text-align: center;">Email</p>
+    <input style="display: block; margin: auto;" id="email_input" type="text">
+    <p style="text-align: center;">Password</p>
+    <input style="display: block; margin: auto;" id="password_input" type="password" onsubmit="log_in()">
+    <p style="text-align: center;">Remember Me <input type="checkbox" id="remember_input"></p>
+    <button style="width: 75%; height: 50px; display: block; margin: auto;" id="login_button"
+      onclick="log_in()">Login</button>
+  </div>
+
+  <div id="local_server_connect_div" style="display: none;">
+    <div id="local_server_connect_div_non_loading">
+      <button style="width: 200px; height: 40px;" onclick="exitLocalServerScreen();">Back</button>
+      <h1 style="width: 100%; text-align: center;">Connect to Local PartScouter Server</h1>
+      <div style="display: block; margin: auto; width: 75%;">IP Address</div>
+      <input id="input_local_server_ip" onkeyup="localServerIPKeyUp(event);"
+        style="display: block; margin: auto; width: 75%; height: 50px; font-size: 18pt;" value="10.1.10.250"
+        placeholder="(192.168.xxx.xxx most likely)">
+      <br>
+      <button id="button_server_local_connect" style="display: block; margin: auto; width: 75%; height: 60px;"
+        onclick="connectToLocalServer();">Connect</button>
+    </div>
+    <div id="local_server_connect_div_loading" style="display: none;">
+      <div class="loader" style="display: block; margin: auto;"></div>
+      <br>
+      <button style="display: block; margin: auto; width: 75%; height: 60px;"
+        onclick="cancelConnectToLocalServer();">Cancel</button>
+    </div>
+  </div>
+
+  <div id="content_div" style="display: none;">
+    <button onclick="log_out();" id="logout_button">Log Out</button><br><br>
+    <div id="instructions_page_0">
+      <!-- <p>If you have already made Report Templates for the Memo fields, you can skip this page and click <button onclick="pageButton(0,1);">Here</button></p> -->
+      <h2>Creating Memo Fields Report Template</h2>
+      <p>1. Open Alpha while in the P&A_PRI database set</p>
+      <p>2. Go to Layouts->Reports->Create/edit a report</p>
+      <p>3. Choose a slot to save the report in</p>
+      <p>4. Choose "Custom Report"</p>
+      <p>5. Set all options as shown in this image</p>
+      <!--memos_parameters.png-->
+      <img src="memos_parameters.png">
+      <p>6. Press "F10" key</p>
+      <p>7. Press "F3" key, choose "Delete Section"</p>
+      <p>8. Choose a section other than "Detail"</p>
+      <p>9. Repeat steps 7-8 until all sections are deleted except "Detail"</p>
+      <p>10. Press "F9" key and choose "Insert Line", then do it one more time, so you have a total of 4 lines</p>
+      <p>11. Press the up arrow key until you have the top line selected</p>
+      <p>12. Press * key then spacebar</p>
+      <p>13. Press "F2" key then choose "select Field"</p>
+      <p>14. Choose "P&A_PRI"</p>
+      <p>15. Choose "LOOK_UP_PN"</p>
+      <p>16. Select the first slot of the next line (Down arrow key, Home key)</p>
+      <p>17. Repeat steps 12-16 three times but select MODELS, ADVICE, and ATTN instead of LOOK_UP_PN. One for each row
+      </p>
+      <p>18. Press "Alt + o" keys</p>
+      <p>19. Set all options as shown in this image</p>
+      <img src="memos_formatting.png">
+      <p>17. Press "F10" key</p>
+      <p>18. If all went well, you should have a report that looks like this</p>
+      <!--memos_finished.png-->
+      <img src="memos_finished.png">
+      <p>19. Press "F10" key again</p>
+      <p>20. Choose "Save"</p>
+      <button onclick="pageButtonNext();">Next -&gt;</button>
+      <p>Page 0</p>
+    </div>
+    <div id="instructions_page_1" style="display: none;">
+      <h2>Exporting Memo Fields Report</h2>
+      <p>1. Go to Print->Report->memos</p>
+      <p>2. Set all options as shown in this image</p>
+      <img src="export_range_settings.png">
+      <p>3. Press "F10" key</p>
+      <p>4. Choose "File" under Standard Mode</p>
+      <p>5. Type memos in the prompt at the bottom</p>
+      <!--export_memos.png-->
+      <img src="export_memos.png">
+      <p>6. Press "F10" key</p>
+      <p>7. Press "F7" key</p>
+      <p>8. Choose "PANASONIC KX-P1124"</p>
+      <p>9. Press "F10" key</p>
+      <p>10. Once Alpha has finished exporting, press the browse button below and find the MEMOS.LST file it exported
+      </p>
+      <input type="file" id="fileinput_memos" accept=".lst">&nbsp;&nbsp;&nbsp;&nbsp;
+      <button onclick="pageButtonPrev();">&lt;- Prev</button><button id="button_next_1" style="display: none;"
+        onclick="pageButtonNext();">Next -&gt;</button>
+      <p>Page 1</p>
+    </div>
+    <div id="instructions_page_2" style="display: none;">
+      <h2>Exporting P&A_PRI parent records</h2>
+      <p>1. Go to Utilites->Export data->Character separated ASCII file</p>
+      <p>2. Note the Drive/Path location at the top, you'll need to remember that later</p>
+      <p>3. Type P&A_PRI in the prompt at the bottom</p>
+      <!--export_P&APRI.png-->
+      <img src="export_P&APRI.png">
+      <p>4. Ensure your cursor is in the P&A_PRI column and press "F6" key</p>
+      <!--columns_P&APRI.png-->
+      <img src="columns_P&APRI.png">
+      <p>5. Press "F10" key</p>
+      <p>6. Set all options as shown in this image</p>
+      <!--export_range_settings.png-->
+      <img src="export_range_settings.png">
+      <p>7. Press "F10" key</p>
+      <p>8. Set all options as shown in this image</p>
+      <!--export_ascii_settings.png-->
+      <img src="export_ascii_settings.png">
+      <p>9. Press "F10" key</p>
+      <p>10. Once Alpha has finished exporting, press the browse button below and find the P&A_PRI.ASC file it exported
+      </p>
+      <input type="file" id="fileinput_pa_pri" accept=".asc">&nbsp;&nbsp;&nbsp;&nbsp;
+      <button onclick="pageButtonPrev();">&lt;- Prev</button><button id="button_next_2" style="display: none;"
+        onclick="pageButtonNext();">Next -&gt;</button>
+      <p>Page 2</p>
+    </div>
+    <div id="instructions_page_3" style="display: none;">
+      <h2>Exporting B_DNI child records</h2>
+      <p>1. Go to Utilites->Export data->Character separated ASCII file</p>
+      <p>2. Note the Drive/Path location at the top, you'll need to remember that later</p>
+      <p>3. Type B_DNI in the prompt at the bottom</p>
+      <img src="export_B_DNI.png">
+      <p>4. Ensure your cursor is in the B_DNI column and press "F6" key</p>
+      <img src="columns_B_DNI.png">
+      <p>5. Press "F10" key</p>
+      <p>6. Set all options as shown in this image</p>
+      <img src="export_range_settings.png">
+      <p>7. Press "F10" key</p>
+      <p>8. Set all options as shown in this image</p>
+      <img src="export_ascii_settings.png">
+      <p>9. Press "F10" key</p>
+      <p>10. Once Alpha has finished exporting, press the browse button below and find the B_DNI.ASC file it exported
+      </p>
+      <input type="file" id="fileinput_b_dni" accept=".asc">&nbsp;&nbsp;&nbsp;&nbsp;
+      <button onclick="pageButtonPrev();">&lt;- Prev</button><button id="button_next_3" style="display: none;"
+        onclick="pageButtonNext();">Next -&gt;</button>
+      <p>Page 3</p>
+    </div>
+    <div id="instructions_page_4" style="display: none;">
+      <h2>Exporting CHLX child records</h2>
+      <p>1. Go to Utilites->Export data->Character separated ASCII file</p>
+      <p>2. Note the Drive/Path location at the top, you'll need to remember that later</p>
+      <p>3. Type CHLX in the prompt at the bottom</p>
+      <img src="export_CHLX.png">
+      <p>4. Ensure your cursor is in the CHLX column and press "F6" key</p>
+      <img src="columns_CHLX.png">
+      <p>5. Press "F10" key</p>
+      <p>6. Set all options as shown in this image</p>
+      <img src="export_range_settings.png">
+      <p>7. Press "F10" key</p>
+      <p>8. Set all options as shown in this image</p>
+      <img src="export_ascii_settings.png">
+      <p>9. Press "F10" key</p>
+      <p>10. Once Alpha has finished exporting, press the browse button below and find the CHLX.ASC file it exported</p>
+      <input type="file" id="fileinput_chlx" accept=".asc">&nbsp;&nbsp;&nbsp;&nbsp;
+      <button onclick="pageButtonPrev();">&lt;- Prev</button><button id="button_next_4" style="display: none;"
+        onclick="pageButtonNext();">Next -&gt;</button>
+      <p>Page 4</p>
+    </div>
+    <!-- <div id="instructions_page_5" style="display: none;">
+      <h2>Exporting DNI child records</h2>
+      <p>1. Go to Utilites->Export data->Character separated ASCII file</p>
+      <p>2. Note the Drive/Path location at the top, you'll need to remember that later</p>
+      <p>3. Type DNI in the prompt at the bottom</p>
+      <img src="export_DNI.png">
+      <p>4. Ensure your cursor is in the DNI column and press "F6" key</p>
+      <img src="columns_DNI.png">
+      <p>5. Press "F10" key</p>
+      <p>6. Set all options as shown in this image</p>
+      <img src="export_range_settings.png">
+      <p>7. Press "F10" key</p>
+      <p>8. Set all options as shown in this image</p>
+      <img src="export_ascii_settings.png">
+      <p>9. Press "F10" key</p>
+      <p>10. Once Alpha has finished exporting, press the browse button below and find the DNI.ASC file it exported</p>
+      <input type="file" id="fileinput_dni" accept=".asc">&nbsp;&nbsp;&nbsp;&nbsp;
+      <button onclick="pageButtonPrev();">&lt;- Prev</button><button id="button_next_5" style="display: none;"
+        onclick="pageButtonNext();">Next -&gt;</button>
+      <p>Page 5</p>
+    </div> -->
+    <div id="instructions_page_5" style="display: none;">
+      <h2>Exporting F child records</h2>
+      <p>1. Go to Utilites->Export data->Character separated ASCII file</p>
+      <p>2. Note the Drive/Path location at the top, you'll need to remember that later</p>
+      <p>3. Type F in the prompt at the bottom</p>
+      <!-- <img src="export_DNI.png"> -->
+      <p>4. Ensure your cursor is in the F column and press "F6" key</p>
+      <!-- <img src="columns_DNI.png"> -->
+      <p>5. Press "F10" key</p>
+      <p>6. Set all options as shown in this image</p>
+      <img src="export_range_settings.png">
+      <p>7. Press "F10" key</p>
+      <p>8. Set all options as shown in this image</p>
+      <img src="export_ascii_settings.png">
+      <p>9. Press "F10" key</p>
+      <p>10. Once Alpha has finished exporting, press the browse button below and find the F.ASC file it exported</p>
+      <input type="file" id="fileinput_f" accept=".asc">&nbsp;&nbsp;&nbsp;&nbsp;
+      <button onclick="pageButtonPrev();">&lt;- Prev</button><button id="button_next_5" style="display: none;"
+        onclick="pageButtonNext();">Next -&gt;</button>
+      <p>Page 5</p>
+    </div>
+    <div id="instructions_page_6" style="display: none;">
+      <h2>Exporting GEM child records</h2>
+      <p>1. Go to Utilites->Export data->Character separated ASCII file</p>
+      <p>2. Note the Drive/Path location at the top, you'll need to remember that later</p>
+      <p>3. Type GEM in the prompt at the bottom</p>
+      <img src="export_GEM.png">
+      <p>4. Ensure your cursor is in the GEM column and press "F6" key</p>
+      <img src="columns_GEM.png">
+      <p>5. Press "F10" key</p>
+      <p>6. Set all options as shown in this image</p>
+      <img src="export_range_settings.png">
+      <p>7. Press "F10" key</p>
+      <p>8. Set all options as shown in this image</p>
+      <img src="export_ascii_settings.png">
+      <p>9. Press "F10" key</p>
+      <p>10. Once Alpha has finished exporting, press the browse button below and find the GEM.ASC file it exported</p>
+      <input type="file" id="fileinput_gem" accept=".asc">&nbsp;&nbsp;&nbsp;&nbsp;
+      <button onclick="pageButtonPrev();">&lt;- Prev</button><button id="button_next_6" style="display: none;"
+        onclick="pageButtonNext();">Next -&gt;</button>
+      <p>Page 6</p>
+    </div>
+    <div id="instructions_page_7" style="display: none;">
+      <h2>Exporting H_RS child records</h2>
+      <p>1. Go to Utilites->Export data->Character separated ASCII file</p>
+      <p>2. Note the Drive/Path location at the top, you'll need to remember that later</p>
+      <p>3. Type H_RS in the prompt at the bottom</p>
+      <img src="export_H_RS.png">
+      <p>4. Ensure your cursor is in the H_RS column and press "F6" key</p>
+      <img src="columns_H_RS.png">
+      <p>5. Press "F10" key</p>
+      <p>6. Set all options as shown in this image</p>
+      <img src="export_range_settings.png">
+      <p>7. Press "F10" key</p>
+      <p>8. Set all options as shown in this image</p>
+      <img src="export_ascii_settings.png">
+      <p>9. Press "F10" key</p>
+      <p>10. Once Alpha has finished exporting, press the browse button below and find the H_RS.ASC file it exported</p>
+      <input type="file" id="fileinput_h_rs" accept=".asc">&nbsp;&nbsp;&nbsp;&nbsp;
+      <button onclick="pageButtonPrev();">&lt;- Prev</button><button id="button_next_7" style="display: none;"
+        onclick="pageButtonNext();">Next -&gt;</button>
+      <p>Page 7</p>
+    </div>
+    <div id="instructions_page_8" style="display: none;">
+      <h2>Exporting I_MM child records</h2>
+      <p>1. Go to Utilites->Export data->Character separated ASCII file</p>
+      <p>2. Note the Drive/Path location at the top, you'll need to remember that later</p>
+      <p>3. Type I_MM in the prompt at the bottom</p>
+      <img src="export_I_MM.png">
+      <p>4. Ensure your cursor is in the I_MM column and press "F6" key</p>
+      <img src="columns_I_MM.png">
+      <p>5. Press "F10" key</p>
+      <p>6. Set all options as shown in this image</p>
+      <img src="export_range_settings.png">
+      <p>7. Press "F10" key</p>
+      <p>8. Set all options as shown in this image</p>
+      <img src="export_ascii_settings.png">
+      <p>9. Press "F10" key</p>
+      <p>10. Once Alpha has finished exporting, press the browse button below and find the I_MM.ASC file it exported</p>
+      <input type="file" id="fileinput_i_mm" accept=".asc">&nbsp;&nbsp;&nbsp;&nbsp;
+      <button onclick="pageButtonPrev();">&lt;- Prev</button><button id="button_next_8" style="display: none;"
+        onclick="pageButtonNext();">Next -&gt;</button>
+      <p>Page 8</p>
+    </div>
+    <div id="instructions_page_9" style="display: none;">
+      <h2>Exporting JS child records</h2>
+      <p>1. Go to Utilites->Export data->Character separated ASCII file</p>
+      <p>2. Note the Drive/Path location at the top, you'll need to remember that later</p>
+      <p>3. Type JS in the prompt at the bottom</p>
+      <img src="export_JS.png">
+      <p>4. Ensure your cursor is in the JS column and press "F6" key</p>
+      <img src="columns_JS.png">
+      <p>5. Press "F10" key</p>
+      <p>6. Set all options as shown in this image</p>
+      <img src="export_range_settings.png">
+      <p>7. Press "F10" key</p>
+      <p>8. Set all options as shown in this image</p>
+      <img src="export_ascii_settings.png">
+      <p>9. Press "F10" key</p>
+      <p>10. Once Alpha has finished exporting, press the browse button below and find the JS.ASC file it exported</p>
+      <input type="file" id="fileinput_js" accept=".asc">&nbsp;&nbsp;&nbsp;&nbsp;
+      <button onclick="pageButtonPrev();">&lt;- Prev</button><button id="button_next_9" style="display: none;"
+        onclick="pageButtonNext();">Next -&gt;</button>
+      <p>Page 9</p>
+    </div>
+    <div id="instructions_page_10" style="display: none;">
+      <h2>Exporting OEM child records</h2>
+      <p>1. Go to Utilites->Export data->Character separated ASCII file</p>
+      <p>2. Note the Drive/Path location at the top, you'll need to remember that later</p>
+      <p>3. Type OEM in the prompt at the bottom</p>
+      <img src="export_OEM.png">
+      <p>4. Ensure your cursor is in the OEM column and press "F6" key</p>
+      <img src="columns_OEM.png">
+      <p>5. Press "F10" key</p>
+      <p>6. Set all options as shown in this image</p>
+      <img src="export_range_settings.png">
+      <p>7. Press "F10" key</p>
+      <p>8. Set all options as shown in this image</p>
+      <img src="export_ascii_settings.png">
+      <p>9. Press "F10" key</p>
+      <p>10. Once Alpha has finished exporting, press the browse button below and find the OEM.ASC file it exported</p>
+      <input type="file" id="fileinput_oem" accept=".asc">&nbsp;&nbsp;&nbsp;&nbsp;
+      <button onclick="pageButtonPrev();">&lt;- Prev</button><button id="button_next_10" style="display: none;"
+        onclick="pageButtonNext(); startUpload();">Start Upload</button>
+      <p>Page 10</p>
+    </div>
+    <div id="instructions_page_11" style="display: none;">
+      B_DNI - <span id="upload_progress_B_DNI"></span><br>
+      CHLX - <span id="upload_progress_CHLX"></span><br>
+      <!-- DNI - <span id="upload_progress_DNI"></span><br> -->
+      F - <span id="upload_progress_F"></span><br>
+      GEM - <span id="upload_progress_GEM"></span><br>
+      H_RS - <span id="upload_progress_H_RS"></span><br>
+      I_MM - <span id="upload_progress_I_MM"></span><br>
+      JS - <span id="upload_progress_JS"></span><br>
+      OEM - <span id="upload_progress_OEM"></span><br>
+      P&A_PRI and Memo Fields - <span id="upload_progress_PAPRI"></span><br>
+    </div>
+
+  </div>
+  <script src="ez_database_updater.js"></script>
+
+</body>
+
+</html>

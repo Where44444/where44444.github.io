@@ -1,10 +1,928 @@
 <!DOCTYPE html>
 <html lang="en-US">
-    <head>
-        <title>PartScouter</title>
-        <meta http-equiv = "refresh" content = "0; url = http://partscouter.org" />
-    </head>
-    <body>
-        <a href="http://partscouter.org">Part Scouter</a>
-    </body>
+<title>PartScouter</title>
+
+<head>
+  <div id="TEST_WARNING"
+    style="display: none; position: fixed; top: 0px; font-size: 10pt; color: red; z-index: 10000000;">TESTING
+    MODE</div>
+  <script>
+    var debug_present = false;
+    var FILTER_TIME_START = new Date();
+    FILTER_TIME_START = new Date(FILTER_TIME_START.getFullYear(), FILTER_TIME_START.getMonth() - 1, FILTER_TIME_START.getDate());
+  </script>
+  <!--Ensures debug options don't make it to web version -->
+  <!-- <script type="text/javascript" src="partscouter_tests.js"></script> -->
+  <!-- //Don't use, won't handle new _content format -->
+  <!-- <script type="text/javascript" src="DONTUPLOAD/partscouter_debug.js"></script> -->
+  <!-- //Don't use, won't handle new _content format -->
+
+  <link rel="icon" type="image/x-icon" href="./favicon.ico">
+  <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+  <meta content="utf-8" http-equiv="encoding">
+
+  <!-- minimum-scale=1 fixes issues with position: fixed not working on mobile -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+  <!-- Ensures optimal rendering on mobile devices. -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" /> <!-- Optimal Internet Explorer compatibility -->
+
+  <script type="text/javascript" src="external/firebasejs/8.9.1/firebase-app.js"></script>
+  <script type="text/javascript" src="external/firebasejs/8.9.1/firebase-database.js"></script>
+  <script type="text/javascript" src="external/firebasejs/8.9.1/firebase-auth.js"></script>
+  <script type="text/javascript" src="external/firebasejs/8.9.1/firebase-firestore.js"></script>
+  <script type="text/javascript" src="external/firebasejs/8.9.1/firebase-storage.js"></script>
+
+  <script type="text/javascript" src="external/jquery/latest/jquery.min.js"></script>
+  <script type="text/javascript" src="external/momentjs/latest/moment.min.js"></script>
+  <script type="text/javascript" src="external/npm/daterangepicker/daterangepicker.min.js"></script>
+
+  <script type="text/javascript" src="external/plotly/plotly-2.14.0.min.js"></script>
+  <!-- Gives error, barcode not found on clear image -->
+  <!-- <script type="text/javascript" src="external/quagga/quagga.min.js"></script> -->
+  <!-- //Zxing 2 - Works, but camera too blurry -->
+  <script type="text/javascript" src="external/zxing/zxing.min.js"></script>
+
+  <!--Requires jquery-->
+  <link rel="stylesheet" type="text/css" href="external/npm/daterangepicker/daterangepicker.css" />
+  <link rel="stylesheet" type="text/css" href="styles.css" />
+</head>
+
+<body>
+  <!-- <button style="position: absolute; top: 200px;" onclick="clearDataTest();">Clear Data Test</button> -->
+  <!-- <script async src="https://cse.google.com/cse.js?cx=de8eb9876c78e78e6"></script>
+<div id="google_search">
+<div class="gcse-search"></div>
+</div> -->
+
+  <!-- <a href="scan-to-my-website:">Scan!</a> -->
+  <div id="forgot_password_div" style="display: none;">
+    <button style="width: 200px; height: 40px;" onclick="exitForgotPasswordScreen();">Back</button>
+    <p style="text-align: center;">Email</p>
+    <input style="display: block; margin: auto; width: 75%; height: 50px; font-size: 18pt; text-align: center;"
+      id="forgot_password_input" type="text" onfocus='deselectTable();'>
+    <br>
+    <button style="display: block; margin: auto; width: 75%; height: 60px;" onclick="send_forgot_password_email();">Send
+      Password Reset Email</button>
+  </div>
+  <div id="local_server_closed_warning"
+    style="display: none; position: fixed; top: 110px; background-color: red; color: white; padding: 20px; z-index: 10;">
+    <button onclick="closeLocalServerLostWarning();"
+      style="background-color: white; color: black; width: 50px;">X</button>
+    Lost connection to local server!
+  </div>
+  <div id="googlesearch_api_script_div"></div>
+  <div id="main_loader" class="loader" style="display: none; margin: auto;"></div><br>
+  <div id="main_loading_text" style="display: none; margin: auto; text-align: center;"></div>
+  <div class="hide" id="snackbar" style="display: none; z-index: 4;"></div>
+  <div id="snackbar_no_anim" style="display: none; z-index: 4;"></div>
+  <button class="no-print" id="exit_invoice_button"
+    style="display: none; position: absolute; top: 0px; left: 10px; z-index: 2;" onclick="exitInvoice();">&lt;
+    Back</button>
+  <button class="no-print" id="exit_invoice_from_history_button"
+    style="display: none; position: absolute; top: 0px; left: 10px; z-index: 2;"
+    onclick="exitInvoiceFromHistory();">&lt;
+    Back</button>
+  <button class="no-print" id="exit_invoice_from_new_button"
+    style="display: none; position: absolute; top: 0px; left: 10px; z-index: 2;" onclick="exitInvoiceFromNew();">&lt;
+    Back</button>
+  <div id="invoice_content" style="display: none;"></div>
+  <div id="invoice_from_history_content" style="display: none;"></div>
+  <div id="add_invoice_content" style="display: none;"></div>
+  <div id="key_shortcut_info_bar" class="no-print"
+    style="position: fixed; bottom: 0px; left: 0px; width: 100%; height: 40px; background-color: #70A2FF; color: black; font-size: 24px; z-index: 4; white-space: nowrap;">
+  </div>
+  <div id="key_shortcut_invoice_remove_window" class="no-print"
+    style="display: none; position: fixed; width: 95%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #70A2FF; color: black; font-size: 30px; z-index: 6;">
+  </div>
+  <div id="non_invoice_content">
+    <div id="key_shortcut_index_window" class="no-print"
+      style="display: none; position: fixed; width: 95%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #70A2FF; color: black; font-size: 30px; z-index: 6;">
+    </div>
+    <div id="key_shortcut_index_window_edit" class="no-print"
+      style="display: none; position: fixed; width: 95%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #70A2FF; color: black; font-size: 30px; z-index: 6;">
+    </div>
+    <div id="key_shortcut_extra_db_sell_window" class="no-print"
+      style="display: none; position: fixed; width: 95%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #70A2FF; color: black; font-size: 30px; z-index: 6;">
+    </div>
+    <div id="key_shortcut_extra_db_edit_window" class="no-print"
+      style="display: none; position: fixed; width: 95%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #70A2FF; color: black; font-size: 30px; z-index: 6;">
+    </div>
+    <div id="key_shortcut_extra_db_image_window" class="no-print"
+      style="display: none; position: fixed; width: 95%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #70A2FF; color: black; font-size: 30px; z-index: 6;">
+    </div>
+    <div id="key_shortcut_extra_db_jumpPN_window" class="no-print"
+      style="display: none; position: fixed; width: 95%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #70A2FF; color: black; font-size: 30px; z-index: 6;">
+    </div>
+    <div id="key_shortcut_search_scope_window" class="no-print"
+      style="display: none; position: fixed; width: 95%; padding: 2%; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #70A2FF; color: black; font-size: 30px; z-index: 6;">
+      <span style="color: white;">1</span>. .New Search<br>
+      <span style="color: white;">2</span>. .In Current Search Results
+    </div>
+    <div id="server_select_div">
+      <button style="width: 200px; height: 40px;" onclick="log_out();" id="logout_button_main">Log Out</button>
+      <h1 style="text-align: center;">PartScouter</h1>
+      <br>
+      <button id="button_server_select_firebase" style="display: block; margin: auto; width: 75%; height: 60px;"
+        onclick="openFirebaseServerScreen();">Login</button>
+      <br>
+      <a style="text-decoration: none;" href="./stripe.html" target="_blank"><button
+          style="display: block; margin: auto; width: 50%; height: 50px;">Sign Up</button></a>
+
+      <button id="button_server_select_local"
+        style="display: block; margin: auto; margin-top: 200px; width: 25%; min-height: 30px;"
+        onclick="openLocalServerScreen();">Connect to Local Server</button>
+      <div class="legals">
+        <br><br>
+        <a href=" ./Privacy_Policy.html" target="_blank">Privacy
+          Policy</a><br>
+        <a href="./EULA.html" target="_blank">EULA</a>
+      </div>
+    </div>
+    <div id="login_div" style="display: none;">
+      <button style="width: 200px; height: 40px;" onclick="exitFirebaseServerScreen();">Back</button>
+      <h1 style="text-align: center;">PartScouter</h1>
+      <p style="text-align: center;">Email</p>
+      <input style="display: block; margin: auto; width: 75%; height: 50px; font-size: 18pt; text-align: center;"
+        id="email_input" type="text" onfocus='deselectTable();'>
+      <p style="text-align: center;">Password</p>
+      <input style="display: block; margin: auto; width: 75%; height: 50px; font-size: 18pt; text-align: center;"
+        id="password_input" type="password" onfocus='deselectTable();'>
+      <p style="text-align: center;">Remember Me<input type="checkbox" id="remember_input"></p>
+      <button style="width: 75%; height: 50px; display: block; margin: auto;" id="login_button"
+        onclick="log_in()">Login</button>
+      <br>
+      <button style="width: 50%; height: 50px; display: block; margin: auto;" id="forgot_password_button"
+        onclick="forgot_password_clicked();">Forgot Password?</button>
+      <div class="legals">
+        <br><br>
+        <a href=" ./Privacy_Policy.html" target="_blank">Privacy
+          Policy</a><br>
+        <a href="./EULA.html" target="_blank">EULA</a>
+      </div>
+    </div>
+
+    <div id="local_server_connect_div" style="display: none;">
+      <div id="local_server_connect_div_non_loading">
+        <button style="width: 200px; height: 40px;" onclick="exitLocalServerScreen();">Back</button>
+        <h1 style="width: 100%; text-align: center;">Connect to Local PartScouter Server</h1>
+        <div style="display: block; margin: auto; width: 75%;">IP Address</div>
+        <input id="input_local_server_ip" onkeyup="localServerIPKeyUp(event);"
+          style="display: block; margin: auto; width: 75%; height: 50px; font-size: 18pt;" value="10.1.10.250"
+          placeholder="(192.168.xxx.xxx most likely)" onfocus='deselectTable();'>
+        <br>
+        <button id="button_server_local_connect" style="display: block; margin: auto; width: 75%; height: 60px;"
+          onclick="connectToLocalServer();">Connect</button>
+      </div>
+      <div id="local_server_connect_div_loading" style="display: none;">
+        <div class="loader" style="display: block; margin: auto;"></div>
+        <br>
+        <button style="display: block; margin: auto; width: 75%; height: 60px;"
+          onclick="cancelConnectToLocalServer();">Cancel</button>
+      </div>
+    </div>
+
+    <div id="employee_id_div" style="display: none;">
+      <div id="employe_id_non_loading" style="display: none;">
+        <button style="width: 200px; height: 40px;" onclick="exitEmployeeIDScreen();">Back</button>
+        <button style="width: 200px; height: 40px;" onclick="log_out();" id="logout_button">Log Out</button>
+        <br>
+        <div id="select_account_id_local_server_div">
+          <h3>Admin</h3>
+          <select id="select_account_id_local_server" style="width: 400px; height: 50px; font-size: 18pt;"></select>
+        </div>
+        <p style="text-align: center;">Employee ID</p>
+        <input style="display: block; margin: auto; height: 50px; font-size: 18pt; text-align: center;" id="employee_id"
+          type="text" onsubmit="log_in()" onfocus='deselectTable();'>
+        <br>
+        <button id="button_employee_id" style="display: block; margin: auto; width: 75%; height: 60px;"
+          onclick="loadContentDiv2();">Login</button>
+      </div>
+      <div id="employe_id_loading" style="display: none;">
+        <div class="loader" style="display: block; margin: auto;"></div>
+      </div>
+    </div>
+
+    <div id="firebase_temp_login_div" style="display: none;">
+      <button style="width: 200px; height: 40px;" id="button_exit_temp_login" onclick="exitTempLogin();">Back</button>
+      <h1 id="firebase_temp_login_header" style="text-align: center;"></h1>
+
+      <p style="text-align: center;">Email</p>
+      <input style="display: block; margin: auto; width: 75%; height: 50px; font-size: 18pt; text-align: center;"
+        id="email_input_temp" type="text" onfocus='deselectTable();'>
+      <p style="text-align: center;">Password</p>
+      <input style="display: block; margin: auto; width: 75%; height: 50px; font-size: 18pt; text-align: center;"
+        id="password_input_temp" type="password" onfocus='deselectTable();'>
+      <br>
+      <button id="button_login_temp" style="width: 75%; height: 50px; display: block; margin: auto;"
+        onclick="log_in_temp();">Login</button>
+      <div id="login_temp_loader" class="loader" style="display: none; margin: auto;"></div>
+    </div>
+
+    <div id="sync_db_div" style="display: none;">
+      <div id="sync_db_firebase_login_div" style="display: none;">
+        <button style="width: 200px; height: 40px;" onclick="exitFirebaseServerScreen_sync();">Back</button>
+        <h1 style="text-align: center;">Log in to Google FireBase to allow syncing</h1>
+
+        <p style="text-align: center;">Email</p>
+        <input style="display: block; margin: auto; width: 75%; height: 50px; font-size: 18pt; text-align: center;"
+          id="email_input_sync" type="text" onfocus='deselectTable();'>
+        <p style="text-align: center;">Password</p>
+        <input style="display: block; margin: auto; width: 75%; height: 50px; font-size: 18pt; text-align: center;"
+          id="password_input_sync" type="password" onfocus='deselectTable();'>
+        <br>
+        <button id="button_login_sync" style="width: 75%; height: 50px; display: block; margin: auto;"
+          onclick="log_in_sync()">Login</button>
+        <div id="login_sync_loader" class="loader" style="display: none; margin: auto;"></div>
+      </div>
+
+      <div id="sync_db_local_login_div" style="display: none;">
+        <div id="local_server_connect_div_non_loading_sync">
+          <button style="width: 200px; height: 40px;" onclick="exitLocalServerScreen_sync();">Back</button>
+          <h1 style="width: 100%; text-align: center;">Connect to Local PartScouter Server to allow syncing</h1>
+          <div style="display: block; margin: auto; width: 75%;">IP Address</div>
+          <input id="input_local_server_ip_sync"
+            style="display: block; margin: auto; width: 75%; height: 50px; font-size: 18pt;" value="10.1.10.250"
+            placeholder="(192.168.xxx.xxx most likely)">
+          <br>
+          <button style="display: block; margin: auto; width: 75%; height: 60px;"
+            onclick="connectToLocalServer_sync();">Connect</button>
+        </div>
+        <div id="local_server_connect_div_loading_sync" style="display: none;">
+          <div class="loader" style="display: block; margin: auto;"></div>
+          <br>
+          <button style="display: block; margin: auto; width: 75%; height: 60px;"
+            onclick="cancelConnectToLocalServer_sync();">Cancel</button>
+        </div>
+      </div>
+
+      <div id="sync_db_select_div" style="display: none;">
+        <button style="width: 200px; height: 40px;" onclick="exitSyncDiv();" id="exitSyncDivButton">Back</button>
+        <br><br>
+        <p style="width: 100%; text-align: center;">PartScouter is ready to sync your Google Firebase Database with your
+          Local PartScouter Server Database</p>
+        <button style="display: block; margin: auto; width: 75%; height: 60px;" onclick="beginSync();"
+          id="beginSyncButton">Sync</button>
+        <div class="loader" style="display: none; margin: auto;" id="sync_loader"></div>
+        <p style="width: 100%; text-align: left;" id="sync_status"></p>
+      </div>
+    </div>
+
+    <div id="do_Print" style="display: none;">
+      <button class="no_selection no-print largeText" id="print_back_button"
+        style="height: 50px; position: absolute; left: 5px; top: 5px;" onclick="printBackArrowPressed();"
+        onmousedown="printBackArrowPressed();" onmouseup="printBackArrowPressed();">Back</button>
+      <div class="clickable no_selection no-print" id="print_copy_button"
+        style="position: absolute; left: 90px; top: 5px;" onclick="printCopyPressed();"><img class="icon_black_to_blue2"
+          src="copy2.png" width="50" height="50"></div>
+      <div class="clickable no_selection no-print" id="print_print_button"
+        style="position: absolute; left: 155px; top: 5px;" onclick="printPrintButtonPressed();"><img
+          class="icon_black_to_blue2" src="print.png" width="50" height="50"></div>
+      <br><br>
+      <div id="print_div">
+      </div>
+    </div>
+
+    <div id="content_div" style="display: none;">
+      <img id="nav_bar_toggle" src="./nav_bar_toggle.png" width="50" height="50" onclick="setNavBar(true);">
+      <!-- width: 200px For Mobile-->
+      <div id="nav_bar"
+        style="display: flex; flex-direction: row; position: fixed; top: 0px; left: 0px; width: 100%; background-color: lightblue; z-index: 5;">
+        <div
+          style="display: flex; flex-direction: row; flex-wrap: wrap; width: 100%; background-color: lightblue; z-index: 5;">
+          <div id="TAB_search" class="tabButton" onclick="setTab(TAB_SEARCH);">Search</div>
+          <div id="TAB_search_results" class="tabButton" onclick="setTab(TAB_SEARCH_RESULTS);">
+            Search Results</div>
+          <div id="TAB_saved_searches" class="tabButton" onclick="setTab(TAB_SAVED_SEARCHES);">
+            Saved Searches</div>
+          <div id="TAB_record_views" class="tabButton" onclick="setTab(TAB_RECORD_VIEWS);">
+            Record Views</div>
+          <div id="TAB_record_browser" class="tabButton" onclick="setTab(TAB_RECORD_BROWSER);">
+            Record Browser</div>
+          <div id="TAB_part_child_record_manager" class="tabButton" onclick="setTab(TAB_PART_CHILD_RECORD_MANAGER);">
+            Part Child Record Manager</div>
+          <div id="TAB_sort_order" class="tabButton" onclick="setTab(TAB_SORT_ORDERS);">
+            Sort
+            Orders</div>
+          <div id="TAB_export" class="tabButton" onclick="setTab(TAB_EXPORT);">
+            Export</div>
+          <div id="TAB_mainmenu" class="tabButton" style="display: none;"></div>
+
+          <div id="TAB_part_history" class="tabButton" onclick="setTab(TAB_PART_HISTORY);">
+            Part
+            History</div>
+          <div id="TAB_fileinput" class="tabButton" onclick="setTab(TAB_PDF_IMPORT);">
+            Import Parts
+          </div>
+          <div id="TAB_reorders" class="tabButton" onclick="setTab(TAB_REORDERS);">Reorders
+          </div>
+          <div id="TAB_invoice_history" class="tabButton" onclick="setTab(TAB_INVOICE_HISTORY);">
+            Invoice History</div>
+          <div id="TAB_invoice_settings" class="tabButton" onclick="setTab(TAB_INVOICE_SETTINGS);">
+            Invoice Settings</div>
+          <div id="TAB_invoice" class="tabButton" onclick="setTab(TAB_INVOICE);">Invoice
+          </div>
+          <div id="TAB_add_invoice" class="tabButton" onclick="setTab(TAB_ADD_INVOICE);">
+            Add
+            Invoice</div>
+          <div id="TAB_people" class="tabButton" onclick="setTab(TAB_PEOPLE);">
+            People</div>
+          <div id="TAB_suggestions" class="tabButton" onclick="setTab(TAB_SUGGESTIONS);">
+            Suggestions Box</div>
+          <div id="TAB_change_history" class="tabButton" onclick="setTab(TAB_CHANGE_HISTORY);">
+            Change History</div>
+          <div id="TAB_trucks" class="tabButton" onclick="setTab(TAB_TRUCKS);">
+            Trucks</div>
+        </div>
+        <div style="display: flex; flex-direction: column; margin: 0px;">
+          <button onclick="log_out();" id="logout_button" style="width: 100%;">Log Out</button>
+          <div style="height: 5px;"></div>
+          <button id="button_sync_databases" style="width: 100%;" onclick="sync_button();">Sync Databases</button>
+        </div>
+      </div>
+      <div id="desktop_nav_spacer" style="height: 60px;"></div>
+
+      <div id="TAB_mainmenu_div" style="display: none;">
+        <br>
+        <div id="mainmenu_shortcut_table"></div>
+      </div>
+
+      <div id="TAB_part_history_div">
+        <div id="part_history_internal_div">
+          <!-- <br><br><br><button id="button_update_part_history" style="background-color: #70A2FF; color: black;" onclick="populatePartHistory();"><span style="color: white;">U</span>pdate Part History</button> -->
+          <h3 style="background-color: #70A2FF; color: black;"><span style="color: white">F</span>ilter by</h3>
+          <!-- Auto-generated -->
+          <table id="part_history_filter_table">
+          </table>
+          <button id="button_clear_part_filters" style="background-color: #70A2FF; color: black; margin-right: 10px;"
+            onclick="clearPartFilters();"><span style="color: white;">C</span>lear Filters</button>
+          <br><br>
+          <div id="part_history_graph" style="height: 200px;"></div>
+          <div style="display: flex; flex-direction: row;">
+            <div id="table_part_history_div_list"></div>
+            <div style="width: 20px;"></div>
+            <!--Spacer-->
+            <div id="table_part_history_div_view"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="TAB_fileinput_div">
+        <div id="fileinput_controls" style="display: none;">
+          <!-- <h2>OCR</h2> -->
+          <div style="display: flexbox; flex-direction: row;">
+            <!-- <a href="scan-to-my-website:" target="_blank">OCR</a> -->
+            <a class="link_button" id="import_marcone_ocr_input" onclick="waitForScan(_OCR_M);"
+              href="scan-to-my-website-m:" target="_blank">Marcone OCR</a>
+            <a class="link_button" id="import_reliable_ocr_input" onclick="waitForScan(_OCR_RP);"
+              href="scan-to-my-website-rp:" target="_blank">Reliable Parts OCR</a>
+            <!-- <a class="link_button" id="import_wlmay_ocr_input" onclick="waitForScan(_OCR_W);"
+              href="scan-to-my-website-w:" target="_blank">WLMay OCR</a> -->
+          </div>
+          <br>
+          <!-- <h2>PDF File Input</h2>
+          <div id="wlmay_input_div" style="border: solid 2px; border-color: #70A2FF;">
+            <p><a href="example_pdf_wlmay.png" alt="Example PDF" target="_blank"><img src="example_pdf_wlmay.png"
+                  width=57px height=74px></a>&nbsp;&nbsp;&nbsp;Import WLMAY PDF</p>
+            <input type="file" accept=".pdf" id="import_wlmay_pdf_input">
+          </div> -->
+        </div>
+        <div id="fileinput_wait_for_scan" style="display: none;">
+          <h2>Scanning... Please Wait...</h2>
+          <button id="button_cancel_scan" onclick="cancel_scan();">Cancel</button>
+        </div>
+        <div id="wlmay_pdf_table_div" style="display: none;">
+          <p id="wlmay_pdf_name"></p>
+          <!-- Hide for now, gets populated with values from pdf import but no use after that -->
+          <table style="display: none;">
+            <tr>
+              <th>Invoice No.</th>
+              <th>Invoice Date</th>
+              <th>Customer Purchase Order No.</th>
+              <th>Pick Ticket No.</th>
+            </tr>
+            <tr>
+              <td><input onfocus='deselectTable();' type="text" id="wlmay_pdf_invoice_no_input"></td>
+              <td><input onfocus='deselectTable();' type="text" id="wlmay_pdf_invoice_date_input"></td>
+              <td><input onfocus='deselectTable();' type="text" id="wlmay_pdf_customer_po_no_input"></td>
+              <td><input onfocus='deselectTable();' type="text" id="wlmay_pdf_pick_ticket_input"></td>
+            </tr>
+          </table>
+          <div id="wlmay_pdf_parts_table_div"></div>
+          <!-- Hide for now, gets populated with values from pdf import but no use after that -->
+          <table style="display: none;">
+            <tr>
+              <th>Subtotal</th>
+              <th>Shipping & Handling</th>
+              <th>Tax</th>
+              <th>Subtotal</th>
+              <th>Deposit</th>
+              <th>Balance Due</th>
+            </tr>
+            <tr>
+              <td><input onfocus='deselectTable();' id="wlmay_pdf_subtotal0_input" type="text"></td>
+              <td><input onfocus='deselectTable();' id="wlmay_pdf_s&h_input" type="text"></td>
+              <td><input onfocus='deselectTable();' id="wlmay_pdf_tax_input" type="text"></td>
+              <td><input onfocus='deselectTable();' id="wlmay_pdf_subtotal1_input" type="text"></td>
+              <td><input onfocus='deselectTable();' id="wlmay_pdf_deposit_input" type="text"></td>
+              <td><input onfocus='deselectTable();' id="wlmay_pdf_balancedue_input" type="text"></td>
+            </tr>
+          </table>
+          <button id="button_pdfimport_wlmay_cancel" onclick="cancelWLMAYPDF();"
+            style="background-color: #70A2FF; color: black; width: 300px;"><span
+              style="color: white;">C</span>ancel</button>
+          <!-- <p>Please verify these results with the original PDF!</p> -->
+        </div>
+
+        <!-- Zxing -->
+        <button id="scan_barcode" style="font-size: 25px; width: 200px; height: 100px;" onclick="startZxing();">Scan
+          Barcode</button>
+        <div id="barcode_results" style="display: none; background-color: rgb(155, 190, 255);">
+          <h2 id="barcode_result_code">Code</h2>
+          <button style="font-size: 25px; width: 200px; height: 100px;" onclick="barcode_Add_RecordView();">Record
+            View</button><br><br>
+          <button style="font-size: 25px; width: 200px; height: 100px;" onclick="barcode_Add_To_Inventory();">Add to
+            Inventory</button><br><br>
+          <button style="font-size: 25px; width: 200px; height: 100px;" onclick="barcode_Add_To_Invoice();">Add to
+            Invoice</button>
+        </div>
+        <div id="zxing_div" style="display: none;">
+          <main class="wrapper" style="padding-top:2em">
+            <section class="container" id="demo-content">
+              <div>
+                <!-- <button id="startButton">Start</button> -->
+                <button id="resetButton" style="width: 200px; height: 100px; font-size: 37px;">X</button>
+              </div>
+
+              <div>
+                <video id="video" style="border: 1px solid gray"></video>
+              </div>
+
+              <div id="sourceSelectPanel" style="display:none">
+                <!-- <label for="sourceSelect">Change video source:</label> -->
+                <div id="sourceSelect"></div>
+              </div>
+            </section>
+          </main>
+          <input type="checkbox" onchange="setTorch(this.checked);" style="width: 50px; height: 50px;"><span
+            style="font-size: 30pt; display: block; margin-left: 60px; margin-top: -60px;"> Flashlight</span>
+        </div>
+        <!-- END Zxing -->
+
+        <!--Quagga Barcode Scanner -->
+        <!-- <button id="scan_barcode" style="font-size: 25px; width: 200px; height: 100px;" onclick="startQuagga();">Scan
+          Barcode</button>
+        <div id="barcode_results" style="display: none; background-color: rgb(155, 190, 255);">
+          <h2 id="barcode_result_code">Code</h2>
+          <button style="font-size: 25px; width: 200px; height: 100px;" onclick="barcode_Add_RecordView();">Record
+            View</button><br><br>
+          <button style="font-size: 25px; width: 200px; height: 100px;" onclick="barcode_Add_To_Inventory();">Add to
+            Inventory</button>
+        </div>
+        <div id="barcode_div" style="display: none;">
+          <div class=" controls">
+            <fieldset class="input-group">
+              <button class="stop" style="width: 200px; height: 100px; font-size: 37px;">X</button><br><br>
+              <button style="width: 200px; height: 100px;" onclick="toggle_quagga_controls();"><img src="gear.png"
+                  width="30px" height="30px"></button>
+            </fieldset>
+            <fieldset id="quagga_controls" class="reader-config-group" style="display: none;">
+              <label>
+                <span>Barcode-Type</span>
+                <select name="decoder_readers">
+                  <option value="code_128" selected="selected">Code 128</option>
+                  <option value="code_39">Code 39</option>
+                  <option value="code_39_vin">Code 39 VIN</option>
+                  <option value="ean">EAN</option>
+                  <option value="ean_extended">EAN-extended</option>
+                  <option value="ean_8">EAN-8</option>
+                  <option value="upc">UPC</option>
+                  <option value="upc_e">UPC-E</option>
+                  <option value="codabar">Codabar</option>
+                  <option value="i2of5">Interleaved 2 of 5</option>
+                  <option value="2of5">Standard 2 of 5</option>
+                  <option value="code_93">Code 93</option>
+                </select>
+              </label>
+              <label>
+                <span>Resolution (width)</span>
+                <select name="input-stream_constraints">
+                  <option value="320x240">320px</option>
+                  <option selected="selected" value="640x480">640px</option>
+                  <option value="800x600">800px</option>
+                  <option value="1280x720">1280px</option>
+                  <option value="1600x960">1600px</option>
+                  <option value="1920x1080">1920px</option>
+                </select>
+              </label>
+              <label>
+                <span>Patch-Size</span>
+                <select name="locator_patch-size">
+                  <option value="x-small">x-small</option>
+                  <option value="small">small</option>
+                  <option selected="selected" value="medium">medium</option>
+                  <option value="large">large</option>
+                  <option value="x-large">x-large</option>
+                </select>
+              </label>
+              <label>
+                <span>Half-Sample</span>
+                <input type="checkbox" checked="checked" name="locator_half-sample" />
+              </label>
+              <label>
+                <span>Workers</span>
+                <select name="numOfWorkers">
+                  <option value="0">0</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option selected="selected" value="4">4</option>
+                  <option value="8">8</option>
+                </select>
+              </label>
+              <label>
+                <span>Camera</span>
+                <select name="input-stream_constraints" id="deviceSelection">
+                </select>
+              </label>
+              <label style="display: none">
+                <span>Zoom</span>
+                <select name="settings_zoom"></select>
+              </label>
+              <label style="display: none">
+                <span>Torch</span>
+                <input type="checkbox" name="settings_torch" />
+              </label>
+            </fieldset>
+          </div>
+          <div id="interactive" class="viewport"></div>
+        </div> -->
+        <!-- END Barcode scanner -->
+
+      </div>
+
+      <div id="TAB_sort_order_div">
+        <div id="sort_order_div" style="display: none;">
+          <div id="sort_order_toggle_div">
+            <div id="sort_order_table_div"></div>
+            <button id="button_add_sort_order" onclick="startNewSortOrder(0);"
+              style="background-color: #70A2FF; color: black;"><span style="color: white;">A</span>dd New Sort Order
+              +</button>
+            <div id="sort_order_table_new_div"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="TAB_part_child_record_manager_div">
+        <div id="part_child_record_manager" style="display: none;">
+          <h1>Part Child Record Manager</h1>
+          <div id="part_child_dropdown_div"></div>
+          <span style='background-color: #70A2FF; color: black;'><span style='color: white;'>P</span>art
+            Number&nbsp;</span>
+          <input type="text" id="part_child_edit_input" placeholder="Search For Part Number to Edit..."
+            style="width: 300px;" onfocus="onPartChildEditFocus();" onkeyup="partchild_edit_input_keyup_event(event);"
+            oninput="partchild_edit_input_keyup_event(event);" onkeydown="partchild_edit_input_keydown_event(event);">
+          <div id="partchild_edit_autocomplete" style="position: absolute;"></div>
+          <div id="part_child_edit_table_div"></div>
+          <br>
+          <button id="part_child_button_new" onclick="startNewPartChild();"
+            style='background-color: #70A2FF; color: black;'></button>
+          <div id="part_child_new_table_div"></div>
+        </div>
+      </div>
+
+      <div id="TAB_search_div">
+        <div id="search_div" style="display: none; background-color: #9BBEFF;">
+          <!-- <label class="checkBox_container" style="display: block;" >Ignore S<span style="color: white;">p</span>ecial Characters (E.G. \ . ,)<input type="checkbox" id="search_ignore_special_characters"><span class="checkmark"></span></label> -->
+          <!-- <br><label class="checkBox_container" style="display: block;" ><span style="color: white;">E</span>xact Match (Ignores Capitalization)<input type="checkbox" id="search_exact_match"><span class="checkmark"></span></label> -->
+          <h2>Part # Instant S<span style="color: white;">e</span>arch</h2>
+          <div id="search_partnum_any_input_div">
+            <!-- <span style="position: absolute; left: 50px; font-size: 18px;">Any</span><br> -->
+            <div style="position: absolute; left: 50px;">
+              <input id="search_partnum_any_input" type="text" style="width: 230px;" onfocus='deselectTable();'
+                onkeyup='search_partnum_input_keyup_event(event, null);'
+                oninput='search_partnum_input_keyup_event(event, null);'
+                onkeydown='search_partnum_input_keydown_event(event);'>
+              <div id="search_partnum_autocomplete_any" style="position: absolute;"></div>
+            </div>
+            <br><br>
+            <div id="search_partnum_db_inputs_div"
+              style="width: 100%; margin-left: 40px; display: flex; flex-direction: horizontal; flex-wrap: wrap;"></div>
+          </div>
+          <h2>Standard Search</h2>
+          <label class="checkBox_container" style="display: block;"><span
+              style="color: white;">H</span>ighlighting<input type="checkbox" id="search_highlight"
+              onchange="onChangeShouldHighlight();" checked><span class="checkmark"></span></label>
+          <div id="search_highlight_div" style="display: block; position: relative; left: 50px;">
+            <br><label class="checkBox_container" style="display: block;">Hi<span style="color: white;">g</span>hlight
+              Similar Words<input type="checkbox" id="search_highlight_similar_words"><span
+                class="checkmark"></span></label>
+            <br><input id="repititions_min" type="number" min="0" onchange='setMinRepititions();'
+              oninput='setMinRepititions();' onfocus='deselectTable();'
+              style="display: inline-block; width: 50px; font-size: 20px;"><label
+              style="display: inline-block; font-size: 20px;"><span style="color: white;">R</span>epititions required
+              to
+              highlight</label></input>
+          </div>
+          <br><label class="checkBox_container" style="display: block;"><span style="color: white;">C</span>hild Part
+            Links<input type="checkbox" id="search_add_child_part_links"><span class="checkmark"></span></label>
+          <p style="font-size: 20px;">Columns</p>
+          <label class="radiobutton_container" style="display: inline;"><span
+              style="color: white;">A</span>ny&nbsp;&nbsp;<input onchange="setRadioColumn();" type="radio"
+              id="radio_columns_any" name="radio_columns" checked><span class="radiomark"></span></label>
+          <label class="radiobutton_container" style="display: inline;"><span
+              style="color: white;">S</span>pecific&nbsp;&nbsp;<input onchange="setRadioColumn();" type="radio"
+              id="radio_columns_specific" name="radio_columns"><span class="radiomark"></span></label>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <span id="search_scope_indicator"
+            style="background: red; border-radius: 5px; padding: 5px; color: white;"></span>
+          <span id="radio_columns_all_none_buttons_div">
+            <!-- <button style="display: inline-block; position: absolute; left: 230px; width: 70px;"
+              onclick="setRadioColumnsChecked(true);">All</button> -->
+            <button style="display: inline-block; position: absolute; left: 225px;"
+              onclick="setRadioColumnsChecked(false);">Clear All</button>
+          </span>
+          <div id="radio_columns_div">
+            <button id='search_specific_button' style='display: inline; width: 100px; margin-top: 25px;'
+              onclick='search_query();'>Go</button>
+            <div id="radio_columns_checkboxes"
+              style="margin-top: 0px; display: flex; flex-direction: horizontal; flex-wrap: wrap;"></div>
+            <!-- Auto generated -->
+            <div id="radio_columns_checkboxes_more"
+              style="display: none; flex-direction: horizontal; flex-wrap: wrap; align-items: flex-end;">
+            </div>
+            <!-- Auto generated -->
+          </div>
+          <div id="search_any_input_div">
+            <br><span style="font-size: 22px;">Se<span style="color: white;">a</span>rch</span><br>
+            <input id="search_input" type="text" style="width: 75%; height: 50px; font-size: 50px;"
+              onfocus='deselectTable();'>
+            <button id="search_any_button" style="position: relative; bottom: 13px; width: 50px; height: 50px;"
+              onclick="search_query();">Go</button>
+          </div>
+          <br><br><br><br>
+        </div>
+      </div>
+
+      <div id="TAB_search_results_div">
+        <!-- <div id="search_results_expander" onclick="toggle_search_results(2);" style="display: none;" class="clickable"><h1><span id="search_results_expander_icon" style="font-size: 50px; font-weight: 100;">+</span> Search Results</h1></div> -->
+        <div id="search_results_div" style="display: none; margin-left: 20px;">
+          <div id="search_results_table_div"></div>
+          <div id="similar_string_expander" style="display: none;" class="clickable"
+            onclick="toggle_similar_strings();">
+            <h1><span id="similar_strings_expander_icon" style="font-size: 50px; font-weight: 100;">+</span> Similar
+              Words</h1>
+          </div>
+          <div id="similar_strings_div" style="display: none; margin-left: 20px;"></div>
+        </div>
+      </div>
+
+      <div id="TAB_record_views_div">
+        <div id="googlesearch_image_div" class="no-print"
+          style="display: none; position: fixed; z-index: 4; height: 50%; top: 50%; left: 50%; transform: translateX(-50%) translateY(-50%);">
+          <button id='button_search_image_delete' class='clickable'
+            style='display: none; position: fixed; top: -32px; right: 75px; background-color: red; color: white;'
+            onclick='deleteSearchImage();'>Delete</button>
+          <button id='button_search_image_link' class='clickable'
+            style='display: none; position: fixed; top: -32px; left: 0px;' onclick='linkSearchImage();'></button>
+          <img id='button_googlesearch_image_exit' class='clickable' src='x.png'
+            style='position: fixed; top: -80px; right: -20px;' onclick='hideGoogleSearchImage();'>
+          <img id='image_googlesearch_image' style='height: 100%;'><br>
+          <button id="button_googlesearch_image_left"
+            style="display: inline; background-color: #70A2FF; font-size: 30px; width: 50%; float: left;  padding: 0px;"
+            onclick="changeGoogleSearchImage(-1);">&larr;</button>
+          <button id="button_googlesearch_image_right"
+            style="display: inline; background-color: #70A2FF; font-size: 30px; width: 50%; float: right; padding: 0px;"
+            onclick="changeGoogleSearchImage( 1);">&rarr;</button>
+          <div style="background-color: lightblue;">
+            <div class='tooltip'><span class='tooltiptext'>Search entire<br>internet<br>for images</span>
+              <label class="radiobutton_container" style="display: inline;">E<span
+                  style="color: white;">v</span>erywhere&nbsp;&nbsp;<input onchange="setImageRadio();" type="radio"
+                  id="radio_image_everywhere" name="radio_image" checked><span class="radiomark"></span></label>
+            </div>
+            <div class='tooltip'><span class='tooltiptext'>Search Appliance Parts Pros,<br>Repair
+                Clinic,<br>Encompass,<br>Marcone,<br>Reliable Parts,<br>Parts Town,<br>UED,<br>and WL MAY<br>websites
+                for images</span>
+              <label class="radiobutton_container" style="display: inline;"><span
+                  style="color: white;">D</span>istributors&nbsp;&nbsp;<input onchange="setImageRadio();" type="radio"
+                  id="radio_image_distributors" name="radio_image"><span class="radiomark"></span></label>
+            </div>
+            <div class='tooltip'><span class='tooltiptext'>Your uploaded images</span>
+              <label class="radiobutton_container" style="display: inline;">Lo<span
+                  style="color: white;">c</span>al&nbsp;&nbsp;<input onchange="setImageRadio();" type="radio"
+                  id="radio_image_self" name="radio_image"><span class="radiomark"></span></label>
+            </div>
+          </div>
+          <p id="paragraph_googlesearch_image_count"
+            style="background-color: #FFFFFFDD; width: 100%; text-align: center;"></p>
+        </div>
+        <div id="record_views_div">
+        </div>
+        <p>Press the <img title='Open Record View' src='record_view.png' width=50px height=20px> icon in 'Search
+          Results' or
+          'Record Browser' to add a part children record view</p>
+        <p>Press 'Page Up' and 'Page Down' to change the record view page</p>
+      </div>
+
+      <div id="TAB_record_browser_div">
+        <span style="font-size: 30px;">Filter </span>
+        <input id="record_browser_filter_input" type="text" style="width: 700px; height: 30px; font-size: 30px;"
+          onkeyup="recordBrowserFilterKeyUpEvent(event);" oninput="recordBrowserFilterKeyUpEvent(event);">
+        <button style="height: 40px; font-size: 25px;" onclick="applyRecordBrowserFilter();">Apply</button>
+        <div id="record_browser_div">
+          <!-- <h1 id="record_browser_heading" onclick="toggle_record_browser();" class="clickable"><span id="record_browser_expander_icon" style="font-size: 50px; font-weight: 100;">-</span> Record Browser</h1> -->
+          <div id="record_browser_table_div"></div>
+        </div>
+      </div>
+      <br>
+
+      <div id="TAB_reorders_div">
+        <button id="button_update_reorders" style="background-color: #70A2FF; color: black; margin-right: 20px;"
+          onclick="updateReorders();">Update All <span style="color: white;">R</span>eorders</button>
+        <button id="button_export_reorders" style="background-color: #70A2FF; color: black;"
+          onclick="exportReorders();"><span style="color: white;">E</span>xport</button>
+        <div id="table_reorders_div"></div>
+      </div>
+
+      <div id="TAB_invoice_history_div">
+        <div id="invoice_history_internal_div">
+          <!-- <button id="button_update_invoice_history" style="background-color: #70A2FF; color: black;"
+            onclick="retrieveInvoiceDataFromDatabase(populateInvoiceHistory);"><span style="color: white;">U</span>pdate
+            Invoice History</button> -->
+          <h3 style="background-color: #70A2FF; color: black;"><span style="color: white">F</span>ilter by</h3>
+          <!-- Auto-generated -->
+          <table id="invoice_history_filter_table">
+          </table>
+          <button id="button_clear_invoice_filters" style="background-color: #70A2FF; color: black;"
+            onclick="clearInvoiceFilters();"><span style="color: white;">C</span>lear Filters</button>
+          <button id="button_export_invoices" style="background-color: #70A2FF; color: black;"
+            onclick="exportInvoicesToQuickBooks();"
+            title="If the Invoice/Sales Receipt is not appearing in Quickbooks, you need to add an item to your item list manually. At the top left, go to 'Lists'->'Item List' At the bottom left, go to 'Item'->'New' then select 'Inventory Part' for the 'TYPE', then fill in the blanks that Quickbooks requires. It doesn't matter what you type as this is a dummy item."><span
+              style="color: white;">E</span>xport Selected to
+            QuickBooks</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <button id="button_get_webconnector" style="background-color: #70A2FF; color: black;"
+            onclick="getWebConnector();"
+            title="Quickbooks Web Connector is required to export invoices from PartScouter to Quickbooks">Download
+            Quickbooks Web Connector</button>
+          <button id="button_get_qwc" style="background-color: #70A2FF; color: black;" onclick="getQWC();"
+            title="Once downloaded, open this file and it will give Quickbooks Web Connector the information to connect to PartScouter">Download
+            QWC File</button>
+          <input id="qwc_password" style="display: none; width: 250px; height: 40px; font-size: 16px;" type="password"
+            placeholder="Choose Web Connector Password">
+          <button id="button_qwc_apply" style="display: none; background-color: #70A2FF; color: black;"
+            onclick="applyQWC();">Apply</button>
+          <div id="table_invoice_history_div"></div>
+        </div>
+      </div>
+
+      <div id="TAB_invoice_settings_div">
+        <h2>Address</h2>
+        <textarea id='invoice_address_textarea' style="width: 500px; height: 135px;"
+          onfocus='deselectTable(); onInvoiceInfoChange();'></textarea>
+        <br>
+        <h2>Info at bottom</h2>
+        <textarea id='invoice_bottom_textarea' style="width: 500px; height: 135px;"
+          onfocus='deselectTable(); onInvoiceInfoChange();'></textarea>
+        <br>
+        <h2>Invoice No. (Increments Automatically)</h2>
+        <input type='text' id='invoice_last_invoice_no_input' style="width: 500px;"
+          onfocus='deselectTable(); onInvoiceInfoChange();'>
+        <br>
+        <button id='invoice_info_button_save' style="width: 200px; background-color: #70A2FF; color: black;"
+          onclick="saveInvoiceInfoToDatabase();"><span style="color: white;">S</span>ave</button>
+      </div>
+
+      <div id="TAB_invoice_div">
+      </div>
+
+      <div id="TAB_add_invoice_div">
+      </div>
+
+      <div id="TAB_people_div">
+        <div id="employee_ids_table"></div>
+        <br>
+        <button id="button_new_employee_id" class="largeText" style="width: 200px;" onclick="newEmployeeID();">Add New
+          +</button>
+        <br><br>
+        <button id="button_save_employee_ids" class="largeText" style="width: 200px;"
+          onclick="saveEmployeeIDs();">Save</button>
+
+        <!-- <br>
+        <br>
+        <div id="clients_table"></div>
+        <br>
+        <div id="new_client_table"></div>
+        <br>
+        <button id="button_save_clients" class="largeText" style="width: 200px;" onclick="saveClients();">Save</button>
+        <br><br>
+        <button id="button_new_client" class="largeText" style="width: 200px;" onclick="newClient();">Add New+</button>
+        <button id="button_cancel_new_client" class="largeText" style="display: none; width: 200px;" onclick="cancelNewClient();">Cancel</button> -->
+      </div>
+
+      <div id="TAB_suggestions_div">
+        <div id="part_suggestions_table"></div>
+      </div>
+
+      <div id="TAB_change_history_div">
+        <div id="change_history_internal_div">
+          <button id="button_update_change_history" style="background-color: #70A2FF; color: black;"
+            onclick="retrieveChangeDataFromDatabase(populateChangeHistory);"><span style="color: white;">U</span>pdate
+            Change History</button>
+          <h3 style="background-color: #70A2FF; color: black;"><span style="color: white">F</span>ilter by</h3>
+          <table id="change_history_filter_table">
+          </table>
+          <button id="button_clear_change_filters" style="background-color: #70A2FF; color: black;"
+            onclick="clearChangeFilters();"><span style="color: white;">C</span>lear Filters</button>
+          <br><br>
+          <div id="table_change_history_div"></div>
+        </div>
+      </div>
+
+      <div id="TAB_trucks_div">
+        <div id="truck_employees"></div>
+        <div id="truck_parts"></div>
+      </div>
+
+      <div id="TAB_export_div">
+        <button id="button_export_inventory_all" style="background-color: #70A2FF; color: black;"
+          onclick="exportInventoryListTXT();">Inventory List Export (<span style="color: white;">A</span>ll)</button>
+        <br><br>
+        <button id="button_export_inventory_qty" style="background-color: #70A2FF; color: black;"
+          onclick="exportInventoryList(true);">Inventory List Export (<span style="color: white;">Q</span>uantity 1 or
+          more)</button>
+        <br><br>
+        <button id="button_export_price_comparison" style="background-color: #70A2FF; color: black;"
+          onclick="exportPriceComparison();"><span style="color: white;">P</span>rice Comparison</button>
+        <br><br>
+        <button id="button_export_sold" style="background-color: #70A2FF; color: black;" onclick="exportSold();">Parts
+          <span style="color: white;">S</span>old</button>
+      </div>
+
+      <div id="TAB_saved_searches_div">
+        <div id="saved_searches_div"></div>
+      </div>
+
+      <h2>Hotkeys:</h2>
+      <p>Tables</p>
+      <p>&nbsp;&nbsp;Arrow Keys - Navigate</p>
+      <p>&nbsp;&nbsp;Page Up - Table Previous Page</p>
+      <p>&nbsp;&nbsp;Page Down - Table Next Page</p>
+      <p>Search Bars</p>
+      <p>&nbsp;&nbsp;Up/Down Arrow Keys - Navigate Search History</p>
+      <p>Record Views</p>
+      <p>&nbsp;&nbsp;Up/Down Arrow Keys - Traverse Index</p>
+      <p>&nbsp;&nbsp;Page Up - View Next Page</p>
+      <p>&nbsp;&nbsp;Page Down - View Previous Page</p>
+      <br>
+      <p>v 1.76.3</p>
+      <p><a id="updater_link_local" href="ez_database_updater/ez_database_updater.html" target="_blank">Alpha 4 Data
+          Importer</a></p>
+      <h3 id="database_identifier" style="text-align: center;"></h3>
+      <br><br><br><br>
+      <!--Line breaks so key_shortcut_info_bar and snackbar doesn't hide anything at bottom-->
+      <div class="legals">
+        <br><br>
+        <a href=" ./Privacy_Policy.html" target="_blank">Privacy
+          Policy</a><br>
+        <a href="./EULA.html" target="_blank">EULA</a>
+      </div>
+    </div>
+  </div>
+  <input type="file" style="display: none;" id="recordViewImageInput" accept="image/*" multiple>
+
+
+
+  <script type="text/javascript" src="data.js"></script>
+  <script type="text/javascript" src="external/pdfjs/pdf.js"></script>
+  <!-- <script type="text/javascript" src="pdfjs/pdf.worker.js"></script> -->
+  <script type="text/javascript" src="w4_funcs.js"></script>
+  <script type="text/javascript" src="compare_funcs.js"></script>
+
+  <script type="text/javascript" src="search.js"></script>
+  <script type="text/javascript" src="record_views.js"></script>
+  <script type="text/javascript" src="record_browser.js"></script>
+  <script type="text/javascript" src="child_part_record_manager.js"></script>
+  <script type="text/javascript" src="sort.js"></script>
+  <script type="text/javascript" src="pdf_import.js"></script>
+  <script type="text/javascript" src="reorders.js"></script>
+  <script type="text/javascript" src="invoice.js"></script>
+  <script type="text/javascript" src="part_history.js"></script>
+
+  <script type="text/javascript" src="key_shortcuts.js"></script>
+  <script type="text/javascript" src="autocomplete.js"></script>
+  <script type="text/javascript" src="local_server.js"></script>
+  <script type="text/javascript" src="sync_db.js"></script>
+  <script type="text/javascript" src="people.js"></script>
+  <script type="text/javascript" src="suggestions_box.js"></script>
+  <script type="text/javascript" src="partscouter.js"></script>
+  <script type="text/javascript" src="exports.js"></script>
+  <script type="text/javascript" src="eventlisteners.js"></script>
+  <script type="text/javascript" src="init0.js"></script>
+  <script type="text/javascript" src="database_funcs.js"></script>
+  <script type="text/javascript" src="change_history.js"></script>
+  <script type="text/javascript" src="saved_searches.js"></script>
+  <script type="text/javascript" src="trucks.js"></script>
+  <!-- <script type="text/javascript" src="scan.js"></script> -->
+  <br><br><br><br>
+
+</body>
+
 </html>

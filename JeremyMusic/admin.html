@@ -1,0 +1,41 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
+	<title>Admin Login</title>
+	<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+	<div class="login-container">
+		<h2>Admin Login</h2>
+		<form id="loginForm">
+			<label for="email">Email:</label><br>
+			<input type="email" id="email" name="email" required><br><br>
+			<label for="password">Password:</label><br>
+			<input type="password" id="password" name="password" required><br><br>
+			<button type="submit" class="btn">Login</button>
+		</form>
+		<div id="loginError" style="color:red; margin-top:10px;"></div>
+	</div>
+
+	<!-- Admin dashboard (hidden until auth state indicates a logged-in user) -->
+	<div id="adminDashboard" style="display:none; padding:20px;">
+		<h2>Subscribers</h2>
+		<button id="logoutBtn" class="btn" style="margin-bottom:10px;">Logout</button>
+		<table id="subscribersTable" class="editable" border="1" cellpadding="6" cellspacing="0">
+			<thead>
+				<tr>
+					<th>Phone</th>
+					<th>Email</th>
+				</tr>
+			</thead>
+			<tbody>
+				<!-- Data will be populated here when implemented -->
+			</tbody>
+		</table>
+	</div>
+	<script src="admin.js" type="module"></script>
+</body>
+</html>

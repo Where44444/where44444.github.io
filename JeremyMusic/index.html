@@ -10,6 +10,7 @@
 </head>
 
 <script src="index.js" type="module"></script>
+
 <body>
   <div class="title-row">
     <svg width="28" height="28" viewBox="0 -5 24 24" fill="none" aria-hidden>
@@ -24,18 +25,7 @@
 
     <div class="stage" id="stage">
       <div class="left">
-        <!-- Upcoming Performances (expandable) -->
-        <div class="card" id="performances">
-          <h2>Upcoming Performances</h2>
-          <div class="editable" id="perfEditable" aria-label="Upcoming Performances">
-            <ul class="perf-list" id="perfList" style="margin:0;">
-              <div class="perf-item"><div class="date">Oct 23 2025</div><div class="dots"></div><div class="place">University of Oregon</div></div>
-              <div class="perf-item"><div class="date">Nov 10 2025</div><div class="dots"></div><div class="place">Hult Center</div></div>
-              <!-- add more items by typing or pasting here -->
-            </ul>
-          </div>
-        </div>
-
+        <!-- About me-->
         <div class="card" id="about">
           <h2>About Me</h2>
           <div class="editable" id="aboutEditable" aria-label="About Me">
@@ -43,25 +33,42 @@
           </div>
         </div>
 
-        <div class="card" id="updates">
-          <h2>New Album</h2>
-          <div class="editable" id="aboutEditable" aria-label="updates">
-            My newest album should be releasing sometime mid January 2026.
+
+        <!--Testimonials-->
+        <div class="card" id="testimonials">
+          <h2>Testimonials</h2>
+          <div id="testimonials-list" class="editable" aria-live="polite">
+            <!-- testimonials rendered here -->
+          </div>
+
+          <div id="testimonial-form" style="margin-top:12px;">
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <input id="testimonial-name" class="testimonial-input" type="text" placeholder="Your name" aria-label="Your name" style="padding:8px;" required>
+              <textarea id="testimonial-comment" class="testimonial-input" placeholder="Your testimonial" aria-label="Testimonial" rows="3" style="padding:8px;" required></textarea>
+              <div style="display:flex; gap:8px; align-items:center;">
+                <button id="testimonialSubmit" class="btn">Post Testimonial</button>
+                <small style="opacity:0.8;">Your name and comment will be shown publicly after approval.</small>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-
-      <!-- Right column -->
-      <div class="right">
-        <div class="card patreon-card">
-          <h2>Support me on</h2>
-          <a class="btn" href="https://www.patreon.com/dadideasmusic/join" id="patreonBtn" role="button">Patreon</a>
-        </div>
-
-        <div class="card" style="padding:20px;">
-          <h2>Contact</h2>
-          <div style="font-size:20px; color:#222; opacity:0.9;">
-            Email: <a href="mailto:dadideasmusic@gmail.com">dadideasmusic@gmail.com</a><br>
+        <!-- Upcoming Performances-->
+        <div class="card" id="performances">
+          <h2>Upcoming Performances</h2>
+          <div class="editable" id="perfEditable" aria-label="Upcoming Performances">
+            <ul class="perf-list" id="perfList" style="margin:0;">
+              <div class="perf-item">
+                <div class="date">Oct 23 2025</div>
+                <div class="dots"></div>
+                <div class="place">University of Oregon</div>
+              </div>
+              <div class="perf-item">
+                <div class="date">Nov 10 2025</div>
+                <div class="dots"></div>
+                <div class="place">Hult Center</div>
+              </div>
+              <!-- add more items by typing or pasting here -->
+            </ul>
           </div>
         </div>
 
@@ -75,9 +82,59 @@
             <button type="submit" class="btn newsletter-submit">Subscribe</button>
           </div>
         </div>
+
+
+        <div class="card" id="updates">
+          <h2>New Album</h2>
+          <div class="editable" id="aboutEditable" aria-label="updates">
+            My newest album should be releasing sometime mid January 2026.
+          </div>
+        </div>
+
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/b_we_jma220?si=ik1IaFe4HYCNvc23"
+          title="YouTube video player" frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+        <div class="card" id="pictures">
+          <!-- <h2>Pictures</h2> -->
+          <div class="slideshow" data-autoplay="true" data-interval="4000" aria-roledescription="carousel">
+            <div class="slides">
+              <img src="images/unnamed.jpg" class="slide" alt="Picture 1">
+              <img src="images/background.jpg" class="slide" alt="Picture 2">
+              <img src="images/background2.jpg" class="slide" alt="Picture 3">
+            </div>
+
+            <button class="sl-prev" aria-label="Previous slide">‹</button>
+            <button class="sl-next" aria-label="Next slide">›</button>
+
+            <div class="sl-bottom">
+              <div class="sl-indicators" role="tablist" aria-label="Slide indicators"></div>
+              <div class="sl-controls">
+                <button class="sl-play" aria-label="Play slideshow" style="display: none;">Play</button>
+                <button class="sl-pause" aria-label="Pause slideshow" style="display: none;">Pause</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right column -->
+      <div class="right">
+        <div class="card" style="padding:20px;">
+          <h2>Contact</h2>
+          <div style="font-size:20px; color:#222; opacity:0.9;">
+            Email: <a href="mailto:dadideasmusic@gmail.com">dadideasmusic@gmail.com</a><br>
+          </div>
+        </div>
+        <div class="card patreon-card">
+          <h2>Support me on</h2>
+          <a class="btn" href="https://www.patreon.com/dadideasmusic/join" id="patreonBtn" role="button">Patreon</a>
+        </div>
       </div>
     </div>
   </div>
+
 </body>
 
 </html>

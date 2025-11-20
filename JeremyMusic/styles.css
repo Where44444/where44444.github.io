@@ -164,8 +164,8 @@
    border: 1px solid rgba(0, 0, 0, 0.2);
    border-radius: 8px;
    font-size: 16px;
-   margin: 4px 0 8px 8px;
-   width: 600px;
+   margin: 4px 0 8px 0px;
+   width: 100%;
    transition: border-color 0.2s, box-shadow 0.2s;
    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
  }
@@ -203,6 +203,11 @@
    transform: translateY(1px);
  }
 
+.youtubeIframe {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+   }
+
  /* responsive adjustments */
  @media (max-width:960px) {
    .stage {
@@ -210,7 +215,7 @@
    }
 
    .right {
-     order: -1;
+     order: 1;
    }
  }
 

@@ -1,7 +1,7 @@
 // Import Firebase modules
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
-import { getDatabase, ref as dbRef, onValue as dbOnValue, off as dbOff } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
+import { getDatabase, ref as dbRef, onValue as dbOnValue, off as dbOff, remove as dbRemove, set as dbSet, push as dbPush } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
 
 // Firebase config (same as index.js)
 const firebaseConfig = {
@@ -20,6 +20,8 @@ const auth = getAuth(app);
 const db = getDatabase(app);
 let subscribersRef = null;
 let subscribersListener = null;
+let testimonialsRef = null;
+let testimonialsListener = null;
 
 // Login form handler and auth state listener
 document.addEventListener('DOMContentLoaded', () => {
@@ -100,6 +102,87 @@ document.addEventListener('DOMContentLoaded', () => {
 			} catch (err) {
 				console.error('Failed to attach subscribers listener:', err);
 			}
+
+			// Attach realtime listener to /testimonialsPending
+			try {
+				testimonialsRef = dbRef(db, 'testimonialsPending');
+				testimonialsListener = (snapshot) => {
+					const tbody = document.querySelector('#testimonialsTable tbody');
+					if (!tbody) return;
+					tbody.innerHTML = '';
+					let testimonialsFound = false;
+					if (snapshot && snapshot.exists()) {
+						snapshot.forEach((childSnap) => {
+							const data = childSnap.val() || {};
+							const testimonialId = childSnap.key;
+							const tr = document.createElement('tr');
+							
+							const nameTd = document.createElement('td');
+							nameTd.textContent = data.name || '';
+							
+							const dateTd = document.createElement('td');
+							dateTd.textContent = data.date || '';
+							
+							const commentTd = document.createElement('td');
+							commentTd.textContent = data.comment || '';
+							
+							const actionTd = document.createElement('td');
+							const acceptBtn = document.createElement('button');
+							acceptBtn.textContent = 'Accept';
+							acceptBtn.className = 'btn';
+							acceptBtn.style.marginRight = '5px';
+							acceptBtn.addEventListener('click', async () => {
+								try {
+									// Move to testimonials
+									await dbSet(dbRef(db, `testimonials/${testimonialId}`), data);
+									// Remove from testimonialsPending
+									await dbRemove(dbRef(db, `testimonialsPending/${testimonialId}`));
+								} catch (err) {
+									console.error('Failed to accept testimonial:', err);
+									alert('Failed to accept testimonial');
+								}
+							});
+							
+							const rejectBtn = document.createElement('button');
+							rejectBtn.textContent = 'Reject';
+							rejectBtn.className = 'btn';
+							rejectBtn.style.backgroundColor = '#d9534f';
+							rejectBtn.addEventListener('click', async () => {
+								try {
+									// Remove from testimonialsPending
+									await dbRemove(dbRef(db, `testimonialsPending/${testimonialId}`));
+								} catch (err) {
+									console.error('Failed to reject testimonial:', err);
+									alert('Failed to reject testimonial');
+								}
+							});
+							
+							actionTd.appendChild(acceptBtn);
+							actionTd.appendChild(rejectBtn);
+							
+							tr.appendChild(nameTd);
+							tr.appendChild(dateTd);
+							tr.appendChild(commentTd);
+							tr.appendChild(actionTd);
+							tbody.appendChild(tr);
+							testimonialsFound = true;
+						});
+					}
+
+					if (!testimonialsFound) {
+						const tr = document.createElement('tr');
+						const td = document.createElement('td');
+						td.setAttribute('colspan', '4');
+						td.textContent = 'No pending testimonials.';
+						tr.appendChild(td);
+						tbody.appendChild(tr);
+					}
+				};
+				// Start listening
+				dbOnValue(testimonialsRef, testimonialsListener);
+			} catch (err) {
+				console.error('Failed to attach testimonials listener:', err);
+			}
 		} else {
 			// Show login UI
 			if (loginContainer) loginContainer.style.display = 'block';
@@ -112,11 +195,18 @@ document.addEventListener('DOMContentLoaded', () => {
 					subscribersRef = null;
 					subscribersListener = null;
 				}
-				// Clear table body
+				if (testimonialsRef && testimonialsListener) {
+					dbOff(testimonialsRef, 'value', testimonialsListener);
+					testimonialsRef = null;
+					testimonialsListener = null;
+				}
+				// Clear table bodies
 				const tbody = document.querySelector('#subscribersTable tbody');
 				if (tbody) tbody.innerHTML = '';
+				const tbody2 = document.querySelector('#testimonialsTable tbody');
+				if (tbody2) tbody2.innerHTML = '';
 			} catch (err) {
-				console.error('Failed to detach subscribers listener:', err);
+				console.error('Failed to detach listeners:', err);
 			}
 		}
 	});

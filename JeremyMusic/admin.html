@@ -22,13 +22,29 @@
 
 	<!-- Admin dashboard (hidden until auth state indicates a logged-in user) -->
 	<div id="adminDashboard" style="display:none; padding:20px;">
-		<h2>Subscribers</h2>
 		<button id="logoutBtn" class="btn" style="margin-bottom:10px;">Logout</button>
+		
+		<h2>Subscribers</h2>
 		<table id="subscribersTable" class="editable" border="1" cellpadding="6" cellspacing="0">
 			<thead>
 				<tr>
 					<th>Phone</th>
 					<th>Email</th>
+				</tr>
+			</thead>
+			<tbody>
+				<!-- Data will be populated here when implemented -->
+			</tbody>
+		</table>
+
+		<h2 style="margin-top:30px;">Pending Testimonials</h2>
+		<table id="testimonialsTable" class="editable" border="1" cellpadding="6" cellspacing="0">
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Date</th>
+					<th>Comment</th>
+					<th>Action</th>
 				</tr>
 			</thead>
 			<tbody>

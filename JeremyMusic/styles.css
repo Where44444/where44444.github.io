@@ -25,7 +25,7 @@
  /* background: replace the url with your own image */
  .page {
    min-height: 100%;
-   background-image: url('images/background2.jpg');
+   background-image: url('images/background.jpg');
    background-size: cover;
    background-position: center;
    background-repeat: no-repeat;
@@ -149,13 +149,25 @@
    width: 100%;
    text-align: center;
    position: absolute;
-   color: white;
+   color: black;
    margin-top: 20px;
  }
 
  .site-title {
    font-size: 50px;
    font-weight: 700;
+ }
+
+ /* Newsletter input styles */
+ .testimonial-input {
+   padding: 8px 12px;
+   border: 1px solid rgba(0, 0, 0, 0.2);
+   border-radius: 8px;
+   font-size: 16px;
+   margin: 4px 0 8px 0px;
+   width: 100%;
+   transition: border-color 0.2s, box-shadow 0.2s;
+   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
  }
 
  /* Newsletter input styles */
@@ -191,6 +203,11 @@
    transform: translateY(1px);
  }
 
+.youtubeIframe {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+   }
+
  /* responsive adjustments */
  @media (max-width:960px) {
    .stage {
@@ -198,10 +215,101 @@
    }
 
    .right {
-     order: -1;
+     order: 1;
    }
  }
 
  .login-container {
   margin: 50px;
  }
+
+/* Slideshow styles */
+.slideshow {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+}
+.slides {
+  position: relative;
+  width: 100%;
+  height: 500px;
+}
+.slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: none;
+  opacity: 0;
+  transition: opacity 550ms ease;
+}
+.slide.active {
+  display: block;
+  opacity: 1;
+}
+.sl-prev, .sl-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.45);
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sl-prev { left: 12px; }
+.sl-next { right: 12px; }
+.sl-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+  margin-bottom: 20px;
+}
+.sl-controls { display: flex; gap: 8px; }
+.sl-play, .sl-pause {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: white;
+  cursor: pointer;
+}
+.sl-indicators {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.sl-indicators button {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,0.25);
+  cursor: pointer;
+}
+.sl-indicators button[aria-selected="true"] {
+  background: #ff6a5a;
+}
+
+/* Make testimonial card a positioning context for slideshow-style buttons */
+.testimonial-card {
+  position: relative;
+}
+
+.testimonial-card .sl-prev,
+.testimonial-card .sl-next {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+@media (max-width:640px) {
+  .slides { height: 180px; }
+}
